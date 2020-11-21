@@ -1,0 +1,117 @@
+:host {
+    --width: 100px;
+    --height: 100px;
+    --transition: 0.7s;
+    position: relative;
+    width: var(--width);
+    height: var(--height);
+}
+
+.button {
+    background-color: #c87f8a;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--width);
+    width: var(--height);
+    border-radius: 50%;
+    font-size: 2em;
+    cursor: pointer;
+    -webkit-transition: -webkit-transform .5s ease-in-out;
+    -ms-transition: -ms-transform .5s ease-in-out;
+    transition: transform .5s ease-in-out;
+    z-index: 1;
+}
+
+div.menu {
+    position: absolute;
+}
+
+[slot="items"] {
+    margin: auto;
+    transition: var(--transition);
+    width: var(--width);
+    height: var(--height);
+    transform: scale(0);
+    position: absolute;
+    display: grid;
+    grid-template-columns: repeat(var(--colCount), auto);
+    grid-template-rows: repeat(var(--rowCount), auto);
+    justify-items: center;
+    align-items: center;
+}
+
+
+div.menuHolder {
+    user-select: none;
+    -moz-user-select: none;
+    position: relative;
+    margin: 10px;
+}
+
+svg.icons {
+    display: none;
+}
+
+svg.menu {
+    position: absolute;
+    overflow: visible;
+    transition: 0.2s;
+    transition-timing-function: ease-out;
+}
+
+svg.menu.inner {
+    transform: scale(0.66) rotate(-10deg);
+    opacity: 0;
+    visibility: hidden;
+}
+
+svg.menu.outer {
+    transform: scale(1.5) rotate(10deg);
+    opacity: 0;
+    visibility: hidden;
+}
+
+svg.menu > g > path {
+    fill: #00000080;
+}
+
+svg.menu > g.sector > path {
+    cursor: pointer;
+    /*transition: 0.1s;*/
+}
+
+svg.menu > g.sector > text,
+svg.menu > g.sector > use {
+    cursor: pointer;
+    fill: white;
+
+    /*text-shadow: 1px 1px 0 #000000A0;*/
+}
+
+svg.menu > g.sector:hover > path {
+    fill: #F9A602D0;
+
+}
+
+svg.menu > g.sector.selected > path {
+    /*fill: #F9A602D0;*/
+    /*fill: #009900D0 !important;*/
+    fill: #32CD32D0 !important;
+}
+
+svg.menu > g.center:hover > circle {
+    fill: #F9A602D0;
+}
+
+svg.menu > g.center > circle {
+    cursor: pointer;
+    fill: #00000080;
+}
+
+svg.menu > g.center > text,
+svg.menu > g.center > use {
+    cursor: pointer;
+    fill: white;
+}

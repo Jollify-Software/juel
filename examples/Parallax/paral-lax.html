@@ -1,0 +1,48 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+
+    <style>
+        .container {
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <paral-lax width="600" height="200" id="demo1" class="grid_8">
+            <img src="../img/Desert.jpg" />
+            <img src="../img/Koala.jpg" />
+            <img src="../img/Lighthouse.jpg" />
+            <img src="../img/Penguins.jpg" />
+            <img src="../img/Tulips.jpg" />
+        </paral-lax>
+    </div>
+    <div class="container">
+        <paral-lax width="600" height="200" control="auto" id="demo2" class="grid_8">
+            <img src="../img/Desert.jpg" />
+            <img src="../img/Koala.jpg" />
+            <img src="../img/Lighthouse.jpg" />
+            <img src="../img/Penguins.jpg" />
+            <img src="../img/Tulips.jpg" />
+        </paral-lax>
+    </div>
+    <div class="container">
+        <img src="../img/crosshair.png" id="controller" style="z-index: 101;" />
+        <paral-lax width="600" height="200" control="#controller" id="demo3" class="grid_8">
+            <img src="../img/Desert.jpg" />
+            <img src="../img/Koala.jpg" />
+            <img src="../img/Lighthouse.jpg" />
+            <img src="../img/Penguins.jpg" />
+            <img src="../img/Tulips.jpg" />
+        </paral-lax>
+    </div>
+</body>
+
+</html>

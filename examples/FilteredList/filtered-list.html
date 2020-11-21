@@ -1,0 +1,70 @@
+<html>
+
+<head>
+    <script src="../../dist/lui.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        .container {
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+    <script>
+        $(document).ready(function() {
+            $('#multi').select2();
+        });
+    </script>
+</head>
+
+<body>
+    <div id="the-filters" class="container">
+        <div class="form-group">
+            <label for="vowel-checkbox">Show Vowels</label>
+            <input type="checkbox" data-filter="vowel" id="vowel-checkbox">
+        </div>
+        <div class="form-group">
+            <label for="exampleFormControlSelect1">Example select</label>
+            <select class="form-control" id="exampleFormControlSelect1" data-filter="letter">
+              <option>A</option>
+              <option>B</option>
+              <option>C</option>
+              <option>D</option>
+              <option>E</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="text">Text</label>
+            <input id="text" data-filter="letter">
+        </div>
+        <div class="form-group">
+            <label for="multi">Multi select with Select2</label>
+            <select id="multi" multiple="multiple" data-filter="letter">
+            <option value="A">A for 🍎</option>
+            <option value="B">B for 🍌</option>
+            <option value="C">C for 🐈</option>
+            <option value="D">D for 🐬</option>
+            <option value="E">E for 🐘</option>
+          </select>
+        </div>
+    </div>
+
+    <div class="container">
+        <filtered-list filters="the-filters">
+            <div slot="items">
+                <span data-filter-letter="A" data-filter-vowel="true">A</span>
+                <span data-filter-letter="B">B</span>
+                <span data-filter-letter="C">C</span>
+                <span data-filter-letter="D">D</span>
+                <span data-filter-letter="E" data-filter-vowel="true">E</span>
+            </div>
+        </filtered-list>
+    </div>
+</body>
+
+</html>
