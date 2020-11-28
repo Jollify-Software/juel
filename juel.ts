@@ -1,9 +1,30 @@
 import $ from "jquery";
 (<any>window).$ = $;
 (<any>window).jQuery = $;
+
+import { IsMobile } from './src/_Utils/IsMobile';
+import { Vh } from './src/_Utils/Vh';
+
 import './src/RadialMenu/RadialMenu';
+import './src/FileInput/FileInput';
+import './src/Colour/Colour';
+import './src/DialogManager/DialogManager';
 import './src/FilteredList/FilteredList';
 import './src/SpeechSection/SpeechSection';
 import './src/FishEye/FishEye';
 import './src/Parallax/Parallax';
 import './src/BoxMenu/BoxMenu';
+
+$(function() {
+    IsMobile();
+    Vh();
+});
+
+/*
+import styles from 'bootstrap/dist/css/bootstrap.min.css';
+
+var el = document.createElement("style");
+el.innerHTML = styles;
+document.head.append()
+
+*/
