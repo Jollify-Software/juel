@@ -1,19 +1,20 @@
 import Pickr from '@simonwep/pickr';
 
 export class ColourService {
-    init(parent: ShadowRoot, onChange: (colour: Pickr.HSVaColor, instance: Pickr) => void) {
+
+  pickr: Pickr;
+
+    init(parent: ShadowRoot, value: string, onChange: (colour: Pickr.HSVaColor, instance: Pickr) => void) {
         let ele = parent.querySelector('#pickr') as HTMLElement;
 
-        var $input = $("input.pickr-field");
-        var current_color = $(".pickr-field").val() || null;
         //
-        var pickr = new Pickr({
+        this.pickr = new Pickr({
           el: ele,
           container: parent.firstElementChild as HTMLElement,
           theme: "nano",
           swatches: null,
           defaultRepresentation: "HEXA",
-          //default: current_color,
+          default: value,
           comparison: false,
           components: {
             preview: true,
@@ -28,7 +29,7 @@ export class ColourService {
             }
           }
         });
-        pickr.on('change', onChange);
+        this.pickr.on('change', onChange);
         /*
         pickr
           .on("clear", function(instance) {

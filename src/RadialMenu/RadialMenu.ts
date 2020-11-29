@@ -1,7 +1,7 @@
 import { LitElement, html, customElement, property, unsafeCSS } from 'lit-element'
 import { MenuItem } from '../_Core/MenuItem';
 import { Point } from '../_Core/Point';
-import styles from './RadialMenu.css';
+import styles from 'bundle-text:./RadialMenu.css';
 import { RadialMenuDisplayMode } from './RadialMenuDisplayMode';
 import { RadialMenuGridService } from './RadialMenuGridService';
 import { RadialMenuService } from './RadialMenuService';

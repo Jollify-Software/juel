@@ -2,12 +2,24 @@
     "name": "lui",
     "version": "1.0.0",
     "description": "User Interface web components",
-    "main": "lui.ts",
     "scripts": {
         "dev": "parcel juel.ts",
-        "build": "parcel build juel.ts",
+        "build": "parcel build juel.ts --dist-dir dist --no-source-maps",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
+    "targets": {
+        "default": {
+            "isLibrary": true,
+            "outputFormat": "global"
+        }
+    },
+    "browserslist": [
+        "last 3 and_chr versions",
+        "last 3 chrome versions",
+        "last 3 opera versions",
+        "last 3 ios_saf versions",
+        "last 3 safari versions"
+    ],
     "repository": {
         "type": "git",
         "url": "git+https://gitlab.com/jollify/lui.git"
@@ -23,12 +35,16 @@
         "@simonwep/pickr": "^1.7.4",
         "bootstrap": "^4.5.3",
         "jquery": "^3.5.1",
-        "lit-element": "^2.3.1"
+        "lit-element": "^2.3.1",
+        "parcel": "^2.0.0-beta.1"
     },
     "devDependencies": {
+        "@parcel/transformer-postcss": "^2.0.0-beta.1",
+        "@parcel/transformer-typescript-tsc": "^2.0.0-beta.1",
         "@types/jquery": "^3.3.38",
-        "parcel-bundler": "^1.12.4",
+        "autoprefixer": "^9.8.6",
         "parcel-plugin-text": "^0.9.6",
+        "postcss": "^8.1.10",
         "typescript": "^3.9.3"
     }
 }

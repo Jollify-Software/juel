@@ -1,6 +1,6 @@
 import { LitElement, customElement, property, html, unsafeCSS } from "lit-element";
 import { FishEyeService } from "./FishEyeService";
-import styles from './FishEye.css';
+import styles from 'bundle-text:./FishEye.css';
 
 // TODO: FishEye doesn't work with emoji
 // In Service we are animating the width and height

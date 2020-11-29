@@ -1,5 +1,5 @@
 import { customElement, LitElement, html, property, unsafeCSS } from "lit-element";
-import styles from './FileInput.css';
+import styles from 'bundle-text:./FileInput.css';
 
 @customElement("juel-file-input")
 export class FileInput extends LitElement {

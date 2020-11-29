@@ -1,6 +1,6 @@
 import { customElement, LitElement, html, property, unsafeCSS } from "lit-element";
 import { SpeechSectionService } from "./SpeechSectionService";
-import styles from "./SpeechSection.css";
+import styles from "bundle-text:./SpeechSection.css";
 
 @customElement("speech-section")
 export class SpeechSection extends LitElement {

@@ -1,7 +1,7 @@
 import { customElement, LitElement, html, property, unsafeCSS } from "lit-element";
 import { Dialog } from "../_Core/Dialog";
 
-import styles from './DialogManager.css';
+import styles from 'bundle-text:./DialogManager.css';
 import { DialogManagerService } from "./DialogManagerService";
 
 @customElement("juel-dialog-manager")
@@ -17,7 +17,7 @@ export class DialogManager extends LitElement {
     }
 
     firstUpdated() {
-        this.service.init(this.shadowRoot.querySelector("#container"));
+        this.service.init(this.shadowRoot.querySelector("#dialog-container"));
     }
 
     show(id: string) {

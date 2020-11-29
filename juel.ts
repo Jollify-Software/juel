@@ -1,10 +1,12 @@
 import $ from "jquery";
 (<any>window).$ = $;
 (<any>window).jQuery = $;
+//import './lib/jquery-ui-1.12.1.custom/jquery-ui.js';
 
 import { IsMobile } from './src/_Utils/IsMobile';
 import { Vh } from './src/_Utils/Vh';
 
+import './src/Accordion/Accordion';
 import './src/RadialMenu/RadialMenu';
 import './src/FileInput/FileInput';
 import './src/Colour/Colour';
