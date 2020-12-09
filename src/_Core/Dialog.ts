@@ -3,7 +3,7 @@ import interact from '@interactjs/interactjs';
 import { DialogManagerService } from "../DialogManager/DialogManagerService";
 import { IsMobile } from "../_Utils/IsMobile";
 
-export class Dialog {
+export class Dialog {    
 
     title: string;
     element: HTMLElement;
@@ -17,6 +17,7 @@ export class Dialog {
     private closeHandler: (this: HTMLElement, event: any) => any;
 
     constructor(private service: DialogManagerService, public id: string, dataset: DOMStringMap) {
+        window['interact'] = interact;
         this.title = dataset.title;
         this.location = dataset.location;
         this.size = dataset.size;

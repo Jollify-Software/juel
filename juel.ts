@@ -16,6 +16,7 @@ import './src/SpeechSection/SpeechSection';
 import './src/FishEye/FishEye';
 import './src/Parallax/Parallax';
 import './src/BoxMenu/BoxMenu';
+import './src/Tooltip/Tooltip';
 
 $(function() {
     IsMobile();
