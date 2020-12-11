@@ -1,6 +1,6 @@
 export class AccordionService {
     init(container: HTMLElement) {
-        let btns = container.querySelectorAll('button');
+        let btns = container.querySelectorAll('.title');
         for (let i = 0; i < btns.length; i++) {
             btns[i].addEventListener("click", function() {
               /* Toggle between adding and removing the "active" class,

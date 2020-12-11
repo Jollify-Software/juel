@@ -1,4 +1,5 @@
 import { customElement, LitElement, html, property, unsafeCSS } from "lit-element";
+import interact from '@interactjs/interactjs';
 import { Dialog } from "../_Core/Dialog";
 
 import styles from 'bundle-text:./DialogManager.css';
@@ -13,6 +14,10 @@ export class DialogManager extends LitElement {
 
     constructor() {
         super();
+        if (!('interact' in window)) {
+            console.log("Assign interact");
+        window['interact'] = interact;
+        }
         this.service = new DialogManagerService();
     }
 

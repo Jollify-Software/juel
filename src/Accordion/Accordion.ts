@@ -24,10 +24,26 @@ export class DialogManager extends LitElement {
                 .map((ele, index) => {
                     let id = ele.id ? ele.id :  `accordion-section-${index}`;
                     ele.setAttribute('slot', id);
-                    return html`
-                        <button>
-                            ${(ele.dataset.title ? ele.dataset.title : "")}
-                        </button>
+
+                    let hasTitleEl = false;
+                    let titleElId: string;
+                    let titleEl = ele.querySelector('[slot="title"]');
+                    if (titleEl) {
+                        hasTitleEl = true;
+                        titleElId = `${id}-title`;
+                        titleEl.setAttribute('slot', titleElId);
+                        titleEl.remove();
+                        ele.parentElement.insertBefore(titleEl, ele);
+                    }
+
+                    return html`<div class="title">
+                        ${hasTitleEl ?
+                            html`<slot name="${titleElId}"></slot>` :
+                            html`<span>
+                                ${(ele.dataset.title ? ele.dataset.title : "")}
+                            </span>`
+                        }
+                        </div>
                         <div class="panel">
                         <slot name="${id}"></slot>
                         </div>`;

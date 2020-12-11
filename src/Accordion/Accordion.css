@@ -1,4 +1,4 @@
-button {
+.title {
 	background-color: #eee;
 	color           : #444;
 	cursor          : pointer;
@@ -10,7 +10,7 @@ button {
 	transition      : 0.4s;
 }
 .active,
-button:hover {
+.title:hover {
 	background-color: #007fff;
 }
 .panel {

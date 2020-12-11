@@ -1,7 +1,8 @@
 import { DragMoveListener } from "../_Utils/DragMoveListener";
-import interact from '@interactjs/interactjs';
 import { DialogManagerService } from "../DialogManager/DialogManagerService";
 import { IsMobile } from "../_Utils/IsMobile";
+
+declare var interact: any;
 
 export class Dialog {    
 
@@ -17,7 +18,7 @@ export class Dialog {
     private closeHandler: (this: HTMLElement, event: any) => any;
 
     constructor(private service: DialogManagerService, public id: string, dataset: DOMStringMap) {
-        window['interact'] = interact;
+        
         this.title = dataset.title;
         this.location = dataset.location;
         this.size = dataset.size;

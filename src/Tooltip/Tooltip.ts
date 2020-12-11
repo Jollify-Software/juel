@@ -1,28 +1,51 @@
 import { LitElement, customElement, property, html, unsafeCSS } from "lit-element";
-import styles from 'bundle-text:./Tooltip.less';
+import tippy from 'tippy.js';
+import styles from 'bundle-text:tippy.js/dist/tippy.css';
+import tooltipStyles from 'bundle-text:./Tooltip.less';
 
-// TODO: FishEye doesn't work with emoji
-// In Service we are animating the width and height
-// Instead of this we should just set the scale transform
 @customElement("juel-tooltip")
 export class Tooltip extends LitElement {
 
-    static styles = unsafeCSS(styles);
+    static styles = unsafeCSS(tooltipStyles);
+    static stylesSet = false;
 
-        @property()
-        text: "";
+    @property()
+    text: "";
 
-        constructor() {
-            super();
+    constructor() {
+        super();
+        if (!Tooltip.stylesSet) {
+            let style = document.createElement('style');
+            style.textContent = unsafeCSS(styles).cssText;
+            document.body.prepend(style);
+            Tooltip.stylesSet = true;
+        }
+    }
+
+    firstUpdated() {
+        let el = this.shadowRoot.getElementById('tip');
+        let contentEl = this.querySelector('[slot="content"]');
+        let content: any = this.text;
+        let interact = false;
+        let trigger: any;
+
+        if (contentEl) {
+            content = contentEl;
+            interact = true;
+            trigger = "click";
         }
 
-        firstUpdated() {
-        }
+        tippy(el, {
+            content: content,
+            appendTo: this,
+            trigger: trigger,
+            interactive: interact
+        });
+    }
 
-        render() {
-            return html`<div class="tooltip"><slot></slot>
-            <span>${this.text}</span>
+    render() {
+        return html`<div id="tip"><slot></slot>
           </div>`;
-        }
+    }
 
 }
