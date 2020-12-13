@@ -18,6 +18,7 @@ import './src/Parallax/Parallax';
 import './src/BoxMenu/BoxMenu';
 import './src/Tooltip/Tooltip';
 import './src/Mdi/Mdi';
+import './src/Tabs/Tabs';
 
 $(function() {
     IsMobile();

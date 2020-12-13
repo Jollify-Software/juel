@@ -3,7 +3,7 @@ import style from 'bundle-text:./Accordion.css';
 import { AccordionService } from "./AccordionService";
 
 @customElement("juel-accordion")
-export class DialogManager extends LitElement {
+export class Accordion extends LitElement {
 
     static styles = unsafeCSS(style);
 
