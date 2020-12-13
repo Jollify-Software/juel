@@ -17,6 +17,7 @@ import './src/FishEye/FishEye';
 import './src/Parallax/Parallax';
 import './src/BoxMenu/BoxMenu';
 import './src/Tooltip/Tooltip';
+import './src/Mdi/Mdi';
 
 $(function() {
     IsMobile();
