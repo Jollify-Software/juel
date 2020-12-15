@@ -3,5 +3,6 @@ export function IsMobile(): boolean {
         return (window as any).isMobile;
     } else {
         window['isMobile'] = window.matchMedia('(max-device-width: 600px)').matches;
+        return window['isMobile'];
     }
 }

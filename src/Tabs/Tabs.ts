@@ -28,9 +28,18 @@ export class Tabs extends LitElement {
         }
       
         // Show the current tab, and add an "active" class to the button that opened the tab
-        (this.shadowRoot.querySelector(`#${id}`) as HTMLElement).style.display = "block";
+        let el = (this.shadowRoot.querySelector(`#${id}`) as HTMLElement);
+        el.style.display = "block";
+        if (evt) {
         evt.currentTarget.className += " active";
-      } 
+        } else {
+            (this.shadowRoot.querySelector(`#${id}-title`) as HTMLElement).className += " active";
+        }
+      }
+
+    firstUpdated() {
+        this.openTab(null, this.ids[0]);
+    }
 
     render() {
         return html`<div id="tabs-container">
@@ -41,17 +50,16 @@ export class Tabs extends LitElement {
                     ele.setAttribute('slot', id);
 
                     let hasTitleEl = false;
-                    let titleElId: string;
+                    let titleElId: string = `${id}-title`;
                     let titleEl = ele.querySelector('[slot="title"]');
                     if (titleEl) {
                         hasTitleEl = true;
-                        titleElId = `${id}-title`;
                         titleEl.setAttribute('slot', titleElId);
                         titleEl.remove();
                         ele.parentElement.insertBefore(titleEl, ele);
                     }
                     this.ids.push(id);
-                    return html`<div class="title" @click="${(evt) => this.openTab(evt, id)}">
+                    return html`<div id="${titleElId}" class="title" @click="${(evt) => this.openTab(evt, id)}">
                         ${hasTitleEl ?
                             html`<slot name="${titleElId}"></slot>` :
                             html`<span>
