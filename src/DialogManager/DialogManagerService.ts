@@ -37,4 +37,11 @@ export class DialogManagerService {
         });
     }
 
+    close(id: string, value: any) {
+        let dialog = this.dialogs.find(x => x.id == id);
+            if (dialog) {
+                dialog.close(value);
+            }
+    }
+
 }

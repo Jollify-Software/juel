@@ -30,6 +30,11 @@ export class DialogManager extends LitElement {
         this.service.showDialog(id);
     }
 
+    close(id: string, value: any) {
+        console.log("Show")
+        this.service.close(id, value);
+    }
+
     render() {
         return html`<div id="dialog-container">
             ${(Array.prototype.slice.call(this.children) as HTMLElement[])
