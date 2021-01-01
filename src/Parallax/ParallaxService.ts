@@ -193,7 +193,7 @@ export class ParallaxService {
         this.width = $ele.width();
         this.height = $ele.height();
         this.children = $ele.children();
-        console.log(this.children)
+        
         if (!this.ele.limitIndex) {
             this.ele.limitIndex = this.children.length - 1;
         }

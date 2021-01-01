@@ -15,7 +15,6 @@ export class DialogManager extends LitElement {
     constructor() {
         super();
         if (!('interact' in window)) {
-            console.log("Assign interact");
         window['interact'] = interact;
         }
         this.service = new DialogManagerService();
@@ -26,12 +25,10 @@ export class DialogManager extends LitElement {
     }
 
     show(id: string) {
-        console.log("Show")
         this.service.showDialog(id);
     }
 
     close(id: string, value: any) {
-        console.log("Show")
         this.service.close(id, value);
     }
 
@@ -40,6 +37,9 @@ export class DialogManager extends LitElement {
             ${(Array.prototype.slice.call(this.children) as HTMLElement[])
                 .map((ele, index) => {
                     let id = ele.id;
+                    if (!id) {
+                        id = `dialog-${index}`;
+                    }
                     ele.setAttribute('slot', id);
                     this.service.dialogs.push(new Dialog(this.service, id, ele.dataset));
                     

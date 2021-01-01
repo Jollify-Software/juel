@@ -73,7 +73,6 @@ export class Dialog {
             if (this.location && this.size) {
                 switch (this.location) {
                     case 'top':
-                        console.log("TOP")
                         this.element.style.top = `calc(var(--vh) * -${this.size})`;
                         this.element.style.height = `calc(var(--vh) * ${this.size})`;
                         break;
@@ -86,7 +85,6 @@ export class Dialog {
             let trigger = document.querySelector(this.trigger);
             if (trigger) {
                 trigger.addEventListener('click', () => {
-                    console.log(this)
                     this.service.showDialog(this.id);
                 })
             }
@@ -96,7 +94,6 @@ export class Dialog {
     show(resolve: (value?: unknown) => void) {
         this.element.style.display = "flex";
         this.isOpen = true;
-console.log("Open")
         if (IsMobile()) {
             if (this.location && this.size) {
                 switch (this.location) {
@@ -106,7 +103,6 @@ console.log("Open")
                         }, 'slow');
                         let openDialogs = this.service.dialogs.filter(x => x.id != this.id && x.isOpen)
                             .map(x => x.element);
-                            console.log(openDialogs);
                         if (openDialogs) {
                             $(openDialogs).animate({
                                 'top': `${this.size}vh`,
@@ -119,9 +115,6 @@ console.log("Open")
         }
 
         this.closeHandler = (event: CustomEvent) => {
-            console.log("Close")
-            console.log(this);
-
             if (IsMobile()) {
                 if (this.location && this.size) {
                     switch (this.location) {
@@ -131,7 +124,6 @@ console.log("Open")
                             }, 'slow');
                             let openDialogs = this.service.dialogs.filter(x => x.id != this.id && x.isOpen)
                                 .map(x => x.element);
-                                console.log(openDialogs);
                             if (openDialogs) {
                                 $(openDialogs).animate({
                                     'top': `0`,

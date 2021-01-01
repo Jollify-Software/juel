@@ -34,8 +34,6 @@ export class Tooltip extends LitElement {
             interact = true;
             trigger = "click";
         }
-        console.log("Tippy content")
-        console.log(content)
         tippy(el, {
             content: content,
             appendTo: this,

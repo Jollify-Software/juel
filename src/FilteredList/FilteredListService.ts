@@ -32,9 +32,7 @@ export class FilteredListService {
     applyFilters() {
         let elementsToShow: HTMLElement[] = [];
         let elementsToHide: HTMLElement[] = [];
-
-        console.log(this.activeFilters)
-
+        
         for (let what in this.activeFilters) {
             let val = this.activeFilters[what];
             let items = $(this.ele).find(`[data-filter-${what}`);

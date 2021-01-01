@@ -1,6 +1,6 @@
 import GoldenLayout from "golden-layout";
 import { customElement, LitElement, html, property, unsafeCSS } from "lit-element";
-import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 
 import style from 'bundle-text:./mdi.less'
 
@@ -14,12 +14,13 @@ export class Mdi extends LitElement {
     static styles = unsafeCSS(style);
 
     static themeLightAdded = false;
+    static mdiCount = 0;
 
     config: GoldenLayout.Config;
-    goldenLayout: GoldenLayout;
+    layout: GoldenLayout;
 
     @property()
-    layout: string = "stack";
+    order: string = "stack";
     @property()
     mobileTabs: boolean = true;
 
@@ -37,37 +38,67 @@ export class Mdi extends LitElement {
     }
 
     firstUpdated() {
-        console.log(IsMobile())
+        if (!this.id) {
+            this.id = `mdi-${Mdi.mdiCount}`;
+            Mdi.mdiCount++;
+        }
         if (IsMobile() && this.mobileTabs) {
             return true;
         }
-        this.config = {};
-        this.config.content = [];
+
+        let savedState = localStorage.getItem('savedState');
+
 
         let content: GoldenLayout.ItemConfigType = {
-            type: this.layout
+            type: this.order
         };
         content.content = [];
-        let elements = {};
+        let elements: { [id: string]: HTMLElement } = {};
+        let childCount = 0;
         for (let child of Array.prototype.slice.call(this.children) as HTMLElement[]) {
             let componentName = (child as HTMLElement).dataset.title ?? "component";
             let component: GoldenLayout.ComponentConfig = {
+                id: child.id ? child.id : `${this.id}-${childCount}`,
                 type: 'component',
                 componentName: componentName
             };
             content.content.push(component);
             elements[componentName] = child;
+            childCount++;
         }
-        this.config.content.push(content);
-            this.goldenLayout = new GoldenLayout(this.config);
+
+
+        if (savedState !== null) {
+            this.config = JSON.parse(savedState);
+            this.layout = new GoldenLayout(this.config);
+        } else {
+            this.config = {};
+            this.config.content = [];
+            this.config.content.push(content);
+            this.layout = new GoldenLayout(this.config);
+        }
 
         for (let component of content.content) {
             let name = component['componentName']
-            this.goldenLayout.registerComponent(name, function(container, state) {
-                container.getElement().html($(elements[name]))
+            this.layout.registerComponent(name, function (container: GoldenLayout.Container, state) {
+                let el = $(elements[name]);
+                (container.getElement() as any).html(el);
+                let tabs = el.find("[data-tab]");
+                if (tabs.length > 0) {
+                    tabs.each((index, ele) => {
+                        container.on('tab', function (tab) {
+                            tab.element.append(ele);
+                        });
+                    })
+                }
             });
         }
-        this.goldenLayout.init();
+        this.layout.init();
+
+        this.layout.on('stateChanged', () => {
+            var state = JSON.stringify(this.layout.toConfig());
+            localStorage.setItem('savedState', state);
+        });
     }
 
     render() {
@@ -80,7 +111,7 @@ export class Mdi extends LitElement {
                 })()}
             </juel-tabs>` :
             ``
-        }
+            }
         `;
     }
 

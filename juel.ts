@@ -1,9 +1,7 @@
 
-(<any>window).juel = {};
 
-import $ from "jquery";
-(<any>window).$ = $;
-(<any>window).jQuery = $;
+import './src/BlazorBinding';
+
 //import './lib/jquery-ui-1.12.1.custom/jquery-ui.js';
 
 import { IsMobile } from './src/_Utils/IsMobile';
@@ -22,6 +20,8 @@ import './src/BoxMenu/BoxMenu';
 import './src/Tooltip/Tooltip';
 import './src/Mdi/Mdi';
 import './src/Tabs/Tabs';
+import './src/Select/Select';
+
 
 $(function() {
     IsMobile();

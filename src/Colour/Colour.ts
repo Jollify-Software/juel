@@ -33,7 +33,6 @@ export class Colour extends LitElement {
     }
 
     setColour(colour: string) {
-        console.log(this.service)
         this.service.pickr.setColor(colour);
     }
 

@@ -26,7 +26,6 @@ export class Parallax extends LitElement {
     }
 
     firstUpdated() {
-        console.log("Hello")
         this.service.init();
     }
 
