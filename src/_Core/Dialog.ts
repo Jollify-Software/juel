@@ -145,6 +145,10 @@ export class Dialog {
             if (resolve) {
                 resolve(event.detail);
             }
+            let evt = new CustomEvent('closed', {
+                detail: this.id
+            });
+            this.element.dispatchEvent(evt);
         };
         this.element.addEventListener('close', this.closeHandler);
     }

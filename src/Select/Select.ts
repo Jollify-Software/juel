@@ -22,9 +22,7 @@ export class Select extends LitElement {
     }
 
     updated(changedProperties) {
-        if ('data' in changedProperties) {
-            this.service.data = this.data;
-        }
+        this.service.data = this.data;
     }
 
     firstUpdated() {

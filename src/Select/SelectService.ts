@@ -87,7 +87,7 @@ export class SelectService {
                         }
                     }
 
-
+                    console.log(value)
                     let event = new CustomEvent('change', {
                         detail: value
                     });
