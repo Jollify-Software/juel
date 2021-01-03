@@ -4,13 +4,13 @@ export class ColourService {
 
   pickr: Pickr;
 
-    init(parent: ShadowRoot, value: string, onChange: (colour: Pickr.HSVaColor, instance: Pickr) => void) {
+    init(parent: ShadowRoot, value: string, onChange: (source: EventSource, instance: Pickr) => void) {
         let ele = parent.querySelector('#pickr') as HTMLElement;
 
         //
         this.pickr = new Pickr({
           el: ele,
-          container: parent.firstElementChild as HTMLElement,
+          container: parent.getElementById("container") as HTMLElement,
           theme: "nano",
           swatches: null,
           defaultRepresentation: "HEXA",
@@ -29,7 +29,7 @@ export class ColourService {
             }
           }
         });
-        this.pickr.on('change', onChange);
+        this.pickr.on('changestop', onChange);
         /*
         pickr
           .on("clear", function(instance) {

@@ -9,7 +9,7 @@ export class Colour extends LitElement {
 
     static styles = unsafeCSS(styles);
 
-    @property() value: string;
+    @property() value: string = "black";
 
     service: ColourService;
 
@@ -19,11 +19,10 @@ export class Colour extends LitElement {
     }
 
     firstUpdated() {
-        let change = (colour: Pickr.HSVaColor, instance: Pickr) => {
+        let change = (source: EventSource, instance: Pickr) => {
             let event = new CustomEvent('change', {
                 detail: {
-                    colour: colour,
-                    instance: instance
+                    colour: instance.getColor().toRGBA().toString()
                 }
             });
             this.dispatchEvent(event);
@@ -37,7 +36,7 @@ export class Colour extends LitElement {
     }
 
     render() {
-        return html`<div id="pickr"></div>`;
+        return html`<div id="pickr"></div><div id="container"></div>`;
     }
 
 }

@@ -24,6 +24,7 @@ export class DialogManagerService {
                 let toClose = this.dialogs.filter(x => x.id != id &&
                     ((!dialog.group) || (x.group && dialog.group.some(grp => x.group.indexOf(grp) < 0))))
                 for (let close of toClose) {
+                    console.log("Not supposed to close")
                     close.close();
                 }
                 if (dialog.modal) {

@@ -30,11 +30,15 @@ export class Dialog {
     init(element: HTMLElement) {
         this.element = element;
         this.element.style.display = "none";
-        let closeBtn = this.element.querySelector(".close");
-        closeBtn.addEventListener('click', () => {
+
+        let closeBtnClick = () => {
             let closeEvt = new CustomEvent('close');
+            console.log("Close Click!!");
             this.element.dispatchEvent(closeEvt);
-        });
+        };
+        let closeBtn = this.element.querySelector(".close");
+        $(closeBtn).off('click');
+        closeBtn.addEventListener('click', closeBtnClick);
 
 
         if (!IsMobile()) {
@@ -148,9 +152,12 @@ export class Dialog {
             let evt = new CustomEvent('closed', {
                 detail: this.id
             });
-            this.element.dispatchEvent(evt);
+            console.log("Clsoe!!!")
+            document.querySelector('juel-dialog-manager').dispatchEvent(evt);
         };
-        this.element.addEventListener('close', this.closeHandler);
+        $(this.element).off('close')
+            .on('close', this.closeHandler);
+
     }
 
     /*
