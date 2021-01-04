@@ -2,13 +2,12 @@ import { MenuItem } from "../_Core/MenuItem";
 import { Select } from "./Select";
 
 export class SelectService {
-    data: any[];
     selectedSlot: string = null;
 
-    createSelect() {
+    createSelect(select: Select) {
         let sel = document.createElement('select');
 
-        let options = (this.data as string[]).map(item => {
+        let options = (select.data as string[]).map(item => {
             let opt = document.createElement('option');
             opt.textContent = item;
             opt.value = item;
@@ -26,10 +25,10 @@ export class SelectService {
 
         let children = select.children;
         // If select has no data
-        this.data = (Array.prototype.slice.call(children) as HTMLElement[])
+        select.data = (Array.prototype.slice.call(children) as HTMLElement[])
             .map(el => el.textContent);
 
-        let sel = this.createSelect()
+        let sel = this.createSelect(select);
         select.shadowRoot.prepend(sel);
 
         if (select.multiple) {
@@ -50,7 +49,7 @@ export class SelectService {
                 let item: HTMLElement = select.querySelector(`[slot="${service.selectedSlot}"]`);
                 if (item) {
                     let placeholder = select.shadowRoot.querySelector("#selected-placeholder");
-                    let value = service.data[parseInt(el.dataset.index)];
+                    let value = select.data[parseInt(el.dataset.index)];
 
                     if (!select.multiple) {
                         placeholder.firstChild.replaceWith(

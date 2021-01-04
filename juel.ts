@@ -21,6 +21,7 @@ import './src/Tooltip/Tooltip';
 import './src/Mdi/Mdi';
 import './src/Tabs/Tabs';
 import './src/Select/Select';
+import './src/List/List';
 
 
 $(function() {
