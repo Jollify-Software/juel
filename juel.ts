@@ -24,6 +24,8 @@ import './src/Tabs/Tabs';
 import './src/Select/Select';
 import './src/List/List';
 
+import './src/Flip/Flip';
+
 
 $(function() {
     IsMobile();
