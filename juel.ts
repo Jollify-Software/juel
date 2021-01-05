@@ -7,6 +7,7 @@ import './src/BlazorBinding';
 import { IsMobile } from './src/_Utils/IsMobile';
 import { Vh } from './src/_Utils/Vh';
 
+import './src/Template/Template';
 import './src/Accordion/Accordion';
 import './src/RadialMenu/RadialMenu';
 import './src/FileInput/FileInput';

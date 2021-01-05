@@ -5,10 +5,12 @@ export class ListService {
   init(list: JuelList) {
 
     let children = list.children;
+
     // If select has no data
+    if (!list.data) {
     list.data = (Array.prototype.slice.call(children) as HTMLElement[])
       .map(el => el.textContent.trim());
-      console.log(list.data)
+    }
     list.selected = [];
 
 
@@ -40,6 +42,10 @@ export class ListService {
           if (el.classList.contains("selected")) {
             
               list.selected = list.selected.filter(val => val != value);
+              let evt = new CustomEvent('deselected', {
+                detail: value
+              });
+              list.dispatchEvent(evt);
             // TODO: Throw event deselect
           } else {
             if (list.single) {
@@ -50,6 +56,10 @@ export class ListService {
             } else {
             list.selected.push(value);
             }
+            let evt = new CustomEvent('selected', {
+              detail: value
+            });
+            list.dispatchEvent(evt);
             // TODO: Throw event select
           }
           el.classList.toggle('selected');

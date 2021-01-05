@@ -35,7 +35,27 @@
                 <span class="caption">Snail</span> 🐌
             </div>
         </juel-list>
+
+        <juel-template>
+            Selected ${this}!!
+            <ul>
+                
+            </ul>
+        </juel-template>
     </div>
+
+    <script>
+        var tmpl = document.querySelector('juel-template');
+        var list = document.querySelector('juel-list');
+        list.addEventListener('selected', function(evt) {
+            tmpl.context = list.selected;
+            console.log(list.selected);
+        })
+        list.addEventListener('deselected', function(evt) {
+            tmpl.context = list.selected;
+            console.log(list.selected);
+        })
+    </script>
 </body>
 
 </html>
