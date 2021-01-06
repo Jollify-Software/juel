@@ -26,7 +26,7 @@ import './src/ScrollPane/ScrollPane';
 import './src/List/List';
 
 import './src/Flip/Flip';
-
+import './src/DraggableContainer/DraggableContainer';
 
 $(function() {
     IsMobile();
