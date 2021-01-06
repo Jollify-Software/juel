@@ -22,6 +22,7 @@ import './src/Tooltip/Tooltip';
 import './src/Mdi/Mdi';
 import './src/Tabs/Tabs';
 import './src/Select/Select';
+import './src/ScrollPane/ScrollPane';
 import './src/List/List';
 
 import './src/Flip/Flip';
