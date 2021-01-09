@@ -10,7 +10,7 @@ export class JuelScrollPane extends LitElement {
 
     service = new ScrollPaneService(this);
 
-    @property() position: number;
+    @property() position: number = 0;
     @property({ type: Boolean }) vertical: boolean = false;
     @property({ type: Boolean }) auto: boolean = false;
     @property() interval = 3000;

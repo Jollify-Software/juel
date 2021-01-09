@@ -7,6 +7,7 @@ import style from 'bundle-text:./mdi.less'
 import themeBase from "bundle-text:golden-layout/src/css/goldenlayout-base.css";
 import themeLight from "bundle-text:golden-layout/src/css/goldenlayout-light-theme.css";
 import { IsMobile } from "../_Utils/IsMobile";
+import { ChildrenMap } from "../_Utils/ChildrenMap";
 
 @customElement("juel-mdi")
 export class Mdi extends LitElement {
@@ -21,11 +22,15 @@ export class Mdi extends LitElement {
 
     @property()
     order: string = "stack";
-    @property()
-    mobileTabs: boolean = true;
+    @property({ type: Boolean })
+    tabs: boolean = false;
+
+    html: string;
 
     constructor() {
         super();
+
+        console.log(this.innerHTML)
         if (!('GoldenLayout' in window)) {
             window['GoldenLayout'] = GoldenLayout;
         }
@@ -42,11 +47,11 @@ export class Mdi extends LitElement {
             this.id = `mdi-${Mdi.mdiCount}`;
             Mdi.mdiCount++;
         }
-        if (IsMobile() && this.mobileTabs) {
+        if (IsMobile() || this.tabs == true) {
             return true;
         }
 
-        let savedState = localStorage.getItem('savedState');
+        let savedState = null;//\localStorage.getItem('savedState');
 
 
         let content: GoldenLayout.ItemConfigType = {
@@ -78,10 +83,12 @@ export class Mdi extends LitElement {
             this.layout = new GoldenLayout(this.config);
         }
 
+        console.log(content.content);
         for (let component of content.content) {
             let name = component['componentName']
             this.layout.registerComponent(name, function (container: GoldenLayout.Container, state) {
                 let el = $(elements[name]);
+                console.log(el[0]);
                 (container.getElement() as any).html(el);
                 let tabs = el.find("[data-tab]");
                 if (tabs.length > 0) {
@@ -89,7 +96,11 @@ export class Mdi extends LitElement {
                         container.on('tab', function (tab) {
                             tab.element.append(ele);
                         });
-                    })
+                    });
+                    if (el.find('[data-notify]').length > 0) {
+                        (el.find('[data-notify]')[0] as any)
+                            .notify('register');
+                    }
                 }
             });
         }
@@ -102,17 +113,22 @@ export class Mdi extends LitElement {
     }
 
     render() {
-        return html`${IsMobile() && this.mobileTabs ?
+        return html`${
+            (this.tabs == true || IsMobile()) ?
             html`<juel-tabs>
-                ${(() => {
-                    let h = this.innerHTML;
-                    this.innerHTML = "";
-                    return unsafeHTML(h)
-                })()}
-            </juel-tabs>` :
-            ``
-            }
-        `;
+            ${ChildrenMap(this, (ele, index) => {
+                console.log(ele);
+                let id = ele.id ? ele.id :  `item-${index}`;
+                let title = ele.dataset.title;
+                ele.setAttribute('slot', id);
+
+                return html`
+                    <div class="item" data-index="${index}" data-title="${title}">
+                    <slot name="${id}"></slot>
+                    </div>`;
+            })}    
+            </juel-tabs>` : ``
+        }`;
     }
 
 }

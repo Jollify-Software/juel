@@ -5,6 +5,7 @@ import styles from 'bundle-text:./RadialMenu.css';
 import { RadialMenuDisplayMode } from './RadialMenuDisplayMode';
 import { RadialMenuGridService } from './RadialMenuGridService';
 import { RadialMenuService } from './RadialMenuService';
+import { ChildrenMap } from '../_Utils/ChildrenMap';
 
 @customElement("radial-menu")
 export class RadialMenu extends LitElement {
@@ -60,19 +61,31 @@ export class RadialMenu extends LitElement {
                 onClick: this.onMenuItemClick
             });
         }
-
+/*
         if (this.childElementCount > 0) {
             let children = this.children;
             for (let child of children) {
                 child.remove();
                 this.shadowRoot.append(child);
             }
-        }
+        }*/
     }
 
     render() {
         return html`${(this.displayMode == RadialMenuDisplayMode.grid) ?
-            html`<div class="menu"><slot name="items"></slot></div>
+            html`<div class="menu">
+                <div id="items">
+            ${ChildrenMap(this, (ele, index) => {
+                let id = ele.id ? ele.id :  `item-${index}`;
+                ele.setAttribute('slot', id);
+
+                return html`
+                    <li class="item" data-index="${index}">
+                    <slot name="${id}"></slot>
+                    </li>`;
+            })}
+                </div>
+            </div>
             <div class="button">${this.buttonOverlay ? html`<slot name="button">${this.defaultButtonMarkup}</slot>` : ''}</div>` :
             ``}`;
     }

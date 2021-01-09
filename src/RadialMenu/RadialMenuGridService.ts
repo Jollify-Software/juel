@@ -8,9 +8,9 @@ export class RadialMenuGridService {
   }
 
   init() {
-    let container = $(this.ele);
+    let container = $(this.ele.shadowRoot.querySelector('.menu'));
     let btn = $(this.ele.shadowRoot.querySelector('div.button') as HTMLElement);
-    let menu = container.children('[slot="items"]');
+    let menu = container.children('#items') as JQuery<HTMLElement>;
 
     let menuChildCount = menu.children().length;
     let colCount = (menuChildCount / 2);

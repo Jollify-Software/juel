@@ -28,7 +28,7 @@ div.menu {
     position: absolute;
 }
 
-[slot="items"] {
+#items {
     margin: auto;
     transition: var(--transition);
     width: var(--width);

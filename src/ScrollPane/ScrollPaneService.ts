@@ -7,9 +7,7 @@ export class ScrollPaneService {
     container: HTMLElement;
     children: JQuery<Element>;
 	childCount: number;
-	
-	pos: number = 0;
-	randNumbers: number[] = [ 0 ];
+	randNumbers: number[];
 
     constructor(private sp: JuelScrollPane) {
 
@@ -22,7 +20,12 @@ export class ScrollPaneService {
 		this.sp.style.height = `${$(first).outerHeight}px`;
 		this.container.style.width = first.style.width;
         this.container.style.height = first.style.height;
-        this.children = $(this.container.querySelectorAll('.item'));
+		this.children = $(this.container.querySelectorAll('.item'));
+		
+		this.randNumbers = [ this.sp.position ];
+		if (this.sp.position > 0) {
+			this.scrollTo(this.sp.position);
+		}
 
         if (this.sp.tabs) {
             $(this.sp.tabs).each((index, el) => {
@@ -54,23 +57,24 @@ export class ScrollPaneService {
 	}
 	this.sp.style.width = `${el.outerWidth()}px`;
         this.sp.style.height = `${el.outerHeight()}px`;
-        this.container.style.marginLeft = `-${margin}px`;
+		this.container.style.marginLeft = `-${margin}px`;
+		this.sp.position = index;
 	}
 
 	next() {
-		this.pos ++;
-		if (this.pos >= this.children.length) {
-			this.pos = 0;
+		this.sp.position ++;
+		if (this.sp.position >= this.children.length) {
+			this.sp.position = 0;
 		}
-		this.scrollTo(this.pos);
+		this.scrollTo(this.sp.position);
 	}
 
 	previous() {
-		this.pos --;
-		if (this.pos < 0) {
-			this.pos = this.children.length - 1;
+		this.sp.position --;
+		if (this.sp.position < 0) {
+			this.sp.position = this.children.length - 1;
 		}
-		this.scrollTo(this.pos);
+		this.scrollTo(this.sp.position);
 	}
 	
 	random() {
@@ -79,6 +83,7 @@ export class ScrollPaneService {
 			index = getRandomInt(this.children.length);
 		}
 		this.scrollTo(index);
+		this.sp.position = index;
 		this.randNumbers.push(index);
 		if (this.randNumbers.length == this.children.length) {
 			this.randNumbers = [ index ];
