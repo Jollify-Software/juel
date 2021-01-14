@@ -2,6 +2,7 @@ import { customElement, html, LitElement, property, unsafeCSS } from "lit-elemen
 import style from 'bundle-text:./ScrollPane.less';
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import { ScrollPaneService } from "./ScrollPaneService";
+import Hammer from 'hammerjs';
 
 @customElement("juel-scroll-pane")
 export class JuelScrollPane extends LitElement {
@@ -23,8 +24,25 @@ export class JuelScrollPane extends LitElement {
     @property() next: string;
     @property() previous: string;
 
+    constructor() {
+        super();
+        if (!('Hammer' in window)) {
+            window['Hammer'] = Hammer;
+        }
+    }
+
     firstUpdated() {
         this.service.init();
+        let mc = new Hammer(this.shadowRoot.getElementById('container'));
+        mc.on('swipe', (e) => {
+            // Left = 2
+            if (e.direction == 2) {
+                this.service.next();
+                // Right == 4
+            } else if (e.direction == 4) {
+                this.service.previous();
+            }
+        })
     }
 
     render() {

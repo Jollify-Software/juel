@@ -24,6 +24,7 @@ import './src/Tabs/Tabs';
 import './src/Select/Select';
 import './src/ScrollPane/ScrollPane';
 import './src/List/List';
+import './src/Menu/Menu';
 
 import './src/Flip/Flip';
 import './src/DraggableContainer/DraggableContainer';
