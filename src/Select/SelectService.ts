@@ -25,8 +25,10 @@ export class SelectService {
 
         let children = select.children;
         // If select has no data
+        if (!select.data) {
         select.data = (Array.prototype.slice.call(children) as HTMLElement[])
             .map(el => el.textContent);
+        }
 
         let sel = this.createSelect(select);
         select.shadowRoot.prepend(sel);
@@ -35,60 +37,42 @@ export class SelectService {
             select.value = [];
         }
 
-        let firstItm = select.shadowRoot.querySelector('.item');
+        let firstItm = $(select.shadowRoot.querySelector('.item'));
         let placeholder: HTMLElement = select.shadowRoot.querySelector('#selected-placeholder');
-        placeholder.style.minWidth = `${firstItm.clientWidth}px`;
-        placeholder.style.minHeight = `${firstItm.clientHeight}px`;
-        placeholder.addEventListener('click', (event) => {
-            select.shadowRoot.querySelector('#select').classList.toggle('hide');
-        });
+        placeholder.style.minWidth = `${firstItm.outerWidth()}px`;
+        placeholder.style.minHeight = `${firstItm.outerHeight()}px`;
 
         select.shadowRoot.querySelectorAll('.item').forEach((el: HTMLElement) => {
             el.addEventListener('click', function (event) {
                 service.selectedSlot = el.querySelector('slot').getAttribute('name');
                 let item: HTMLElement = select.querySelector(`[slot="${service.selectedSlot}"]`);
                 if (item) {
-                    let placeholder = select.shadowRoot.querySelector("#selected-placeholder");
-                    let value = select.data[parseInt(el.dataset.index)];
+                    let index = parseInt(el.dataset.index);
+                    if (select.placeholderIndex == null) {
+                        select.placeholderIndex = index;
+                    }
+                    let value = select.data[index];
 
                     if (!select.multiple) {
-                        placeholder.firstChild.replaceWith(
-                            item.cloneNode(true) as HTMLElement
-                        );
-                        select.shadowRoot.querySelector('#items-container').classList.toggle('hide');
-                        select.value = value;
+                        select.value = [ value ];
                         sel.value = value;
                     } else {
                         if (!(select.value as any[]).some(item => item == value)) {
                             select.value.push(value);
-                            if (placeholder.childElementCount < 2) {
-                                select.shadowRoot.querySelector("#selected-placeholder").prepend(
-                                    item.cloneNode(true) as HTMLElement
-                                );
-                                let badge = document.createElement('span');
-                                badge.id = "badge";
-                                badge.textContent = select.value.length;
-                                badge.addEventListener('click', (event) => {
-                                    if (select.value.length > 0) {
-                                    if (select.value.length == 1) {
-                                        $(placeholder).empty();
-                                    }
-                                    select.value.pop();
-                                    badge.textContent = select.value.length;
-                                    event.stopPropagation();
-                                }
-                                });
-                                placeholder.append(badge);
-                            } else {
-                                placeholder.querySelector('#badge').textContent = select.value.length;
+                        } else {
+                            select.value = select.value.filter(item => item != value);
+                            if (select.placeholderIndex == index && select.value.length > 0) {
+                                select.placeholderIndex = select.data.indexOf(select.value[0]);
                             }
-                            
+                            if (select.value.length == 0) {
+                                select.placeholderIndex = null;
+                            }
                         }
                     }
 
-                    console.log(value)
+                    select.requestUpdate();
                     let event = new CustomEvent('change', {
-                        detail: value
+                        detail: select.value
                     });
                     select.dispatchEvent(event);
                 }
