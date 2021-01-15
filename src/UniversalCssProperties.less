@@ -1,7 +1,23 @@
 @colourPrimary: --colour-primary;
 @colourSecondary: --colour-secondary;
 @colourTertiary: --colour-tertiary;
+@colourLight: var(--colour-light, @colourLightDefault);
+@colourLightDefault: #f8f9fa;
 
-@backgroundColourPrimary: --background-colour-primary;
-@backgroundColourSecondary: --background-colour-secondary;
+@backgroundColourPrimary: var(--background-colour-primary, @backgroundColourPrimaryDefault);
+@backgroundColourPrimaryDefault: #007bff;
+
+@backgroundColourSecondary: var(--background-colour-secondary, @backgroundColourSecondaryDefault);
+@backgroundColourSecondaryDefault: #6c757d;
+
 @backgroundColourTertiary: --background-colour-tertiary;
+
+@backgroundColourLight: var(--background-colour-primary, @backgroundColourLightDefault);
+@backgroundColourLightDefault: #f8f9fa;
+
+@backgroundColourDark: --background-colour-primary;
+
+@backgroundColourWarningDefault: #007bff;
+@backgroundColourWarning: --background-colour-primary;
+@backgroundColourWarningDefault: #007bff;
+

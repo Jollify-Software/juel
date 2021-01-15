@@ -40,6 +40,7 @@ export class Select extends LitElement {
         items.style.display = "none";
         let trigger = this.shadowRoot.getElementById('trigger');
         $(trigger).on('click', (e) => {
+            this.shadowRoot.getElementById('select').classList.toggle('open');
             if (this.menuShown == false) {
                 items.style.display = "inline-block";
                 items.style.opacity = "1";
@@ -65,7 +66,7 @@ export class Select extends LitElement {
                         (this.children.item(this.placeholderIndex) as HTMLElement).innerHTML
                         ) : ``}
                 </div>
-                <div id="down-arrow"></div>
+                <div id="arrow"></div>
                 ${ this.multiple == true && this.value.length > 1 ? html`<div id="badge">${this.value.length - 1}</div>` : `` }
             </div>
             <div id="items">
