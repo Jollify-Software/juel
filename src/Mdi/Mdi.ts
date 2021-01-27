@@ -86,9 +86,11 @@ export class Mdi extends LitElement {
         console.log(content.content);
         for (let component of content.content) {
             let name = component['componentName']
+
             this.layout.registerComponent(name, function (container: GoldenLayout.Container, state) {
                 let el = $(elements[name]);
                 console.log(el[0]);
+                (<any>el[0]).container = container;
                 (container.getElement() as any).html(el);
                 let tabs = el.find("[data-tab]");
                 if (tabs.length > 0) {

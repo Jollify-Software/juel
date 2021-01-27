@@ -26,12 +26,9 @@ export class SelectService {
         let children = select.children;
         // If select has no data
         if (!select.data) {
-        select.data = (Array.prototype.slice.call(children) as HTMLElement[])
-            .map(el => el.textContent);
+            select.data = (Array.prototype.slice.call(children) as HTMLElement[])
+                .map(el => el.textContent);
         }
-
-        let sel = this.createSelect(select);
-        select.shadowRoot.prepend(sel);
 
         if (select.multiple) {
             select.value = [];
@@ -39,46 +36,45 @@ export class SelectService {
 
         let firstItm = $(select.shadowRoot.querySelector('.item'));
         let placeholder: HTMLElement = select.shadowRoot.querySelector('#selected-placeholder');
-        placeholder.style.minWidth = `${firstItm.outerWidth()}px`;
-        placeholder.style.minHeight = `${firstItm.outerHeight()}px`;
+        //if (placeholder) {
+            placeholder.style.minWidth = `${firstItm.outerWidth()}px`;
+            placeholder.style.minHeight = `${firstItm.outerHeight()}px`;
 
-        select.shadowRoot.querySelectorAll('.item').forEach((el: HTMLElement) => {
-            el.addEventListener('click', function (event) {
-                service.selectedSlot = el.querySelector('slot').getAttribute('name');
-                let item: HTMLElement = select.querySelector(`[slot="${service.selectedSlot}"]`);
-                if (item) {
-                    let index = parseInt(el.dataset.index);
-                    if (select.placeholderIndex == null) {
-                        select.placeholderIndex = index;
-                    }
-                    let value = select.data[index];
+            select.shadowRoot.querySelectorAll('.item').forEach((el: HTMLElement) => {
+                el.addEventListener('click', function (event) {
+                    service.selectedSlot = el.querySelector('slot').getAttribute('name');
+                    let item: HTMLElement = select.querySelector(`[slot="${service.selectedSlot}"]`);
+                    if (item) {
+                        let index = parseInt(el.dataset.index);
+                        if (select.placeholderIndex == null) {
+                            select.placeholderIndex = index;
+                        }
+                        let value = select.data[index];
 
-                    if (!select.multiple) {
-                        select.value = [ value ];
-                        sel.value = value;
-                    } else {
-                        if (!(select.value as any[]).some(item => item == value)) {
-                            select.value.push(value);
+                        if (!select.multiple) {
+                            select.value = [value];
                         } else {
-                            select.value = select.value.filter(item => item != value);
-                            if (select.placeholderIndex == index && select.value.length > 0) {
-                                select.placeholderIndex = select.data.indexOf(select.value[0]);
-                            }
-                            if (select.value.length == 0) {
-                                select.placeholderIndex = null;
+                            if (!(select.value as any[]).some(item => item == value)) {
+                                select.value.push(value);
+                            } else {
+                                select.value = select.value.filter(item => item != value);
+                                if (select.placeholderIndex == index && select.value.length > 0) {
+                                    select.placeholderIndex = select.data.indexOf(select.value[0]);
+                                }
+                                if (select.value.length == 0) {
+                                    select.placeholderIndex = null;
+                                }
                             }
                         }
+
+                        select.requestUpdate();
+                        let event = new CustomEvent('change', {
+                            detail: select.value
+                        });
+                        select.dispatchEvent(event);
                     }
-
-                    select.requestUpdate();
-                    let event = new CustomEvent('change', {
-                        detail: select.value
-                    });
-                    select.dispatchEvent(event);
-                }
+                });
             });
-        });
-
-        select.shadowRoot.querySelector('#select').classList.add('hide');
+      //  }
     }
 }

@@ -13,7 +13,7 @@ export module BlazorSelectFunctions {
     export var setData = (id: string, data: any[]) => {
         let select = document.getElementById(id) as Select;
         if (select) {
-            select.data = data;
+            select.setData(data);
         }
     }
     export var getData = (id: string) => {
@@ -23,10 +23,10 @@ export module BlazorSelectFunctions {
         }
     }
 
-    export var setData = (id: string, data: any[]) => {
+    export var setValue = (id: string, data: any[]) => {
         let select = document.getElementById(id) as Select;
         if (select) {
-            select.value = data;
+            select.setValue(data);
         }
     }
     export var getValue = (id: string) => {

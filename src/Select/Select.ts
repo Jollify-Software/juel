@@ -34,7 +34,20 @@ export class Select extends LitElement {
         this.service = new SelectService();
     }
 
+    setData(data: any) {
+        this.data = data;
+        this.init();
+    }
+
+    setValue(value: any) {
+        this.value = value
+    }
+
     firstUpdated() {
+        this.init();
+    }
+
+    private init() {
         this.service.init(this);
         let items = this.shadowRoot.getElementById('items');
         items.style.display = "none";
@@ -47,12 +60,12 @@ export class Select extends LitElement {
                 this.menu = createPopper(
                     trigger,
                     items
-                    );
+                );
                 this.menuShown = true;
             } else {
-                items.style.display = "none"
+                items.style.display = "none";
                 items.style.opacity = "0";
-                this.menu = null
+                this.menu = null;
                 this.menuShown = false;
             }
         });

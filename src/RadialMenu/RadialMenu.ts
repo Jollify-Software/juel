@@ -80,9 +80,9 @@ export class RadialMenu extends LitElement {
                 ele.setAttribute('slot', id);
 
                 return html`
-                    <li class="item" data-index="${index}">
+                    <div class="item" data-index="${index}">
                     <slot name="${id}"></slot>
-                    </li>`;
+                    </div>`;
             })}
                 </div>
             </div>
