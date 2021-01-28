@@ -14,6 +14,8 @@ export class JuelToggle extends LitElement {
     contained: boolean = false;
     @property({ type: String })
     container: string = ".container";
+    @property({ type: String })
+    type: string = null;
 
     checked: boolean = false;
 
@@ -35,21 +37,23 @@ export class JuelToggle extends LitElement {
     checkbox.prop('checked', this.checked);
   }
 
+  private check(index, ele: JuelToggle) {
+    if (ele.checked) {
+      if ((ele.type != null || this.type != null) && (ele.type != this.type)) {
+        return;
+      } else {
+        ele.toggle();
+      }
+    }
+  }
+
   private singularCheck() {
     if (this.contained == false) {
       let siblings = $(this).siblings('juel-toggle');
-      siblings.each((index, ele: JuelToggle) => {
-        if (ele.checked) {
-          ele.toggle();
-        }
-      });
+      siblings.each(this.check.bind(this));
     } else {
       $(this).parentsUntil(this.container).parent()
-        .find('juel-toggle').not(this).each((index, ele: JuelToggle) => {
-          if (ele.checked) {
-            ele.toggle();
-          }
-        });
+        .find('juel-toggle').not(this).each(this.check.bind(this));
     }
   }
 
