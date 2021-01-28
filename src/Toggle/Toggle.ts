@@ -8,6 +8,12 @@ export class JuelToggle extends LitElement {
 
     @property({ type: Boolean })
     rounded: boolean = false;
+    @property({ type: Boolean })
+    singular: boolean = false;
+    @property({ type: Boolean })
+    contained: boolean = false;
+    @property({ type: String })
+    container: string = ".container";
 
     checked: boolean = false;
 
@@ -16,6 +22,9 @@ export class JuelToggle extends LitElement {
       if (trigger) {
         $(trigger).on('click', () => {
           this.toggle();
+          if (this.singular == true) {
+            this.singularCheck();
+          }
         })
       }
     }
@@ -23,16 +32,41 @@ export class JuelToggle extends LitElement {
   private toggle() {
     this.checked = !this.checked;
     let checkbox = $(this.shadowRoot.getElementById("checkbox"));
-    if (this.checked) {
-      checkbox.attr('checked', 'checked');
+    checkbox.prop('checked', this.checked);
+  }
+
+  private singularCheck() {
+    if (this.contained == false) {
+      let siblings = $(this).siblings('juel-toggle');
+      siblings.each((index, ele: JuelToggle) => {
+        if (ele.checked) {
+          ele.toggle();
+        }
+      });
     } else {
-      checkbox.removeAttr('checked');
+      $(this).parentsUntil(this.container).parent()
+        .find('juel-toggle').not(this).each((index, ele: JuelToggle) => {
+          if (ele.checked) {
+            ele.toggle();
+          }
+        });
+    }
+  }
+
+  checkChange(e: Event) {
+    let check = e.target as HTMLInputElement;
+    this.checked = check.checked;
+  }
+
+  toggleClicked(e: Event) {
+    if (this.singular == true) {
+      this.singularCheck();
     }
   }
 
     render() {
-        return html`<label class="switch">
-        <input type="checkbox" id="checkbox">
+        return html`<label class="switch" @click="${this.toggleClicked}">
+        <input type="checkbox" id="checkbox" @change="${this.checkChange}">
         ${
           (this.childElementCount > 0) ? html`<slot></slot>` :
             html`<span class="${this.rounded == false ? 'slider' : 'slider rounded'}"></span>`
