@@ -24,6 +24,8 @@ export class JuelScrollPane extends LitElement {
     @property() next: string;
     @property() previous: string;
 
+    @property({ type: Number }) master = 0;
+
     constructor() {
         super();
         if (!('Hammer' in window)) {

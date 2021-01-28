@@ -43,6 +43,22 @@ export class ScrollPaneService {
 		if (this.sp.random) {
 			$(this.sp.random).on('click', () => this.random());
 		}
+
+		$(this.sp).children().each((index, el) => {
+			let show: boolean = false;
+			if (el.hasAttribute('data-toggle')) {
+				let sel = el.dataset['toggle'];
+				console.log("Here " + sel)
+				$(sel).on('click', () => {
+					show = !show;
+					if (show == true) {
+						this.scrollTo(index);
+					} else {
+						this.scrollTo(this.sp.master);
+					}
+				})
+			}
+		})
     }
 
     scrollTo(index: number) {
