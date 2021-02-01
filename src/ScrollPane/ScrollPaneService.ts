@@ -16,8 +16,8 @@ export class ScrollPaneService {
     init() {
         this.container = this.sp.shadowRoot.getElementById('container');
         let first = this.container.firstElementChild as HTMLElement;
-        this.sp.style.width = `${$(first).outerWidth()}px`;
-		this.sp.style.height = `${$(first).outerHeight}px`;
+        //this.sp.style.width = `${$(first).outerWidth()}px`;
+		//this.sp.style.height = `${$(first).outerHeight}px`;
 		this.container.style.width = first.style.width;
         this.container.style.height = first.style.height;
 		this.children = $(this.container.querySelectorAll('.item'));
@@ -45,13 +45,11 @@ export class ScrollPaneService {
 		}
 
 		$(this.sp).children().each((index, el) => {
-			let show: boolean = false;
 			if (el.hasAttribute('data-toggle')) {
 				let sel = el.dataset['toggle'];
 				console.log("Here " + sel)
 				$(sel).on('click', () => {
-					show = !show;
-					if (show == true) {
+					if (this.sp.position != index) {
 						this.scrollTo(index);
 					} else {
 						this.scrollTo(this.sp.master);
@@ -66,13 +64,13 @@ export class ScrollPaneService {
         let margin: number = 0;
         let prev = el.prevAll();
         if (prev.length > 0) {
-        prev.each((i, sib) => {
-            margin+=$(sib).outerWidth();
-            console.log(`+ ${$(sib).outerWidth()} = ${margin}`)
-        });
-	}
+			prev.each((i, sib) => {
+				margin+=$(sib).outerWidth();
+				console.log(`+ ${$(sib).outerWidth()} = ${margin}`)
+			});
+		}
 	this.sp.style.width = `${el.outerWidth()}px`;
-        this.sp.style.height = `${el.outerHeight()}px`;
+      //  this.sp.style.height = `${el.outerHeight()}px`;
 		this.container.style.marginLeft = `-${margin}px`;
 		this.sp.position = index;
 	}
