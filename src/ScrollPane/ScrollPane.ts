@@ -25,6 +25,7 @@ export class JuelScrollPane extends LitElement {
     @property() previous: string;
 
     @property({ type: Number }) master = 0;
+    @property({ type: Number }) width = null;
 
     constructor() {
         super();

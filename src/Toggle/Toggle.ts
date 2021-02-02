@@ -6,6 +6,9 @@ export class JuelToggle extends LitElement {
 
     static styles = unsafeCSS(style);
 
+    defaultWidth = 60;
+    defaultHeight = 34;
+
     @property({ type: Boolean })
     rounded: boolean = false;
     @property({ type: Boolean })
@@ -17,10 +20,31 @@ export class JuelToggle extends LitElement {
     @property({ type: String })
     type: string = null;
 
+    @property({ type: Number })
+    width: number = null;
+    @property({ type: Number })
+    height: number = null;
+
     checked: boolean = false;
 
     firstUpdated() {
       let trigger = this.firstElementChild as HTMLDivElement;
+
+      if (!this.width) {
+        this.style.width = `${this.width}px`;
+      } else if (trigger) {
+        this.style.width = trigger.style.width;
+      } else {
+        this.style.width = `${this.defaultWidth}px`;
+      }
+      if (!this.height) {
+        this.style.height = `${this.height}px`;
+      } else if (trigger) {
+        this.style.height = trigger.style.height;
+      } else {
+        this.style.height = `${this.defaultHeight}px`;
+      }
+
       if (trigger) {
         $(trigger).on('click', () => {
           this.toggle();
@@ -72,7 +96,7 @@ export class JuelToggle extends LitElement {
         return html`<label class="switch" @click="${this.toggleClicked}">
         <input type="checkbox" id="checkbox" @change="${this.checkChange}">
         ${
-          (this.childElementCount > 0) ? html`<slot></slot>` :
+          (this.childElementCount > 0) ? html`<div id="trigger"><slot></slot></div>` :
             html`<span class="${this.rounded == false ? 'slider' : 'slider rounded'}"></span>`
         }
       </label>`;
