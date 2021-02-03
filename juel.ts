@@ -28,6 +28,7 @@ import './src/Menu/Menu';
 import './src/Toggle/Toggle';
 
 import './src/Flip/Flip';
+import './src/Tilt/Tilt';
 import './src/DraggableContainer/DraggableContainer';
 
 $(function() {
