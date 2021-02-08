@@ -20,12 +20,15 @@ export class ScrollPaneService {
 		let h = $(first).outerHeight();
 		if (w > 0) {
 			this.sp.style.width = `${h}px`;
+			this.container.style.width = `${h}px`;
+		} else if (this.sp.width) {
+			this.sp.style.width = `${this.sp.width}px`;
+			this.container.style.width = `${this.sp.width}px`;
 		}
 		if (h > 0) {
 			this.sp.style.height = `${h}px`;
+			this.container.style.height = `${h}px`;
 		}
-		this.container.style.width = first.style.width;
-        this.container.style.height = first.style.height;
 		this.children = $(this.container.querySelectorAll('.item'));
 		
 		this.randNumbers = [ this.sp.position ];

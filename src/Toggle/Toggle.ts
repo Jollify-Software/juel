@@ -20,6 +20,9 @@ export class JuelToggle extends LitElement {
     @property({ type: String })
     type: string = null;
 
+    @property({ type: String })
+    content: string = null;
+
     @property({ type: Number })
     width: number = null;
     @property({ type: Number })
@@ -28,7 +31,7 @@ export class JuelToggle extends LitElement {
     checked: boolean = false;
 
     firstUpdated() {
-      let trigger = this.firstElementChild as HTMLDivElement;
+      let trigger = this.shadowRoot.getElementById('trigger') as HTMLDivElement;
 
       if (!this.width) {
         this.style.width = `${this.width}px`;
@@ -96,7 +99,7 @@ export class JuelToggle extends LitElement {
         return html`<label class="switch" @click="${this.toggleClicked}">
         <input type="checkbox" id="checkbox" @change="${this.checkChange}">
         ${
-          (this.childElementCount > 0) ? html`<div id="trigger"><slot></slot></div>` :
+          (this.content) ? html`<button id="trigger">${this.content}</button>` :
             html`<span class="${this.rounded == false ? 'slider' : 'slider rounded'}"></span>`
         }
       </label>`;
