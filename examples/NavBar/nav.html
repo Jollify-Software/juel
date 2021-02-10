@@ -1,0 +1,42 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+
+    <style>
+        juel-nav {
+            --padding-right: 128px;
+        }
+        juel-nav::part(title) {
+            margin-right: auto;
+        }
+    </style>
+</head>
+
+<body>
+        <juel-nav>
+            <h1 slot="title">
+                Welcome
+            </h1>
+            <h3>Home</h3>
+            <h3>About</h3>
+            <span>
+                <juel-menu>
+                    <button slot="trigger">Menu</button>
+                    <a href="https://en.wikipedia.org/wiki/Prudence" target="_blank">🤔</a>
+                    <juel-menu>
+                        <button slot="trigger">Menu</button>
+                        <a href="https://en.wikipedia.org/wiki/Prudence" target="_blank">🤔</a>
+                        <a href="https://en.wikipedia.org/wiki/Courage" target="_blank">💪</a>
+                        <a href="https://en.wikipedia.org/wiki/Temperance_(virtue)" target="_blank">🚫</a>
+                        <a href="https://en.wikipedia.org/wiki/Justice_(virtue)" target="_blank">⚖️</a>
+                    </juel-menu>
+                    <a href="https://en.wikipedia.org/wiki/Temperance_(virtue)" target="_blank">🚫</a>
+                    <a href="https://en.wikipedia.org/wiki/Justice_(virtue)" target="_blank">⚖️</a>
+                </juel-menu>
+            </span>
+            <h3>Contact</h3>
+        </juel-nav>
+</body>
+
+</html>

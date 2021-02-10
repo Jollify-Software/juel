@@ -13,13 +13,18 @@ export class JuelMenu extends LitElement {
 
     firstUpdated() {
         let items = this.shadowRoot.getElementById('items');
-        let trigger = this.shadowRoot.getElementById('trigger');
-        $(trigger).on('click', (e) => {
+        let trigger = $(this.shadowRoot.getElementById('trigger'));
+        /*
+        $(this)
+            .width(trigger.outerWidth())
+            .height(trigger.outerHeight());
+            */
+        trigger.on('click', (e) => {
             if (this.menuShown == false) {
                 items.style.display = "inline-block";
                 items.style.opacity = "1";
                 this.menu = createPopper(
-                    trigger,
+                    trigger[0],
                     items
                     );
                 this.menuShown = true;
@@ -30,6 +35,7 @@ export class JuelMenu extends LitElement {
                 this.menuShown = false;
             }
         });
+            setTimeout(() => this.requestUpdate(), 100);
     }
 
 
@@ -41,7 +47,7 @@ export class JuelMenu extends LitElement {
             </div>
             <div id="items">
             ${ChildrenMap(this, (el, index) => {
-                if (!el.hasAttribute('slot')) {
+                if (el.getAttribute("slot") != "trigger") {
                     let id = el.id ? el.id :  `item-${index}`;
                     el.setAttribute('slot', id);
 
