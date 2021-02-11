@@ -1,13 +1,8 @@
+import "./JuelGlobal";
 import { BlazorSelectFunctions } from "./Select/BlazorSelect";
 import { BlazorDialogManagerFunctions } from "./DialogManager/BlazorDialogManager";
 import { BlazorColourFunctions } from "./Colour/BlazorColour";
 import { BlazorListFunctions } from "./List/BlazorList";
-
-(<any>window).juel = {};
-import $ from "jquery";
-
-(<any>window).$ = $;
-(<any>window).jQuery = $;
 
 module Blazor {
     export var dialog = BlazorDialogManagerFunctions

@@ -1,6 +1,5 @@
-
-
-
+import './src/JuelGlobal';
+import './src/Toastr';
 import './src/BlazorBinding';
 
 //import './lib/jquery-ui-1.12.1.custom/jquery-ui.js';
