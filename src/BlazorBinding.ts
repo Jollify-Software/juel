@@ -4,8 +4,8 @@ import { BlazorColourFunctions } from "./Colour/BlazorColour";
 import { BlazorListFunctions } from "./List/BlazorList";
 
 (<any>window).juel = {};
-
 import $ from "jquery";
+
 (<any>window).$ = $;
 (<any>window).jQuery = $;
 

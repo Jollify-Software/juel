@@ -8,17 +8,39 @@ export class JuelNav extends LitElement {
 
     static styles = unsafeCSS(Styles)
 
+    @property({ type: Boolean })
+    toggle: boolean = false;
+    @property({ type: String })
+    side: string;
+    @property({ type: String })
+    push: string;
     @property({ type: Number })
     selected: number;
 
     itemsHtml: TemplateResult[];
 
     firstUpdated() {
-        setTimeout(() => this.requestUpdate(), 100);
+        setTimeout(() => this.requestUpdate());
     }
 
-    toggle(e: Event) {
-        (<HTMLElement>e.target).classList.toggle("open");
+    toggleClick(e: Event) {
+        e.stopImmediatePropagation();
+        let el = this.shadowRoot.getElementById("toggle");
+        el.classList.toggle("open");
+        if (el.classList.contains("open")) {
+            if (this.push) {
+                let css = {};
+                css[`margin-${this.side}`] = "500px";
+                css["transition"] = "margin 2s";
+                $(this.push).css(css);
+            }
+        } else {
+            if (this.push) {
+                let css = {};
+                css[`margin-${this.side}`] = "0";
+                $(this.push).css(css);
+            }
+        }
     }
 
     render() {
@@ -28,12 +50,12 @@ export class JuelNav extends LitElement {
                 html`<div part="title" class="title"><slot name="title"></slot></div>` :
                 html``
             }
-            <div class="toggle" @click="${this.toggle}">
+            <div id="toggle" class="${this.toggle == true ? "toggle shown" : "toggle"}" @click="${this.toggleClick}">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
-            <div id="items">
+            <div id="items" class="${this.side ? `side ${this.side}` : ""}">
             ${ChildrenMap(this, (el, index) => {
                 if (el.getAttribute("slot") != "title") {
                 let id = el.id ? el.id :  `item-${index}`;

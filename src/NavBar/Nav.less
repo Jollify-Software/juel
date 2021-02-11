@@ -21,12 +21,33 @@ nav {
     #items {
         display: flex;
         overflow: visible;
-        align-items: center;
+        align-items: baseline;
         transition: max-height .75s;
+
+        &.side {
+            position: fixed;
+            overflow: hidden;
+
+            &.left {
+                width: 0;
+                height: calc(var(--vh) * 100);
+                top: 0;
+                left: 0;
+                transition: width 2s;
+            }
+            &.right {
+                width: 0;
+                height: calc(var(--vh) * 100);
+                top: 0;
+                right: 0;
+                transition: width 2s;
+            }
+        }
 
         @media screen and (max-width: @widthMobile) {
             flex-direction: column;
             overflow-y: auto;
+            width: 100%;
             max-height: 0;
         }
     }
@@ -53,6 +74,35 @@ nav {
         border          : 1px solid transparent;
         border-radius   : .25rem;
         transition      : box-shadow .15s ease-in-out;
+
+        &.shown {
+            display: inline-block;
+        }
+
+        &.open {
+            + #items {
+                max-height: calc(var(--vh) * 100);
+
+                &.side {
+                    max-height: initial;
+                    &.left, &.right {
+                        width: 500px;
+                    }
+                }
+            }
+
+            span:nth-child(1) {
+                transform: translateY(5px) rotate(45deg);
+            }
+
+            span:nth-child(2) {
+                opacity: 0;
+            }
+
+            span:nth-child(3) {
+                transform: translateY(-5px) rotate(-45deg);
+            }
+        }
 
         @media screen and (max-width: @widthMobile) {
             display: inline-block;
@@ -81,23 +131,6 @@ nav {
 
         span:nth-child(3) {
             top: calc(50% + 4px);
-        }
-
-        &.open {
-            + #items {
-                max-height: calc(var(--vh) * 100);
-            }
-            span:nth-child(1) {
-                transform: translateY(5px) rotate(45deg);
-            }
-
-            span:nth-child(2) {
-                opacity: 0;
-            }
-
-            span:nth-child(3) {
-                transform: translateY(-5px) rotate(-45deg);
-            }
         }
     }
 }

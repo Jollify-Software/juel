@@ -1,4 +1,4 @@
-import { customElement, html, LitElement, unsafeCSS } from "lit-element";
+import { customElement, html, LitElement, property, unsafeCSS } from "lit-element";
 import { createPopper, Instance } from '@popperjs/core';
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import Styles from 'bundle-text:./Menu.less';
@@ -14,23 +14,19 @@ export class JuelMenu extends LitElement {
     firstUpdated() {
         let items = this.shadowRoot.getElementById('items');
         let trigger = $(this.shadowRoot.getElementById('trigger'));
-        /*
-        $(this)
-            .width(trigger.outerWidth())
-            .height(trigger.outerHeight());
-            */
+        
         trigger.on('click', (e) => {
             if (this.menuShown == false) {
                 items.style.display = "inline-block";
-                items.style.opacity = "1";
                 this.menu = createPopper(
                     trigger[0],
-                    items
-                    );
+                    items,
+                    {
+                        placement: $(this).parent('juel-menu').length > 0 ? "right-end" : "bottom"
+                    });
                 this.menuShown = true;
             } else {
                 items.style.display = "none"
-                items.style.opacity = "0";
                 this.menu = null
                 this.menuShown = false;
             }
