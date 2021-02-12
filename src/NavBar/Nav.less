@@ -1,13 +1,13 @@
-@import '../UniversalCssProperties.less';
+@import "../_CommonStyles/_Units.less";
 
 nav {
     display        : flex;
     flex-wrap: wrap;
     flex-direction : row;
     align-items    : center;
-    justify-content: @justify;
-    padding-left   : @paddingLeft;
-    padding-right  : @paddingRight;
+    justify-content: var(--justify);
+    padding-left   : var(--padding-left);
+    padding-right  : var(--padding-right);
 
     .title {
         padding-top    : .3125rem;

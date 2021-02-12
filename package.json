@@ -4,7 +4,7 @@
     "description": "User Interface web components",
     "scripts": {
         "dev": "parcel juel.ts",
-        "build": "parcel build juel.ts --no-minify --dist-dir dist --no-source-maps",
+        "build": "parcel build juel.ts --dist-dir dist --no-source-maps",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {

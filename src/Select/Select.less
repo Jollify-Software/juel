@@ -1,5 +1,4 @@
-@import "../UniversalCssProperties.less";
-/* The container must be positioned relative: */
+
 :host {
     position: relative;
     font-family: Arial;
@@ -12,7 +11,7 @@ svg {
     display: inline-block;
   }
 #items {
-  background-color: @backgroundColourLightDefault;
+  background-color: var(--light);
 }
 
   #badge {
@@ -55,12 +54,12 @@ left: 80%;
     width: 0;
     height: 0;
     border: 6px solid transparent;
-    border-color: @backgroundColourPrimary transparent transparent transparent;
+    border-color: var(--primary) transparent transparent transparent;
   }
  &.open { 
   /* Point the arrow upwards when the select box is open (active): */
   #arrow {
-    border-color: transparent transparent @backgroundColourPrimary transparent;
+    border-color: transparent transparent var(--primary) transparent;
     top: 7px;
   }
 }
@@ -82,9 +81,9 @@ left: 80%;
     display: inline-block;
     width: 100%;
     &.selected {
-      background-color: @backgroundColourPrimary;
+      background-color: var(--primary);
     }
     &:hover {
-      background-color: @backgroundColourSecondary;
+      background-color: var(--primary);
     }
   }

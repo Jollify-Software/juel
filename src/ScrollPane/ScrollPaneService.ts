@@ -91,7 +91,8 @@ export class ScrollPaneService {
 
 		let evt = new CustomEvent("scrollTo", {
 			detail: {
-				index: index
+				index: index,
+				element: el
 			}
 		});
 		this.sp.dispatchEvent(evt);
