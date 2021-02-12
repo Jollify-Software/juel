@@ -89,6 +89,14 @@ export class ScrollPaneService {
 		this.container.style.marginLeft = `-${margin}px`;
 	
 		this.sp.position = index;
+
+		let evt = new CustomEvent("scrollTo", {
+			detail: {
+				index: index
+			}
+		});
+		this.sp.dispatchEvent(evt);
+
 	}
 
 	next() {
