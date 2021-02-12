@@ -19,8 +19,8 @@ export class ScrollPaneService {
 		let w = $(first).outerWidth();
 		let h = $(first).outerHeight();
 		if (w > 0) {
-			this.sp.style.width = `${h}px`;
-			this.container.style.width = `${h}px`;
+			this.sp.style.width = `${w}px`;
+			this.container.style.width = `${w}px`;
 		} else if (this.sp.width) {
 			this.sp.style.width = `${this.sp.width}px`;
 			this.container.style.width = `${this.sp.width}px`;
@@ -37,16 +37,16 @@ export class ScrollPaneService {
 		}
 
         if (this.sp.tabs) {
-            $(this.sp.tabs).each((index, el) => {
+            $(this.sp.tabs as any).each((index, el) => {
                 $(el).on('click', () => this.scrollTo(index));
             })
 		}
 		
 		if (this.sp.next) {
-			$(this.sp.next).on('click', () => this.next());
+			$(this.sp.next as any).on('click', () => this.next());
 		}
 		if (this.sp.previous) {
-			$(this.sp.previous).on('click', () => this.previous());
+			$(this.sp.previous as any).on('click', () => this.previous());
 		}
 
 		if (this.sp.random) {
@@ -80,12 +80,11 @@ export class ScrollPaneService {
 		let w = el.outerWidth();
 		let h = el.outerHeight();
 		if (w > 0) {
-			this.sp.style.width = `${h}px`;
+			this.sp.style.width = `${w}px`;
 		}
 		if (h > 0) {
 			this.sp.style.height = `${h}px`;
 		}
-	
 		this.container.style.marginLeft = `-${margin}px`;
 	
 		this.sp.position = index;

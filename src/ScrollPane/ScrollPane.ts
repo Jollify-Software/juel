@@ -19,10 +19,10 @@ export class JuelScrollPane extends LitElement {
     @property() easing: string = "swing";
     @property() duration: number = 1000;
     @property() control: string = 'move';
-    @property() tabs: string;
+    @property() tabs: string | HTMLCollection;
     @property() random: string;
-    @property() next: string;
-    @property() previous: string;
+    @property() next: string | HTMLElement;
+    @property() previous: string | HTMLElement;
 
     @property({ type: Number }) master = 0;
     @property({ type: Number }) width = null;
@@ -35,8 +35,11 @@ export class JuelScrollPane extends LitElement {
     }
 
     firstUpdated() {
+        setTimeout(() => {
+this.requestUpdate();
+
         this.service.init();
-        let mc = new Hammer(this.shadowRoot.getElementById('container'));
+        let mc = new Hammer(this);
         mc.on('swipe', (e) => {
             // Left = 2
             if (e.direction == 2) {
@@ -45,7 +48,8 @@ export class JuelScrollPane extends LitElement {
             } else if (e.direction == 4) {
                 this.service.previous();
             }
-        })
+        });
+    });
     }
 
     render() {

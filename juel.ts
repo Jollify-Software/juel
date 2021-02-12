@@ -23,6 +23,7 @@ import './src/Mdi/Mdi';
 import './src/Tabs/Tabs';
 import './src/Select/Select';
 import './src/ScrollPane/ScrollPane';
+import './src/Lightbox/Lightbox';
 import './src/List/List';
 import './src/Menu/Menu';
 import './src/Toggle/Toggle';
