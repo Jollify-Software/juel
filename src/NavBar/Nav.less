@@ -4,7 +4,7 @@ nav {
     display        : flex;
     flex-wrap: wrap;
     flex-direction : row;
-    align-items    : center;
+    align-items    : baseline;
     justify-content: var(--justify);
     padding-left   : var(--padding-left);
     padding-right  : var(--padding-right);
@@ -25,22 +25,11 @@ nav {
         transition: max-height .75s;
 
         &.side {
-            position: fixed;
-            overflow: hidden;
-
             &.left {
-                width: 0;
-                height: calc(var(--vh) * 100);
-                top: 0;
-                left: 0;
-                transition: width 2s;
+                order: -1;    
             }
             &.right {
-                width: 0;
-                height: calc(var(--vh) * 100);
-                top: 0;
-                right: 0;
-                transition: width 2s;
+                order: 3;
             }
         }
 
@@ -77,16 +66,19 @@ nav {
 
         &.shown {
             display: inline-block;
+
+            + #items.side {
+                position: relative;
+            flex: 0;
+            transition: flex 2s;
+            }
         }
 
         &.open {
             + #items {
-                max-height: calc(var(--vh) * 100);
-
                 &.side {
-                    max-height: initial;
                     &.left, &.right {
-                        width: 500px;
+                        flex: 1;
                     }
                 }
             }

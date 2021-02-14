@@ -11,16 +11,33 @@ export class JuelNav extends LitElement {
     @property({ type: Boolean })
     toggle: boolean = false;
     @property({ type: String })
-    side: string;
+    side: string = "right";
     @property({ type: String })
     push: string;
     @property({ type: Number })
     selected: number;
 
     itemsHtml: TemplateResult[];
+    itemsWidth: string;
 
     firstUpdated() {
-        setTimeout(() => this.requestUpdate());
+        setTimeout(() => {
+            this.requestUpdate()
+
+            /*
+            this.itemsWidth = this.style.getPropertyValue("--items-width");
+            if (!this.itemsWidth) {
+                let w: number = 0;
+                $(this.shadowRoot).find('.item').each((index, el) => {
+                    w += $(el).outerWidth();
+                })
+                this.itemsWidth = `${w}px`;
+                this.style.setProperty("--items-width", this.itemsWidth);
+            }
+            this.shadowRoot.getElementById("items").style.width = '0';
+            this.shadowRoot.getElementById("items").style.visibility = 'visible';
+            */
+        });
     }
 
     toggleClick(e: Event) {
@@ -30,14 +47,14 @@ export class JuelNav extends LitElement {
         if (el.classList.contains("open")) {
             if (this.push) {
                 let css = {};
-                css[`margin-${this.side}`] = "500px";
+           //     css[`margin-${this.side}`] = this.itemsWidth;
                 css["transition"] = "margin 2s";
                 $(this.push).css(css);
             }
         } else {
             if (this.push) {
                 let css = {};
-                css[`margin-${this.side}`] = "0";
+         //       css[`margin-${this.side}`] = "0";
                 $(this.push).css(css);
             }
         }
