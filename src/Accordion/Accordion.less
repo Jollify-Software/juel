@@ -1,0 +1,57 @@
+:host {
+	width: 100%;
+}
+#container {
+	display       : flex;
+	flex-direction: column;
+
+	.title {
+		background-color: var(--secondary);
+		color           : var(--secondary-text);
+		cursor          : pointer;
+		padding         : 18px;
+		width           : 100%;
+		text-align      : left;
+		border          : none;
+		outline         : none;
+		transition      : 0.4s;
+
+		&.active {
+			background-color: var(--primary);
+			color           : var(--primary-text);
+
+			+.panel {
+				max-height: 200px;
+			}
+		}
+
+		&:hover {
+			background-color: var(--highlight);
+			color           : var(--highlight-text);
+		}
+	}
+
+	.panel {
+		max-height      : 0;
+		padding         : 0 18px;
+		background-color: white;
+		overflow        : auto;
+		transition      : max-height 0.2s ease-out, max-width 0.2s ease-out;
+	}
+
+	&.horizontal {
+		flex-direction: row;
+		.title {
+			&.active {
+	
+				+.panel {
+					max-width: 200px;
+				}
+			}
+		}
+	
+		.panel {
+			max-width      : 0;
+		}
+	}
+}

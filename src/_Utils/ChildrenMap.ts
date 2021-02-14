@@ -1,6 +1,12 @@
 import { LitElement, TemplateResult } from "lit-element";
 
-export function ChildrenMap(el: HTMLElement, map: (el: HTMLElement, index: number) => TemplateResult): TemplateResult[] {
-    return (Array.prototype.slice.call(el.children) as HTMLElement[])
-                .map(map);
+export function ChildrenMap(el: HTMLElement, map: (el: HTMLElement, index: number) => TemplateResult, ...exclude: string[]): TemplateResult[] {
+    if (exclude) {
+        return (Array.prototype.slice.call(el.children) as HTMLElement[])
+            .filter(el => exclude.some(str => !el.matches(str)))
+            .map(map);
+    } else {
+        return (Array.prototype.slice.call(el.children) as HTMLElement[])
+            .map(map);
+    }
 }

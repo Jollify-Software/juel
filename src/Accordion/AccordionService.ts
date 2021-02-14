@@ -1,25 +1,23 @@
+import { JuelAccordion } from "./Accordion";
+
 export class AccordionService {
-    init(container: HTMLElement) {
-        let btns = container.querySelectorAll('.title');
-        for (let i = 0; i < btns.length; i++) {
-            btns[i].addEventListener("click", function() {
-              /* Toggle between adding and removing the "active" class,
-              to highlight the button that controls the panel */
-              this.classList.toggle("active");
-          
-              /* Toggle between hiding and showing the active panel */
-              var panel = this.nextElementSibling as HTMLElement;
-              if (panel.style.display === "block") {
-                panel.style.display = "none";
-              } else {
-                panel.style.display = "block";
-              }
-              if (panel.style.maxHeight) {
-                panel.style.maxHeight = null;
-              } else {
-                panel.style.maxHeight = panel.scrollHeight + "px";
-              } 
-            });
-          }
-    }
+
+  constructor(private element: JuelAccordion) {
+
+  }
+
+  init() {
+    let h: number = 0;
+    let btns = $(this.element.shadowRoot).find('.title');
+    btns.each((index, el) => {
+      el.addEventListener("click", function () {
+        /* Toggle between adding and removing the "active" class,
+        to highlight the button that controls the panel */
+        el.classList.toggle("active");
+        if (el.classList.contains("active")) {
+          $(el).siblings(".title").removeClass("active");
+        }
+      });
+    });
+  }
 }
