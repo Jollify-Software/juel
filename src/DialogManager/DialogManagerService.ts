@@ -1,16 +1,21 @@
 import { Dialog } from "../_Core/Dialog";
+import { JuelDialogManager } from "./DialogManager";
 
 export class DialogManagerService {
 
     dialogs: Dialog[] = [];
     container: HTMLElement
 
-    init(container: HTMLElement) {
-        this.container = container;
+    constructor(private element: JuelDialogManager) {
+
+    }
+
+    init() {
+        this.container = this.element.shadowRoot.getElementById("container");
         this.container.style.display = "none";
 
         for (let dialog of this.dialogs) {
-            let div = container.querySelector(`#${dialog.id}`) as HTMLElement;
+            let div = this.container.querySelector(`#${dialog.id}`) as HTMLElement;
             dialog.init(div);
         }
         window['juel']['dialogManager'] = this;

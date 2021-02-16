@@ -6,7 +6,7 @@ import styles from 'bundle-text:./DialogManager.css';
 import { DialogManagerService } from "./DialogManagerService";
 
 @customElement("juel-dialog-manager")
-export class DialogManager extends LitElement {
+export class JuelDialogManager extends LitElement {
 
     static styles = unsafeCSS(styles);
 
@@ -17,11 +17,15 @@ export class DialogManager extends LitElement {
         if (!('interact' in window)) {
         window['interact'] = interact;
         }
-        this.service = new DialogManagerService();
+        this.service = new DialogManagerService(this);
     }
 
     firstUpdated() {
-        this.service.init(this.shadowRoot.querySelector("#dialog-container"));
+        setTimeout(() => {
+            this.requestUpdate();
+            setTimeout(() => this.service.init());
+        });
+        
     }
 
     show(id: string) {
@@ -33,7 +37,7 @@ export class DialogManager extends LitElement {
     }
 
     render() {
-        return html`<div id="dialog-container">
+        return html`<div id="container">
             ${(Array.prototype.slice.call(this.children) as HTMLElement[])
                 .map((ele, index) => {
                     let id = ele.id;

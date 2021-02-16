@@ -1,9 +1,26 @@
 :host {
     position: relative;
     display: inline-block;
-
     #items {
         display: none;
-        position: absolute;
     }
+  }
+  #trigger {
+      button {
+          display: flex;
+          &:before {
+            width: 1.25em;
+            line-height: 0;
+            content: var(--icon-indicator);
+            transition: transform 0.35s ease;
+            transform-origin: .5em 50%;
+          }
+      }
+      &.open {
+          button {
+              &:before {
+                transform: rotate(90deg);
+              }
+          }
+      }
   }

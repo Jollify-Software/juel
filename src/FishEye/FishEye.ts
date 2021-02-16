@@ -27,11 +27,12 @@ export class FishEye extends LitElement {
         }
 
         firstUpdated() {
-            this.service.init();
+            setTimeout(() => this.service.init());
         }
 
-        render() {
-            return html`<slot></slot>`;
+        createRenderRoot() {
+            return this;
         }
+
 
 }

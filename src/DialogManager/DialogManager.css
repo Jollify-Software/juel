@@ -1,4 +1,4 @@
-#dialog-container {
+#container {
     position: fixed;
     display: flex;
     align-items: center;
@@ -10,7 +10,7 @@
     pointer-events: none;
     z-index: 101;
 }
-#dialog-container.modal {
+#container.modal {
     pointer-events: all;
     background-color: #3a474d;
 }

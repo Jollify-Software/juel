@@ -7,23 +7,30 @@ import Styles from 'bundle-text:./Menu.less';
 export class JuelMenu extends LitElement {
     
     static styles = unsafeCSS(Styles);
+
+    @property({ type: Boolean }) push = false;
     
     menu: Instance;
     menuShown = false;
 
     firstUpdated() {
+        setTimeout(() => {
+            this.requestUpdate();
         let items = this.shadowRoot.getElementById('items');
         let trigger = $(this.shadowRoot.getElementById('trigger'));
         
         trigger.on('click', (e) => {
+            trigger.toggleClass("open");
             if (this.menuShown == false) {
                 items.style.display = "inline-block";
+                if (this.push == false) {
                 this.menu = createPopper(
                     trigger[0],
                     items,
                     {
                         placement: $(this).parent('juel-menu').length > 0 ? "right-end" : "bottom"
                     });
+                }
                 this.menuShown = true;
             } else {
                 items.style.display = "none"
@@ -31,19 +38,20 @@ export class JuelMenu extends LitElement {
                 this.menuShown = false;
             }
         });
-            setTimeout(() => this.requestUpdate(), 100);
+    });
     }
 
 
     render() {
         return html`<div id="container">
             <div id="trigger">
-                <slot name="trigger"></slot>
+                <slot name="trigger">
+                    <button>${this.title}</button>
+                </slot>
                 <div id="down-arrow"></div>
             </div>
             <div id="items">
             ${ChildrenMap(this, (el, index) => {
-                if (el.getAttribute("slot") != "trigger") {
                     let id = el.id ? el.id :  `item-${index}`;
                     el.setAttribute('slot', id);
 
@@ -51,10 +59,7 @@ export class JuelMenu extends LitElement {
                         <div class="item" data-index="${index}">
                         <slot name="${id}"></slot>
                         </div>`;
-                } else {
-                    return html``;
-                }
-            })}
+            }, '[slot="trigger"]')}
             </div>
         </div>`;
     }
