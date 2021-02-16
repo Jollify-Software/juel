@@ -63,16 +63,17 @@ export class JuelNav extends LitElement {
     render() {
         return html`
             <nav>
-            ${GetChildren(this).some(e => e.matches('[slot="title"]')) ?
-                html`<div part="title" class="title"><slot name="title"></slot></div>` :
-                html``
-            }
+            <div part="title" class="title">
+                <slot name="title">
+                    <h1>${this.title}</h1>
+                </slot>
+            </div>
             <div id="toggle" class="${this.toggle == true ? "toggle shown" : "toggle"}" @click="${this.toggleClick}">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
-            <div id="items" class="${this.side ? `side ${this.side}` : ""}">
+            <div id="items" part="items" class="${this.side ? `side ${this.side}` : ""}">
             ${ChildrenMap(this, (el, index) => {
                 if (el.getAttribute("slot") != "title") {
                 let id = el.id ? el.id :  `item-${index}`;
@@ -90,7 +91,7 @@ export class JuelNav extends LitElement {
             } else {
                 return html``;
             }
-            })}
+            }, '[slot="title"]')}
             </div>
             </nav>
         `;

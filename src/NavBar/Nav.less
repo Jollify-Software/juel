@@ -20,9 +20,11 @@ nav {
 
     #items {
         display: flex;
-        overflow: visible;
+        overflow-x: hidden;
+        overflow-y: visible;
         align-items: baseline;
         transition: max-height .75s;
+        min-width: 0;
 
         &.side {
             &.left {
