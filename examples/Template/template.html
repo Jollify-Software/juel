@@ -1,0 +1,51 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="../../dist/juel.js"></script>
+
+    <style>
+        .container {
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        var context = {
+            name: "Mary",
+            animal: "Lamb",
+            possession: "Fleece",
+            colour: "while",
+            obj: "snow"
+        };
+    </script>
+    
+    <div id="file-input-demo" class="container">
+        <juel-colour context="context"></juel-colour>
+        <hr>
+        <juel-template>
+            ${this.name} had a little ${this.animal} it's ${this.possession} was 
+            <span style="display:inline-block;width: 32px; height: 32px;background-color: ${this.colour};"></span> 
+            as ${this.obj}.
+        </juel-template>
+    </div>
+
+    <script>
+        
+        var template = document.getElementsByTagName("juel-template")[0];
+        template.context = context;
+        var colour = document.getElementsByTagName("juel-colour")[0];
+        colour.setColour = context.colour;
+        colour.addEventListener('change', (e) => {
+           template.requestUpdate();
+        });
+    </script>
+</body>
+
+</html>

@@ -7,6 +7,6 @@ export class JuelTemplate extends LitElement {
     @property() context: any
 
     render() {
-        return html`${this.context ? unsafeHTML(FillTemplate(this.innerHTML, this.context)) : '' }`;
+        return html`${this.context ? FillTemplate(this.innerHTML, this.context) : '' }`;
     }
 }
