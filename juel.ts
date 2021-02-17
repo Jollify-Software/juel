@@ -27,6 +27,7 @@ import './src/Lightbox/Lightbox';
 import './src/List/List';
 import './src/Menu/Menu';
 import './src/Toggle/Toggle';
+import './src/Spinner/Spinner';
 
 import './src/NavBar/NavBar';
 
