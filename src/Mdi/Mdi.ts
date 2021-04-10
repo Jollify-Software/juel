@@ -1,11 +1,11 @@
-import GoldenLayout from "golden-layout";
+import { GoldenLayout, ItemType, LayoutConfig, RootItemConfig } from "golden-layout";
 import { customElement, LitElement, html, property, unsafeCSS } from "lit-element";
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 
 import style from 'bundle-text:./mdi.less'
 
-import themeBase from "bundle-text:golden-layout/src/css/goldenlayout-base.css";
-import themeLight from "bundle-text:golden-layout/src/css/goldenlayout-light-theme.css";
+import themeBase from "bundle-text:golden-layout/dist/css/goldenlayout-base.css";
+import themeLight from "bundle-text:golden-layout/dist/css/themes/goldenlayout-light-theme.css";
 import { IsMobile } from "../_Utils/IsMobile";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 
@@ -17,11 +17,11 @@ export class Mdi extends LitElement {
     static themeLightAdded = false;
     static mdiCount = 0;
 
-    config: GoldenLayout.Config;
+    config: LayoutConfig;
     layout: GoldenLayout;
 
     @property()
-    order: string = "stack";
+    order: ('stack' | 'row' | 'column') = "stack";
     @property({ type: Boolean })
     tabs: boolean = false;
 
@@ -43,6 +43,7 @@ export class Mdi extends LitElement {
     }
 
     firstUpdated() {
+        setTimeout(() => {
         if (!this.id) {
             this.id = `mdi-${Mdi.mdiCount}`;
             Mdi.mdiCount++;
@@ -53,44 +54,36 @@ export class Mdi extends LitElement {
 
         let savedState = null;//\localStorage.getItem('savedState');
 
+        this.layout = new GoldenLayout();
 
-        let content: GoldenLayout.ItemConfigType = {
-            type: this.order
+        let content: RootItemConfig = {
+            type: this.order,
+            content: []
         };
-        content.content = [];
         let elements: { [id: string]: HTMLElement } = {};
         let childCount = 0;
         for (let child of Array.prototype.slice.call(this.children) as HTMLElement[]) {
             let componentName = (child as HTMLElement).dataset.title ?? "component";
-            let component: GoldenLayout.ComponentConfig = {
+            let component: RootItemConfig = {
                 id: child.id ? child.id : `${this.id}-${childCount}`,
                 type: 'component',
-                componentName: componentName
+                componentType: componentName
             };
-            content.content.push(component);
+            content.content.push(component as never);
             elements[componentName] = child;
             childCount++;
         }
+        this.config = { root: content };
 
-
-        if (savedState !== null) {
-            this.config = JSON.parse(savedState);
-            this.layout = new GoldenLayout(this.config);
-        } else {
-            this.config = {};
-            this.config.content = [];
-            this.config.content.push(content);
-            this.layout = new GoldenLayout(this.config);
-        }
-
-        console.log(content.content);
+        console.log(this.config);
         for (let component of content.content) {
-            let name = component['componentName']
+            let name = component['componentType']
 
-            this.layout.registerComponent(name, function (container: GoldenLayout.Container, state) {
+            this.layout.registerComponentFactoryFunction(name, (container, itemConfig) => {
                 let el = $(elements[name]);
-                console.log(el[0]);
                 (<any>el[0]).container = container;
+                container.element.append(el[0])
+                /*;
                 (container.getElement() as any).html(el);
                 let tabs = el.find("[data-tab]");
                 if (tabs.length > 0) {
@@ -103,15 +96,23 @@ export class Mdi extends LitElement {
                         (el.find('[data-notify]')[0] as any)
                             .notify('register');
                     }
-                }
+                }*/
             });
         }
-        this.layout.init();
-
+        //this.layout.init();
+        
+        if (savedState !== null) {
+            this.config = JSON.parse(savedState);
+            //this.layout = new GoldenLayout(this.config);
+        } else { 
+            this.layout.loadLayout(this.config);
+        }
+        
         this.layout.on('stateChanged', () => {
             var state = JSON.stringify(this.layout.toConfig());
             localStorage.setItem('savedState', state);
         });
+    });
     }
 
     render() {

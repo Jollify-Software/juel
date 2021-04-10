@@ -15,7 +15,7 @@
 
 <body>
     <div id="file-input-demo" class="container">
-        <juel-mdi layout="row">
+        <juel-mdi order="row">
             <div data-title="Example">
                 <strong data-tab>Hello</strong>
                 <h1>Component 1</h1>
@@ -41,10 +41,11 @@
             mdi.layout.eventHub.emit('count', count);
         }
 
+        setTimeout(() => {
         mdi.layout.on('windowOpened', (event) => {
             win = event.getWindow();
         });
-        mdi.layout.on('windowClosed', (event) => {
+        mdi.layout.eventHub.on('windowClosed', (event) => {
             win = null;
         });
         mdi.layout.eventHub.on('count', (count) => {
@@ -54,6 +55,8 @@
                 document.querySelector('#placeholder').innerHTML = count;
             }
         });
+        
+    })
     </script>
 </body>
 
