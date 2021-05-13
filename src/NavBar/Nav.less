@@ -9,6 +9,11 @@ nav {
     padding-left   : var(--padding-left);
     padding-right  : var(--padding-right);
 
+    @media screen and (max-width: @widthMobile) {
+        padding-left: initial;
+        padding-right: initial;
+    }
+
     .title {
         padding-top    : .3125rem;
         padding-bottom : .3125rem;
@@ -23,7 +28,6 @@ nav {
         overflow-x: hidden;
         overflow-y: visible;
         align-items: baseline;
-        transition: max-height .75s;
         min-width: 0;
 
         &.side {
@@ -31,14 +35,16 @@ nav {
                 order: -1;    
             }
             &.right {
-                order: 3;
+                order: 1;
             }
         }
 
         @media screen and (max-width: @widthMobile) {
             flex-direction: column;
             overflow-y: auto;
+            order: 1 !important;
             width: 100%;
+            min-width: 100px;
             max-height: 0;
         }
     }
@@ -66,15 +72,36 @@ nav {
         border-radius   : .25rem;
         transition      : box-shadow .15s ease-in-out;
 
+        @media screen and (max-width: @widthMobile) {
+            display: inline-block;
+            + #items.side {
+                position: relative;
+                    transition: max-height 1.5s;
+            }
+            &.open {
+                + #items {
+                    &.side {
+                            max-height: calc(100 * var(--vh));
+                        }
+                    }
+                }
+        }
+
         &.shown {
             display: inline-block;
 
             + #items.side {
                 position: relative;
             flex: 0;
-            transition: flex 2s;
+            transition: flex 1.5s;
+
+            
+                @media screen and (max-width: @widthMobile) {
+                    flex: initial !important;
+                    transition: max-height 1.5s;
+                }
             }
-        }
+        
 
         &.open {
             + #items {
@@ -82,8 +109,12 @@ nav {
                     &.left, &.right {
                         flex: 1;
                     }
+                    @media screen and (max-width: @widthMobile) {
+                        max-height: calc(100 * var(--vh));
+                    }
                 }
             }
+        
 
             span:nth-child(1) {
                 transform: translateY(5px) rotate(45deg);
@@ -97,10 +128,13 @@ nav {
                 transform: translateY(-5px) rotate(-45deg);
             }
         }
+    
 
         @media screen and (max-width: @widthMobile) {
             display: inline-block;
         }
+
+    }
 
         span {
             background-color          : currentColor;

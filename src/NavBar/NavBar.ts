@@ -96,5 +96,43 @@ export class JuelNav extends LitElement {
             </nav>
         `;
     }
+    
+/* 1. Proloder 
+$(window).on('load', function () {
+    $('.loading').delay(450).fadeOut('slow');
+    $('body').delay(450).css({
+      'overflow': 'visible'
+    });
+  });
+
+  var isIndex = false;
+/* 2. sticky And Scroll UP 
+if (location.pathname == "/_home-website/" || location.pathname == "/") {
+isIndex = true;
+$(".main-header .logo").hide();
+}
+  $(window).on('scroll', function () {
+    var scroll = $(window).scrollTop();
+    if (scroll < 400) {
+      $(".header-sticky").removeClass("sticky-bar");
+      $('#back-top').fadeOut(500);
+      if (isIndex)
+        $(".main-header .logo").hide();
+    } else {
+      $(".header-sticky").addClass("sticky-bar");
+      $('#back-top').fadeIn(500);
+      if (isIndex)
+        $(".main-header .logo").show();
+    }
+  });
+
+// Scroll Up
+  $('#back-top a').on("click", function () {
+    $('body,html').animate({
+      scrollTop: 0
+    }, 800);
+    return false;
+  });*/
+
 
 }
