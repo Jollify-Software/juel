@@ -1,0 +1,26 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+
+    <style>
+        .container {
+            width: 100%;
+            height: 400px;
+            margin: 20% auto;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="dialog-1-btn">Show Emoji Picker</button>
+
+        <juel-dialog-manager>
+            <div id="dialog-1" data-title="Emoji Picker" data-group="a" data-trigger="#dialog-1-btn">
+                <juel-emoji-picker>
+                </juel-emoji-picker>
+            </div>
+        </juel-dialog-manager>
+</body>
+
+</html>

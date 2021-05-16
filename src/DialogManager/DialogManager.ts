@@ -45,6 +45,7 @@ export class JuelDialogManager extends LitElement {
                         id = `dialog-${index}`;
                     }
                     ele.setAttribute('slot', id);
+                    ele.classList.add("dialog");
                     this.service.dialogs.push(new Dialog(this.service, id, ele.dataset));
                     
                     return html`<div id="${id}" class="dialog">
