@@ -28,6 +28,7 @@ import './src/List/List';
 import './src/Menu/Menu';
 import './src/Toggle/Toggle';
 import './src/Spinner/Spinner';
+import './src/Button/Button';
 import './src/EmojiPicker/EmojiPicker';
 
 import './src/NavBar/NavBar';

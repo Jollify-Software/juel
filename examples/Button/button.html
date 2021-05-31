@@ -1,0 +1,29 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        .container {
+            width: 100%;
+            height: 400px;
+            margin: 20% auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="file-input-demo" class="container">
+        <juel-button text="Button" addon="dropdown">
+            <ul slot="dropdown">
+                <li>One</li>
+                <li>Two</li>
+                <li>Three</li>
+            </ul>
+        </juel-button>
+        <juel-button><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-button>
+        <juel-button addon="dropdown"><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-button>
+    </div>
+</body>
+
+</html>
