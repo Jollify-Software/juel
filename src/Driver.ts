@@ -37,6 +37,15 @@ module GuideModule {
             g.start();
         });
     }
+    export var reset = () => {
+        g.reset();
+    }
+    export var next = () => {
+        g.moveNext();
+    }
+    export var previous = () => {
+        g.movePrevious();
+    }
 }
 
 (<any>window).juel.guide = GuideModule;
