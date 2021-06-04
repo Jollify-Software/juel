@@ -6,3 +6,11 @@ export const removeFunctions = (obj) => {
     delete obj[k];// = removeFunctions(obj[k])
   })
   }
+  export const removeNulls = (obj) => {
+    Object.keys(obj).forEach(k => {
+      if (obj[k] === null)
+        delete obj[k];
+      else if (typeof obj[k] === "object")
+        removeNulls(obj[k])
+    })
+    }
