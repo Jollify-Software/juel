@@ -18,15 +18,19 @@ export class RadialMenuGridService {
     menu[0].style.setProperty("--colCount", colCount as unknown as string);
     menu[0].style.setProperty("--rowCount", colCount as unknown as string);
 
-    btn.click(function () {
+    btn.click(() => {
       if (container.hasClass("open")) {
         menu[0].style.transform = "scale(0)";
         btn[0].style.transform = "rotate(0deg)";
         container.removeClass("open");
+        let e = new CustomEvent("menu-open");
+        this.ele.dispatchEvent(e)
       } else {
         menu[0].style.transform = "scale(3)";
         btn[0].style.transform = "rotate(45deg)";
         container.addClass("open");
+        let e = new CustomEvent("menu-close");
+        this.ele.dispatchEvent(e)
       }
     });
   }

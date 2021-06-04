@@ -5,6 +5,7 @@ import { BlazorColourFunctions } from "./Colour/BlazorColour";
 import { BlazorListFunctions } from "./List/BlazorList";
 import { BlazorEmojiPickerFunctions } from "./EmojiPicker/BlazorEmojiPicker";
 import { BlazorButtonFunctions } from "./Button/BlazorButton";
+import { BlazorRadialMenuFunctions } from "./RadialMenu/BlazorRadialMenu";
 
 module Blazor {
     export var button = BlazorButtonFunctions;
@@ -13,6 +14,7 @@ module Blazor {
     export var select = BlazorSelectFunctions;
     export var list = BlazorListFunctions;
     export var emoji = BlazorEmojiPickerFunctions;
+    export var radialMenu = BlazorRadialMenuFunctions;
 }
 
 (<any>window).juel.blazor = Blazor;
