@@ -71,6 +71,12 @@ export class RadialMenu extends LitElement {
         }*/
     }
 
+    toggle() {
+        if (this.gridService) {
+            this.gridService.toggle();
+        }
+    }
+
     render() {
         return html`${(this.displayMode == RadialMenuDisplayMode.grid) ?
             html`<div class="menu">

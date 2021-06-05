@@ -12,4 +12,10 @@ export module BlazorRadialMenuFunctions {
             });
         }
     }
+    export var toggle = (id: string) => {
+        let select = document.getElementById(id) as RadialMenu;
+        if (select) {
+            select.toggle();
+        }
+    }
 }

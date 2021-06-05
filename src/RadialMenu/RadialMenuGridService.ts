@@ -1,6 +1,7 @@
 import { RadialMenu } from "./RadialMenu";
 
 export class RadialMenuGridService {
+  toggle: Function;
   ele: RadialMenu;
 
   constructor(ele: RadialMenu) {
@@ -18,7 +19,7 @@ export class RadialMenuGridService {
     menu[0].style.setProperty("--colCount", colCount as unknown as string);
     menu[0].style.setProperty("--rowCount", colCount as unknown as string);
 
-    btn.click(() => {
+    this.toggle = () => {
       if (container.hasClass("open")) {
         menu[0].style.transform = "scale(0)";
         btn[0].style.transform = "rotate(0deg)";
@@ -32,6 +33,8 @@ export class RadialMenuGridService {
         let e = new CustomEvent("menu-close");
         this.ele.dispatchEvent(e)
       }
-    });
+    }
+
+    btn.click(() => this.toggle());
   }
 }
