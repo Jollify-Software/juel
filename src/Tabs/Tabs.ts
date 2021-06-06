@@ -51,7 +51,8 @@ export class Tabs extends LitElement {
 
     render() {
         //this.ids = [];
-        return html`<div id="tabs-container">
+        return html`<slot name="header"></slot>
+            <div id="tabs-container">
             <div id="tabs">
             ${ChildrenMap(this, (ele, index) => {
                     let id = ele.id ? ele.id : `tab-section-${index}`;
@@ -76,7 +77,7 @@ export class Tabs extends LitElement {
                             </span>`
                         }
                         `;
-                })}
+                }, "[slot]")}
                 </div>
                 ${this.ids.map(id => {
                     return html`</div>
@@ -84,7 +85,8 @@ export class Tabs extends LitElement {
                         <slot name="${id}"></slot>
                         </div>`
                 })}
-        </div>`;
+        </div>
+        <slot name="footer"></slot>`;
     }
 
 }
