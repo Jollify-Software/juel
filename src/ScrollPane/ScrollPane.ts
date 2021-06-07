@@ -38,7 +38,6 @@ export class JuelScrollPane extends LitElement {
         setTimeout(() => {
 this.requestUpdate();
 
-        this.service.init();
         let mc = new Hammer(this);
         mc.on('swipe', (e) => {
             // Left = 2
@@ -52,14 +51,23 @@ this.requestUpdate();
     });
     }
 
+    updated() {
+        this.service.init();
+    }
+
+    dragStart(e) {
+        e.preventDefault()
+    }
+
     render() {
         return html`<div id="container">
                 ${ChildrenMap(this, (el, index) => {
                     let id = el.id ? el.id :  `item-${index}`;
                     el.setAttribute('slot', id);
-
+                    el.setAttribute('draggable', 'false');
+                    el.setAttribute('ondragstart', "event.preventDefault();")
                     return html`
-                        <div class="item" data-index="${index}">
+                        <div class="item" data-index="${index}" draggable="false">
                         <slot name="${id}"></slot>
                         </div>`;
                 })}

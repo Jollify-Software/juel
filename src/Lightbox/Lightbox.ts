@@ -1,4 +1,4 @@
-import { customElement, html, LitElement, unsafeCSS } from "lit-element";
+import { customElement, html, LitElement, property, unsafeCSS } from "lit-element";
 import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
 import { JuelScrollPane } from "../ScrollPane/ScrollPane";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
@@ -9,46 +9,56 @@ export class JuelLightbox extends LitElement {
 
     static styles = unsafeCSS(Styles);
 
-    scrollPane: JuelScrollPane;
+    @property() type; string = "image"
+    @property() icon: boolean = false;
+    @property() preview: string;
+
+    open: boolean = false;
+    content: HTMLElement[] = [];
 
     firstUpdated() {
         setTimeout(() => {
-            this.scrollPane = this.shadowRoot.getElementById("scroll") as JuelScrollPane;
-            this.scrollPane.next = this.shadowRoot.getElementById("next");
-            this.scrollPane.previous = this.shadowRoot.getElementById("previous");
+            console.log((this.firstElementChild as HTMLImageElement).src)
+            if ((!this.preview) && 'src' in this.firstElementChild) {
+                this.preview = (this.firstElementChild as HTMLImageElement).src;
+            }
 
-            this.scrollPane.tabs = this.shadowRoot.getElementById("tabs").children;
+            this.content = (Array.prototype.slice.call(this.children) as HTMLElement[])
+                .filter(el => !el.matches("[slot]"));
 
             this.requestUpdate();
         });
     }
 
+    toggle() {
+        let lightboxContainer = this.shadowRoot.querySelector("#lightbox-container") as HTMLElement;
+        if (this.open) {
+            lightboxContainer.style.display = "none";
+        } else {
+            lightboxContainer.style.display = "block";
+        }
+    }
+
     render() {
         return html`
-            <div id="container">
-                <div id="header">
-                    <div id="close">
-                    </div>
-                </div>
-                <div id="content">
-                    <button id="previous">
-                        <span></span>
-                    </button>
-                    <button id="next">
-                        <span></span>
-                    </button>
-                    <juel-scroll-pane id="scroll">
-                    ${ChildrenMap(this, (el, index) => {
-                        el.setAttribute("ondragstart", "return false;");
-                        return html`${unsafeHTML(el.outerHTML)}`;
-                    })}
-                    </juel-scroll-pane>
-                </div>
-                <ul id="tabs">
-                    ${ChildrenMap(this, (el, index) => {
-                        return html`<li>Banana</li>`;
-                    })}
-                </ul>
+            <div id="preview-container" @click="${this.toggle}">
+                ${this.icon == true ?
+                    html`<div id="icon-container">
+                            <a><slot name="icon"><slot></a>
+                        </div>`
+                : ``}
+                <img src="${this.preview}" />
+            </div>
+            <div id="lightbox-container"> 
+                <div id="lightbox-nav"></div>
+                <juel-scroll-pane id="lightbox-context">
+                    ${
+                        this.content.map((el, index) => {
+                            console.log(el.outerHTML);
+                            return html`${unsafeHTML(el.outerHTML)}`
+                        })
+                    }
+                </juel-scroll-pane>
             </div>
         `;
     }
