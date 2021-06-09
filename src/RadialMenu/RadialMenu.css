@@ -33,7 +33,7 @@ div.menu {
     transition: var(--transition);
     width: var(--width);
     height: var(--height);
-    transform: scale(0);
+    transform: scale(0.1);
     position: absolute;
     display: grid;
     grid-template-columns: repeat(var(--colCount), auto);

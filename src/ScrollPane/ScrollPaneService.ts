@@ -89,7 +89,7 @@ export class ScrollPaneService {
 	
 		this.sp.position = index;
 
-		let evt = new CustomEvent("scrollTo", {
+		let evt = new CustomEvent("scroll", {
 			detail: {
 				index: index,
 				element: el

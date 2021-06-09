@@ -10,15 +10,16 @@ export class JuelLightbox extends LitElement {
     static styles = unsafeCSS(Styles);
 
     @property() type; string = "image"
-    @property() icon: boolean = false;
+    @property({ type: Boolean }) icon: boolean = false;
     @property() preview: string;
 
     open: boolean = false;
     content: HTMLElement[] = [];
+    sp: JuelScrollPane;
+    @property() position: number = 0;
 
     firstUpdated() {
         setTimeout(() => {
-            console.log((this.firstElementChild as HTMLImageElement).src)
             if ((!this.preview) && 'src' in this.firstElementChild) {
                 this.preview = (this.firstElementChild as HTMLImageElement).src;
             }
@@ -30,12 +31,20 @@ export class JuelLightbox extends LitElement {
         });
     }
 
+    updated() {
+        this.sp = this.shadowRoot.querySelector("juel-scroll-pane");
+        $(this.sp).off("scroll").on("scroll", (e: CustomEvent) => {
+            console.log(e.detail)
+            this.position = e.detail.index
+        });
+    }
+
     toggle() {
         let lightboxContainer = this.shadowRoot.querySelector("#lightbox-container") as HTMLElement;
         if (this.open) {
             lightboxContainer.style.display = "none";
         } else {
-            lightboxContainer.style.display = "block";
+            lightboxContainer.style.display = "flex";
         }
     }
 
@@ -50,11 +59,14 @@ export class JuelLightbox extends LitElement {
                 <img src="${this.preview}" />
             </div>
             <div id="lightbox-container"> 
-                <div id="lightbox-nav"></div>
-                <juel-scroll-pane id="lightbox-context">
+                <div id="lightbox-nav">
+                    <span>${this.position + 1} / ${this.content.length}</span>
+                    <button></button>
+                    <button></button>
+                </div>
+                <juel-scroll-pane id="lightbox-context" controls="true">
                     ${
                         this.content.map((el, index) => {
-                            console.log(el.outerHTML);
                             return html`${unsafeHTML(el.outerHTML)}`
                         })
                     }

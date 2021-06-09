@@ -18,7 +18,7 @@ export class JuelScrollPane extends LitElement {
     @property() effect: string = 'fade';
     @property() easing: string = "swing";
     @property() duration: number = 1000;
-    @property() control: string = 'move';
+    @property({ type: Boolean }) controls: boolean = false;
     @property() tabs: string | HTMLCollection;
     @property() random: string;
     @property() next: string | HTMLElement;
@@ -55,12 +55,17 @@ this.requestUpdate();
         this.service.init();
     }
 
-    dragStart(e) {
-        e.preventDefault()
+    scrollNext() {
+        this.service.next();
+    }
+
+    scrollPrevious() {
+        this.service.previous();
     }
 
     render() {
-        return html`<div id="container">
+        return html`${this.controls ? html`<div id="next" @click="${this.scrollNext}"><span></span></div>` : `` }
+            <div id="container">
                 ${ChildrenMap(this, (el, index) => {
                     let id = el.id ? el.id :  `item-${index}`;
                     el.setAttribute('slot', id);
@@ -71,7 +76,8 @@ this.requestUpdate();
                         <slot name="${id}"></slot>
                         </div>`;
                 })}
-            </div>`;
+            </div>
+            ${this.controls ? html`<div id="previous" @click="${this.scrollPrevious}"><span></span></div>` : `` }`;
     }
 
 }

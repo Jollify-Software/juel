@@ -21,16 +21,16 @@ export class RadialMenuGridService {
 
     this.toggle = () => {
       if (container.hasClass("open")) {
-        menu[0].style.transform = "scale(0)";
+        menu[0].style.transform = "scale(0.1)";
         btn[0].style.transform = "rotate(0deg)";
         container.removeClass("open");
-        let e = new CustomEvent("menu-open");
+        let e = new CustomEvent("menu-close");
         this.ele.dispatchEvent(e)
       } else {
         menu[0].style.transform = "scale(3)";
         btn[0].style.transform = "rotate(45deg)";
         container.addClass("open");
-        let e = new CustomEvent("menu-close");
+        let e = new CustomEvent("menu-open");
         this.ele.dispatchEvent(e)
       }
     }

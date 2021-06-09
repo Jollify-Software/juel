@@ -7,7 +7,7 @@ import { RadialMenuGridService } from './RadialMenuGridService';
 import { RadialMenuService } from './RadialMenuService';
 import { ChildrenMap } from '../_Utils/ChildrenMap';
 
-@customElement("radial-menu")
+@customElement("juel-radial-menu")
 export class RadialMenu extends LitElement {
 
     @property()

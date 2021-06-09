@@ -14,6 +14,47 @@
 </head>
 
 <body>
+<juel-tabs id="signin-tabs">
+                <div slot="header">
+                    <button class="help" @onclick="Help">Help</button>
+                </div>
+                <div data-title="@VM.UserLabel">
+                    <div class="form-group">
+                        <label for="email">@VM.EmailLabel</label>
+                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-value="SignInRequest.Username" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">@VM.PasswordLabel</label>
+                        <input type="password" class="form-control" id="password" @bind-value="SignInRequest.Password" disabled>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" disabled>
+                        <label class="form-check-label" for="remember">@VM.RememberLabel</label>
+                    </div>
+                    <button id="signin" @onclick="UserSignin" class="card-link btn btn-primary">@VM.SigninLabel</button>
+                    <button @onclick="UserSignup" class="card-link btn btn-secondary">@VM.SignupLabel</button>
+                </div>
+                <div data-title="@VM.TeamLabel">
+                    <div class="form-group">
+                        <label for="team-email">@VM.EmailLabel</label>
+                        <input type="email" class="form-control" id="team-email" aria-describedby="emailHelp" @bind-value="SignInRequest.Username" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="password-team">@VM.PasswordLabel</label>
+                        <input type="password" class="form-control" id="password-team" @bind-value="SignInRequest.Password" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="key-team">@VM.ClientKeyLabel</label>
+                        <input type="password" class="form-control" id="team-key" @bind-value="SignInRequest.Key" disabled>
+                    </div>
+                    <div class="form-group form-check">
+                        <input type="checkbox" class="form-check-input" id="remeber-team" disabled>
+                        <label class="form-check-label" for="remember-team">@VM.RememberLabel</label>
+                    </div>
+                    <button @onclick="UserSignin" class="card-link btn btn-primary">@VM.SigninLabel</button>
+                    <button @onclick="UserSignup" class="card-link btn btn-secondary">@VM.SignupLabel</button>
+                </div>
+            </juel-tabs>
     <div id="file-input-demo" class="container">
         <juel-tabs>
           <div slot="header">
@@ -62,7 +103,7 @@
               inceptos himenaeos.
               </p>
             </div>
-        </juel-accordion>
+        </juel-tabs>
     </div>
 </body>
 

@@ -3,8 +3,14 @@ import Driver from "driver.js";
 import Styles from "bundle-text:driver.js/dist/driver.min.css";
 import { removeNulls } from "./_Utils/RemoveFunctions";
 
+class StepInfo {
+    count: number;
+    number: number;
+}
+
 module GuideModule {
     let g: Driver;
+    let stepInfo: StepInfo
     var createDriver = (options: any = null) => {
         if (options) {
             if (options.dotNet) {
@@ -13,8 +19,12 @@ module GuideModule {
                 options.onHighlighted = () => obj.invokeMethod("OnHighlighted")
                 options.onDeselected = () => obj.invokeMethod("OnDeselected")
                 options.onReset = () => obj.invokeMethod("OnReset")
-                options.onNext = () => obj.invokeMethod("OnNext")
-                options.onPrevious = () => obj.invokeMethod("OnPrevious")
+                options.onNext = () => {
+                    stepInfo.number++; obj.invokeMethod("OnNext", stepInfo.number)
+                }
+                options.onPrevious = () => {
+                    stepInfo.number--; obj.invokeMethod("OnPrevious", stepInfo.number)
+                }
             }
             g = new Driver(options);
         } else {
@@ -29,11 +39,15 @@ module GuideModule {
             g.highlight(arg);
         });
     }
-    export var step = (arg: any, options: any = null) => {
+    export var step = (arg: any[], options: any = null) => {
         setTimeout(() => {
             arg.forEach(obj => removeNulls(obj));
+            console.log(arg)
+            stepInfo = new StepInfo();
+            stepInfo.count = arg.length;
             createDriver(options);
             g.defineSteps(arg);
+            stepInfo.number = 1;
             g.start();
         });
     }
