@@ -1,3 +1,5 @@
+import { Trigger } from "../_CommonInteropFunctions/Trigger";
+import { TriggerClick } from "../_CommonInteropFunctions/TriggerClick";
 import { removeFunctions } from "../_Utils/RemoveFunctions";
 
 export module BlazorButtonFunctions {
@@ -26,4 +28,6 @@ export module BlazorButtonFunctions {
             });
         }
     }
+    export var trigger = Trigger;
+    export var triggerClick = TriggerClick;
 }
