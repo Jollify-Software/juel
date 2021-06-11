@@ -1,0 +1,60 @@
+juel-dock-container {
+    position: absolute;
+    z-index: 101;
+    pointer-events: none;
+    left: calc(((100vw / 2) - (250px / 2)));
+    transition: transform .4s;
+  
+    * {
+      pointer-events: all;
+    }
+  
+    &.east, &.west {
+      transform-origin: left;
+      transform: rotate(90deg);
+    }
+  }
+  #droppable-container {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+    z-index: 101;
+    background: -webkit-radial-gradient(circle, #1a82f7, #2F2727);
+    opacity: 0.5;
+    pointer-events: all;
+  }
+  #droppable-container div {
+    position: absolute;  
+    border: dashed 2px black;
+    background: aliceblue;
+    
+    &.north {
+    width: 250px;
+    height: 70px;
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+  &.south {
+    width: 250px;
+    height: 70px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    bottom: 0px;
+  }
+  &.east {
+    width: 70px;
+    height: 250px;
+    top: 50%;
+    transform: translate(0, -50%);
+    right: 0px;
+  }
+  &.west {
+    width: 70px;
+    height: 250px;
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+  }
