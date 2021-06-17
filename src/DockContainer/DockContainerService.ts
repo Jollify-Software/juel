@@ -21,10 +21,10 @@ export class DockContainerService {
 
     createDropZone() {
       let dz = $('<div id="droppable-container"/>').append(
-        $('<div class="north" data-dropzone="menu"></div>'),
-        $('<div class="south" data-dropzone="menu"></div>'),
-        $('<div class="east" data-dropzone="menu"></div>'),
-        $('<div class="west" data-dropzone="menu"></div>')
+        $('<div class="north"></div>'),
+        $('<div class="south"></div>'),
+        $('<div class="east"></div>'),
+        $('<div class="west"></div>')
       );
       document.body.append(dz[0]);
       return dz;
