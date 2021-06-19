@@ -38,6 +38,7 @@ import './src/Flip/Flip';
 import './src/Tilt/Tilt';
 import './src/DraggableContainer/DraggableContainer';
 import './src/DockContainer/DockContainer';
+import './src/ParticleSystem/ParticleSystem';
 
 $(function() {
     IsMobile();

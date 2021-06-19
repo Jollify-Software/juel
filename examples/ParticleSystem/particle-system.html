@@ -1,0 +1,73 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+</head>
+
+<body>
+    <juel-particle-system id="ps">
+    </juel-particle-system>
+
+    <script>
+        var ps = document.getElementById('ps');
+        ps.groups = [
+            {
+                args: [
+                    {
+                        type: 'rate',
+                        args: [,{
+                            type: 'span',
+                            args: [10, 20]
+                        }, {
+                            type: 'span',
+                            args: [0.1, 0.25]
+                        }]
+                    },
+                    {
+                        type: 'mass',
+                        args: [ 1 ]
+                    },
+                    {
+                        'type': 'radius',
+                        args: [1, 12]
+                    },
+                    {
+                        type: 'life',
+                        args: [2, 4]
+                    },
+                    {
+                        type: 'velocity',
+                        args: [3, {
+                            type: 'span',
+                            args: [2, 4]
+                        }, {
+                            type: 'span',
+                            args: [-30, 30]
+                        }, 'polar']
+                    }
+                ],
+                behaviour: [
+                    {
+                        type: 'colour',
+                        args: [ 'ff0000', 'random' ]
+                    },
+                    {
+                        type: 'alpha',
+                        args: [ 1, 0 ]
+                    },
+                    {
+                        type: 'randomDrift',
+                        args: [ 30, 30, 0.05]
+                    },
+                    {
+                        type: 'scale',
+                        args: [ 1, 0.7]
+                    }
+                ]
+            }
+        ];
+        ps.requestUpdate();
+    </script>
+</body>
+
+</html>

@@ -6,7 +6,7 @@
         "preserveConstEnums": true,
         "sourceMap": true,
         "esModuleInterop": true,
-        "target": "es2015",
+        "target": "es2019",
         "experimentalDecorators": true
     }
 }
