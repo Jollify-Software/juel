@@ -1,3 +1,4 @@
+import { Operation } from "../_Core/Operation"
 import { ArgInfo } from "./ArgInfo"
 
 export class ParticleGroup {
@@ -6,4 +7,5 @@ export class ParticleGroup {
 
     args: ArgInfo[]
     behaviour: ArgInfo[]
+    update: Operation[];
 }

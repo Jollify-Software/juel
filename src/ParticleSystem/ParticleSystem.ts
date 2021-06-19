@@ -4,11 +4,14 @@ import { ParticleArgsStrategy } from "./ParticleArgsStrategy";
 import { ParticleGroup } from "./ParticleGroup";
 import Proton from "proton-engine";
 import RAFManager from "raf-manager";
+import { OperationProcessor } from "../_Core/OperationProcessor";
 
 @customElement("juel-particle-system")
 export class JuelParticleSystem extends LitElement {
     argStrategy: ParticleArgsStrategy;
     groups: ParticleGroup[]
+
+    operationProcessor: OperationProcessor;
 
     proton = null;
     renderer;
@@ -20,6 +23,7 @@ export class JuelParticleSystem extends LitElement {
     constructor() {
         super();
         this.argStrategy = new ParticleArgsStrategy();
+        this.operationProcessor = new OperationProcessor();
         this.style.display = 'absolute';
 
         RAFManager.add(this.frame.bind(this));
@@ -93,9 +97,13 @@ export class JuelParticleSystem extends LitElement {
 
     frame() {
         if (this.proton) {
-            if (this.emitters) {
-                for (let e of this.emitters) {
-                    e.rotation += 1.5;
+            if (this.groups && this.emitters) {
+                for (let i = 0;i<this.groups.length;i++) {
+                    if (this.groups[i].update) {
+                        for (let u of this.groups[i].update) {
+                            this.operationProcessor.process(u, this.emitters[i]);
+                        }
+                    }
                 }
             }
             this.proton.update();
