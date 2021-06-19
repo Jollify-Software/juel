@@ -10,7 +10,7 @@ export class JuelParticleSystem extends LitElement {
     argStrategy: ParticleArgsStrategy;
     groups: ParticleGroup[]
 
-    proton = new Proton();
+    proton = null;
     renderer;
     emitters = [];
 
@@ -20,12 +20,30 @@ export class JuelParticleSystem extends LitElement {
     constructor() {
         super();
         this.argStrategy = new ParticleArgsStrategy();
+        this.style.display = 'absolute';
+
+        RAFManager.add(this.frame.bind(this));
     }
 
     updated() {
-        this.canvas = this.querySelector('canvas');
-        if (this.canvas && this.groups) {
+        
+        if (!this.canvas) {
+            this.canvas = this.querySelector('canvas');
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        }
+        if (!this.context) {
             this.context = this.canvas.getContext("2d");
+        }
+        this.play();
+    }
+
+    play() {
+        if (!this.proton) {
+            this.proton = new Proton();
+        }
+        if (this.canvas && this.groups) {
+            
             for (let g of this.groups) {
                 let emitter = new Proton.Emitter();
                 if (g.args) {
@@ -44,25 +62,6 @@ export class JuelParticleSystem extends LitElement {
                         }
                     }
                 }
-                /*emitter.rate = new Proton.Rate(
-                    new Proton.Span(10, 20),
-                    new Proton.Span(0.1, 0.25)
-                  );
-                  emitter.addInitialize(new Proton.Mass(1));
-                  emitter.addInitialize(new Proton.Radius(1, 12));
-                  emitter.addInitialize(new Proton.Life(2, 4));
-                  emitter.addInitialize(
-                    new Proton.Velocity(
-                      new Proton.Span(2, 4),
-                      new Proton.Span(-30, 30),
-                      "polar"
-                    )
-                  );
-                  emitter.addBehaviour(new Proton.RandomDrift(30, 30, 0.05));
-                  emitter.addBehaviour(
-                    new Proton.Color("ff0000", "random", Infinity, Proton.easeOutQuart)
-                  );
-                emitter.addBehaviour(new Proton.Scale(1, 0.7));*/
                 emitter.p.x = this.canvas.width / 2;
                     emitter.p.y = this.canvas.height / 2;
                     console.log(emitter.p)
@@ -73,16 +72,35 @@ export class JuelParticleSystem extends LitElement {
             }
             this.renderer = new Proton.CanvasRenderer(this.canvas);
             this.renderer.onProtonUpdate = () => {
-                this.context.fillStyle = "rgba(0, 0, 0, 0.1)";
-                this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
             };
             this.proton.addRenderer(this.renderer);
-
-            RAFManager.add(() => {
-                this.emitters[0].rotation += 1.5;
-                this.proton.update();
-            });
+            RAFManager.start();
         }
+    }
+
+    stop() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        RAFManager.stop();
+    }
+
+    clear() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        RAFManager.stop();
+        this.proton = null;
+        this.emitters = [];
+    }
+
+    frame() {
+        if (this.proton) {
+            if (this.emitters) {
+                for (let e of this.emitters) {
+                    e.rotation += 1.5;
+                }
+            }
+            this.proton.update();
+        }
+        
     }
 
     createRenderRoot() {
@@ -90,6 +108,6 @@ export class JuelParticleSystem extends LitElement {
     }
 
     render() {
-        return html`<canvas width="800" height="800"><canvas>`;
+        return html`<canvas width="800" height="800"></canvas>`;
     }
 }
