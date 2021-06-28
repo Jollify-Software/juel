@@ -19,7 +19,22 @@
             </ul>
         </juel-button>
         <juel-button><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-button>
-        <juel-button addon="dropdown"><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-button>
+        <juel-button id="btn" addon="dropdown" addonActive="true">
+            <strong slot="content">Launch app <i class="fas fa-rocket"></i></strong>
+            <ul slot="dropdown">
+                <li>One</li>
+                <li>Two</li>
+                <li>Three</li>
+            </ul>
+            <h1 slot="addon-active">Active!</h1>
+        </juel-button>
+
+        <script>
+            var btn = document.querySelector('#btn')
+            btn.addEventListener('click', e => {
+                btn.active = !btn.active;
+            })
+        </script>
 </body>
 
 </html>

@@ -8,7 +8,9 @@ export class JuelButton extends LitElement {
     static styles = unsafeCSS(Styles);
 
     @property() addon: string;
+    @property({ type: Boolean }) addonActive: boolean;
     @property() text: string;
+    @property({ type: Boolean }) active: boolean;
 
     isRipple: string;
     dropdownShown: boolean = false;
@@ -66,6 +68,9 @@ export class JuelButton extends LitElement {
                             html`<button class="btn" part="button" @click="${this.buttonClick}">${this.text}</button>` :
                             html`<button class="btn"><slot name="content"></slot></button>`}
                         ${
+                            this.active == true && this.addonActive == true ?
+                                html`<slot name="addon-active"></slot>`
+                            :
                             this.addon == "dropdown" ?
                                 html`<button id="dropdown-toggle" @click="${this.toggleDropdown}">
                                     </button>` : ``

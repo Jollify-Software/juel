@@ -1,6 +1,7 @@
 import { Trigger } from "../_CommonInteropFunctions/Trigger";
 import { TriggerClick } from "../_CommonInteropFunctions/TriggerClick";
 import { removeFunctions } from "../_Utils/RemoveFunctions";
+import { JuelButton } from "./Button";
 
 export module BlazorButtonFunctions {
     export var register = (id: string, dotNet: DotNet.DotNetObject) => {
@@ -27,6 +28,10 @@ export module BlazorButtonFunctions {
                 dotNet.invokeMethodAsync('OnButtonClick', obj)
             });
         }
+    }
+    export var setActive = (id: string, value: boolean) => {
+        let el = document.getElementById(id) as JuelButton;
+        el.active = value;
     }
     export var trigger = Trigger;
     export var triggerClick = TriggerClick;

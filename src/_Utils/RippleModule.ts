@@ -15,13 +15,11 @@ export class RippleInitialiser {
 
         const circle = document.createElement("span");
         const diameter = Math.max(button.clientWidth, button.clientHeight);
-        console.log(diameter)
         const radius = diameter / 2;
       
         circle.setAttribute('part', 'ripple');
         circle.style.width = circle.style.height = `${diameter}px`;
         circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
-        console.log(button.offsetTop);
         circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
         circle.classList.add("ripple");
       
