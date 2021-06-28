@@ -1,6 +1,7 @@
 import { customElement, html, LitElement, property, unsafeCSS } from "lit-element";
 import { createPopper, Instance } from '@popperjs/core';
 import Styles from 'bundle-text:./Button.less';
+import { RippleInitialiser } from "../_Utils/RippleModule";
 
 @customElement("juel-button")
 export class JuelButton extends LitElement {
@@ -9,8 +10,29 @@ export class JuelButton extends LitElement {
     @property() addon: string;
     @property() text: string;
 
+    isRipple: string;
     dropdownShown: boolean = false;
     dropdown: Instance;
+
+    r: RippleInitialiser;
+
+    updated() {
+        setTimeout(() => {
+            this.isRipple = getComputedStyle(this).getPropertyValue('--ripple');
+            console.log(this.isRipple)
+            if (this.isRipple) {
+                let btn = this.shadowRoot.firstElementChild as HTMLElement;
+                this.r = new RippleInitialiser(btn);
+            }
+        });
+    }
+
+    disconnectedCallback() {
+        if (this.isRipple) {
+            let btn = this.shadowRoot.firstElementChild as HTMLElement;
+            this.r.removeRipples(btn);
+        }
+    }
 
     buttonClick(e: Event) {
         var event = new CustomEvent("ButtonClick", {
@@ -40,14 +62,19 @@ export class JuelButton extends LitElement {
         return html`
             ${this.addon ? 
                 html`<div class="btn-group">
-                    ${hasText ? html`<button part="button" @click="${this.buttonClick}">${this.text}</button>` : html`<button><slot name="content"></slot></button>`}
-                    ${
-                        this.addon == "dropdown" ? html`<button id="dropdown-toggle" @click="${this.toggleDropdown}">
-                            </button>` : ``
-                    }
+                        ${hasText ?
+                            html`<button class="btn" part="button" @click="${this.buttonClick}">${this.text}</button>` :
+                            html`<button class="btn"><slot name="content"></slot></button>`}
+                        ${
+                            this.addon == "dropdown" ?
+                                html`<button id="dropdown-toggle" @click="${this.toggleDropdown}">
+                                    </button>` : ``
+                        }
                 </div>
                 <div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` :
-                hasText ? html`<button part="button" @click="${this.buttonClick}">${this.text}</button>` : html`<button><slot name="content"></slot></button>`
+                hasText ?
+                    html`<button class="btn" part="button" @click="${this.buttonClick}">${this.text}</button>` :
+                    html`<button class="btn"><slot name="content"></slot></button>`
             }
         `;
     }
