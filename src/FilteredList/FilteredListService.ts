@@ -51,8 +51,8 @@ export class FilteredListService {
         }
 
         elementsToHide = elementsToHide.filter(x => elementsToShow.indexOf(x) < 0)
-        $(elementsToHide).hide("slow");
-        $(elementsToShow).show("slow");
+        $(elementsToHide).addClass("hidden").hide("slow");
+        $(elementsToShow).removeClass("hidden").show("slow");
     }
 
     init() {

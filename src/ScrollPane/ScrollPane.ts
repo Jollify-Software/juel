@@ -64,7 +64,7 @@ this.requestUpdate();
     }
 
     render() {
-        return html`${this.controls ? html`<div id="next" @click="${this.scrollNext}"><span></span></div>` : `` }
+        return html`${this.controls ? html`<div id="next" part="next" @click="${this.scrollNext}"><span></span></div>` : `` }
             <div id="container">
                 ${ChildrenMap(this, (el, index) => {
                     let id = el.id ? el.id :  `item-${index}`;
@@ -77,7 +77,7 @@ this.requestUpdate();
                         </div>`;
                 })}
             </div>
-            ${this.controls ? html`<div id="previous" @click="${this.scrollPrevious}"><span></span></div>` : `` }`;
+            ${this.controls ? html`<div id="previous" part="previous" @click="${this.scrollPrevious}"><span></span></div>` : `` }`;
     }
 
 }

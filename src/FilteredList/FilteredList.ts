@@ -18,8 +18,8 @@ export class FilteredList extends LitElement {
         this.service.init();
     }
 
-    render() {
-        return html`<slot name="items"></slot>`;
+    createRenderRoot() {
+        return this;
     }
 
 }

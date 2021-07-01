@@ -101,9 +101,20 @@ export class ScrollPaneService {
 
 	next() {
 		this.sp.position ++;
-		if (this.sp.position >= this.children.length) {
+		if (this.sp.position >= this.sp.children.length) {
 			this.sp.position = 0;
 		}
+		console.log($(this.sp.children).not(".hidden").length);
+		
+		console.log($(this.sp.children)[this.sp.position].className)
+		while (this.sp.children[this.sp.position].classList.contains("hidden")) {
+			console.log("Skip " + this.sp.position)
+			this.sp.position ++;
+			if (this.sp.position >= this.children.length) {
+				this.sp.position = 0;
+			}
+		}
+		console.log("Finally " + this.sp.position)
 		this.scrollTo(this.sp.position);
 	}
 
@@ -111,6 +122,12 @@ export class ScrollPaneService {
 		this.sp.position --;
 		if (this.sp.position < 0) {
 			this.sp.position = this.children.length - 1;
+		}
+		while (this.sp.children[this.sp.position].classList.contains("hidden")) {
+			this.sp.position --;
+			if (this.sp.position < 0) {
+				this.sp.position = this.children.length - 1;
+			}
 		}
 		this.scrollTo(this.sp.position);
 	}
