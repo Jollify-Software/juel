@@ -15,9 +15,14 @@ export class FilteredListService {
             let what = $this.data('filter');
             let val = $this.val();
             let type = $this.attr('type');
+            if (val === '*') {
+                val = '**';
+            } else if (Array.isArray(val)) {
+                val = val.map(x => x === '*' ? '**' : x);
+            }
             if (ele.tagName.toLocaleLowerCase() == "input") {
                 if ((!type) || type == "text") {
-                    val = '*' + val;
+                        val = '*' + val;
                 } else if (type == "checkbox") {
                     val = ($this[0] as any).checked;
                 }
@@ -39,7 +44,9 @@ export class FilteredListService {
             items.each(function (index, element) {
                 let filterVal = element.getAttribute(`data-filter-${what}`);
 
-                if ((Array.isArray(val) && val.indexOf(filterVal) >= 0) ||
+                if (val == '**') {
+                    elementsToShow.push(element);
+                } else if ((Array.isArray(val) && val.indexOf(filterVal) >= 0) ||
                     (filterVal == String(val))) {
                     elementsToShow.push(element);
                 } else if (String(val).startsWith('*') && filterVal.includes(String(val).replace('*', ''))) {
@@ -60,7 +67,7 @@ export class FilteredListService {
         let filters = filtersPanel.find('[data-filter]');
         this.updateActiveFilters(filters);
         this.applyFilters();
-        filters.change((e) => {
+        filters.on('change', (e) => {
             this.updateActiveFilters(filters);
             this.applyFilters();
         });

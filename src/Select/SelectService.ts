@@ -27,7 +27,7 @@ export class SelectService {
         // If select has no data
         if (!select.data) {
             select.data = (Array.prototype.slice.call(children) as HTMLElement[])
-                .map(el => el.textContent);
+                .map(el => 'value' in el.dataset ? el.dataset.value : el.textContent);
         }
 
         if (select.multiple) {
@@ -46,9 +46,6 @@ export class SelectService {
                     let item: HTMLElement = select.querySelector(`[slot="${service.selectedSlot}"]`);
                     if (item) {
                         let index = parseInt(el.dataset.index);
-                        if (select.placeholderIndex == null) {
-                            select.placeholderIndex = index;
-                        }
                         let value = select.data[index];
 
                         if (!select.multiple) {
@@ -66,7 +63,10 @@ export class SelectService {
                                 }
                             }
                         }
-
+                        if (select.value.length == 1) {
+                            select.placeholderIndex = index;
+                        }
+                        console.log(select.placeholderIndex)
                         select.requestUpdate();
                         let event = new CustomEvent('change', {
                             detail: select.value
