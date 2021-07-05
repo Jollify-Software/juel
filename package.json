@@ -21,6 +21,7 @@
         "@interactjs/interactjs": "^1.10.0",
         "@simonwep/pickr": "^1.7.4",
         "@types/toastr": "^2.1.38",
+        "bind-decorator": "^1.0.11",
         "bootstrap": "^4.5.3",
         "driver.js": "^0.9.8",
         "golden-layout": "^2.2.1",

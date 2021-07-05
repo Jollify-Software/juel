@@ -31,6 +31,8 @@ import './src/Toggle/Toggle';
 import './src/Spinner/Spinner';
 import './src/Button/Button';
 import './src/EmojiPicker/EmojiPicker';
+import './src/PointSelector/PointSelector';
+
 
 import './src/NavBar/NavBar';
 
