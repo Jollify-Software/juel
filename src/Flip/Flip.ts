@@ -41,10 +41,10 @@ export class JuelFlip extends LitElement {
     render() {
         return html` <div id="container">
         <div id="inner">
-          <div class="front">
+          <div class="front" part="front">
             <slot name="front"></front>>
           </div>
-          <div class="back">
+          <div class="back" part="back">
             <slot name="back"></slot>
           </div>
         </div>
