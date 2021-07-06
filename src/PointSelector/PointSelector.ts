@@ -69,7 +69,8 @@ export class JuelPointSelector extends LitElement {
     render() {
         return html`
             <juel-button text="${this.text}" @ButtonClick="${this.buttonClick}">
-            </button>
+                <slot><slot>
+            </juel-button>
         `;
     }
 
