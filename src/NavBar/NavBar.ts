@@ -10,6 +10,8 @@ export class JuelNav extends LitElement {
 
     @property({ type: Boolean })
     toggle: boolean = false;
+    @property({ type: Boolean })
+    sticky: boolean = false;
     @property({ type: String })
     side: string = "right";
     @property({ type: String })
@@ -22,7 +24,23 @@ export class JuelNav extends LitElement {
 
     firstUpdated() {
         setTimeout(() => {
-            this.requestUpdate()
+            this.requestUpdate().then(() => {
+                if (this.sticky == true && !(<any>window).isMobile) {
+// Get the offset position of the navbar
+let nav = this.shadowRoot.querySelector('nav') as HTMLElement;
+let title = nav.querySelector('.title') as HTMLElement;
+var navOffset = nav.offsetTop;
+window.addEventListener('scroll', () => {
+    if (window.pageYOffset >= navOffset) {
+        nav.classList.add("sticky");
+        title.setAttribute("part", "title-sticky");
+      } else {
+        nav.classList.remove("sticky");
+        title.setAttribute("part", "title");
+      }
+});
+                }
+            });
 
             /*
             this.itemsWidth = this.style.getPropertyValue("--items-width");

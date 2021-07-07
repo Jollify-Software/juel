@@ -9,6 +9,13 @@ nav {
     padding-left   : var(--padding-left);
     padding-right  : var(--padding-right);
 
+    &.sticky {
+        position: fixed;
+        top: 0;
+        width: 100%;
+      }
+      
+
     @media screen and (max-width: @widthMobile) {
         padding-left: initial;
         padding-right: initial;
@@ -53,7 +60,8 @@ nav {
         display    : block;
         flex-basis : 0;
         flex-shrink: 1;
-        padding    : .75rem;
+        padding-left    : .75rem;
+        padding-right    : .75rem;
     }
 
     .toggle {
