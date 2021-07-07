@@ -3,7 +3,7 @@ import { JuelScrollPane } from "./ScrollPane";
 
 export class ScrollPaneService {
     
-    psArray: number[];
+    positionHistory: number[] = [];
     container: HTMLElement;
     children: JQuery<Element>;
 	childCount: number;
@@ -32,9 +32,7 @@ export class ScrollPaneService {
 		this.children = $(this.container.querySelectorAll('.item'));
 		
 		this.randNumbers = [ this.sp.position ];
-		if (this.sp.position > 0) {
 			this.scrollTo(this.sp.position);
-		}
 
         if (this.sp.tabs) {
             $(this.sp.tabs as any).each((index, el) => {
@@ -56,7 +54,6 @@ export class ScrollPaneService {
 		$(this.sp).children().each((index, el) => {
 			if (el.hasAttribute('data-toggle')) {
 				let sel = el.dataset['toggle'];
-				console.log("Here " + sel)
 				$(sel).on('click', () => {
 					if (this.sp.position != index) {
 						this.scrollTo(index);
@@ -95,8 +92,11 @@ export class ScrollPaneService {
 				element: el
 			}
 		});
+		this.positionHistory.push(this.sp.position);
+		if (this.positionHistory.length == this.children.length) {
+			this.positionHistory = [];
+		}
 		this.sp.dispatchEvent(evt);
-
 	}
 
 	next() {
@@ -104,17 +104,12 @@ export class ScrollPaneService {
 		if (this.sp.position >= this.sp.children.length) {
 			this.sp.position = 0;
 		}
-		console.log($(this.sp.children).not(".hidden").length);
-		
-		console.log($(this.sp.children)[this.sp.position].className)
 		while (this.sp.children[this.sp.position].classList.contains("hidden")) {
-			console.log("Skip " + this.sp.position)
 			this.sp.position ++;
 			if (this.sp.position >= this.children.length) {
 				this.sp.position = 0;
 			}
 		}
-		console.log("Finally " + this.sp.position)
 		this.scrollTo(this.sp.position);
 	}
 
@@ -134,7 +129,8 @@ export class ScrollPaneService {
 	
 	random() {
 		let index = getRandomInt(this.children.length);
-		while (this.randNumbers.some(n => n == index)) {
+		console.log(this.positionHistory)
+		while (index == this.sp.position || this.positionHistory.some(n => n == index)) {
 			index = getRandomInt(this.children.length);
 		}
 		this.scrollTo(index);

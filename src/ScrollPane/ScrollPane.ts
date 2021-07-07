@@ -36,23 +36,23 @@ export class JuelScrollPane extends LitElement {
 
     firstUpdated() {
         setTimeout(() => {
-this.requestUpdate();
+this.requestUpdate().then(() => {
+    this.service.init();
 
-        let mc = new Hammer(this);
-        mc.on('swipe', (e) => {
-            // Left = 2
-            if (e.direction == 2) {
-                this.service.next();
-                // Right == 4
-            } else if (e.direction == 4) {
-                this.service.previous();
-            }
-        });
+    let mc = new Hammer(this);
+    mc.on('swipe', (e) => {
+        // Left = 2
+        if (e.direction == 2) {
+            this.service.next();
+            // Right == 4
+        } else if (e.direction == 4) {
+            this.service.previous();
+        }
     });
-    }
+});
 
-    updated() {
-        this.service.init();
+        
+    });
     }
 
     scrollNext() {
