@@ -109,7 +109,10 @@ window.addEventListener('scroll', () => {
             } else {
                 return html``;
             }
-            }, '[slot="title"]')}
+            }, '[slot="title"],[slot="addon"]')}
+            </div>
+            <div class="addon">
+            <slot name="addon"></slot>
             </div>
             </nav>
         `;
