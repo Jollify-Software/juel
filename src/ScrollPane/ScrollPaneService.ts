@@ -15,7 +15,7 @@ export class ScrollPaneService {
 
     init() {
         this.container = this.sp.shadowRoot.getElementById('container');
-		let first = this.container.firstElementChild as HTMLElement;
+		let first = this.container.querySelector('.item') as HTMLElement;
 		let w = $(first).outerWidth();
 		let h = $(first).outerHeight();
 		if (w > 0) {
@@ -25,7 +25,7 @@ export class ScrollPaneService {
 			this.sp.style.width = `${this.sp.width}px`;
 			this.container.style.width = `${this.sp.width}px`;
 		}
-		if (h > 0) {
+		if (window['isMobile'] == false && h > 0) {
 			this.sp.style.height = `${h}px`;
 			this.container.style.height = `${h}px`;
 		}
@@ -79,7 +79,7 @@ export class ScrollPaneService {
 		if (w > 0) {
 			this.sp.style.width = `${w}px`;
 		}
-		if (h > 0) {
+		if (window['isMobile'] == false && h > 0) {
 			this.sp.style.height = `${h}px`;
 		}
 		this.container.style.marginLeft = `-${margin}px`;

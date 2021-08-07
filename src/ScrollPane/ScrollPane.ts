@@ -36,23 +36,23 @@ export class JuelScrollPane extends LitElement {
 
     firstUpdated() {
         setTimeout(() => {
-this.requestUpdate().then(() => {
-    this.service.init();
+            this.requestUpdate().then(() => {
+                this.service.init();
 
-    let mc = new Hammer(this);
-    mc.on('swipe', (e) => {
-        // Left = 2
-        if (e.direction == 2) {
-            this.service.next();
-            // Right == 4
-        } else if (e.direction == 4) {
-            this.service.previous();
-        }
-    });
-});
+                let mc = new Hammer(this);
+                mc.on('swipe', (e) => {
+                    // Left = 2
+                    if (e.direction == 2) {
+                        this.service.next();
+                        // Right == 4
+                    } else if (e.direction == 4) {
+                        this.service.previous();
+                    }
+                });
+            });
 
-        
-    });
+
+        });
     }
 
     scrollNext() {
@@ -64,20 +64,20 @@ this.requestUpdate().then(() => {
     }
 
     render() {
-        return html`${this.controls ? html`<div id="next" part="next" @click="${this.scrollNext}"><span></span></div>` : `` }
+        return html`${this.controls ? html`<div id="next" part="next" @click="${this.scrollNext}"><span></span></div>` : ``}
             <div id="container">
                 ${ChildrenMap(this, (el, index) => {
-                    let id = el.id ? el.id :  `item-${index}`;
-                    el.setAttribute('slot', id);
-                    el.setAttribute('draggable', 'false');
-                    el.setAttribute('ondragstart', "event.preventDefault();")
-                    return html`
+            let id = el.id ? el.id : `item-${index}`;
+            el.setAttribute('slot', id);
+            el.setAttribute('draggable', 'false');
+            el.setAttribute('ondragstart', "event.preventDefault();")
+            return html`
                         <div class="item" data-index="${index}" draggable="false">
                         <slot name="${id}"></slot>
                         </div>`;
-                })}
+        })}
             </div>
-            ${this.controls ? html`<div id="previous" part="previous" @click="${this.scrollPrevious}"><span></span></div>` : `` }`;
+            ${this.controls ? html`<div id="previous" part="previous" @click="${this.scrollPrevious}"><span></span></div>` : ``}`;
     }
 
 }

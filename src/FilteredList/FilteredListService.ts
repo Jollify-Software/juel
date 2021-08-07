@@ -40,7 +40,7 @@ export class FilteredListService {
         
         for (let what in this.activeFilters) {
             let val = this.activeFilters[what];
-            let items = $(this.ele).find(`[data-filter-${what}`);
+            let items = $(this.ele).find(`[data-filter-${what}]`);
             items.each(function (index, element) {
                 let filterVal = element.getAttribute(`data-filter-${what}`);
 

@@ -31,7 +31,7 @@ let nav = this.shadowRoot.querySelector('nav') as HTMLElement;
 let title = nav.querySelector('.title') as HTMLElement;
 var navOffset = nav.offsetTop;
 window.addEventListener('scroll', () => {
-    if (window.pageYOffset >= navOffset) {
+    if (window.pageYOffset >= navOffset + 10) {
         nav.classList.add("sticky");
         title.setAttribute("part", "title-sticky");
       } else {

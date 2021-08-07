@@ -1,3 +1,5 @@
+@import "../_CommonStyles/_Units.less";
+
 :host {
     overflow : hidden;
     display: flex;
@@ -61,4 +63,9 @@ span {
     height: 2rem;
 background-image: var(--icon-next);
 }
+}
+@media screen and (max-height: @widthMobile) {
+    .item {
+        height: 100%;;
+    }
 }

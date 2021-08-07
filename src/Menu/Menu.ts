@@ -9,6 +9,7 @@ export class JuelMenu extends LitElement {
     static styles = unsafeCSS(Styles);
 
     @property({ type: Boolean }) push = false;
+    @property() trigger = 'over';
     
     menu: Instance;
     menuShown = false;
@@ -19,7 +20,10 @@ export class JuelMenu extends LitElement {
         let items = this.shadowRoot.getElementById('items');
         let trigger = $(this.shadowRoot.getElementById('trigger'));
         
-        trigger.on('click', (e) => {
+        if (this.trigger == 'over') {
+            this.trigger = 'mouseover';
+        }
+        trigger.on(this.trigger, (e) => {
             trigger.toggleClass("open");
             if (this.menuShown == false) {
                 items.style.display = "inline-block";
