@@ -1,6 +1,14 @@
 @import "../_CommonStyles/_Units.less";
 
+:host {
+    margin-top: 100px;
+}
+
 nav {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
     display        : flex;
     flex-wrap: wrap;
     flex-direction : row;
@@ -8,13 +16,6 @@ nav {
     justify-content: var(--justify);
     padding-left   : var(--padding-left);
     padding-right  : var(--padding-right);
-
-    &.sticky {
-        position: fixed;
-        top: 0;
-        width: 100%;
-      }
-      
 
     @media screen and (max-width: @widthMobile) {
         padding-left: initial;
