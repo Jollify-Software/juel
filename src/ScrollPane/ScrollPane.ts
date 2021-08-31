@@ -55,12 +55,19 @@ export class JuelScrollPane extends LitElement {
         });
     }
 
-    scrollNext() {
+    scrollNext(e: Event) {
+        e.stopPropagation();
         this.service.next();
     }
 
-    scrollPrevious() {
+    scrollPrevious(e: Event) {
+        e.stopPropagation();
         this.service.previous();
+    }
+
+    itemClick(e: Event) {
+        e.stopPropagation();
+        // TODO Despatch custom event
     }
 
     render() {
@@ -72,7 +79,7 @@ export class JuelScrollPane extends LitElement {
             el.setAttribute('draggable', 'false');
             el.setAttribute('ondragstart', "event.preventDefault();")
             return html`
-                        <div class="item" data-index="${index}" draggable="false">
+                        <div class="item" data-index="${index}" draggable="false" @click="${this.itemClick}">
                         <slot name="${id}"></slot>
                         </div>`;
         })}
