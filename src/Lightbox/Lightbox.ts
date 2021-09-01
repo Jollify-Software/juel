@@ -37,9 +37,7 @@ export class JuelLightbox extends LitElement {
                     this.sources.push(el.getAttribute('src'));
                 }
             }
-
             
-
             /*
             this.content = (Array.prototype.slice.call(this.children) as HTMLElement[])
                 .filter(el => !el.matches("[slot]"));
@@ -68,7 +66,7 @@ export class JuelLightbox extends LitElement {
         }
     }
 
-    render() {
+    render() { // TODO Add full screen btn
         return html`
             <div id="preview-container" @click="${this.toggle}">
                 ${this.icon == true ?
@@ -81,8 +79,7 @@ export class JuelLightbox extends LitElement {
             <div id="lightbox-container" @click="${this.toggle}"> 
                 <div id="lightbox-nav">
                     <span>${this.position + 1} / ${this.sources.length}</span>
-                    <button></button>
-                    <button @click="${this.toggle}">Close</button>
+                    <div id="close" @click="${this.toggle}"></div>
                 </div>
                 <juel-scroll-pane id="lightbox-context" controls="true">
                     ${
