@@ -33,7 +33,7 @@ import './src/Spinner/Spinner';
 import './src/Button/Button';
 import './src/EmojiPicker/EmojiPicker';
 import './src/PointSelector/PointSelector';
-
+import './src/Random/Random';
 
 import './src/NavBar/NavBar';
 
