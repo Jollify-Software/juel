@@ -1,4 +1,5 @@
-import { customElement, LitElement, property, html } from "lit-element";
+import { LitElement, html } from "lit";
+import { property, customElement } from "lit/decorators";
 import { BoxMenuService } from "./BoxMenuService";
 
 @customElement("box-menu")

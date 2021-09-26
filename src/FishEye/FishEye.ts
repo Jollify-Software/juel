@@ -1,4 +1,5 @@
-import { LitElement, customElement, property, html, unsafeCSS } from "lit-element";
+import { LitElement, html, unsafeCSS } from "lit";
+import { property, customElement } from "lit/decorators";
 import { FishEyeService } from "./FishEyeService";
 import styles from 'bundle-text:./FishEye.css';
 

@@ -1,4 +1,5 @@
-import { customElement, html, LitElement } from "lit-element";
+import { html, LitElement } from "lit";
+import { property, customElement } from "lit/decorators";
 import { DragMoveListener } from "../_Utils/DragMoveListener";
 import { emojiRegex } from "../_Utils/EmojiRegex";
 import interact from '@interactjs/interactjs';

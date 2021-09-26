@@ -1,4 +1,5 @@
-import { customElement, html, LitElement, property, unsafeCSS } from "lit-element";
+import { html, LitElement, unsafeCSS } from "lit";
+import { property, customElement } from "lit/decorators";
 import VanillaTilt from "vanilla-tilt";
 import Styles from 'bundle-text:./Tilt.less';
 

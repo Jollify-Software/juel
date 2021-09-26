@@ -1,4 +1,5 @@
-import { customElement, html, LitElement, property, unsafeCSS } from "lit-element";
+import { html, LitElement, unsafeCSS } from "lit";
+import { property, customElement } from "lit/decorators";
 import { createPopper, Instance } from '@popperjs/core';
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import Styles from 'bundle-text:./Menu.less';

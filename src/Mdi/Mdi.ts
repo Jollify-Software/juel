@@ -1,5 +1,6 @@
 import { GoldenLayout, ItemType, LayoutConfig, RootItemConfig } from "golden-layout";
-import { customElement, LitElement, html, property, unsafeCSS } from "lit-element";
+import { LitElement, html, unsafeCSS } from "lit";
+import { property, customElement } from "lit/decorators";
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 
 import style from 'bundle-text:./mdi.less'
@@ -21,7 +22,7 @@ export class Mdi extends LitElement {
     layout: GoldenLayout;
 
     @property()
-    order: ('stack' | 'row' | 'column') = "stack";
+    order: ('stack' | 'row' | 'column');
     @property({ type: Boolean })
     tabs: boolean = false;
 
@@ -30,7 +31,7 @@ export class Mdi extends LitElement {
     constructor() {
         super();
 
-        console.log(this.innerHTML)
+        this.order = "stack";
         if (!('GoldenLayout' in window)) {
             window['GoldenLayout'] = GoldenLayout;
         }

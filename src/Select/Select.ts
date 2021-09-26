@@ -1,4 +1,5 @@
-import { customElement, LitElement, html, property, unsafeCSS } from "lit-element";
+import { LitElement, html, unsafeCSS } from "lit";
+import { property, customElement } from "lit/decorators";
 import { unsafeHTML } from "lit-html/directives/unsafe-html";
 import { createPopper, Instance } from '@popperjs/core';
 import style from 'bundle-text:./Select.less';

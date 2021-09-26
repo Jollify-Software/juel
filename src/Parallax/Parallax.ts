@@ -1,7 +1,8 @@
-import { customElement, LitElement, property, html } from "lit-element";
+import { LitElement, html } from "lit";
+import { property, customElement } from "lit/decorators";
 import { ParallaxService } from "./ParallaxService";
 
-@customElement("paral-lax")
+@customElement("juel-parallax")
 export class Parallax extends LitElement {
 
     @property()

@@ -1,4 +1,5 @@
-import { LitElement, customElement, property, html, unsafeCSS } from "lit-element";
+import { LitElement, html, unsafeCSS } from "lit";
+import { property, customElement } from "lit/decorators";
 import tippy from 'tippy.js';
 import styles from 'bundle-text:tippy.js/dist/tippy.css';
 import tooltipStyles from 'bundle-text:./Tooltip.less';

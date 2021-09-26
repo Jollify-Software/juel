@@ -1,4 +1,5 @@
-import { customElement, LitElement, html, property, unsafeCSS } from "lit-element";
+import { LitElement, html, unsafeCSS } from "lit";
+import { property, customElement } from "lit/decorators";
 import { ColourService } from './ColourService';
 
 import styles from 'bundle-text:@simonwep/pickr/dist/themes/nano.min.css';

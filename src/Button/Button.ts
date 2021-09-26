@@ -1,4 +1,5 @@
-import { customElement, html, LitElement, property, unsafeCSS } from "lit-element";
+import { html, LitElement, unsafeCSS } from "lit";
+import { property, customElement } from "lit/decorators";
 import { createPopper, Instance } from '@popperjs/core';
 import Styles from 'bundle-text:./Button.less';
 import { RippleInitialiser } from "../_Utils/RippleModule";

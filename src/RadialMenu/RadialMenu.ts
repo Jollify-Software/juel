@@ -1,4 +1,5 @@
-import { LitElement, html, customElement, property, unsafeCSS } from 'lit-element'
+import { LitElement, html, unsafeCSS } from 'lit'
+import { property, customElement } from "lit/decorators";
 import { MenuItem } from '../_Core/MenuItem';
 import { Point } from '../_Core/Point';
 import styles from 'bundle-text:./RadialMenu.css';

@@ -1,4 +1,5 @@
-import { customElement, html, LitElement } from "lit-element";
+import { html, LitElement } from "lit";
+import { property, customElement } from "lit/decorators";
 import { ArgInfo } from "./ArgInfo";
 import { ParticleArgsStrategy } from "./ParticleArgsStrategy";
 import { ParticleGroup } from "./ParticleGroup";

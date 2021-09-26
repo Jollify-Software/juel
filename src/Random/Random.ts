@@ -1,4 +1,5 @@
-import { customElement, LitElement, property } from "lit-element";
+import { LitElement } from "lit";
+import { property, customElement } from "lit/decorators";
 
 @customElement("juel-random")
 export class JuelRandom extends LitElement {

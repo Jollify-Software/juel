@@ -1,5 +1,6 @@
 import bind from "bind-decorator";
-import { customElement, html, LitElement, property } from "lit-element";
+import { html, LitElement } from "lit";
+import { property, customElement } from "lit/decorators";
 import { Point } from "../_Core/Point";
 
 @customElement("juel-point-selector")

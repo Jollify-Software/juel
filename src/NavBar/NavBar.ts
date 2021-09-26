@@ -1,4 +1,5 @@
-import { customElement, html, LitElement, property, TemplateResult, unsafeCSS } from "lit-element";
+import { html, LitElement, TemplateResult, unsafeCSS } from "lit";
+import { property, customElement } from "lit/decorators";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import Styles from "bundle-text:./Nav.less";
 import { GetChildren } from "../_Utils/GetChildren";

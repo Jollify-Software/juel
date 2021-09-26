@@ -1,4 +1,5 @@
-import { customElement, html, LitElement, property, unsafeCSS } from "lit-element";
+import { html, LitElement, unsafeCSS } from "lit";
+import { property, customElement } from "lit/decorators";
 import style from 'bundle-text:./ScrollPane.less';
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import { ScrollPaneService } from "./ScrollPaneService";

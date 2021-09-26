@@ -1,5 +1,6 @@
 import bind from "bind-decorator";
-import { customElement, html, LitElement } from "lit-element";
+import { html, LitElement } from "lit";
+import { customElement } from "lit/decorators";
 import { NextUntil } from "../_Utils/NextUntil";
 import { ContentsItem } from "./ContentsItem";
 

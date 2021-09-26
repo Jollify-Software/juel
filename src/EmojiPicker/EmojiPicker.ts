@@ -1,4 +1,5 @@
-import { customElement, html, LitElement, property, unsafeCSS } from "lit-element";
+import { html, LitElement, unsafeCSS } from "lit";
+import { property, customElement } from "lit/decorators";
 import { EmojiCategory } from "../_Core/Emoji/EmojiCategory";
 import Styles from "bundle-text:./EmojiPicker.less"
 

@@ -1,13 +1,11 @@
 import './src/JuelGlobal';
-import './src/Toastr';
-import './src/Driver';
-import './src/BlazorBinding';
 
 //import './lib/jquery-ui-1.12.1.custom/jquery-ui.js';
 
 import { IsMobile } from './src/_Utils/IsMobile';
 import { Vh } from './src/_Utils/Vh';
 
+/*
 import './src/Contents/Contents';
 import './src/Template/Template';
 import './src/Accordion/Accordion';
@@ -34,14 +32,19 @@ import './src/Button/Button';
 import './src/EmojiPicker/EmojiPicker';
 import './src/PointSelector/PointSelector';
 import './src/Random/Random';
+*/
+import './src/Chart/Chart';
 
+/*
 import './src/NavBar/NavBar';
 
 import './src/Flip/Flip';
 import './src/Tilt/Tilt';
 import './src/DraggableContainer/DraggableContainer';
 import './src/DockContainer/DockContainer';
-import './src/ParticleSystem/ParticleSystem';
+*/
+//import './src/ParticleSystem/ParticleSystem';
+
 
 $(function() {
     IsMobile();
