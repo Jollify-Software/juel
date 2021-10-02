@@ -2,6 +2,7 @@ import { LitElement, html, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import style from 'bundle-text:./Tabs.less';
 import { ChildrenMap } from "../_Utils/ChildrenMap";
+import { unsafeHTML } from "lit-html/directives/unsafe-html";
 
 @customElement("juel-tabs")
 export class Tabs extends LitElement {
@@ -53,26 +54,30 @@ export class Tabs extends LitElement {
     }
 
     updated() {
+
         this.openTab(null, this.ids[0]);
     }
 
     render() {
+
         return html`<slot name="header"></slot>
             <div id="tabs-container">
             <div id="tabs">
             ${ChildrenMap(this, (ele, index) => {
                     let id = ele.id ? ele.id : `tab-section-${index}`;
                     ele.setAttribute('slot', id);
-
+                    let hasTitle: boolean = false;
                     let hasTitleEl = false;
                     let titleElId: string = `${id}-title`;
-                    let titleEl = ele.querySelector('[slot="title"]');
-                    if (titleEl) {
+                    let titleEl = ele.previousElementSibling as HTMLElement;
+                    if (titleEl && titleEl.matches("[slot$='title']")) {
                         hasTitleEl = true;
                         titleEl.setAttribute('slot', titleElId);
-                        titleEl.remove();
-                        ele.parentElement.insertBefore(titleEl, ele);
-                    }
+                        //let sibling = titleEl.nextElementSibling as HTMLElement;
+                        //sibling.setAttribute('slot', id);
+                        //titleEl.remove();
+                        //ele.parentElement.insertBefore(titleEl, ele);
+                    } 
                     this.ids.push(id);
                     return html`<div id="${titleElId}" class="title" @click="${(evt) => this.openTab(evt, id)}">
                         ${hasTitleEl ?
@@ -82,7 +87,7 @@ export class Tabs extends LitElement {
                             </span>`
                         }
                         `;
-                }, '[slot="header"], [slot="footer"], [slot="title"]')}
+                }, '[slot="header"], [slot="footer"], [slot$="title"]')}
                 </div>
                 ${this.ids.map(id => {
                     return html`</div>
