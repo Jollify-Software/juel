@@ -48,7 +48,6 @@ export class JuelScrollPane extends LitElement {
 
     firstUpdated() {
         setTimeout(() => {
-            console.log("Update!!!")
             this.requestUpdate();
 
                 let mc = new Hammer(this);
@@ -65,7 +64,6 @@ export class JuelScrollPane extends LitElement {
     }
 
     updated() {
-        console.log("Update again!!!")
         this.service.init();
     }
 

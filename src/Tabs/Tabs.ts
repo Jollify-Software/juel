@@ -32,7 +32,6 @@ export class Tabs extends LitElement {
 
             // Show the current tab, and add an "active" class to the button that opened the tab
             let el = (this.shadowRoot.querySelector(`#${id}`) as HTMLElement);
-            console.log(id)
             if (el) {
                 el.style.display = "block";
                 if (evt && evt.target) {
@@ -58,7 +57,6 @@ export class Tabs extends LitElement {
     }
 
     render() {
-        //this.ids = [];
         return html`<slot name="header"></slot>
             <div id="tabs-container">
             <div id="tabs">
@@ -76,7 +74,6 @@ export class Tabs extends LitElement {
                         ele.parentElement.insertBefore(titleEl, ele);
                     }
                     this.ids.push(id);
-                    console.log("Here " + id)
                     return html`<div id="${titleElId}" class="title" @click="${(evt) => this.openTab(evt, id)}">
                         ${hasTitleEl ?
                             html`<slot name="${titleElId}"></slot>` :
@@ -85,7 +82,7 @@ export class Tabs extends LitElement {
                             </span>`
                         }
                         `;
-                }, '[slot="title"]')}
+                }, '[slot="header"], [slot="footer"], [slot="title"]')}
                 </div>
                 ${this.ids.map(id => {
                     return html`</div>
