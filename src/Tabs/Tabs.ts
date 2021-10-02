@@ -85,7 +85,7 @@ export class Tabs extends LitElement {
                             </span>`
                         }
                         `;
-                }, '[slot$="er"]')}
+                }, '[slot="title"]')}
                 </div>
                 ${this.ids.map(id => {
                     return html`</div>
