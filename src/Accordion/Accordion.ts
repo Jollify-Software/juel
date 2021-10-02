@@ -17,6 +17,10 @@ export class JuelAccordion extends LitElement {
 
     constructor() {
         super();
+        this.size = "500px";
+        this.vertical = true;
+        this.multiple = false;
+
         this.service = new AccordionService(this);
     }
 
