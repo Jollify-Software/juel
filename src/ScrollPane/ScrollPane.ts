@@ -37,7 +37,6 @@ export class JuelScrollPane extends LitElement {
 
     firstUpdated() {
         setTimeout(() => {
-            this.requestUpdate().then(() => {
                 this.service.init();
 
                 let mc = new Hammer(this);
@@ -51,9 +50,6 @@ export class JuelScrollPane extends LitElement {
                     }
                 });
             });
-
-
-        });
     }
 
     scrollNext(e: Event) {

@@ -1,7 +1,6 @@
 import { GoldenLayout, ItemType, LayoutConfig, RootItemConfig } from "golden-layout";
 import { LitElement, html, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
-import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 
 import style from 'bundle-text:./mdi.less'
 
@@ -31,6 +30,7 @@ export class Mdi extends LitElement {
     constructor() {
         super();
 
+        this.layout = new GoldenLayout();
         this.order = "stack";
         if (!('GoldenLayout' in window)) {
             window['GoldenLayout'] = GoldenLayout;
@@ -54,8 +54,6 @@ export class Mdi extends LitElement {
         }
 
         let savedState = null;//\localStorage.getItem('savedState');
-
-        this.layout = new GoldenLayout();
 
         let content: RootItemConfig = {
             type: this.order,

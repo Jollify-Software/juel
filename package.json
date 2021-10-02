@@ -6,10 +6,15 @@
     "files": [
         "dist/juel.js"
     ],
+    "targets": {
+        "main": {
+            "includeNodeModules": true
+        }
+    },
     "browserslist": "last 2 Chrome versions",
     "scripts": {
-        "dev": "parcel juel.ts --no-optimize",
-        "build": "parcel build juel.ts --dist-dir dist --no-source-maps --no-optimize",
+        "dev": "parcel juel.ts --no-optimize --no-scope-hoist",
+        "build": "parcel build juel.ts --dist-dir dist --no-source-maps",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
@@ -23,7 +28,8 @@
     },
     "homepage": "https://gitlab.com/jollify/lui#readme",
     "dependencies": {
-        "@interactjs/interactjs": "^1.10.0",
+        "@interactjs/interactjs": "^1.10.11",
+        "@popperjs/core": "^2.10.1",
         "@simonwep/pickr": "^1.7.4",
         "@swc/helpers": "^0.2.13",
         "@types/toastr": "^2.1.38",

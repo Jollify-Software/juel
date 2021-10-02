@@ -1,6 +1,6 @@
 import { LitElement, html, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
-import { unsafeHTML } from "lit-html/directives/unsafe-html";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { createPopper, Instance } from '@popperjs/core';
 import style from 'bundle-text:./Select.less';
 import { SelectService } from "./SelectService";

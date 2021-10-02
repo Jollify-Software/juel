@@ -1,6 +1,5 @@
 import { html, LitElement, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
-import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
 import { JuelScrollPane } from "../ScrollPane/ScrollPane";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import Styles from "bundle-text:./Lightbox.less";

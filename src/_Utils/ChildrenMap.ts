@@ -1,4 +1,4 @@
-import { LitElement, TemplateResult } from "lit-element";
+import { LitElement, TemplateResult } from "lit";
 
 export function ChildrenMap(el: HTMLElement, map: (el: HTMLElement, index: number) => TemplateResult, ...exclude: string[]): TemplateResult[] {
     if (exclude && exclude.length > 0) {
