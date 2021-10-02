@@ -10,26 +10,37 @@ export class JuelScrollPane extends LitElement {
 
     static styles = unsafeCSS(style);
 
-    service = new ScrollPaneService(this);
+    service :ScrollPaneService;
 
-    @property() position: number = 0;
-    @property({ type: Boolean }) vertical: boolean = false;
-    @property({ type: Boolean }) auto: boolean = false;
-    @property() interval = 3000;
-    @property() effect: string = 'fade';
-    @property() easing: string = "swing";
-    @property() duration: number = 1000;
-    @property({ type: Boolean }) controls: boolean = false;
+    @property() position: number;
+    @property({ type: Boolean }) vertical: boolean;
+    @property({ type: Boolean }) auto: boolean;
+    @property() interval;
+    @property() effect: string;
+    @property() easing: string;
+    @property() duration: number;
+    @property({ type: Boolean }) controls: boolean;
     @property() tabs: string | HTMLCollection;
     @property() random: string;
     @property() next: string | HTMLElement;
     @property() previous: string | HTMLElement;
-
-    @property({ type: Number }) master = 0;
-    @property({ type: Number }) width = null;
+    @property({ type: Number }) master: number;
+    @property({ type: Number }) width: number;
 
     constructor() {
         super();
+        this.service = new ScrollPaneService(this);
+        this.master = 0;
+        this.width = null;
+        this.position = 0;
+        this.vertical = false;
+        this.auto = false;
+        this.interval = 3000;
+        this.effect = 'fade';
+        this.easing = "swing";
+        this.duration = 1000;
+        this.controls = false;
+
         if (!('Hammer' in window)) {
             window['Hammer'] = Hammer;
         }
@@ -37,7 +48,8 @@ export class JuelScrollPane extends LitElement {
 
     firstUpdated() {
         setTimeout(() => {
-                this.service.init();
+            console.log("Update!!!")
+            this.requestUpdate();
 
                 let mc = new Hammer(this);
                 mc.on('swipe', (e) => {
@@ -50,6 +62,11 @@ export class JuelScrollPane extends LitElement {
                     }
                 });
             });
+    }
+
+    updated() {
+        console.log("Update again!!!")
+        this.service.init();
     }
 
     scrollNext(e: Event) {
@@ -75,6 +92,7 @@ export class JuelScrollPane extends LitElement {
             el.setAttribute('slot', id);
             el.setAttribute('draggable', 'false');
             el.setAttribute('ondragstart', "event.preventDefault();")
+            console.log("I am here!!!");
             return html`
                         <div class="item" data-index="${index}" draggable="false" @click="${this.itemClick}">
                         <slot name="${id}"></slot>
