@@ -14,7 +14,7 @@ export class JuelList extends LitElement {
     @property()
     data: any[];
     @property({ type: Boolean })
-    single: boolean;
+    multi: boolean;
 
     selected: any[];
 
@@ -25,6 +25,12 @@ export class JuelList extends LitElement {
     
 
     firstUpdated() {
+        setTimeout(() => {
+            this.requestUpdate();
+        });
+    }
+
+    updated() {
         this.service.init(this);
     }
 

@@ -48,13 +48,13 @@ export class ListService {
               list.dispatchEvent(evt);
             // TODO: Throw event deselect
           } else {
-            if (list.single) {
+            if (list.multi) {
+              list.selected.push(value);
+            } else {
               list.selected = [ value ];
               $(el).siblings().each(function(index, ele) {
                 ele.classList.remove("selected");
               })
-            } else {
-            list.selected.push(value);
             }
             let evt = new CustomEvent('selected', {
               detail: value

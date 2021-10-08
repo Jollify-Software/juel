@@ -24,7 +24,7 @@ import './src/EmojiPicker/EmojiPicker';
 import './src/PointSelector/PointSelector';
 import './src/NavBar/NavBar';
 import './src/Chart/Chart';
-
+import './src/Flip/Flip';
 import './src/DraggableContainer/DraggableContainer';
 import './src/DockContainer/DockContainer';
 /*
@@ -43,7 +43,7 @@ import './src/Spinner/Spinner';
 import './src/Random/Random';
 
 
-import './src/Flip/Flip';
+
 import './src/Tilt/Tilt';
 */
 
