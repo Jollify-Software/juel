@@ -38,7 +38,7 @@ export class JuelButton extends LitElement {
     }
 
     buttonClick(e: Event) {
-        var event = new CustomEvent("ButtonClick", {
+        var event = new CustomEvent("button-click", {
             detail: e
         });
         this.dispatchEvent(event);

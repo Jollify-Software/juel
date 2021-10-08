@@ -64,8 +64,6 @@ export class JuelAccordion extends LitElement {
                     if (titleEl && titleEl.matches('[slot*="title"')) {
                         hasTitleEl = true;
                         titleEl.setAttribute('slot', titleElId);
-                        //titleEl.remove();
-                        //ele.parentElement.insertBefore(titleEl, ele);
                     }
                     return html`<div class="title">
                         ${hasTitleEl ?

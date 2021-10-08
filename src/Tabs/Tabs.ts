@@ -66,17 +66,12 @@ export class Tabs extends LitElement {
             ${ChildrenMap(this, (ele, index) => {
                     let id = ele.id ? ele.id : `tab-section-${index}`;
                     ele.setAttribute('slot', id);
-                    let hasTitle: boolean = false;
                     let hasTitleEl = false;
                     let titleElId: string = `${id}-title`;
                     let titleEl = ele.previousElementSibling as HTMLElement;
                     if (titleEl && titleEl.matches("[slot$='title']")) {
                         hasTitleEl = true;
                         titleEl.setAttribute('slot', titleElId);
-                        //let sibling = titleEl.nextElementSibling as HTMLElement;
-                        //sibling.setAttribute('slot', id);
-                        //titleEl.remove();
-                        //ele.parentElement.insertBefore(titleEl, ele);
                     } 
                     this.ids.push(id);
                     return html`<div id="${titleElId}" class="title" @click="${(evt) => this.openTab(evt, id)}">
