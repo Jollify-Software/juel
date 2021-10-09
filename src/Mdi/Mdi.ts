@@ -62,17 +62,20 @@ export class Mdi extends LitElement {
         let elements: { [id: string]: HTMLElement } = {};
         let childCount = 0;
         for (let child of Array.prototype.slice.call(this.children) as HTMLElement[]) {
-            let componentName = (child as HTMLElement).dataset.title ?? "component";
+            let componentName = child.dataset.title ?? "component";
             let component: RootItemConfig = {
                 id: child.id ? child.id : `${this.id}-${childCount}`,
                 type: 'component',
                 componentType: componentName
             };
+            if (child.dataset.closable && child.dataset.closable == "false") {
+                component.isClosable = false;
+            }
             content.content.push(component as never);
             elements[componentName] = child;
             childCount++;
         }
-        this.config = { root: content };
+        this.config = { root: content, settings: { showCloseIcon: false, showPopoutIcon: false} };
 
         console.log(this.config);
         for (let component of content.content) {

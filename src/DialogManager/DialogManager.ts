@@ -52,7 +52,7 @@ export class JuelDialogManager extends LitElement {
                     return html`<div id="${id}" class="dialog">
                         <div class="titlebar">
                             <span>${(ele.dataset.title ? ele.dataset.title : "")}</span>
-                            <div class="close">&#x274C;</div>
+                            <div class="close"></div>
                         </div>
                         <div class="dialog-body">
                             <slot name="${id}"></slot>

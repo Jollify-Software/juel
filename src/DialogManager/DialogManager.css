@@ -23,6 +23,12 @@
 }
 .titlebar .close {
     float: right;
+    background-image: var(--icon-close);
+    width: 26px;
+    height: 26px;
+    margin-top: 3%;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 .titlebar .close:hover {
     background-color: darkorange;
