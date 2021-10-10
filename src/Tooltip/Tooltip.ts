@@ -25,7 +25,7 @@ export class Tooltip extends LitElement {
 
     firstUpdated() {
         let el = this.shadowRoot.getElementById('tip');
-        let contentEl = this.querySelector('[slot="content"]');
+        let contentEl = this.querySelector('[slot="tip"]');
         let content: any = this.text;
         let interact = false;
         let trigger: any;
