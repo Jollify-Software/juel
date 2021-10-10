@@ -33,6 +33,8 @@ export class Select extends LitElement {
     constructor() {
         super();
         this.service = new SelectService();
+
+        this.multiple = false;
     }
 
     setData(data: any) {
@@ -77,23 +79,41 @@ export class Select extends LitElement {
         });
     }
 
+    GetPlaceholder() {
+        let el = (Array.prototype.slice.call(this.children) as HTMLElement[])
+                            .find(el => el.classList.contains("juel-item") && parseInt(el.dataset.index) == this.placeholderIndex);
+        if (el) {
+            return el.innerHTML;
+        } else {
+            return '';
+        }
+    }
+
     render() {
+        let index = -1;
         return html`<div id="select">
             <div id="trigger">
                 <div id="selected-placeholder">
                     ${this.placeholderIndex != null ? unsafeHTML(
-                        (this.children.item(this.placeholderIndex) as HTMLElement).innerHTML
-                        ) : ``}
+                        this.GetPlaceholder()) : ``}
                 </div>
                 <div id="arrow"></div>
                 ${ this.multiple == true && this.value.length > 1 ? html`<div id="badge">${this.value.length - 1}</div>` : `` }
             </div>
             <div id="items">
-            ${ChildrenMap(this, (ele, index) => {
-                    let id = ele.id ? ele.id :  `item-${index}`;
+            ${ChildrenMap(this, (ele, i) => {
+                let isHeading = false;
+                if (ele.tagName.startsWith("H")) {
+                    isHeading = true;
+                } else {
+                    index++;
+                    ele.classList.add("juel-item");
+                    ele.dataset.index = index as any;
+                }
+                    let id = ele.id ? ele.id :  `item-${i}`;
                     ele.setAttribute('slot', id);
-
-                    let klass = 'item';
+                    
+                    let klass = isHeading ? 'heading' : 'item';
                     if (this.data && this.data.length > 0 && this.data[index]) {
                         let value = this.data[index];
                         if (this.value.some(x => x == value)) {
@@ -102,7 +122,7 @@ export class Select extends LitElement {
                     }
 
                     return html`
-                        <div class="${klass}" data-index="${index}">
+                        <div class="${klass}" data-index="${index}"}>
                         <slot name="${id}"></slot>
                         </div>`;
                 })}

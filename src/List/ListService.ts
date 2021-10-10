@@ -8,11 +8,10 @@ export class ListService {
 
     // If select has no data
     if (!list.data) {
-    list.data = (Array.prototype.slice.call(children) as HTMLElement[])
+    list.data = (Array.prototype.slice.call(children) as HTMLElement[]).filter(el => el.classList.contains("juel-item"))
       .map(el => el.textContent.trim());
     }
     list.selected = [];
-
 
     /*
     var input, filter, ul, li, a, i, txtValue;

@@ -26,7 +26,7 @@ export class SelectService {
         let children = select.children;
         // If select has no data
         if (!select.data) {
-            select.data = (Array.prototype.slice.call(children) as HTMLElement[])
+            select.data = (Array.prototype.slice.call(children) as HTMLElement[]).filter(el => el.classList.contains("juel-item"))
                 .map(el => 'value' in el.dataset ? el.dataset.value : el.textContent);
         }
 
@@ -48,7 +48,7 @@ export class SelectService {
                         let index = parseInt(el.dataset.index);
                         let value = select.data[index];
 
-                        if (!select.multiple) {
+                        if (select.multiple == false) {
                             select.value = [value];
                         } else {
                             if (!(select.value as any[]).some(item => item == value)) {
@@ -66,7 +66,6 @@ export class SelectService {
                         if (select.value.length == 1) {
                             select.placeholderIndex = index;
                         }
-                        console.log(select.placeholderIndex)
                         select.requestUpdate();
                         let event = new CustomEvent('change', {
                             detail: select.value

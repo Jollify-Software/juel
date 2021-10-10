@@ -35,16 +35,23 @@ export class JuelList extends LitElement {
     }
 
     render() {
+        let index = -1;
         return html`<div id="list">
             <div id="selected-placeholder">
             </div>
             <ul id="items-container">
-            ${ChildrenMap(this, (ele, index) => {
-                    let id = ele.id ? ele.id :  `item-${index}`;
+            ${ChildrenMap(this, (ele, i) => {
+                    let isHeading = false;
+                    if (ele.tagName.startsWith("H")) {
+                        isHeading = true;
+                    } else {
+                        index++;
+                        ele.classList.add("juel-item");
+                    }
+                    let id = ele.id ? ele.id :  `item-${i}`;
                     ele.setAttribute('slot', id);
-
                     return html`
-                        <li class="item" data-index="${index}">
+                        <li class="${isHeading == true ? `heading` : `item`}" data-index="${index}">
                         <slot name="${id}"></slot>
                         </li>`;
                 })}
