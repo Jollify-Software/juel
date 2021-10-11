@@ -2,6 +2,8 @@ import { html, LitElement, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import style from 'bundle-text:./Toggle.less';
 
+const CheckChange: string = "check-change";
+
 @customElement("juel-toggle")
 export class JuelToggle extends LitElement {
 
@@ -63,6 +65,13 @@ export class JuelToggle extends LitElement {
     this.checked = !this.checked;
     let checkbox = $(this.shadowRoot.getElementById("checkbox"));
     checkbox.prop('checked', this.checked);
+    
+    var event = new CustomEvent(CheckChange, {
+      detail: {
+        checked: this.checked
+      }
+    });
+    this.dispatchEvent(event);
   }
 
   private check(index, ele: JuelToggle) {
@@ -88,6 +97,12 @@ export class JuelToggle extends LitElement {
   checkChange(e: Event) {
     let check = e.target as HTMLInputElement;
     this.checked = check.checked;
+    var event = new CustomEvent(CheckChange, {
+        detail: {
+          checked: this.checked
+        }
+    });
+    this.dispatchEvent(event);
   }
 
   toggleClicked(e: Event) {

@@ -38,6 +38,7 @@ export class JuelButton extends LitElement {
     }
 
     buttonClick(e: Event) {
+        console.log("button-click");
         var event = new CustomEvent("button-click", {
             detail: e
         });
@@ -67,7 +68,7 @@ export class JuelButton extends LitElement {
                 html`<div class="btn-group">
                         ${hasText ?
                             html`<button class="btn" part="button" @click="${this.buttonClick}">${this.text}</button>` :
-                            html`<button class="btn"><slot name="content"></slot></button>`}
+                            html`<button class="btn" part="button" @click="${this.buttonClick}"><slot name="content"></slot></button>`}
                         ${
                             this.active == true && this.addonActive == true ?
                                 html`<slot name="addon-active"></slot>`
@@ -80,7 +81,7 @@ export class JuelButton extends LitElement {
                 <div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` :
                 hasText ?
                     html`<button class="btn" part="button" @click="${this.buttonClick}">${this.text}</button>` :
-                    html`<button class="btn"><slot name="content"></slot></button>`
+                    html`<button class="btn" part="button" @click="${this.buttonClick}"><slot name="content"></slot></button>`
             }
         `;
     }

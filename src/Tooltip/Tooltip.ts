@@ -28,7 +28,7 @@ export class Tooltip extends LitElement {
         let contentEl = this.querySelector('[slot="tip"]');
         let content: any = this.text;
         let interact = false;
-        let trigger: any;
+        let trigger: any = "mouseenter";
 
         if (contentEl) {
             content = contentEl;
