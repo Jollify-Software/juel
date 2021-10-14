@@ -29,6 +29,17 @@
             <h1 slot="addon-active">Active!</h1>
         </juel-button>
 
+        <hr>
+
+        <juel-button id="btn" addon="true">
+            <img slot="content" src="./animated.png"/>
+            <juel-toggle slot="addon" custom="true">
+                <img slot="unchecked" src="./record.png"/>
+                <img slot="checked" src="./stop.png"/>
+            </juel-toggle>
+        </juel-button>
+
+
         <script>
             var btn = document.querySelector('#btn')
             btn.addEventListener('click', e => {

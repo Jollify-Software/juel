@@ -25,12 +25,15 @@ export class JuelToggle extends LitElement {
 
     @property({ type: String })
     content: string = null;
+    @property({ type: Boolean })
+    custom: boolean = false;
 
     @property({ type: Number })
     width: number = null;
     @property({ type: Number })
     height: number = null;
 
+    @property({ type: Boolean })
     checked: boolean = false;
 
     firstUpdated() {
@@ -64,8 +67,7 @@ export class JuelToggle extends LitElement {
   private toggle() {
     this.checked = !this.checked;
     let checkbox = $(this.shadowRoot.getElementById("checkbox"));
-    checkbox.prop('checked', this.checked);
-    
+    console.log(this.checked)
     var event = new CustomEvent(CheckChange, {
       detail: {
         checked: this.checked
@@ -115,6 +117,7 @@ export class JuelToggle extends LitElement {
         return html`<label class="switch" @click="${this.toggleClicked}">
         <input type="checkbox" id="checkbox" @change="${this.checkChange}">
         ${
+          (this.custom) ?  html`<slot name="${this.checked ? "checked" : "unchecked"}"></slot>`:
           (this.content) ? html`<button id="trigger">${this.content}</button>` :
             html`<span class="${this.rounded == false ? 'slider' : 'slider rounded'}"></span>`
         }

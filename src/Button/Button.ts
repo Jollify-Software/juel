@@ -75,7 +75,7 @@ export class JuelButton extends LitElement {
                             :
                             this.addon == "dropdown" ?
                                 html`<button id="dropdown-toggle" @click="${this.toggleDropdown}">
-                                    </button>` : ``
+                                    </button>` : html`<slot name="addon"></slot>`
                         }
                 </div>
                 <div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` :
