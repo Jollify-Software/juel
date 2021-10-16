@@ -8,6 +8,8 @@ import Hammer from 'hammerjs';
 @customElement("juel-scroll-pane")
 export class JuelScrollPane extends LitElement {
 
+    static SCROLL: string = "scroll";
+
     static styles = unsafeCSS(style);
 
     service :ScrollPaneService;

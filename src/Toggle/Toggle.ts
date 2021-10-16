@@ -76,6 +76,11 @@ export class JuelToggle extends LitElement {
     this.dispatchEvent(event);
   }
 
+  reset() {
+    this.checked = false;
+    (<HTMLInputElement>this.shadowRoot.getElementById("checkbox")).checked = false;
+  }
+
   private check(index, ele: JuelToggle) {
     if (ele.checked) {
       if ((ele.type != null || this.type != null) && (ele.type != this.type)) {
