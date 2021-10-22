@@ -69,18 +69,32 @@ export class JuelScrollPane extends LitElement {
         this.service.init();
     }
 
+    reset(resetChildren: boolean = false) {
+        this.service.reset(resetChildren);
+    }
+
+    scrollIndex(index: number) {
+        this.service.scrollTo(index);
+    }
+
     scrollNext(e: Event) {
+        if (e) {
         e.stopPropagation();
+        }
         this.service.next();
     }
 
     scrollPrevious(e: Event) {
+        if (e) {
         e.stopPropagation();
+        }
         this.service.previous();
     }
 
     itemClick(e: Event) {
+        if (e) {
         e.stopPropagation();
+        }
         // TODO Despatch custom event
     }
 
