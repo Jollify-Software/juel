@@ -66,14 +66,8 @@ export class JuelToggle extends LitElement {
 
   private toggle() {
     this.checked = !this.checked;
-    let checkbox = $(this.shadowRoot.getElementById("checkbox"));
-    console.log(this.checked)
-    var event = new CustomEvent(CheckChange, {
-      detail: {
-        checked: this.checked
-      }
-    });
-    this.dispatchEvent(event);
+    let checkbox = this.shadowRoot.getElementById("checkbox") as HTMLInputElement;
+    checkbox.checked = this.checked;
   }
 
   reset() {
