@@ -31,7 +31,9 @@ export class JuelList extends LitElement {
     }
 
     updated() {
-        this.service.init(this);
+        setTimeout(() => {
+            this.service.init(this);
+        });
     }
 
     render() {

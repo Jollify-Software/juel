@@ -41,7 +41,7 @@ export class SelectService {
             placeholder.style.minHeight = `${firstItm.outerHeight()}px`;
 
             select.shadowRoot.querySelectorAll('.item').forEach((el: HTMLElement) => {
-                el.addEventListener('click', function (event) {
+                $(el).off("click").on('click', function (event) {
                     service.selectedSlot = el.querySelector('slot').getAttribute('name');
                     let item: HTMLElement = select.querySelector(`[slot="${service.selectedSlot}"]`);
                     if (item) {

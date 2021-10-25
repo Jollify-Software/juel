@@ -49,9 +49,12 @@ export class Select extends LitElement {
     firstUpdated() {
         setTimeout(() => {
             this.requestUpdate();
-            setTimeout(() => {
-                this.init();   
-            });
+        });
+    }
+
+    updated() {
+        setTimeout(() => {
+            this.init();   
         });
     }
 

@@ -1,3 +1,4 @@
+import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
 import { JuelList } from "./List";
 
 export class ListService {
@@ -11,6 +12,7 @@ export class ListService {
     list.data = (Array.prototype.slice.call(children) as HTMLElement[]).filter(el => el.classList.contains("juel-item"))
       .map(el => el.textContent.trim());
     }
+    console.log(list.data)
     list.selected = [];
 
     /*
@@ -33,7 +35,7 @@ export class ListService {
     */
 
     list.shadowRoot.querySelectorAll('.item').forEach((el: HTMLElement) => {
-      el.addEventListener('click', function (event) {
+      $(el).off("click").on('click', function (event) {
         let slot = el.querySelector('slot').getAttribute('name');
         let item: HTMLElement = list.querySelector(`[slot="${slot}"]`);
         if (item) {
@@ -41,8 +43,12 @@ export class ListService {
           if (el.classList.contains("selected")) {
             
               list.selected = list.selected.filter(val => val != value);
-              let evt = new CustomEvent('deselected', {
-                detail: value
+
+              let evt = new CustomEvent<ChangedEventArgs>('deselected', {
+                detail: {
+                  index: parseInt(el.dataset.index),
+                  value: value
+                }
               });
               list.dispatchEvent(evt);
             // TODO: Throw event deselect
@@ -55,8 +61,11 @@ export class ListService {
                 ele.classList.remove("selected");
               })
             }
-            let evt = new CustomEvent('selected', {
-              detail: value
+            let evt = new CustomEvent<ChangedEventArgs>('selected', {
+              detail: {
+                index: parseInt(el.dataset.index),
+                value: value
+              }
             });
             list.dispatchEvent(evt);
             // TODO: Throw event select

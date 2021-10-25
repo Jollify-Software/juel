@@ -43,6 +43,11 @@ export class JuelMenu extends LitElement {
                 this.menuShown = false;
             }
         });
+        $(items).on("leave", () => {
+            items.style.display = "none"
+                this.menu = null
+                this.menuShown = false;
+        })
     });
     }
 
