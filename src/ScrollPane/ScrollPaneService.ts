@@ -40,25 +40,25 @@ export class ScrollPaneService {
 
         if (this.sp.tabs) {
             $(this.sp.tabs as any).each((index, el) => {
-                $(el).on('click', () => this.scrollTo(index));
+                $(el).off("click").on('click', () => this.scrollTo(index));
             })
 		}
 		
 		if (this.sp.next) {
-			$(this.sp.next as any).on('click', () => this.next());
+			$(this.sp.next as any).off("click").on('click', () => this.next());
 		}
 		if (this.sp.previous) {
-			$(this.sp.previous as any).on('click', () => this.previous());
+			$(this.sp.previous as any).off("click").on('click', () => this.previous());
 		}
 
 		if (this.sp.random) {
-			$(this.sp.random).on('click', () => this.random());
+			$(this.sp.random).off("click").on('click', () => this.random());
 		}
 
 		$(this.sp).children().each((index, el) => {
 			if (el.hasAttribute('data-toggle')) {
 				let sel = el.dataset['toggle'];
-				$(sel).on('click', () => {
+				$(sel).off("click").on('click', () => {
 					if (this.sp.position != index) {
 						this.scrollTo(index);
 					} else {
