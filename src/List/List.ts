@@ -49,6 +49,7 @@ export class JuelList extends LitElement {
                     } else {
                         index++;
                         ele.classList.add("juel-item");
+                        $(ele).find(".juel-appear").hide();
                     }
                     let id = ele.id ? ele.id :  `item-${i}`;
                     ele.setAttribute('slot', id);

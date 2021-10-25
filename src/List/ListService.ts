@@ -43,6 +43,7 @@ export class ListService {
           if (el.classList.contains("selected")) {
             
               list.selected = list.selected.filter(val => val != value);
+              $(item).find(".juel-appear").hide("slow");
 
               let evt = new CustomEvent<ChangedEventArgs>('deselected', {
                 detail: {
@@ -61,6 +62,7 @@ export class ListService {
                 ele.classList.remove("selected");
               })
             }
+            $(item).find(".juel-appear").show("slow");
             let evt = new CustomEvent<ChangedEventArgs>('selected', {
               detail: {
                 index: parseInt(el.dataset.index),
