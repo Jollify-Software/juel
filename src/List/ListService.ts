@@ -60,6 +60,9 @@ export class ListService {
               list.selected = [ value ];
               $(el).siblings().each(function(index, ele) {
                 ele.classList.remove("selected");
+                let sl = ele.querySelector('slot').getAttribute('name');
+        let itm: HTMLElement = list.querySelector(`[slot="${sl}"]`);
+        $(itm).find(".juel-appear").hide("slow");
               })
             }
             $(item).find(".juel-appear").show("slow");
