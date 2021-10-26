@@ -63,7 +63,7 @@ export class Select extends LitElement {
         let items = this.shadowRoot.getElementById('items');
         items.style.display = "none";
         let trigger = this.shadowRoot.getElementById('trigger');
-        $(trigger).on('click', (e) => {
+        $(trigger).off("click").on('click', (e) => {
             this.shadowRoot.getElementById('select').classList.toggle('open');
             if (this.menuShown == false) {
                 items.style.display = "inline-block";
