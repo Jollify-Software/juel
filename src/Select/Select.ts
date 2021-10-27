@@ -60,10 +60,12 @@ export class Select extends LitElement {
 
     private init() {
         this.service.init(this);
+        this.menuShown = false;
         let items = this.shadowRoot.getElementById('items');
         items.style.display = "none";
         let trigger = this.shadowRoot.getElementById('trigger');
         $(trigger).off("click").on('click', (e) => {
+            console.log("Menu is shown " + this.menuShown)
             this.shadowRoot.getElementById('select').classList.toggle('open');
             if (this.menuShown == false) {
                 items.style.display = "inline-block";
