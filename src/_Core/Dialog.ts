@@ -1,6 +1,7 @@
 import { DragMoveListener } from "../_Utils/DragMoveListener";
 import { DialogManagerService } from "../DialogManager/DialogManagerService";
 import { IsMobile } from "../_Utils/IsMobile";
+import { JuelDialogManager } from "../DialogManager/DialogManager";
 
 declare var interact: any;
 
@@ -27,14 +28,15 @@ export class Dialog {
         this.modal = dataset.modal ? dataset.modal.toLowerCase() == "true" : undefined;
     }
 
-    init(element: HTMLElement) {
+    init(element: HTMLElement, dialogManager: JuelDialogManager) {
         this.element = element;
         this.element.style.display = "none";
 
         let closeBtnClick = () => {
-            let closeEvt = new CustomEvent('close');
+            let closeEvt = new CustomEvent('close', { detail: this.element.id }); // TODO: DialogCloseArgs
             console.log("Close Click!!");
             this.element.dispatchEvent(closeEvt);
+            dialogManager.dispatchEvent(closeEvt);
         };
         let closeBtn = this.element.querySelector(".close");
         $(closeBtn).off('click');
@@ -220,7 +222,7 @@ export class Dialog {
                 }
             }
 
-            let closeEvt = new CustomEvent('close', { detail: value });
+            let closeEvt = new CustomEvent('close', { detail: this.id }); // TODO: DialogCloseArgs
             this.element.dispatchEvent(closeEvt);
             this.element.removeEventListener('close', this.closeHandler);
         }

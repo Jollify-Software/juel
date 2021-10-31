@@ -6,9 +6,10 @@ import $ from "jquery";
 (<any>window).$ = $;
 (<any>window).jQuery = $;
 
-$(function() {
+(function() {
+    console.log("JuelGlobal init");
     let style = document.createElement("style");
     style.id = "juel-styles";
     style.textContent = Styles;
     document.head.append(style);
-})
+})();
