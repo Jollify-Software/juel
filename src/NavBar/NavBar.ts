@@ -25,7 +25,8 @@ export class JuelNav extends LitElement {
 
     firstUpdated() {
         setTimeout(() => {
-            this.requestUpdate().then(() => {
+            this.requestUpdate();
+            setTimeout(() => {
                 if (this.sticky == true && !(<any>window).isMobile) {
 // Get the offset position of the navbar
 let nav = this.shadowRoot.querySelector('nav') as HTMLElement;

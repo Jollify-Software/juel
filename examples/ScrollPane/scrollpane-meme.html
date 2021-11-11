@@ -1,0 +1,89 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+</head>
+
+<body>
+    <div id="content">
+    <nav id="controls" class="flex">
+        <juel-button id="random" text="Random"></juel-button>
+        <div id="the-filters" class="container">
+                <label for="exampleFormControlSelect1">Example select</label>
+                <select class="form-control" id="exampleFormControlSelect1" data-filter="category">
+                  <option>*</option>
+                  <option>Mind</option>
+                  <option>Strength</option>
+                  <option>Spirit</option>
+                </select>
+        </div>
+    </nav>
+    <div id="memes" class="flex">
+        <filtered-list filters="the-filters">
+    <juel-scroll-pane random="#random" controls="true" style="width: 800px; touch-action: pan-y; user-select: none; height: 504px;">
+        
+        <juel-flip data-filter-category="Spirit" slot="item-0" draggable="false" ondragstart="event.preventDefault();">
+            <div slot="front">
+                <img title="Ideology. It's a Trap!" src="memes/anxious.jpg">
+            </div>
+            <div slot="back" style="background: lightsalmon;">
+                <ul>
+    <li>One</li>
+    <li>Two</li>
+    <li>Three</li>
+    </ul>
+    
+            </div>
+        </juel-flip>
+        
+        <juel-flip data-filter-category="Spirit" slot="item-1" draggable="false" ondragstart="event.preventDefault();">
+            <div slot="front">
+                <img title="Ideology. It's a Trap!" src="memes/lamb.jpg">
+            </div>
+            <div slot="back" style="background: lightgreen;">
+                <ul>
+    <li>One</li>
+    <li>Two</li>
+    <li>Three</li>
+    </ul>
+    
+            </div>
+        </juel-flip>
+        
+        <juel-flip data-filter-category="Strength" slot="item-2" draggable="false" ondragstart="event.preventDefault();">
+            <div slot="front">
+                <img title="Blessed are the meek. For they shall inherit the earth." src="memes/meek.jpg">
+            </div>
+            <div slot="back" style="background: lightsteelblue;">
+                <ul>
+    <li>One</li>
+    <li>Two</li>
+    <li>Three</li>
+    </ul>
+    
+            </div>
+        </juel-flip>
+        
+        <juel-flip data-filter-category="Mind" slot="item-3" draggable="false" ondragstart="event.preventDefault();">
+            <div slot="front">
+                <img title="Ideology. It's a Trap!" src="memes/trap.jpg">
+            </div>
+            <div slot="back" style="background: lightcoral;">
+                <ul>
+    <li>One</li>
+    <li>Two</li>
+    <li>Three</li>
+    </ul>
+    
+            </div>
+        </juel-flip>
+        
+    </juel-scroll-pane>
+    </filtered-list>
+    </div>
+    
+    
+            </div>
+        </body>
+
+        </html>

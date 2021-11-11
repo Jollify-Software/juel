@@ -43,10 +43,16 @@ export class JuelMenu extends LitElement {
                 this.menuShown = false;
             }
         });
-        $(items).on("leave", () => {
-            items.style.display = "none"
-                this.menu = null
-                this.menuShown = false;
+        $([items, trigger[0]]).off("mousemove").on("mousemove", () => {
+            this.menuShown = true;
+        }).off("mouseleave").on("mouseleave", (e) => {
+            this.menuShown = false;
+            setTimeout(() => {
+                if (this.menuShown == false) {
+                    items.style.display = "none"
+                    this.menu = null
+                }
+            }, 1000);
         })
     });
     }
