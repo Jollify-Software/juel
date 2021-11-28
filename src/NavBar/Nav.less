@@ -5,6 +5,7 @@
     width: 100%;
     height: 100px;
     margin-bottom: 10px;
+    background-color: var(--background-colour);
 }
 
 nav {
@@ -16,13 +17,53 @@ nav {
     flex-wrap: wrap;
     flex-direction : row;
     align-items    : baseline;
-    justify-content: var(--justify);
+    justify-content: var(--justify, flex-start);
     padding-left   : var(--padding-left);
     padding-right  : var(--padding-right);
+    background-color: var(--background-colour);
 
     @media screen and (max-width: @widthMobile) {
+        justify-content: flex-start;
         padding-left: initial;
         padding-right: initial;
+        flex-direction: column;
+        background-color: transparent;
+        bottom: 0;
+
+        div {
+            flex-grow: 0.1;
+        }
+    }
+    
+    &.open {
+        #items {
+            flex: 1;
+        }
+    }
+
+    &.open {
+        span:nth-child(1) {
+            transform: translateY(5px) rotate(45deg);
+        }
+
+        span:nth-child(2) {
+            opacity: 0;
+        }
+
+        span:nth-child(3) {
+            transform: translateY(-5px) rotate(-45deg);
+        }
+
+        #items {
+            &.side {
+                &.left, &.right {
+                    flex: 1;
+                }
+                @media screen and (max-width: @widthMobile) {
+                    max-height: calc(100 * var(--vh));
+                }
+            }
+        }
     }
 
     .title {
@@ -32,13 +73,22 @@ nav {
         font-size      : 1.25rem;
         text-decoration: none;
         white-space    : nowrap;
+
+        * {
+            display: inline-block;
+        }
+
+        @media screen and (max-width: @widthMobile) {
+
+            margin-right: initial;
+            flex-direction: column;
+        }
     }
 
     #items {
         display: flex;
         overflow: visible;
         align-items: baseline;
-        min-width: 0;
 
         &.side {
             &.left {
@@ -50,12 +100,12 @@ nav {
         }
 
         @media screen and (max-width: @widthMobile) {
+            flex: 0;
+            transition: flex 1.5s;
             flex-direction: column;
             overflow-y: auto;
             order: 1 !important;
             width: 100%;
-            min-width: 100px;
-            max-height: 0;
         }
     }
 
@@ -65,115 +115,79 @@ nav {
         flex-shrink: 1;
         padding-left    : .75rem;
         padding-right    : .75rem;
-    }
+    }    
+    .addon {
 
-    .toggle {
-        display         : none;
-        position        : relative;
-        width: 64px;
-        height: 64px;
-        cursor:pointer;
-        color           : rgba(0, 0, 0, .55);
-        border-color    : rgba(0, 0, 0, .1);
-        padding         : .25rem .75rem;
-        font-size       : 1.25rem;
-        line-height     : 1;
-        background-color: transparent;
-        border          : 1px solid transparent;
-        border-radius   : .25rem;
-        transition      : box-shadow .15s ease-in-out;
-
-        @media screen and (max-width: @widthMobile) {
-            display: inline-block;
-            + #items.side {
-                position: relative;
-                    transition: max-height 1.5s;
-            }
-            &.open {
-                + #items {
-                    &.side {
-                            max-height: calc(100 * var(--vh));
-                        }
-                    }
-                }
+        ::slotted(*) {
+            display: flex;
         }
+    }
+}
 
-        &.shown {
-            display: inline-block;
+#toggle {
+    display         : none;
+    position        : relative;
+    width: 32px;
+    height: 64px;
+    cursor:pointer;
+    color           : rgba(0, 0, 0, .55);
+    border-color    : rgba(0, 0, 0, .1);
+    padding         : .25rem .75rem;
+    font-size       : 1.25rem;
+    line-height     : 1;
+    background-color: transparent;
+    border          : 1px solid transparent;
+    border-radius   : .25rem;
+    transition      : box-shadow .15s ease-in-out;
 
-            + #items.side {
-                position: relative;
-            flex: 0;
-            transition: flex 1.5s;
-
-            
-                @media screen and (max-width: @widthMobile) {
-                    flex: initial !important;
-                    transition: max-height 1.5s;
-                }
-            }
+    @media screen and (max-width: @widthMobile) {
+        display: inline-block;
+        + #items.side {
+            position: relative;
+                
         
-
         &.open {
             + #items {
                 &.side {
-                    &.left, &.right {
-                        flex: 1;
-                    }
-                    @media screen and (max-width: @widthMobile) {
                         max-height: calc(100 * var(--vh));
-                    }
+                }
                 }
             }
+        }
+    }
+    
+
         
-
-            span:nth-child(1) {
-                transform: translateY(5px) rotate(45deg);
-            }
-
-            span:nth-child(2) {
-                opacity: 0;
-            }
-
-            span:nth-child(3) {
-                transform: translateY(-5px) rotate(-45deg);
-            }
-        }
     
 
-        @media screen and (max-width: @widthMobile) {
-            display: inline-block;
-        }
 
+    @media screen and (max-width: @widthMobile) {
+        display: inline-block;
     }
 
-        span {
-            background-color          : currentColor;
-            display                   : block;
-            height                    : 1px;
-            left                      : calc(50% - 8px);
-            position                  : absolute;
-            transform-origin          : center;
-            transition-duration       : 86ms;
-            transition-property       : background-color, opacity, transform;
-            transition-timing-function: ease-out;
-            width                     : 16px;
-        }
 
-        span:nth-child(1) {
-            top: calc(50% - 6px);
-        }
-
-        span:nth-child(2) {
-            top: calc(50% - 1px);
-        }
-
-        span:nth-child(3) {
-            top: calc(50% + 4px);
-        }
+    span {
+        background-color          : currentColor;
+        display                   : block;
+        height                    : 1px;
+        left                      : calc(50% - 8px);
+        position                  : absolute;
+        transform-origin          : center;
+        transition-duration       : 86ms;
+        transition-property       : background-color, opacity, transform;
+        transition-timing-function: ease-out;
+        width                     : 16px;
     }
-    
-    .addon ::slotted(*) {
-        display: flex;
+
+    span:nth-child(1) {
+        top: calc(50% - 6px);
+    }
+
+    span:nth-child(2) {
+        top: calc(50% - 1px);
+    }
+
+    span:nth-child(3) {
+        top: calc(50% + 4px);
     }
 }

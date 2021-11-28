@@ -14,7 +14,7 @@ export class JuelNav extends LitElement {
     @property({ type: Boolean })
     sticky: boolean = false;
     @property({ type: String })
-    side: string = "right";
+    side: string;
     @property({ type: String })
     push: string;
     @property({ type: Number })
@@ -62,7 +62,7 @@ window.addEventListener('scroll', () => {
 
     toggleClick(e: Event) {
         e.stopImmediatePropagation();
-        let el = this.shadowRoot.getElementById("toggle");
+        let el = this.shadowRoot.getElementById("nav");
         el.classList.toggle("open");
         if (el.classList.contains("open")) {
             if (this.push) {
@@ -82,16 +82,16 @@ window.addEventListener('scroll', () => {
 
     render() {
         return html`
-            <nav>
+            <nav id="nav">
             <div part="title" class="title">
                 <slot name="title">
                     <h1>${this.title}</h1>
                 </slot>
-            </div>
-            <div id="toggle" class="${this.toggle == true ? "toggle shown" : "toggle"}" @click="${this.toggleClick}">
-                <span></span>
-                <span></span>
-                <span></span>
+                <div id="toggle" class="${this.toggle == true ? "shown" : ""}" @click="${this.toggleClick}">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
             <div id="items" part="items" class="${this.side ? `side ${this.side}` : ""}">
             ${ChildrenMap(this, (el, index) => {

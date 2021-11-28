@@ -3,6 +3,7 @@ import { property, customElement } from "lit/decorators";
 import { createPopper, Instance } from '@popperjs/core';
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import Styles from 'bundle-text:./Menu.less';
+import { IsMobile } from "../_Utils/IsMobile";
 
 @customElement('juel-menu')
 export class JuelMenu extends LitElement {
@@ -15,6 +16,11 @@ export class JuelMenu extends LitElement {
     menu: Instance;
     menuShown = false;
 
+    constructor() {
+        super();
+        this.push = IsMobile();
+    }
+
     firstUpdated() {
         setTimeout(() => {
             this.requestUpdate();
@@ -22,7 +28,7 @@ export class JuelMenu extends LitElement {
         let trigger = $(this.shadowRoot.getElementById('trigger'));
         
         if (this.trigger == 'over') {
-            this.trigger = 'mouseover';
+            this.trigger = 'mouseover touchstart';
         }
         trigger.on(this.trigger, (e) => {
             trigger.toggleClass("open");
