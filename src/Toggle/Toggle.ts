@@ -119,11 +119,16 @@ export class JuelToggle extends LitElement {
   }
 
     render() {
+      let contentStrs: string[] = null;
+      if (this.content && this.content.includes(',')) {
+        contentStrs = this.content.split(',');
+      }
+      
         return html`<label class="switch" @click="${this.toggleClicked}">
         <input type="checkbox" id="checkbox" @change="${this.checkChange}">
         ${
           (this.custom) ?  html`<slot name="${this.checked ? "checked" : "unchecked"}"></slot>`:
-          (this.content) ? html`<button id="trigger">${this.content}</button>` :
+          (this.content) ? html`<button id="trigger">${contentStrs ? contentStrs[this.checked ? 1 : 0] : this.content}</button>` :
             html`<span class="${this.rounded == false ? 'slider' : 'slider rounded'}"></span>`
         }
       </label>`;
