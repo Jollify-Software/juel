@@ -9,6 +9,7 @@ export class Dialog {
 
     title: string;
     element: HTMLElement;
+    dialogManager: JuelDialogManager;
     group: string[];
     modal: boolean;
     location: string;
@@ -29,6 +30,7 @@ export class Dialog {
     }
 
     init(element: HTMLElement, dialogManager: JuelDialogManager) {
+        this.dialogManager = dialogManager;
         this.element = element;
         this.element.style.display = "none";
 
@@ -88,16 +90,18 @@ export class Dialog {
 
 
         if (this.trigger) {
-            let trigger = document.querySelector(this.trigger);
+            let trigger = this.dialogManager.parentElement.querySelector(this.trigger);
             if (trigger) {
                 trigger.addEventListener('click', () => {
                     this.service.showDialog(this.id);
                 })
             }
         }
+        (<any>this.element).isInitialised = true;
     }
 
     show(resolve: (value?: unknown) => void) {
+        console.log("Show")
         this.element.style.display = "flex";
         this.isOpen = true;
         if (IsMobile()) {
@@ -121,6 +125,7 @@ export class Dialog {
         }
 
         this.closeHandler = (event: CustomEvent) => {
+            console.log(this.element)
             if (IsMobile()) {
                 if (this.location && this.size) {
                     switch (this.location) {
@@ -155,7 +160,7 @@ export class Dialog {
                 detail: this.id
             });
             console.log("Clsoe!!!")
-            document.querySelector('juel-dialog-manager').dispatchEvent(evt);
+            this.dialogManager.dispatchEvent(evt);
         };
         $(this.element).off('close')
             .on('close', this.closeHandler);

@@ -27,6 +27,7 @@ import './src/Chart/Chart';
 import './src/Flip/Flip';
 import './src/DraggableContainer/DraggableContainer';
 import './src/DockContainer/DockContainer';
+import './src/ImagePicker/ImagePicker';
 /*
 import './src/Contents/Contents';
 import './src/Template/Template';

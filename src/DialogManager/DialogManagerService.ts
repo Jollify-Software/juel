@@ -16,7 +16,9 @@ export class DialogManagerService {
 
         for (let dialog of this.dialogs) {
             let div = this.container.querySelector(`#${dialog.id}`) as HTMLElement;
+            if (!(<any>div).isInitialised) {
             dialog.init(div, this.element);
+            }
         }
         (<any>window).juel.dialogManager = this;
     }

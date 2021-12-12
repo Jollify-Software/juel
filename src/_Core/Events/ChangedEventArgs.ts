@@ -1,4 +1,4 @@
 export interface ChangedEventArgs {
-    index: number
+    index?: number
     value: any
 }
