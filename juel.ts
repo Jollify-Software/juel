@@ -8,6 +8,7 @@ import { Vh } from './src/_Utils/Vh';
 import './src/Accordion/Accordion';
 import './src/RadialMenu/RadialMenu';
 import './src/FileInput/FileInput';
+import './src/Loading/Loading';
 import './src/Colour/Colour';
 import './src/DialogManager/DialogManager';
 import './src/FilteredList/FilteredList';

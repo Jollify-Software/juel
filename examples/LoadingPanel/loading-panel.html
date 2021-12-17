@@ -1,0 +1,21 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+</head>
+
+<body>
+    <div style="width: 250px;height: 100px;background-color: burlywood;">
+        <juel-loading></juel-loading>
+    </div>
+    <juel-loading id="loading" screen="true">
+
+    </juel-loading>
+    <script>
+        setTimeout(() => {
+            document.getElementById("loading").visible = false;
+        }, 1000)
+    </script>
+</body>
+
+</html>
