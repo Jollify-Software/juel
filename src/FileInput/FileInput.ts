@@ -1,13 +1,15 @@
 import { LitElement, html, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
-import styles from 'bundle-text:./FileInput.css';
+import styles from 'bundle-text:./FileInput.less';
+import bind from "bind-decorator";
 
 @customElement("juel-file-input")
 export class FileInput extends LitElement {
 
     static styles = unsafeCSS(styles);
 
-    @property({ type: String}) label: string = "Browse";
+    @property({ type: Boolean }) multiple: boolean;
+    @property({ type: String}) label: string;
     @property() placeholder: string = "Choose a file";
     @property() accept: string[] = [
         "image/png", "image/jpeg"
@@ -15,22 +17,58 @@ export class FileInput extends LitElement {
     
     constructor() {
         super();
+        this.addEventListener("dragenter", this.dragenter, false);
+        this.addEventListener("dragleave", this.dragleave, false);
+        this.addEventListener("dragover", this.dragover, false);
+        this.addEventListener("drop", this.drop, false);
     }
 
-    firstUpdated() {
-        (this.shadowRoot.firstElementChild as HTMLElement)
-            .style.setProperty('--content', `'${this.label}'`);
+    change(e: Event) {
+        const input = e.target as HTMLInputElement;
+
+        if (!input.files?.length) {
+            return;
+        }
+    
+        const file = input.files[0];
+        console.log(file);
     }
+
+    browse() {
+        let file = this.shadowRoot.getElementById("file");
+        file.click();
+    }
+
+    dragenter(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        this.shadowRoot.firstElementChild.classList.add("dragged");
+      }
+      dragleave(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        this.shadowRoot.firstElementChild.classList.remove("dragged");
+      }
+    dragover(e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+      @bind
+    drop(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        this.shadowRoot.firstElementChild.classList.remove("dragged");
+        const dt = e.dataTransfer;
+        const files = [...dt.files];
+        console.log(files);
+      }
 
     render() {
-        return html`
-        <div class="custom-file">
-            <input type="file" class="custom-file-input" id="customFile">
-            <div class="custom-file-label">
-            <label for="customFile">${this.placeholder}</label>
-            <button class="btn btn-outline-secondary" type="button">${this.label}</button>
-          </div>
-        </div>`;
+        return html`<div id="container">
+            <input type="file" class="file" id="file" ?multiple="${this.multiple}" @change="${this.change}">
+            <div id="browse"  @click="${this.browse}"><slot>
+                <button>${this.label}</button>
+            </slot></div></div>`;
     }
 
 }

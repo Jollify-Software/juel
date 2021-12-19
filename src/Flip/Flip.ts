@@ -24,7 +24,6 @@ export class JuelFlip extends LitElement {
                 evtName = "mouseenter";
                 break;
         }
-
         $(this.shadowRoot.getElementById('container')).off()
             .on(evtName, () => {
                 let el = this.shadowRoot.getElementById('inner');
