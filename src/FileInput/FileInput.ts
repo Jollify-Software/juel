@@ -7,9 +7,12 @@ import bind from "bind-decorator";
 export class FileInput extends LitElement {
 
     static styles = unsafeCSS(styles);
-
+    files;
+    
     @property({ type: Boolean }) multiple: boolean;
     @property({ type: String}) label: string;
+    @property({ type: String}) url: string;
+    @property({ type: Boolean}) auto: boolean;
     @property() placeholder: string = "Choose a file";
     @property() accept: string[] = [
         "image/png", "image/jpeg"
@@ -22,6 +25,10 @@ export class FileInput extends LitElement {
         this.addEventListener("dragover", this.dragover, false);
         this.addEventListener("drop", this.drop, false);
     }
+    
+    upload() {
+        
+    }
 
     change(e: Event) {
         const input = e.target as HTMLInputElement;
@@ -30,7 +37,7 @@ export class FileInput extends LitElement {
             return;
         }
     
-        const file = input.files[0];
+        this.files = input.files;
         console.log(file);
     }
 
@@ -59,7 +66,7 @@ export class FileInput extends LitElement {
         e.preventDefault();
         this.shadowRoot.firstElementChild.classList.remove("dragged");
         const dt = e.dataTransfer;
-        const files = [...dt.files];
+        this.files = [...dt.files];
         console.log(files);
       }
 
