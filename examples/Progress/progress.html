@@ -1,0 +1,22 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+    <style>
+        juel-progress {
+            --stroke: black;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-progress id="progress" type="ring"></juel-progress>
+    <script>
+        var pro = document.getElementById("progress");
+        setInterval(() => {
+            pro.value+=10;
+        }, 500);
+    </script>
+</body>
+
+</html>

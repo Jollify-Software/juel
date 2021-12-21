@@ -4,7 +4,9 @@ import styles from 'bundle-text:./FileInput.less';
 import bind from "bind-decorator";
 
 @customElement("juel-file-input")
-export class FileInput extends LitElement {
+export class JuelFileInput extends LitElement {
+
+    static UploadComplete: string = "upload-complete";
 
     static styles = unsafeCSS(styles);
     files;
@@ -27,7 +29,17 @@ export class FileInput extends LitElement {
     }
     
     upload() {
-        
+        if (this.url) {
+            fetch(this.url, {
+                method: 'POST',
+                body: this.files
+            }).then(response => {
+                let event = new CustomEvent(JuelFileInput.UploadComplete, {
+                    detail: response
+                });
+                this.dispatchEvent(event);
+            });
+        }
     }
 
     change(e: Event) {
@@ -38,7 +50,9 @@ export class FileInput extends LitElement {
         }
     
         this.files = input.files;
-        console.log(file);
+        if (this.auto == true) {
+            this.upload();
+        }
     }
 
     browse() {
@@ -67,7 +81,9 @@ export class FileInput extends LitElement {
         this.shadowRoot.firstElementChild.classList.remove("dragged");
         const dt = e.dataTransfer;
         this.files = [...dt.files];
-        console.log(files);
+        if (this.auto == true) {
+            this.upload();
+        }
       }
 
     render() {
