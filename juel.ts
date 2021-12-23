@@ -25,6 +25,7 @@ import './src/Button/Button';
 import './src/EmojiPicker/EmojiPicker';
 import './src/PointSelector/PointSelector';
 import './src/Progress/Progress';
+import './src/Random/Random';
 import './src/NavBar/NavBar';
 import './src/Chart/Chart';
 import './src/Flip/Flip';
