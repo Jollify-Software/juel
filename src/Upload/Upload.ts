@@ -1,11 +1,11 @@
 import { LitElement, html, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
-import styles from 'bundle-text:./FileInput.less';
+import styles from 'bundle-text:./Upload.less';
 import bind from "bind-decorator";
 import { SelectedEventArgs } from "../_Core/Events/SelectedEventargs";
 
-@customElement("juel-file-input")
-export class JuelFileInput extends LitElement {
+@customElement("juel-upload")
+export class JuelUpload extends LitElement {
 
     static FilesSelected: string = "files-selected";
     static UploadComplete: string = "upload-complete";
@@ -46,12 +46,12 @@ export class JuelFileInput extends LitElement {
                 method: 'POST',
                 body: fd
             }).then(response => {
-                let event = new CustomEvent(JuelFileInput.UploadComplete, {
+                let event = new CustomEvent(JuelUpload.UploadComplete, {
                     detail: response
                 });
                 this.dispatchEvent(event);
             }).catch(err => {
-                let e = new CustomEvent(JuelFileInput.UploadError, {
+                let e = new CustomEvent(JuelUpload.UploadError, {
                     detail: err
                 });
                 this.dispatchEvent(e);
@@ -67,7 +67,7 @@ export class JuelFileInput extends LitElement {
         }
     
         this.files = Array.from(input.files);
-        let evt = new CustomEvent<SelectedEventArgs>(JuelFileInput.FilesSelected, {
+        let evt = new CustomEvent<SelectedEventArgs>(JuelUpload.FilesSelected, {
             detail: {
                 value: this.files
             }
@@ -105,7 +105,7 @@ export class JuelFileInput extends LitElement {
         this.shadowRoot.firstElementChild.classList.remove("dragged");
         const dt = e.dataTransfer;
         this.files = [...dt.files];
-        let evt = new CustomEvent<SelectedEventArgs>(JuelFileInput.FilesSelected, {
+        let evt = new CustomEvent<SelectedEventArgs>(JuelUpload.FilesSelected, {
             detail: {
                 value: this.files
             }

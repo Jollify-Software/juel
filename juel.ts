@@ -7,7 +7,7 @@ import { Vh } from './src/_Utils/Vh';
 
 import './src/Accordion/Accordion';
 import './src/RadialMenu/RadialMenu';
-import './src/FileInput/FileInput';
+import './src/Upload/Upload';
 import './src/Loading/Loading';
 import './src/Colour/Colour';
 import './src/DialogManager/DialogManager';

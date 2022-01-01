@@ -66,7 +66,7 @@ export class JuelImagePicker extends LitElement {
         <juel-dialog-manager>
             <div id="dialog-1" data-title="${this.title}" data-trigger="img">
                 <input @input=${this.srcInput} value="${this.src}" />
-                <juel-file-input auto="true" url="${this.url}" @upload-complete="${this.uploadComplete}" @upload-error="${this.uploadError}"></juel-file--input>
+                <juel-upload auto="true" url="${this.url}" @upload-complete="${this.uploadComplete}" @upload-error="${this.uploadError}"></juel-upload>
             </div>
         </juel-dialog-manager></div>`;
     }
