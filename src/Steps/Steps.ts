@@ -7,6 +7,8 @@ import style from 'bundle-text:./Steps.less';
 @customElement("juel-steps")
 export class JuelSteps extends LitElement {
 
+    static StepChanged = "step-changed";
+    static Submit = "submit";
     static styles = unsafeCSS(style);
     
     service: StepsService;
@@ -23,9 +25,22 @@ export class JuelSteps extends LitElement {
         });
     }
 
+    step(index: number) {
+        this.service.currentStep = index;
+        this.service.nextPrev(0);
+    }
+
+    next() {
+        this.service.nextPrev(1);
+    }
+
+    previous() {
+        this.service.nextPrev(-1)
+    }
+
     render() {
         let ids: string[] = [];
-        return html`<div id="container">
+        let view = html`<div id="container">
             ${ChildrenMap(this, (ele, index) => {                
                     let id = ele.id ? ele.id :  `step-${index}`;
                     ids.push(id);
@@ -52,15 +67,14 @@ export class JuelSteps extends LitElement {
                 }, '[slot*="title"]')}                
             <div id="controls" style="overflow:auto;">
             <div style="float:right;">
-            <button type="button" id="prevBtn" @click="${() => this.service.nextPrev(-1)}">Previous</button>
-            <button type="button" id="nextBtn" @click="${() => this.service.nextPrev(1)}">Next</button>
+            <button type="button" id="prevBtn" @click="${this.previous}">Previous</button>
+            <button type="button" id="nextBtn" @click="${this.next}">Next</button>
             </div>
             </div>
             <div id="indicators">
-            ${this.service.numSteps = ids.length, ids.map((id, index) => {
-                return html`<span class="step-indicator" data-index="${index}></span>`;
-            })}
             </div>
         </div>`;
+        this.service.numSteps = ids.length;
+        return view;;
     }
 }

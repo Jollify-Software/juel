@@ -15,7 +15,7 @@
 
 <body>
     <div id="file-input-demo" class="container">
-        <juel-steps>
+        <juel-steps id="steps">
             <div class="tab">Name:
                 <p><input placeholder="First name..." oninput="this.className = ''"></p>
                 <p><input placeholder="Last name..." oninput="this.className = ''"></p>
@@ -38,6 +38,11 @@
               </div>
         </juel-steps>
     </div>
+    <script>
+      document.getElementById("steps").addEventListener("submit", () => {
+        alert("Submit");
+      })
+    </script>
 </body>
 
 </html>
