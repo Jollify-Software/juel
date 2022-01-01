@@ -8,9 +8,11 @@ export class JuelImagePicker extends LitElement {
 
     static styles = unsafeCSS(style);
 
-    static Event_Changed: string = "changed";
+    static Changed: string = "changed";
     
     @property() src: string;
+    @property({ type: String}) url: string;
+    srcResolver: (obj: any) => string;
 
     srcInput(e: InputEvent) {
         this.src = (<any>e.target).value;
@@ -18,9 +20,30 @@ export class JuelImagePicker extends LitElement {
         let args: ChangedEventArgs = {
             value: this.src
         };
-        let evt = new CustomEvent(JuelImagePicker.Event_Changed, {
+        let evt = new CustomEvent(JuelImagePicker.Changed, {
             detail: args
         });
+        this.dispatchEvent(evt);
+    }
+
+    uploadComplete(e: CustomEvent<Response>) {
+        if (this.srcResolver) {
+            e.detail.json().then(obj => {
+                console.log(obj)
+                this.src = this.srcResolver(obj);
+                let args: ChangedEventArgs = {
+                    value: this.src
+                };
+                let evt = new CustomEvent(JuelImagePicker.Changed, {
+                    detail: args
+                });
+                this.dispatchEvent(evt);
+            });
+        }
+    }
+
+    uploadError(err) {
+
     }
 
     render() {
@@ -34,6 +57,7 @@ export class JuelImagePicker extends LitElement {
         <juel-dialog-manager>
             <div id="dialog-1" data-title="Image Picker" data-trigger="img">
                 <input @input=${this.srcInput} value="${this.src}" />
+                <juel-file-input auto="true" url="${this.url}" @upload-complete="${this.uploadComplete}" @upload-error="${this.uploadError}"></juel-file--input>
             </div>
         </juel-dialog-manager></div>`;
     }

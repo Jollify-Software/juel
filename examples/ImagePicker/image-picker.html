@@ -5,7 +5,10 @@
 </head>
 
 <body>
-    <juel-image-picker id="pick1"></juel-image-picker>
+    <juel-image-picker id="pick1" url="https://localhost:44333/resources/upload"></juel-image-picker>
 </body>
-
+<script>
+    let pick = document.getElementById("pick1");
+    pick.srcResolver = (obj) => `https://localhost:44333/resources/${obj[0]['resourceId']}`;
+</script>
 </html>

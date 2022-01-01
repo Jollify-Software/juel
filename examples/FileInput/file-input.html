@@ -21,11 +21,21 @@
 
 <body>
     <div id="file-input-demo" class="container">
-        <juel-file-input label="Single" auto="true" url="http://localhost:51782/resources/upload"></juel-file-input>
+        <juel-file-input id="upload" label="Single" auto="true" url="https://localhost:44333/resources/upload"></juel-file-input>
 
 
         <juel-file-input label="Multiple" multiple="true"></juel-file-input>
     </div>
+    <script>
+        let upload = document.getElementById("upload");
+        upload.addEventListener("upload-error", () => {
+            alert("Error");
+        });
+        upload.addEventListener("upload-complete", (e) => {
+            alert("Complete");
+            console.log(e.detail.json());
+        });
+    </script>
 </body>
 
 </html>
