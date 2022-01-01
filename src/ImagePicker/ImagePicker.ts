@@ -14,6 +14,15 @@ export class JuelImagePicker extends LitElement {
     @property({ type: String}) url: string;
     srcResolver: (obj: any) => string;
 
+    constructor() {
+        super();
+        if (!this.title) this.title = "Image Picker";
+    }
+
+    setSrc(src: string) {
+        this.src = src;
+    }
+
     srcInput(e: InputEvent) {
         this.src = (<any>e.target).value;
 
@@ -55,7 +64,7 @@ export class JuelImagePicker extends LitElement {
         return html`<div>
         <img src="${this.src}" />
         <juel-dialog-manager>
-            <div id="dialog-1" data-title="Image Picker" data-trigger="img">
+            <div id="dialog-1" data-title="${this.title}" data-trigger="img">
                 <input @input=${this.srcInput} value="${this.src}" />
                 <juel-file-input auto="true" url="${this.url}" @upload-complete="${this.uploadComplete}" @upload-error="${this.uploadError}"></juel-file--input>
             </div>
