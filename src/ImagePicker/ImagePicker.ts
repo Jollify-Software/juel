@@ -12,7 +12,7 @@ export class JuelImagePicker extends LitElement {
     
     @property() src: string;
     @property({ type: String}) url: string;
-    srcResolver: (obj: any) => string;
+    srcResolver: (obj: any) => Promise<string>;
 
     constructor() {
         super();
@@ -39,14 +39,16 @@ export class JuelImagePicker extends LitElement {
         if (this.srcResolver) {
             e.detail.json().then(obj => {
                 console.log(obj)
-                this.src = this.srcResolver(obj);
-                let args: ChangedEventArgs = {
-                    value: this.src
-                };
-                let evt = new CustomEvent(JuelImagePicker.Changed, {
-                    detail: args
+                this.srcResolver(obj).then((str) => {
+                    this.src = str;
+                    let args: ChangedEventArgs = {
+                        value: this.src
+                    };
+                    let evt = new CustomEvent(JuelImagePicker.Changed, {
+                        detail: args
+                    });
+                    this.dispatchEvent(evt);
                 });
-                this.dispatchEvent(evt);
             });
         }
     }

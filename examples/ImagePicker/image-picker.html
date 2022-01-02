@@ -9,6 +9,10 @@
 </body>
 <script>
     let pick = document.getElementById("pick1");
-    pick.srcResolver = (obj) => `https://localhost:44333/resources/${obj[0]['resourceId']}`;
+    pick.srcResolver = (obj) => {
+        return new Promise((resolve, reject) => {
+            resolve(`https://localhost:44333/resources/${obj[0]['resourceId']}`);
+        })
+    }
 </script>
 </html>
