@@ -11,11 +11,15 @@ export class JuelImagePicker extends LitElement {
     static Changed: string = "changed";
     
     @property() src: string;
-    @property({ type: String}) url: string;
+    @property() url: string;
+    @property() type: string;
     srcResolver: (obj: any) => Promise<string>;
 
     constructor() {
         super();
+    }
+
+    updated(_changedProperties: Map<string | number | symbol, unknown>): void {
         if (!this.title) this.title = "Image Picker";
     }
 
