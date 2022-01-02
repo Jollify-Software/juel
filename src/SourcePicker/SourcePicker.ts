@@ -1,10 +1,10 @@
 import { html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
-import style from 'bundle-text:./ImagePicker.less';
+import style from 'bundle-text:./SourcePicker.less';
 import { ChangedEventArgs } from '../_Core/Events/ChangedEventArgs';
 
-@customElement("juel-image-picker")
-export class JuelImagePicker extends LitElement {
+@customElement("juel-source-picker")
+export class JuelSourcePicker extends LitElement {
 
     static styles = unsafeCSS(style);
 
@@ -33,10 +33,17 @@ export class JuelImagePicker extends LitElement {
         let args: ChangedEventArgs = {
             value: this.src
         };
-        let evt = new CustomEvent(JuelImagePicker.Changed, {
+        let evt = new CustomEvent(JuelSourcePicker.Changed, {
             detail: args
         });
         this.dispatchEvent(evt);
+
+        if (this.type == "audio" || this.type == "video") {
+            let player = this.shadowRoot.getElementById("player") as HTMLAudioElement;
+            if (player) {
+                player.load();
+            }
+        }
     }
 
     uploadComplete(e: CustomEvent<Response>) {
@@ -48,10 +55,17 @@ export class JuelImagePicker extends LitElement {
                     let args: ChangedEventArgs = {
                         value: this.src
                     };
-                    let evt = new CustomEvent(JuelImagePicker.Changed, {
+                    let evt = new CustomEvent(JuelSourcePicker.Changed, {
                         detail: args
                     });
                     this.dispatchEvent(evt);
+
+                    if (this.type == "audio" || this.type == "video") {
+                        let player = this.shadowRoot.getElementById("player") as HTMLAudioElement;
+                        if (player) {
+                            player.load();
+                        }
+                    }
                 });
             });
         }
@@ -68,9 +82,19 @@ export class JuelImagePicker extends LitElement {
         }
 
         return html`<div>
-        <img src="${this.src}" />
+        <div id="trigger">
+        ${this.type == "audio" ? html`<button>Change</button><audio id="player" controls>
+            <source src="${this.src}">
+        Your browser does not support the audio tag.
+      </audio>` :
+            this.type == "video" ? html`<button>Change</button><video id="player" width="320" height="240" controls>
+            <source src="${this.src}">
+            Your browser does not support the video tag.
+          </video>` :
+            html`<img src="${this.src}" />`
+        }</div>
         <juel-dialog-manager>
-            <div id="dialog-1" data-title="${this.title}" data-trigger="img">
+            <div id="dialog-1" data-title="${this.title}" data-trigger="#trigger">
                 <input @input=${this.srcInput} value="${this.src}" />
                 <juel-upload auto="true" url="${this.url}" @upload-complete="${this.uploadComplete}" @upload-error="${this.uploadError}"></juel-upload>
             </div>
