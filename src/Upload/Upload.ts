@@ -3,6 +3,8 @@ import { property, customElement } from "lit/decorators";
 import styles from 'bundle-text:./Upload.less';
 import bind from "bind-decorator";
 import { SelectedEventArgs } from "../_Core/Events/SelectedEventargs";
+import { data } from "jquery";
+import { unsafeHTML } from "lit/directives/unsafe-html";
 
 @customElement("juel-upload")
 export class JuelUpload extends LitElement {
@@ -19,10 +21,11 @@ export class JuelUpload extends LitElement {
     @property({ type: String}) name: string;
     @property({ type: String}) url: string;
     @property({ type: Boolean}) auto: boolean;
-    @property() placeholder: string = "Choose a file";
-    @property() accept: string[] = [
-        "image/png", "image/jpeg"
-    ];
+    @property() get: string;
+    @property() accept: string;
+    itemTemplate: (obj: any) => Promise<string>;
+    retrieved: any[] = [];
+    retrievedHTML: string[] = [];
     
     constructor() {
         super();
@@ -34,9 +37,27 @@ export class JuelUpload extends LitElement {
         if(!this.name) this.name = "files";
         if (!this.label) this.label = "Upload";
     }
+
+    firstUpdated() {
+        if (this.get) {
+            let url = this.get;
+            if (this.accept) {
+                url = url + `?accept=${this.accept}`;
+            }
+            fetch(this.get).then(response => {
+                response.json().then((data: any[]) => {
+                    this.retrieved = data;
+                    for (let obj of this.retrieved) {
+                        this.itemTemplate(obj).then(str => {
+                            this.retrievedHTML.push(str);
+                        })
+                    }
+                })
+            })
+        }
+    }
     
     upload() {
-        console.log(this.url);
         if (this.url) {
             let fd = new FormData();
             for (let file of this.files) {
@@ -46,6 +67,20 @@ export class JuelUpload extends LitElement {
                 method: 'POST',
                 body: fd
             }).then(response => {
+                if (this.get && this.itemTemplate) {
+                    response.json().then(data => {
+                        if (Array.isArray(data)) {
+                                this.retrieved = this.retrieved.concat(data);
+                        } else {
+                                this.retrieved.push(data);
+                        }
+                        for (let obj of this.retrieved) {
+                            this.itemTemplate(obj).then(str => {
+                                this.retrievedHTML.push(str);
+                            })
+                        }
+                    });
+                }
                 let event = new CustomEvent(JuelUpload.UploadComplete, {
                     detail: response
                 });
@@ -118,10 +153,16 @@ export class JuelUpload extends LitElement {
 
     render() {
         return html`<div id="container">
-            <input type="file" class="file" id="file" ?multiple="${this.multiple}" @change="${this.change}">
-            <div id="browse"  @click="${this.browse}"><slot>
-                <button>${this.label}</button>
-            </slot></div></div>`;
+        <input type="file" class="file" id="file" ?multiple="${this.multiple}" @change="${this.change}">
+        ${this.get && this.itemTemplate ? html`<juel-grid><div slot="new" id="browse"  @click="${this.browse}"><slot>
+            <button>${this.label}</button>
+        </slot></div>${this.retrievedHTML.map(str => {
+            return unsafeHTML(str)
+        })}</juel-grid>`
+            : html`
+        <div id="browse"  @click="${this.browse}"><slot>
+            <button>${this.label}</button>
+        </slot></div>`}</div>`;
     }
 
 }

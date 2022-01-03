@@ -2,6 +2,7 @@ import { html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
 import style from 'bundle-text:./SourcePicker.less';
 import { ChangedEventArgs } from '../_Core/Events/ChangedEventArgs';
+import { JuelUpload } from "../Upload/Upload";
 
 @customElement("juel-source-picker")
 export class JuelSourcePicker extends LitElement {
@@ -12,6 +13,8 @@ export class JuelSourcePicker extends LitElement {
     
     @property() src: string;
     @property() url: string;
+    @property() get: string;
+    @property() accept: string;
     @property() type: string;
     srcResolver: (obj: any) => Promise<string>;
 
@@ -25,6 +28,13 @@ export class JuelSourcePicker extends LitElement {
 
     setSrc(src: string) {
         this.src = src;
+    }
+
+    setItemTemplate(itemTemplate: (obj: any) => Promise<string>) {
+        let upload = this.shadowRoot.getElementById("upload") as JuelUpload;
+        if (upload) {
+            upload.itemTemplate = itemTemplate;
+        }
     }
 
     srcInput(e: InputEvent) {
@@ -96,7 +106,7 @@ export class JuelSourcePicker extends LitElement {
         <juel-dialog-manager>
             <div id="dialog-1" data-title="${this.title}" data-trigger="#trigger">
                 <input @input=${this.srcInput} value="${this.src}" />
-                <juel-upload auto="true" url="${this.url}" @upload-complete="${this.uploadComplete}" @upload-error="${this.uploadError}"></juel-upload>
+                <juel-upload id="upload" auto="true" url="${this.url}" get="${this.get}" accept="${this.accept}" @upload-complete="${this.uploadComplete}" @upload-error="${this.uploadError}"></juel-upload>
             </div>
         </juel-dialog-manager></div>`;
     }

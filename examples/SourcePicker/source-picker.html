@@ -5,7 +5,8 @@
 </head>
 
 <body>
-    <juel-source-picker id="pick1" url="https://localhost:44333/resources/upload" type="video"></juel-source-picker>
+    <juel-source-picker id="pick1" url="https://localhost:44333/resources/upload" type="video"
+    get="https://localhost:44333/resources/list" accept="image/*"></juel-source-picker>
 </body>
 <script>
     let pick = document.getElementById("pick1");
@@ -14,5 +15,11 @@
             resolve(`https://localhost:44333/resources/${obj[0]['resourceId']}`);
         })
     }
+    pick.setItemTemplate((obj) => {
+        return new Promise((resolve, reject) => {
+            console.log(obj);
+            resolve(`<h4>${obj[0]['name']}</h4>`);
+        })
+    })
 </script>
 </html>
