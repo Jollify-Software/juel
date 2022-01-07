@@ -46,6 +46,10 @@ export class JuelRandom extends LitElement {
         if (this.attr in el) {
             let splitty = this.values.split(' ');
             el[this.attr] = splitty[Math.floor(Math.random() * splitty.length)];
+            let p = el.parentElement;
+            if (p.nodeName == "AUDIO" || p.nodeName == "VIDEO") {
+                (<HTMLAudioElement>p).load();
+            }
         }
     }
 }
