@@ -15,18 +15,18 @@ export class JuelUpload extends LitElement {
 
     static styles = unsafeCSS(styles);
     files: File[];
-    
+
     @property({ type: Boolean }) multiple: boolean;
-    @property({ type: String}) label: string;
-    @property({ type: String}) name: string;
-    @property({ type: String}) url: string;
-    @property({ type: Boolean}) auto: boolean;
+    @property({ type: String }) label: string;
+    @property({ type: String }) name: string;
+    @property({ type: String }) url: string;
+    @property({ type: Boolean }) auto: boolean;
     @property() get: string;
     @property() accept: string;
     itemTemplate: (obj: any) => Promise<string>;
     retrieved: any[] = [];
     retrievedHTML: string[] = [];
-    
+
     constructor() {
         super();
         this.addEventListener("dragenter", this.dragenter, false);
@@ -34,7 +34,7 @@ export class JuelUpload extends LitElement {
         this.addEventListener("dragover", this.dragover, false);
         this.addEventListener("drop", this.drop, false);
 
-        if(!this.name) this.name = "files";
+        if (!this.name) this.name = "files";
         if (!this.label) this.label = "Upload";
     }
 
@@ -45,18 +45,23 @@ export class JuelUpload extends LitElement {
                 url = url + `?accept=${this.accept}`;
             }
             fetch(this.get).then(response => {
-                response.json().then((data: any[]) => {
-                    this.retrieved = data;
+                response.json().then((data) => {
+                    if (Array.isArray(data)) {
+                        this.retrieved = this.retrieved.concat(data);
+                    } else {
+                        this.retrieved.push(data);
+                    }
                     for (let obj of this.retrieved) {
                         this.itemTemplate(obj).then(str => {
                             this.retrievedHTML.push(str);
                         })
                     }
+                    this.requestUpdate();
                 })
             })
         }
     }
-    
+
     upload() {
         if (this.url) {
             let fd = new FormData();
@@ -70,15 +75,16 @@ export class JuelUpload extends LitElement {
                 if (this.get && this.itemTemplate) {
                     response.json().then(data => {
                         if (Array.isArray(data)) {
-                                this.retrieved = this.retrieved.concat(data);
+                            this.retrieved = this.retrieved.concat(data);
                         } else {
-                                this.retrieved.push(data);
+                            this.retrieved.push(data);
                         }
                         for (let obj of this.retrieved) {
                             this.itemTemplate(obj).then(str => {
                                 this.retrievedHTML.push(str);
                             })
                         }
+                        this.requestUpdate();
                     });
                 }
                 let event = new CustomEvent(JuelUpload.UploadComplete, {
@@ -100,7 +106,7 @@ export class JuelUpload extends LitElement {
         if (!input.files?.length) {
             return;
         }
-    
+
         this.files = Array.from(input.files);
         let evt = new CustomEvent<SelectedEventArgs>(JuelUpload.FilesSelected, {
             detail: {
@@ -123,17 +129,17 @@ export class JuelUpload extends LitElement {
         e.stopPropagation();
         e.preventDefault();
         this.shadowRoot.firstElementChild.classList.add("dragged");
-      }
-      dragleave(e) {
+    }
+    dragleave(e) {
         e.stopPropagation();
         e.preventDefault();
         this.shadowRoot.firstElementChild.classList.remove("dragged");
-      }
+    }
     dragover(e) {
         e.stopPropagation();
         e.preventDefault();
-      }
-      @bind
+    }
+    @bind
     drop(e) {
         e.stopPropagation();
         e.preventDefault();
@@ -149,7 +155,7 @@ export class JuelUpload extends LitElement {
         if (this.auto == true) {
             this.upload();
         }
-      }
+    }
 
     render() {
         return html`<div id="container">
@@ -159,7 +165,7 @@ export class JuelUpload extends LitElement {
         </slot></div>${this.retrievedHTML.map(str => {
             return unsafeHTML(str)
         })}</juel-grid>`
-            : html`
+                : html`
         <div id="browse"  @click="${this.browse}"><slot>
             <button>${this.label}</button>
         </slot></div>`}</div>`;

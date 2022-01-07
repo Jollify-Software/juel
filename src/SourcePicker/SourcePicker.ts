@@ -11,7 +11,7 @@ export class JuelSourcePicker extends LitElement {
 
     static Changed: string = "changed";
     
-    @property() src: string;
+    @property() src: string = "";
     @property() url: string;
     @property() get: string;
     @property() accept: string;
