@@ -49,6 +49,9 @@ export class JuelRandom extends LitElement {
             let p = el.parentElement;
             if (p.nodeName == "AUDIO" || p.nodeName == "VIDEO") {
                 (<HTMLAudioElement>p).load();
+                if (p.hasAttribute("autoplay")) {
+                    (<HTMLAudioElement>p).play();
+                }
             }
         }
     }
