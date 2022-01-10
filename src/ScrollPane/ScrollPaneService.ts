@@ -28,7 +28,10 @@ export class ScrollPaneService {
 			this.sp.style.width = `${this.sp.width}px`;
 			this.container.style.width = `${this.sp.width}px`;
 		}
-		if (window['isMobile'] == false && h > 0) {
+		if (this.sp.fullHeight) {
+			this.sp.style.height = "100%";
+			this.container.style.height = "100%";
+		} else if (window['isMobile'] == false && h > 0) {
 			this.sp.style.height = `${h}px`;
 			this.container.style.height = `${h}px`;
 		}
@@ -78,13 +81,15 @@ export class ScrollPaneService {
 				margin+= (!this.sp.width) ? $(sib).outerWidth() : this.sp.width;
 			});
 		}
-		let w = el.outerWidth();
-		let h = el.outerHeight();
-		if (w > 0) {
-			this.sp.style.width = `${w}px`;
-		}
-		if (window['isMobile'] == false && h > 0) {
-			this.sp.style.height = `${h}px`;
+		if (!this.sp.fullHeight) {
+			let w = el.outerWidth();
+			let h = el.outerHeight();
+			if (w > 0) {
+				this.sp.style.width = `${w}px`;
+			}
+			if (window['isMobile'] == false && h > 0) {
+				this.sp.style.height = `${h}px`;
+			}
 		}
 		this.container.style.marginLeft = `-${margin}px`;
 	

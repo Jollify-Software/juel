@@ -28,6 +28,8 @@ export class JuelScrollPane extends LitElement {
     @property() previous: string | HTMLElement;
     @property({ type: Number }) master: number;
     @property({ type: Number }) width: number;
+    @property({ type: Boolean }) autoHeight: boolean;
+    @property({ type: Boolean }) fullHeight: boolean;
 
     constructor() {
         super();
