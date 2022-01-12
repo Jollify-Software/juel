@@ -1,5 +1,5 @@
 export interface PaginationInfo {
-    index: number
-    pageSize: number
-    recordCount: number
+    currentPage?: number
+    pageSize?: number
+    recordCount?: number
 }

@@ -3,7 +3,7 @@ ul {
     padding-left: 0;
     list-style: none;
 }
-li {
+button {
     padding: .375rem .75rem;
     position: relative;
     display: block;
@@ -13,6 +13,10 @@ li {
     border: 1px solid #dee2e6;
     transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 
+    &.active {
+        background-color: #0d6efd;
+        color: #fff;
+    }
     &:first-child, &:last-child {
         border-top-left-radius: .25rem;
         border-bottom-left-radius: .25rem;

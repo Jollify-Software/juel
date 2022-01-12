@@ -8,38 +8,57 @@ import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
 export class JuelPagination extends LitElement {
     static styles = unsafeCSS(styles);
 
-    @property({ type: Number }) pageCount: number = 0;
+    @property({ type: Number }) pageCount: number = 1;
+    @property({ type: Number }) currentPage: number = 1;
+
     constructor() {
         super();
     }
 
     onPreviousClick(e: Event) {
-        let evt = new CustomEvent(EventNames.PreviousClick);
+        this.currentPage --;
+        let evt = new CustomEvent<ChangedEventArgs>(EventNames.ButtonClick, {
+            detail: {
+                value: this.currentPage
+            }
+        });
         this.dispatchEvent(evt);
     }
 
     onNextClick(e: Event) {
-        let evt = new CustomEvent(EventNames.NextClick);
+        this.currentPage ++;
+        let evt = new CustomEvent<ChangedEventArgs>(EventNames.ButtonClick, {
+            detail: {
+                value: this.currentPage
+            }
+        });
         this.dispatchEvent(evt);
     }
 
     onButtonClick(e: Event) {
         let target = e.target as HTMLElement;
+        let index = parseFloat(target.dataset["index"]);
+        this.currentPage = index + 1;
         let evt = new CustomEvent<ChangedEventArgs>(EventNames.ButtonClick, {
             detail: {
-                index: parseFloat(target.dataset["index"])
+                index: index,
+                value: this.currentPage
             }
         });
         this.dispatchEvent(evt);
     }
 
     render() {
+        console.log(this.currentPage)
+        console.log(this.pageCount)
+        console.log(this.currentPage != this.pageCount)
         return html`<ul class="pagination">
-            <li class="page-item" @click="${this.onPreviousClick}">Previous</li>
+            <button ?disabled=${this.currentPage == 1} @click="${this.onPreviousClick}">Previous</button>
         ${[...Array(this.pageCount).keys()].map((i) => {
-          return html`<li class="page" data-index="${i}" @click="${this.onButtonClick}">${i+1}</li>`;
+            let c= i==this.currentPage-1 ? "page active" : "page";
+          return html`<button class="${c}" data-index="${i}" @click="${this.onButtonClick}">${i+1}</button>`;
         })}
-          <li class="page-item" @click="${this.onNextClick}">Next</li>
+          <button ?disabled=${this.currentPage == this.pageCount} @click="${this.onNextClick}">Next</button>
         </ul>`;
     }
 }

@@ -1,11 +1,13 @@
 :host {
     display: inline-flex;    
+    flex-direction: column;
 }
 #container {
     display: flex;
     flex-wrap: wrap;
-}
-.item {
-    width: var(--item-width, 200px);
-    height: var(--item-height, 200px);
+
+    > * {
+        width: var(--item-width, 200px);
+        height: var(--item-height, 200px);
+    }
 }
