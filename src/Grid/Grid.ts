@@ -23,9 +23,9 @@ export class JuelGrid extends LitElement {
     url: string;
     @property({ type: Boolean })
     multi: boolean;
-    @property({ type: Number })
+    @property({ type: Number, attribute: "page-size" })
     pageSize: number;
-    
+
     numPages: number;
     currentPage: number;
     itemTemplate: (obj: any) => Promise<string>;
@@ -40,17 +40,20 @@ export class JuelGrid extends LitElement {
 
     retrieveData() {
         this.dataSource.retrieveData().then(data => {
-            console.log("Data")
-            console.log(data)
             this.data = data;
             if (this.itemTemplate) {
                 this.retrievedDataStr = [];
+                let p: Promise<void>[] = [];
                 for (let itm of data) {
-                    this.itemTemplate(itm).then(str => {
-                        this.retrievedDataStr.push(str);
-                    });
+                    p.push(
+                        this.itemTemplate(itm).then(str => {
+                            this.retrievedDataStr.push(str);
+                        })
+                    );
                 }
-                this.requestUpdate();
+                Promise.all(p).then(() => {
+                    this.requestUpdate();
+                });
             }
         });
     }
@@ -89,21 +92,21 @@ export class JuelGrid extends LitElement {
         return html`<div id="container">
         ${document.querySelector('[slot="new"') ? html`<div><slot name="new"></slot></div>` : ``}
         ${!this.dataSource ? ChildrenMap(this, (ele: HTMLElement, i) => {
-                index++;
-                ele.classList.add("juel-item");
-                $(ele).find(".juel-appear").hide();
-                let id = ele.id ? ele.id :  `item-${i}`;
-                ele.setAttribute('slot', id);
-                return html`
+            index++;
+            ele.classList.add("juel-item");
+            $(ele).find(".juel-appear").hide();
+            let id = ele.id ? ele.id : `item-${i}`;
+            ele.setAttribute('slot', id);
+            return html`
                     <div class="item" data-index="${index}">
                     <slot name="${id}"></slot>
                     </div>`;
         }, '[slot="new"]') : this.retrievedDataStr ?
-        html`${this.retrievedDataStr.map(str => {
-            return unsafeHTML(str);
-        })}` : ``
-    }</div>${this.dataSource ?
-    html`<juel-pagination .pageCount=${Math.round(this.dataSource.pagination.recordCount / this.pageSize)} @next-click="${this.onNextClick}" @previous-click="${this.onNextClick}" @button-click="${this.onNextClick}"></juel-pagination>`
-    : ``}`
+                html`${this.retrievedDataStr.map(str => {
+                    return unsafeHTML(str);
+                })}` : ``
+            }</div>${this.dataSource ?
+                html`<juel-pagination .pageCount=${Math.round(this.dataSource.pagination.recordCount / this.pageSize)} @next-click="${this.onNextClick}" @previous-click="${this.onNextClick}" @button-click="${this.onNextClick}"></juel-pagination>`
+                : ``}`
     }
 }
