@@ -16,15 +16,15 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
     }
     return html`
             ${el.addon ?
-            html`<div class="input-group">
-                        ${inputTemplate(el, hasText)}
-                        ${el.active == true && el.addonActive == true ?
-                    html`<slot name="addon-active"></slot>`
-                    :
-                    el.addon == "dropdown" ?
-                        html`<button id="dropdown-toggle" @click="${el.toggleDropdown}">
-                                    </button>` : html`<slot name="addon"></slot>`
-                }
+            html`<div part="input-group" class="input-group">
+                    ${inputTemplate(el, hasText)}
+                    ${ el.addon == "dropdown" ?
+                        html`<button id="dropdown-toggle" @click="${el.toggleDropdown}"></button>` : 
+                        html`<div class="addon"><slot name="addon"></slot></div>`
+                    }
+                    ${el.active == true && el.addonActive == true ?
+                        html`<div class="addon"><slot name="addon-active"></slot></div>`
+                    : `` }
                 </div>
                 <div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` :
             inputTemplate(el, hasText)

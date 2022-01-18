@@ -4,8 +4,8 @@
     <script src="../../dist/juel.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        juel-button {
-            --ripple: 1;
+        #btn::part(input-group) {
+            
         }
     </style>
 </head>
@@ -19,7 +19,7 @@
             </ul>
         </juel-button>
         <juel-button><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-button>
-        <juel-button id="btn" addon="dropdown" addonActive="true">
+        <juel-button addon="dropdown" addonActive="true">
             <strong slot="content">Launch app <i class="fas fa-rocket"></i></strong>
             <ul slot="dropdown">
                 <li>One</li>

@@ -1,5 +1,22 @@
 :host {
-    display: block;
+    display: inline-block;
+}
+.input-group {
+    display: flex;
+    align-items: center;
+    padding: .375rem;
+    border-radius: .25rem;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+
+    :first-child {
+        border-bottom-right-radius: 0px;
+        border-top-right-radius: 0px;
+    }
+    :last-child {
+        border-bottom-left-radius: 0px;
+        border-top-left-radius: 0px;
+    }
 }
 .btn {
     position: relative;
@@ -20,6 +37,10 @@ vertical-align: middle;
     border-bottom-left-radius: 0;
 }
 
+.addon {
+    background-color: var(--background, var(--primary));
+        border-color: #0a58ca;
+}
 button {
     display            : inline-block;
     font-weight        : 400;
@@ -43,11 +64,10 @@ button {
     border-radius      : .25rem;
     transition         : color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
         color: #fff;
-        background-color: #0b5ed7;
+        background-color: var(--background, var(--primary));
         border-color: #0a58ca;
 
     &#dropdown-toggle::after {
-        display: inline-block;
 margin-left: .255em;
 vertical-align: .255em;
 content: "";
