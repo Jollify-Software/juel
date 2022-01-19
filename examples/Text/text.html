@@ -1,0 +1,47 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        #btn::part(input-group) {
+            
+        }
+    </style>
+</head>
+
+<body>
+        <juel-text text="Button" addon="dropdown">
+            <ul slot="dropdown">
+                <li>One</li>
+                <li>Two</li>
+                <li>Three</li>
+            </ul>
+        </juel-text>
+        <juel-text><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-text>
+        <juel-text addon="dropdown" addonActive="true">
+            <strong slot="content">Launch app <i class="fas fa-rocket"></i></strong>
+            <ul slot="dropdown">
+                <li>One</li>
+                <li>Two</li>
+                <li>Three</li>
+            </ul>
+            <h1 slot="addon-active">Active!</h1>
+        </juel-text>
+
+        <hr>
+
+        <juel-text id="btn" addon="true">
+            <img slot="content" src="./animated.png"/>
+            <juel-toggle slot="addon" custom="true">
+                <img slot="unchecked" src="./record.png"/>
+                <img slot="checked" src="./stop.png"/>
+            </juel-toggle>
+        </juel-text>
+
+
+        <script>
+        </script>
+</body>
+
+</html>

@@ -52,12 +52,13 @@ export class JuelPagination extends LitElement {
         console.log(this.currentPage)
         console.log(this.pageCount)
         console.log(this.currentPage != this.pageCount)
+        var ray = [...Array(this.pageCount).keys()];
         return html`<ul class="pagination">
             <button ?disabled=${this.currentPage == 1} @click="${this.onPreviousClick}">Previous</button>
-        ${[...Array(this.pageCount).keys()].map((i) => {
+        ${ray ? ray.map((i) => {
             let c= i==this.currentPage-1 ? "page active" : "page";
           return html`<button class="${c}" data-index="${i}" @click="${this.onButtonClick}">${i+1}</button>`;
-        })}
+        }) : ``}
           <button ?disabled=${this.currentPage == this.pageCount} @click="${this.onNextClick}">Next</button>
         </ul>`;
     }

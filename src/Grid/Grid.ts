@@ -54,6 +54,8 @@ export class JuelGrid extends LitElement {
                 Promise.all(p).then(() => {
                     this.requestUpdate();
                 });
+            } else {
+                this.requestUpdate();
             }
         });
     }
@@ -91,7 +93,7 @@ export class JuelGrid extends LitElement {
         let index = -1;
         return html`<div id="container">
         ${document.querySelector('[slot="new"') ? html`<div><slot name="new"></slot></div>` : ``}
-        ${!this.dataSource ? ChildrenMap(this, (ele: HTMLElement, i) => {
+        ${!this.itemTemplate ? ChildrenMap(this, (ele: HTMLElement, i) => {
             index++;
             ele.classList.add("juel-item");
             $(ele).find(".juel-appear").hide();

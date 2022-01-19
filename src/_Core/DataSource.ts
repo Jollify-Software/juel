@@ -30,7 +30,7 @@ export class DataSource {
 
     retrieveData(): Promise<any[]> {
         return this.get(this.pagination).then(res => {
-            this.pagination.recordCount = res.count;
+            if (res.count) this.pagination.recordCount = res.count;
             this.data = res.data;
             return this.data;
         })

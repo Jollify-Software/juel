@@ -2,6 +2,7 @@ import { html, TemplateResult } from "lit-element/lit-element";
 import { InputBase } from "../_Base/InputBase";
 import { ButtonTemplate } from "./ButtonTemplate";
 import { InputTypes } from "./InputTypes";
+import { TextTemplate } from "./TextTemplate";
 
 
 export function InputGroupTemplate(el: InputBase, type: InputTypes) {
@@ -10,6 +11,9 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
     switch (type) {
         case InputTypes.Button:
             inputTemplate = ButtonTemplate;
+            break;
+        case InputTypes.Text:
+            inputTemplate = TextTemplate;
             break;
         default:
             break;

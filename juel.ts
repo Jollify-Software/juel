@@ -22,6 +22,7 @@ import './src/List/List';
 import './src/Menu/Menu';
 import './src/Toggle/Toggle';
 import './src/Button/Button';
+import './src/Text/Text';
 import './src/EmojiPicker/EmojiPicker';
 import './src/PointSelector/PointSelector';
 import './src/Progress/Progress';
