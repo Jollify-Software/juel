@@ -40,6 +40,7 @@ export class Mdi extends LitElement {
             style.textContent = ".lm_root { position: absolute !important; top: 0; }" + unsafeCSS(themeBase).cssText +
                 unsafeCSS(themeLight).cssText;
             document.body.prepend(style)
+            Mdi.themeLightAdded = true;
         }
     }
 
