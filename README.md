@@ -4,7 +4,7 @@ This is a Web Component library written in TypeScript and built with [Lit](https
 
 ## Purpose
 
-These Web Components have been created for the [Jollify app](https://www.jollify.app) and website.  
+These Web Components have been created for the [Jollify app](https://jollify.app) and website.  
 I have decided to make this project open source in the hope that others might find these useful.
 
 ### Pro
