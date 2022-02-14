@@ -1,11 +1,18 @@
-# Jollify Unified/Unique Element Library (JUEL)
+# Jollify Unified/Unique Element Library (Juel)
 
 This is a Web Component library written in TypeScript and built with [Lit](https://lit.dev/).  
 
 ## Purpose
 
-In the good old days I used to create website using [jQueryUI](https://jqueryui.com/).  
-Nowadays I find myself developing applications using Web Components, so I wanted a library that offered the same kind of controls as jQueryUI but built as Web Components.
+These Web Components have been created for the [Jollify app](https://www.jollify.app) and website.  
+I have decided to make this project open source in the hope that others might find these useful.
 
-In the good old days I created a library called LuI (Luke Interface) which added a few unique components that I use on top of jQueryUI. So hence the word 'Unique' in the title, however 'Unified' makes more sense.  
-so in the creation of this library I took some of the old source from my previous project and turned them into Web Components.
+### Pro
+
+In the future I think that these components could be extended into a Pro version which could be licensed.
+
+## TODO
+
+* Organisation.
+
+* Examples/Demos.
