@@ -5,7 +5,7 @@ export function DragMoveListener (event) {
     var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
   
     // translate the element
-    target.style.webkitTransform =
+    target.style.transform =
       target.style.transform =
         'translate(' + x + 'px, ' + y + 'px)'
   
