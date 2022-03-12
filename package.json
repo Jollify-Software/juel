@@ -19,28 +19,26 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://gitlab.com/jollify/lui.git"
+        "url": "git+https://github.com/Jollify-Software/juel.git"
     },
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://gitlab.com/jollify/lui/issues"
+        "url": "https://github.com/Jollify-Software/juelissues"
     },
-    "homepage": "https://gitlab.com/jollify/lui#readme",
+    "homepage": "https://github.com/Jollify-Software/juel#readme",
     "dependencies": {
         "@interactjs/interactjs": "^1.10.11",
         "@popperjs/core": "^2.10.1",
-        "@simonwep/pickr": "^1.7.4",
         "@swc/helpers": "^0.2.13",
         "@types/toastr": "^2.1.38",
         "bind-decorator": "^1.0.11",
-        "bootstrap": "^4.5.3",
         "driver.js": "^0.9.8",
         "golden-layout": "^2.3.0",
         "hammerjs": "^2.0.8",
         "jquery": "^3.5.1",
         "lit": "^2.2.0",
-        "parcel": "^2.0.0-rc.0",
+        "parcel": "^2.3.1",
         "proton-engine": "^4.1.3",
         "raf-manager": "^0.3.0",
         "tippy.js": "^6.2.7",
@@ -48,13 +46,9 @@
         "vanilla-tilt": "^1.7.0"
     },
     "devDependencies": {
-        "@parcel/transformer-image": "^2.0.0-rc.0",
-        "@parcel/transformer-inline-string": "^2.0.0-rc.0",
-        "@parcel/transformer-less": "^2.0.0-rc.0",
-        "@parcel/transformer-postcss": "^2.0.0-beta.1",
-        "@parcel/transformer-typescript-tsc": "^2.0.0-rc.0",
+        "@parcel/transformer-inline-string": "^2.3.1",
+        "@parcel/transformer-less": "^2.3.1",
         "@types/bingmaps": "0.0.1",
-        "@types/blazor__javascript-interop": "^3.1.2",
         "@types/chart.js": "^2.9.32",
         "@types/hammerjs": "^2.0.36",
         "@types/jquery": "^3.3.38",
