@@ -49,17 +49,16 @@ export class JuelPagination extends LitElement {
     }
 
     render() {
-        console.log(this.currentPage)
-        console.log(this.pageCount)
-        console.log(this.currentPage != this.pageCount)
-        var ray = [...Array(this.pageCount).keys()];
-        return html`<ul class="pagination">
-            <button ?disabled=${this.currentPage == 1} @click="${this.onPreviousClick}">Previous</button>
-        ${ray ? ray.map((i) => {
-            let c= i==this.currentPage-1 ? "page active" : "page";
-          return html`<button class="${c}" data-index="${i}" @click="${this.onButtonClick}">${i+1}</button>`;
-        }) : ``}
-          <button ?disabled=${this.currentPage == this.pageCount} @click="${this.onNextClick}">Next</button>
-        </ul>`;
+        if (this.pageCount && this.pageCount > 0) {
+            var ray = [...Array(this.pageCount).keys()];
+            return html`<ul class="pagination">
+                <button ?disabled=${this.currentPage == 1} @click="${this.onPreviousClick}">Previous</button>
+            ${ray ? ray.map((i) => {
+                let c= i==this.currentPage-1 ? "page active" : "page";
+            return html`<button class="${c}" data-index="${i}" @click="${this.onButtonClick}">${i+1}</button>`;
+            }) : ``}
+            <button ?disabled=${this.currentPage == this.pageCount} @click="${this.onNextClick}">Next</button>
+            </ul>`;
+        }
     }
 }
