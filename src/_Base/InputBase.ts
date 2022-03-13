@@ -1,8 +1,8 @@
 import { createPopper, Instance } from "@popperjs/core";
-import { LitElement } from "lit-element/lit-element";
 import { property } from "lit/decorators";
+import { JuelComponent } from "./JuelComponent";
 
-export class InputBase extends LitElement {
+export class InputBase extends JuelComponent {
     @property() addon: string;
     @property({ type: Boolean }) addonActive: boolean;
     @property() text: string;

@@ -5,6 +5,7 @@ import { createPopper, Instance } from '@popperjs/core';
 import style from 'bundle-text:./Select.less';
 import { SelectService } from "./SelectService";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
+import { JuelComponent } from "../_Base/JuelComponent";
 
 /**
  * ## Universal CSS Properties
@@ -12,7 +13,7 @@ import { ChildrenMap } from "../_Utils/ChildrenMap";
  * * --background-colour-secondary;
  */
 @customElement("juel-select")
-export class Select extends LitElement {
+export class Select extends JuelComponent {
 
     static styles = unsafeCSS(style);
 
@@ -39,26 +40,14 @@ export class Select extends LitElement {
 
     setData(data: any) {
         this.data = data;
-        this.init();
+        this.load();
     }
 
     setValue(value: any) {
         this.value = value
     }
 
-    firstUpdated() {
-        setTimeout(() => {
-            this.requestUpdate();
-        });
-    }
-
-    updated() {
-        setTimeout(() => {
-            this.init();   
-        });
-    }
-
-    private init() {
+    load() {
         this.service.init(this);
         this.menuShown = false;
         let items = this.shadowRoot.getElementById('items');
