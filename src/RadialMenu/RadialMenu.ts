@@ -7,9 +7,10 @@ import { RadialMenuDisplayMode } from './RadialMenuDisplayMode';
 import { RadialMenuGridService } from './RadialMenuGridService';
 import { RadialMenuService } from './RadialMenuService';
 import { ChildrenMap } from '../_Utils/ChildrenMap';
+import { JuelComponent } from '../_Base/JuelComponent';
 
 @customElement("juel-radial-menu")
-export class RadialMenu extends LitElement {
+export class RadialMenu extends JuelComponent {
 
     @property()
     menuItems: MenuItem[] = [];
@@ -38,38 +39,34 @@ export class RadialMenu extends LitElement {
         super();
     }
 
-    firstUpdated() {
+    load() {
         if (this.displayMode != RadialMenuDisplayMode.svg) {
-        this.init();
-        }
-    }
+            if (this.displayMode == RadialMenuDisplayMode.grid) {
+                this.gridService = new RadialMenuGridService(this);
+                this.gridService.init();
+            } else if (this.displayMode == RadialMenuDisplayMode.svg) {
+                this.style.position = 'absolute';
+                this.style.width = `${this.size}px`;
+                this.style.height = `${this.size}px`;
+                this.style.display = "none";
 
-    init() {
-        if (this.displayMode == RadialMenuDisplayMode.grid) {
-            this.gridService = new RadialMenuGridService(this);
-            this.gridService.init();
-        } else if (this.displayMode == RadialMenuDisplayMode.svg) {
-            this.style.position = 'absolute';
-            this.style.width = `${this.size}px`;
-            this.style.height = `${this.size}px`;
-            this.style.display = "none";
-
-            this.service = new RadialMenuService({
-                parent: this,
-                size: this.size,
-                closeOnClick: this.closeOnClick,
-                menuItems: this.menuItems,
-                onClick: this.onMenuItemClick
-            });
-        }
-/*
-        if (this.childElementCount > 0) {
-            let children = this.children;
-            for (let child of children) {
-                child.remove();
-                this.shadowRoot.append(child);
+                this.service = new RadialMenuService({
+                    parent: this,
+                    size: this.size,
+                    closeOnClick: this.closeOnClick,
+                    menuItems: this.menuItems,
+                    onClick: this.onMenuItemClick
+                });
             }
-        }*/
+            /*
+                    if (this.childElementCount > 0) {
+                        let children = this.children;
+                        for (let child of children) {
+                            child.remove();
+                            this.shadowRoot.append(child);
+                        }
+                    }*/
+        }
     }
 
     toggle() {
@@ -83,7 +80,7 @@ export class RadialMenu extends LitElement {
             html`<div class="menu">
                 <div id="items">
             ${ChildrenMap(this, (ele, index) => {
-                let id = ele.id ? ele.id :  `item-${index}`;
+                let id = ele.id ? ele.id : `item-${index}`;
                 ele.setAttribute('slot', id);
 
                 return html`
