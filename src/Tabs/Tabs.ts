@@ -1,20 +1,23 @@
-import { LitElement, html, unsafeCSS } from "lit";
-import { property, customElement } from "lit/decorators";
+import { html, unsafeCSS } from "lit";
+import { customElement, property } from "lit/decorators";
 import style from 'bundle-text:./Tabs.less';
 import { ChildrenMap } from "../_Utils/ChildrenMap";
-import { unsafeHTML } from "lit-html/directives/unsafe-html";
+import { JuelComponent } from "../_Base/JuelComponent";
 
 @customElement("juel-tabs")
-export class Tabs extends LitElement {
+export class JuelTabs extends JuelComponent {
 
     static styles = unsafeCSS(style);
     ids: string[] = [];
 
+    @property({type: Number}) index: number;
+
     constructor() {
         super();
+        this.index = 0;
     }
 
-    openTab(evt, id) {
+    displayTab(evt, id) {
         // Declare all variables
         var i, tabcontent, tablinks;
 
@@ -47,15 +50,15 @@ export class Tabs extends LitElement {
         }
     }
 
-    firstUpdated() {
-        setTimeout(() => {
-            this.requestUpdate();
-        });
+    load() {
+        this.displayTab(null, this.index);
     }
 
-    updated() {
-
-        this.openTab(null, this.ids[0]);
+    openTab(i: number) {
+        if (i >= 0 && i < this.ids.length) {
+            this.index = i;
+            this.displayTab(null, this.index);
+        }
     }
 
     render() {
@@ -74,7 +77,7 @@ export class Tabs extends LitElement {
                         titleEl.setAttribute('slot', titleElId);
                     } 
                     this.ids.push(id);
-                    return html`<div id="${titleElId}" class="title" @click="${(evt) => this.openTab(evt, id)}">
+                    return html`<div id="${titleElId}" class="title" @click="${(evt) => this.displayTab(evt, id)}">
                         ${hasTitleEl ?
                             html`<slot name="${titleElId}"></slot>` :
                             html`<span>
