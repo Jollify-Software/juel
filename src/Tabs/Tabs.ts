@@ -12,11 +12,10 @@ export class JuelTabs extends JuelComponent {
     static styles = unsafeCSS(style);
     ids: string[] = [];
 
-    @property({type: Number}) index: number;
+    @property({type: Number}) index: number = 0;
 
     constructor() {
         super();
-        this.index = 0;
     }
 
     displayTab(evt, id) {
@@ -60,13 +59,13 @@ export class JuelTabs extends JuelComponent {
     }
 
     load() {
-        this.displayTab(null, this.index);
+        this.openTab(this.index);
     }
 
     openTab(i: number) {
         if (i >= 0 && i < this.ids.length) {
             this.index = i;
-            this.displayTab(null, this.index);
+            this.displayTab(null, this.ids[this.index]);
         }
     }
 
@@ -75,6 +74,7 @@ export class JuelTabs extends JuelComponent {
         return html`<slot name="header"></slot>
             <div id="tabs-container">
             <div id="tabs">
+            <div><slot name="prepend"></slot></div>
             ${ChildrenMap(this, (ele, index) => {
                     let id = ele.id ? ele.id : `tab-section-${index}`;
                     ele.setAttribute('slot', id);
@@ -94,7 +94,8 @@ export class JuelTabs extends JuelComponent {
                             </span>`
                         }
                         `;
-                }, '[slot="header"], [slot="footer"], [slot$="title"]')}
+                }, '[slot="header"], [slot="footer"], [slot="prepend"], [slot="append"], [slot$="title"]')}
+                <div><slot name="append"></slot></div>
                 </div>
                 ${this.ids.map(id => {
                     return html`</div>
