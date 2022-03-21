@@ -3,6 +3,8 @@ import { customElement, property } from "lit/decorators";
 import style from 'bundle-text:./Tabs.less';
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import { JuelComponent } from "../_Base/JuelComponent";
+import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
+import { EventNames } from "../_Core/Events/EventNames";
 
 @customElement("juel-tabs")
 export class JuelTabs extends JuelComponent {
@@ -46,6 +48,13 @@ export class JuelTabs extends JuelComponent {
                         tab.className += " active";
                     }
                 }
+
+                let e = new CustomEvent<ChangedEventArgs>(EventNames.Changed, {
+                    detail: {
+                        index: this.ids.indexOf(id)
+                    }
+                });
+                this.dispatchEvent(e);
             }
         }
     }
