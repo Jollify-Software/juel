@@ -10,23 +10,23 @@ import { ChildrenMap } from '../_Utils/ChildrenMap';
 import { JuelComponent } from '../_Base/JuelComponent';
 
 @customElement("juel-radial-menu")
-export class RadialMenu extends JuelComponent {
+export class JuelRadialMenu extends JuelComponent {
 
     @property()
     menuItems: MenuItem[] = [];
 
-    defaultButtonMarkup = html`❌`;
+    static defaultButtonMarkup = html`❌`;
 
     @property()
     buttonOverlay: boolean = true;
 
     @property()
-    displayMode: RadialMenuDisplayMode = RadialMenuDisplayMode.grid;
+    displayMode: RadialMenuDisplayMode;
 
     @property()
-    size: number = 400;
+    size: number;
     @property()
-    closeOnClick: boolean = true;
+    closeOnClick: boolean;
     @property()
     onMenuItemClick: (item: MenuItem) => void;
 
@@ -37,6 +37,9 @@ export class RadialMenu extends JuelComponent {
 
     constructor() {
         super();
+        this.displayMode = RadialMenuDisplayMode.grid;
+        this.closeOnClick = true;
+        this.size = 400;
     }
 
     load() {
@@ -90,7 +93,7 @@ export class RadialMenu extends JuelComponent {
             })}
                 </div>
             </div>
-            <div class="button">${this.buttonOverlay ? html`<slot name="button">${this.defaultButtonMarkup}</slot>` : ''}</div>` :
+            <div class="button">${this.buttonOverlay ? html`<slot name="button">${JuelRadialMenu.defaultButtonMarkup}</slot>` : ''}</div>` :
             ``}`;
     }
 

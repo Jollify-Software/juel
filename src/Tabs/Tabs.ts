@@ -12,10 +12,11 @@ export class JuelTabs extends JuelComponent {
     static styles = unsafeCSS(style);
     ids: string[] = [];
 
-    @property({type: Number}) index: number = 0;
+    @property({type: Number}) index;
 
     constructor() {
         super();
+        this.index = 0;
     }
 
     displayTab(evt, id) {
