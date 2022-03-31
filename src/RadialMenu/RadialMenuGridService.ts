@@ -1,10 +1,10 @@
-import { RadialMenu } from "./RadialMenu";
+import { JuelRadialMenu } from "./RadialMenu";
 
 export class RadialMenuGridService {
   toggle: Function;
-  ele: RadialMenu;
+  ele: JuelRadialMenu;
 
-  constructor(ele: RadialMenu) {
+  constructor(ele: JuelRadialMenu) {
     this.ele = ele;
   }
 
@@ -35,6 +35,6 @@ export class RadialMenuGridService {
       }
     }
 
-    btn.click(() => this.toggle());
+    btn.off('click').on('click', () => this.toggle());
   }
 }

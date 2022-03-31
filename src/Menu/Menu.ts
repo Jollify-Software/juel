@@ -4,35 +4,37 @@ import { createPopper, Instance } from '@popperjs/core';
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import Styles from 'bundle-text:./Menu.less';
 import { IsMobile } from "../_Utils/IsMobile";
+import { JuelComponent } from "../_Base/JuelComponent";
 
 @customElement('juel-menu')
-export class JuelMenu extends LitElement {
+export class JuelMenu extends JuelComponent {
     
     static styles = unsafeCSS(Styles);
 
-    @property({ type: Boolean }) push = false;
-    @property() trigger = 'over';
+    @property({ type: Boolean }) push: boolean;
+    @property() trigger;
     
     menu: Instance;
     menuShown = false;
+    triggered = false;
 
     constructor() {
         super();
         this.push = IsMobile();
+        this.trigger = 'over';
     }
 
-    firstUpdated() {
-        setTimeout(() => {
-            this.requestUpdate();
+    load() {
         let items = this.shadowRoot.getElementById('items');
         let trigger = $(this.shadowRoot.getElementById('trigger'));
         
         if (this.trigger == 'over') {
             this.trigger = 'mouseover touchstart';
         }
-        trigger.on(this.trigger, (e) => {
-            trigger.toggleClass("open");
+        trigger.off(this.trigger).on(this.trigger, (e) => {
             if (this.menuShown == false) {
+                this.triggered = true;
+                trigger.toggleClass("open");
                 items.style.display = "inline-block";
                 if (this.push == false) {
                 this.menu = createPopper(
@@ -46,19 +48,19 @@ export class JuelMenu extends LitElement {
             }
         });
         $([items, trigger[0]]).off("mousemove").on("mousemove", () => {
-            console.log("Show menu");
-            this.menuShown = true;
+            if (this.triggered==true) {
+                this.menuShown = true;
+            }
         }).off("mouseleave").on("mouseleave", (e) => {
             this.menuShown = false;
             setTimeout(() => {
                 if (this.menuShown == false) {
-                    console.log("Hide menu");
                     items.style.display = "none"
                     this.menu = null
+                    this.triggered = false;
                 }
             }, 1000);
         })
-    });
     }
 
 

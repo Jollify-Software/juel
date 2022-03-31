@@ -18,7 +18,7 @@ export class JuelRadialMenu extends JuelComponent {
     static defaultButtonMarkup = html`❌`;
 
     @property()
-    buttonOverlay: boolean = true;
+    buttonOverlay: boolean;
 
     @property()
     displayMode: RadialMenuDisplayMode;
@@ -40,6 +40,7 @@ export class JuelRadialMenu extends JuelComponent {
         this.displayMode = RadialMenuDisplayMode.grid;
         this.closeOnClick = true;
         this.size = 400;
+        this.buttonOverlay = true;
     }
 
     load() {

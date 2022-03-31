@@ -5,22 +5,25 @@ export class JuelComponent extends LitElement {
 
     protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         setTimeout(() => {
+            this.firstLoad();
             this.requestUpdate();
         });
         super.firstUpdated(_changedProperties);
     }
 
+    firstLoad() {
+
+    }
+
     protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
-        if (this.loaded == false) {
             setTimeout(() => {
-                this.load();
+                this.load(_changedProperties);
             });
             this.loaded = true;
-        }
         super.updated(_changedProperties);
     }
 
-    load() {
+    load(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
 
     }
 }
