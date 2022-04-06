@@ -15,20 +15,22 @@ export class JuelMenu extends JuelComponent {
     @property() trigger;
     
     menu: Instance;
-    menuShown = false;
-    triggered = false;
+    menuShown: boolean;
+    triggered: boolean;
 
     constructor() {
         super();
         this.push = IsMobile();
         this.trigger = 'over';
+        this.menuShown = false;
+        this.triggered = false;
     }
 
     load() {
         let items = this.shadowRoot.getElementById('items');
         let trigger = $(this.shadowRoot.getElementById('trigger'));
         
-        if (this.trigger == 'over') {
+        if ((!this.trigger) || this.trigger == 'over') {
             this.trigger = 'mouseover touchstart';
         }
         trigger.off(this.trigger).on(this.trigger, (e) => {

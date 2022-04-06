@@ -10,7 +10,7 @@ export class AccordionService {
     let h: number = 0;
     let btns = $(this.element.shadowRoot).find('.title');
     btns.each((index, el) => {
-      el.addEventListener("click", function () {
+      $(el).off('click').on("click", function () {
         /* Toggle between adding and removing the "active" class,
         to highlight the button that controls the panel */
         el.classList.toggle("active");

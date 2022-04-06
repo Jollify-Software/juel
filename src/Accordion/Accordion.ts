@@ -3,32 +3,30 @@ import { property, customElement } from "lit/decorators";
 import style from 'bundle-text:./Accordion.less';
 import { AccordionService } from "./AccordionService";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
+import { JuelComponent } from "../_Base/JuelComponent";
 
 @customElement("juel-accordion")
-export class JuelAccordion extends LitElement {
+export class JuelAccordion extends JuelComponent {
 
     static styles = unsafeCSS(style);
 
     service: AccordionService;
 
-    @property({ type: String }) size = "200px";
-    @property({ type: Boolean }) vertical: boolean = false;
-    @property({ type: Boolean }) multiple = false;
+    @property({ type: String }) size: string;
+    @property({ type: Boolean }) horizontal: boolean;
+    @property({ type: Boolean }) multiple: boolean;
 
     constructor() {
         super();
         this.size = "500px";
-        this.vertical = true;
+        this.horizontal = false;
         this.multiple = false;
 
         this.service = new AccordionService(this);
     }
 
-    firstUpdated() {
-        setTimeout(() => {
-            this.requestUpdate();
-            setTimeout(() => this.service.init());
-        });
+    load() {
+            this.service.init();
     }
 
     titleClick(e: Event) {
@@ -53,7 +51,7 @@ export class JuelAccordion extends LitElement {
     }
 
     render() {
-        return html`<div id="container" class="${this.vertical == true ? "" : "horizontal"}">
+        return html`<div id="container" class="${this.horizontal == true ? "horizontal" : ""}">
             ${ChildrenMap(this, (ele, index) => {                
                     let id = ele.id ? ele.id :  `accordion-section-${index}`;
                     ele.setAttribute('slot', id);
