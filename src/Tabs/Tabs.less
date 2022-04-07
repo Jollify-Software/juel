@@ -2,7 +2,7 @@
     display: flex;
     overflow: visible;
     border: 1px solid #ccc;
-    background-color: #f1f1f1;
+    background-color: var(--light, #f1f1f1);
     height: 80px;
   }
   
@@ -18,12 +18,12 @@
   
   /* Change background color of buttons on hover */
   #tabs .title:hover {
-    background-color: #ddd;
+    background-color: var(--active, #ddd);
   }
   
   /* Create an active/current tablink class */
   #tabs .title.active {
-    background-color: #ccc;
+    background-color: var(--active, #ccc);
   }
   
   /* Style the tab content */
