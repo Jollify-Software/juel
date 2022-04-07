@@ -14,10 +14,18 @@ export class RadialMenuGridService {
     let menu = container.children('#items') as JQuery<HTMLElement>;
 
     let menuChildCount = menu.children().length;
-    let colCount = (menuChildCount / 2);
+    let colCount = Math.round(menuChildCount / 2);
     let cellCount = colCount * colCount;
     menu[0].style.setProperty("--colCount", colCount as unknown as string);
     menu[0].style.setProperty("--rowCount", colCount as unknown as string);
+
+    menu.children().each((index, el) => {
+      let col = (index % colCount) + 1;
+      let row = Math.round(((index - 1) / colCount) + 1);
+      console.log(`${index} - ${col} X ${row}`);
+      el.style.setProperty("--col", col as unknown as string);
+      el.style.setProperty("--row", row as unknown as string);
+    });
 
     this.toggle = () => {
       if (container.hasClass("open")) {

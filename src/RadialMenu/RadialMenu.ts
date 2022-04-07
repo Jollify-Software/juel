@@ -15,8 +15,6 @@ export class JuelRadialMenu extends JuelComponent {
     @property()
     menuItems: MenuItem[] = [];
 
-    static defaultButtonMarkup = html`❌`;
-
     @property()
     buttonOverlay: boolean;
 
@@ -94,7 +92,7 @@ export class JuelRadialMenu extends JuelComponent {
             })}
                 </div>
             </div>
-            <div class="button">${this.buttonOverlay ? html`<slot name="button">${JuelRadialMenu.defaultButtonMarkup}</slot>` : ''}</div>` :
+            <div class="button">${this.buttonOverlay ? html`<slot name="button"><span></span></slot>` : ''}</div>` :
             ``}`;
     }
 

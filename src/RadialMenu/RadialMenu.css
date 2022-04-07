@@ -9,13 +9,14 @@
 }
 
 .button {
-    background-color: #c87f8a;
+    background-color: var(--light);
     position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
     height: var(--width);
     width: var(--height);
+    border: 1px solid black;
     border-radius: 50%;
     font-size: 2em;
     cursor: pointer;
@@ -25,8 +26,16 @@
     z-index: 1;
 }
 
+.button span {
+    content: var(--icon-close);
+}
+
 div.menu {
     position: absolute;
+}
+.menu.open {
+    z-index: 100;
+    pointer-events: none;
 }
 
 #items {
@@ -42,7 +51,11 @@ div.menu {
     justify-items: center;
     align-items: center;
 }
-
+.item {
+    pointer-events: all;
+    grid-column: var(--col);
+    grid-row: var(--row);
+}
 
 div.menuHolder {
     user-select: none;
