@@ -1,5 +1,6 @@
 import { createPopper, Instance } from "@popperjs/core";
 import { property } from "lit/decorators";
+import { RippleInitialiser } from "../_Utils/RippleModule";
 import { JuelComponent } from "./JuelComponent";
 
 export class InputBase extends JuelComponent {
@@ -10,6 +11,9 @@ export class InputBase extends JuelComponent {
 
     dropdownShown: boolean = false;
     dropdown: Instance;
+
+    isRipple: string;
+    r: RippleInitialiser;
 
     onClick(e: Event) {
     }

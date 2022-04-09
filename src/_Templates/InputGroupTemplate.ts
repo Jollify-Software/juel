@@ -1,7 +1,8 @@
-import { html, TemplateResult } from "lit-element/lit-element";
+import { html, TemplateResult } from "lit";
 import { InputBase } from "../_Base/InputBase";
 import { ButtonTemplate } from "./ButtonTemplate";
 import { InputTypes } from "./InputTypes";
+import { RangeTemplate } from "./RangeTemplate";
 import { TextTemplate } from "./TextTemplate";
 
 
@@ -14,6 +15,9 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
             break;
         case InputTypes.Text:
             inputTemplate = TextTemplate;
+            break;
+        case InputTypes.Range:
+            inputTemplate = RangeTemplate
             break;
         default:
             break;

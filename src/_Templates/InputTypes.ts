@@ -2,5 +2,6 @@ export enum InputTypes {
     Button,
     Text,
     Memo,
-    Number
+    Number,
+    Range
 }

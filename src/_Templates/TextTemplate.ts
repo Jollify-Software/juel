@@ -1,4 +1,4 @@
-import { html } from "lit-element/lit-element";
+import { html } from "lit";
 import { JuelText } from "../Text/text";
 
 export function TextTemplate(el: JuelText, hasText: boolean) {

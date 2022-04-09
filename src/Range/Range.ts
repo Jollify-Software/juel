@@ -1,15 +1,18 @@
-import { html, LitElement, unsafeCSS } from "lit";
-import { property, customElement } from "lit/decorators";
-import { createPopper, Instance } from '@popperjs/core';
-import Styles from 'bundle-text:./Button.less';
-import { RippleInitialiser } from "../_Utils/RippleModule";
+import { customElement, property } from "lit/decorators";
 import { InputBase } from "../_Base/InputBase";
 import { InputGroupTemplate } from "../_Templates/InputGroupTemplate";
 import { InputTypes } from "../_Templates/InputTypes";
+import Styles from 'bundle-text:./Range.less';
+import { unsafeCSS } from "lit";
+import { RippleInitialiser } from "../_Utils/RippleModule";
 
-@customElement("juel-button")
-export class JuelButton extends InputBase {
+@customElement("juel-range")
+export class JuelRange extends InputBase {
     static styles = unsafeCSS(Styles);
+
+    @property() min;
+    @property() max;
+    @property() step;
 
     updated() {
         setTimeout(() => {
@@ -29,15 +32,14 @@ export class JuelButton extends InputBase {
         }
     }
 
-    onClick(e: Event) {
-        console.log("button-click");
-        var event = new CustomEvent("button-click", {
+    onChange(e: Event) {
+        var event = new CustomEvent("changed", {
             detail: e
         });
         this.dispatchEvent(event);
     }
 
     render() {
-        return InputGroupTemplate(this, InputTypes.Button);
+        return InputGroupTemplate(this, InputTypes.Range);
     }
 }

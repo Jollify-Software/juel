@@ -1,4 +1,4 @@
-import { html } from "lit-element/lit-element";
+import { html } from "lit";
 import { InputBase } from "../_Base/InputBase";
 
 export function ButtonTemplate(el: InputBase, hasText: boolean) {
