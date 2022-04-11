@@ -4,6 +4,7 @@ import { ButtonTemplate } from "./ButtonTemplate";
 import { InputTypes } from "./InputTypes";
 import { RangeTemplate } from "./RangeTemplate";
 import { TextTemplate } from "./TextTemplate";
+import { TickboxTemplate } from "./TickboxTemplate";
 
 
 export function InputGroupTemplate(el: InputBase, type: InputTypes) {
@@ -18,6 +19,9 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
             break;
         case InputTypes.Range:
             inputTemplate = RangeTemplate
+            break;
+        case InputTypes.Tickbox:
+            inputTemplate = TickboxTemplate
             break;
         default:
             break;

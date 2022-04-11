@@ -3,5 +3,7 @@ export enum InputTypes {
     Text,
     Memo,
     Number,
-    Range
+    Range,
+    Tickbox,
+    Radio
 }

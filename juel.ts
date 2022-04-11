@@ -17,6 +17,7 @@ import './src/Toggle/Toggle';
 import './src/Button/Button';
 import './src/Text/Text';
 import './src/Range/Range';
+import './src/Tickbox/Tickbox';
 import './src/Progress/Progress';
 import './src/Random/Random';
 import './src/NavBar/NavBar';
