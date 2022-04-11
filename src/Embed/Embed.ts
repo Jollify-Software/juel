@@ -11,11 +11,22 @@ export class JuelEmbed extends LitElement {
     static styles = unsafeCSS(Styles);
 
     static UrlMarkdown = "https://cdn.jsdelivr.net/npm/marked/marked.min.js";
+    static markdownFunc = (em: JuelEmbed, content: string) => {
+        if ('marked' in window) {
+            em.content = marked.parse(content);
+            em.requestUpdate();
+            if ('hljs' in window) {
+                setTimeout(() => hljs.highlightAll(), 400);
+            }
+        }
+    }
 
     @property() url: string;
     @property() type: string;
 
     content: string;
+
+
 
     protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         if (this.url) {
@@ -24,19 +35,19 @@ export class JuelEmbed extends LitElement {
 
                 if (this.type == "markdown" || /markdown/.test(contentType)) {
                     response.text().then(data => {
-                        let script = document.createElement('script');
-                        script.id = "markdown-it";
-                        script.src = JuelEmbed.UrlMarkdown;
-                        script.onload = () => {
-                            if ('marked' in window) {
-                                this.content = marked.parse(data);
-                                this.requestUpdate();
-                            }
-                        };
-                        document.head.append(script);
-                        if ('hljs' in window) {
-                            hljs.highlightAll();
+                        let script: HTMLScriptElement;
+                        script = document.head.querySelector('#markdown');
+                        if (!script) {
+                            script = document.createElement('script');
+                            script.id = "markdown";
+                            script.src = JuelEmbed.UrlMarkdown;
+                            document.head.append(script);
+                            script.onload = () => JuelEmbed.markdownFunc(this, data);
+                        } else {
+                            setTimeout(() => JuelEmbed.markdownFunc(this, data), 400);
                         }
+                    }).catch(err => {
+                        console.log(err);
                     });
                 }
             });
