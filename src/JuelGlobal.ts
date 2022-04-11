@@ -12,4 +12,5 @@ import $ from "jquery";
     style.id = "juel-styles";
     style.textContent = Styles;
     document.head.append(style);
+    // TODO Loop around all icon-XX variables and append to hidden SVG
 })();

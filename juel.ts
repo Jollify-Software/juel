@@ -19,6 +19,7 @@ import './src/Text/Text';
 import './src/Range/Range';
 import './src/Tickbox/Tickbox';
 import './src/Progress/Progress';
+import './src/Embed/Embed';
 import './src/Random/Random';
 import './src/NavBar/NavBar';
 import './src/Chart/Chart';
