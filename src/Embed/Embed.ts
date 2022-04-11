@@ -17,7 +17,7 @@ export class JuelEmbed extends LitElement {
 
     content: string;
 
-    protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         if (this.url) {
             fetch(this.url).then(response => {
                 var contentType = response.headers.get('content-type');
