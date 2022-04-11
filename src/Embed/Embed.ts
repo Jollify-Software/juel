@@ -6,6 +6,7 @@ import Styles from 'bundle-text:./Embed.less';
 declare var marked: any;
 declare var hljs: any;
 
+// TODO: JSON oEmbed => https://oembed.com/
 @customElement("juel-embed")
 export class JuelEmbed extends LitElement {
     static styles = unsafeCSS(Styles);
