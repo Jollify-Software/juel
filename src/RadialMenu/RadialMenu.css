@@ -33,10 +33,6 @@
 div.menu {
     position: absolute;
 }
-.menu.open {
-    z-index: 100;
-    pointer-events: none;
-}
 
 #items {
     margin: auto;
@@ -52,7 +48,7 @@ div.menu {
     align-items: center;
 }
 .item {
-    pointer-events: all;
+    z-index: 100;
     grid-column: var(--col);
     grid-row: var(--row);
 }
