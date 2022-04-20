@@ -1,8 +1,8 @@
+import { JuelModule } from "./_Modules/JuelModule";
+import $ from "jquery";
 import Styles from "bundle-text:./_CommonStyles/juel.less";
 
-(<any>window).juel = {};
-import $ from "jquery";
-
+(<any>window).juel = JuelModule;
 (<any>window).$ = $;
 (<any>window).jQuery = $;
 
