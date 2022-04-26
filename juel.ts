@@ -9,7 +9,6 @@ import './src/Loading/Loading';
 import './src/Tooltip/Tooltip';
 import './src/Tabs/Tabs';
 import './src/Select/Select';
-import './src/Steps/Steps';
 import './src/ScrollPane/ScrollPane';
 import './src/List/List';
 import './src/Menu/Menu';
