@@ -4,15 +4,16 @@ import style from 'bundle-text:./ScrollPane.less';
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import { ScrollPaneService } from "./ScrollPaneService";
 import Hammer from 'hammerjs';
+import { JuelComponent } from "../_Base/JuelComponent";
 
 @customElement("juel-scroll-pane")
-export class JuelScrollPane extends LitElement {
+export class JuelScrollPane extends JuelComponent {
 
     static SCROLL: string = "scroll";
 
     static styles = unsafeCSS(style);
 
-    service :ScrollPaneService;
+    service: ScrollPaneService;
 
     @property() position: number;
     @property({ type: Boolean }) vertical: boolean;
@@ -50,25 +51,20 @@ export class JuelScrollPane extends LitElement {
         }
     }
 
-    firstUpdated() {
-        setTimeout(() => {
-            this.requestUpdate();
+    firstLoad() {
+        let mc = new Hammer(this);
+        mc.on('swipe', (e) => {
+            // Left = 2
+            if (e.direction == 2) {
+                this.service.next();
+                // Right == 4
+            } else if (e.direction == 4) {
+                this.service.previous();
+            }
+        });
 
-                let mc = new Hammer(this);
-                mc.on('swipe', (e) => {
-                    // Left = 2
-                    if (e.direction == 2) {
-                        this.service.next();
-                        // Right == 4
-                    } else if (e.direction == 4) {
-                        this.service.previous();
-                    }
-                });
-            });
-    }
-
-    updated() {
         this.service.init();
+        //setTimeout(() => this.service.init());
     }
 
     reset(resetChildren: boolean = false) {
@@ -81,21 +77,21 @@ export class JuelScrollPane extends LitElement {
 
     scrollNext(e: Event) {
         if (e) {
-        e.stopPropagation();
+            e.stopPropagation();
         }
         this.service.next();
     }
 
     scrollPrevious(e: Event) {
         if (e) {
-        e.stopPropagation();
+            e.stopPropagation();
         }
         this.service.previous();
     }
 
     itemClick(e: Event) {
         if (e) {
-        e.stopPropagation();
+            e.stopPropagation();
         }
         // TODO Despatch custom event
     }
@@ -108,7 +104,6 @@ export class JuelScrollPane extends LitElement {
             el.setAttribute('slot', id);
             el.setAttribute('draggable', 'false');
             el.setAttribute('ondragstart', "event.preventDefault();")
-            console.log("I am here!!!");
             return html`
                         <div class="item" data-index="${index}" draggable="false" @click="${this.itemClick}">
                         <slot name="${id}"></slot>

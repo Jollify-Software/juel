@@ -62,6 +62,7 @@ export class ScrollPaneService {
 			if (el.hasAttribute('data-toggle')) {
 				let sel = el.dataset['toggle'];
 				$(sel).off("click").on('click', () => {
+					console.log(this.sp.position + ' ' + index)
 					if (this.sp.position != index) {
 						this.scrollTo(index);
 					} else {
@@ -76,8 +77,9 @@ export class ScrollPaneService {
         let el = $(this.children[index]);
         let margin: number = 0;
         let prev = el.prevAll();
+		console.log(prev)
         if (prev.length > 0) {
-			prev.each((i, sib) => {
+			prev.each((i, sib) => {	
 				margin+= (!this.sp.width) ? $(sib).outerWidth() : this.sp.width;
 			});
 		}
@@ -138,7 +140,6 @@ export class ScrollPaneService {
 	
 	random() {
 		let index = getRandomInt(this.children.length);
-		console.log(this.positionHistory)
 		while (index == this.sp.position || this.positionHistory.some(n => n == index)) {
 			index = getRandomInt(this.children.length);
 		}

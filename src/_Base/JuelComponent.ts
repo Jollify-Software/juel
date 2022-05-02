@@ -5,8 +5,10 @@ export class JuelComponent extends LitElement {
 
     protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         setTimeout(() => {
-            this.firstLoad();
             this.requestUpdate();
+            setTimeout(() => {
+                this.firstLoad();
+            });
         });
         super.firstUpdated(_changedProperties);
     }
@@ -16,10 +18,12 @@ export class JuelComponent extends LitElement {
     }
 
     protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        setTimeout(() => {
             setTimeout(() => {
                 this.load(_changedProperties);
             });
-            this.loaded = true;
+        });
+        this.loaded = true;
         super.updated(_changedProperties);
     }
 

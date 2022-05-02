@@ -54,6 +54,14 @@ export class JuelToggle extends LitElement {
         this.style.height = `${this.defaultHeight}px`;
       }
 
+      if (this.checked) {
+        this.classList.remove("unchecked");
+        this.classList.add("checked");
+      } else {
+        this.classList.remove("checked");
+        this.classList.add("unchecked");
+      }
+
       if (trigger) {
         $(trigger).on('click', () => {
           this.toggle();
@@ -68,6 +76,13 @@ export class JuelToggle extends LitElement {
     this.checked = !this.checked;
     let checkbox = this.shadowRoot.getElementById("checkbox") as HTMLInputElement;
     checkbox.checked = this.checked;
+    if (this.checked) {
+      this.classList.remove("unchecked");
+      this.classList.add("checked");
+    } else {
+      this.classList.remove("checked");
+      this.classList.add("unchecked");
+    }
     var event = new CustomEvent(CheckChange, {
       detail: {
         checked: this.checked
@@ -104,12 +119,20 @@ export class JuelToggle extends LitElement {
   checkChange(e: Event) {
     let check = e.target as HTMLInputElement;
     this.checked = check.checked;
+    if (this.checked) {
+      this.classList.remove("unchecked");
+      this.classList.add("checked");
+    } else {
+      this.classList.remove("checked");
+      this.classList.add("unchecked");
+    }
     var event = new CustomEvent(CheckChange, {
         detail: {
           checked: this.checked
         }
     });
     this.dispatchEvent(event);
+    this.requestUpdate();
   }
 
   toggleClicked(e: Event) {

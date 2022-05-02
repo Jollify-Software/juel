@@ -6,10 +6,13 @@ import { RippleInitialiser } from "../_Utils/RippleModule";
 import { InputBase } from "../_Base/InputBase";
 import { InputGroupTemplate } from "../_Templates/InputGroupTemplate";
 import { InputTypes } from "../_Templates/InputTypes";
+import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
 
 @customElement("juel-text")
 export class JuelText extends InputBase {
     static styles = unsafeCSS(Styles);
+
+    @property() value: string;
 
     isRipple: string;
     dropdownShown: boolean = false;
@@ -36,8 +39,12 @@ export class JuelText extends InputBase {
     }
 
     onChange(e: Event) {
-        var event = new CustomEvent("changed", {
-            detail: e
+        let target = e.target as HTMLInputElement;
+        this.value = target.value
+        var event = new CustomEvent<ChangedEventArgs>("changed", {
+            detail: {
+                value: this.value
+            }
         });
         this.dispatchEvent(event);
     }
