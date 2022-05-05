@@ -24,6 +24,7 @@ import './src/NavBar/NavBar';
 import './src/Chart/Chart';
 import './src/Flip/Flip';
 import './src/DraggableContainer/DraggableContainer';
+import './src/ImagePreload/ImagePreload';
 /*
 import './src/Contents/Contents';
 import './src/Template/Template';
