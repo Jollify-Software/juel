@@ -8,8 +8,7 @@ import { TickboxTemplate } from "./TickboxTemplate";
 
 
 export function InputGroupTemplate(el: InputBase, type: InputTypes) {
-    let hasText = el.text != undefined;
-    let inputTemplate: (el: InputBase, hasText: boolean) => TemplateResult;
+    let inputTemplate: (el: InputBase) => TemplateResult;
     switch (type) {
         case InputTypes.Button:
             inputTemplate = ButtonTemplate;
@@ -29,7 +28,7 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
     return html`
             ${el.addon ?
             html`<div part="input-group" class="input-group">
-                    ${inputTemplate(el, hasText)}
+                    ${inputTemplate(el)}
                     ${ el.addon == "dropdown" ?
                         html`<button id="dropdown-toggle" @click="${el.toggleDropdown}"></button>` : 
                         html`<div class="addon"><slot name="addon"></slot></div>`
@@ -39,7 +38,7 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
                     : `` }
                 </div>
                 <div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` :
-            inputTemplate(el, hasText)
+            inputTemplate(el)
         }
         `;
 }

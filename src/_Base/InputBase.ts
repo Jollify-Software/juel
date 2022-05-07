@@ -6,7 +6,7 @@ import { JuelComponent } from "./JuelComponent";
 export class InputBase extends JuelComponent {
     @property() addon: string;
     @property({ type: Boolean }) addonActive: boolean;
-    @property() text: string;
+    @property() label: string;
     @property({ type: Boolean }) active: boolean;
 
     dropdownShown: boolean = false;
