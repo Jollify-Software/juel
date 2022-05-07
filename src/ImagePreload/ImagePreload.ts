@@ -13,15 +13,18 @@ export class JuelImagePreload extends LitElement {
 
     firstUpdated(): void {
         if (this.type == "css" || this.type == "all") {
-            let regex = /(?<=url\().+(?=\))/g;
+            let regex = /(?<=url\()[\w:/._\-%]+(?=\);?)/g;
             let styles: HTMLStyleElement[] = Array.prototype.slice.call(document.head.getElementsByTagName('style'));
             styles = styles.concat(Array.prototype.slice.call(document.body.getElementsByTagName('style')));
             styles = styles.filter(el => el.id != 'juel-styles');
             for (let el of styles) {
-                el.textContent.match(regex).forEach(match => {
-                    let img = new Image();
-                    img.src = match;
-                })
+                let res = el.textContent.match(regex);
+                if (res) {
+                    res.forEach(match => {
+                        let img = new Image();
+                        img.src = match;
+                    });
+                }
             }
         }
         if (this.type == 'element' || this.type == 'all') {
@@ -31,5 +34,9 @@ export class JuelImagePreload extends LitElement {
                 img.src = el.src;
             }
         }
+    }
+
+    protected createRenderRoot(): Element | ShadowRoot {
+        return this;
     }
 }
