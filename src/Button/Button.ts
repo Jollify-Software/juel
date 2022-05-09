@@ -6,6 +6,7 @@ import { RippleInitialiser } from "../_Utils/RippleModule";
 import { InputBase } from "../_Base/InputBase";
 import { InputGroupTemplate } from "../_Templates/InputGroupTemplate";
 import { InputTypes } from "../_Templates/InputTypes";
+import { ButtonEvents } from "./ButtonEvents";
 
 @customElement("juel-button")
 export class JuelButton extends InputBase {
@@ -30,8 +31,7 @@ export class JuelButton extends InputBase {
     }
 
     onClick(e: Event) {
-        console.log("button-click");
-        var event = new CustomEvent("button-click", {
+        var event = new CustomEvent(ButtonEvents.ButtonClicked, {
             detail: e
         });
         this.dispatchEvent(event);

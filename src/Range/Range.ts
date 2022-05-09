@@ -5,11 +5,15 @@ import { InputTypes } from "../_Templates/InputTypes";
 import Styles from 'bundle-text:./Range.less';
 import { unsafeCSS } from "lit";
 import { RippleInitialiser } from "../_Utils/RippleModule";
+import { EventNames } from "../_Core/Events/EventNames";
+import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
+import { Dispatch } from "../_Core/DispatchFunction";
 
 @customElement("juel-range")
 export class JuelRange extends InputBase {
     static styles = unsafeCSS(Styles);
 
+    @property({ type: Number }) value: number;
     @property() min;
     @property() max;
     @property() step;
@@ -33,10 +37,10 @@ export class JuelRange extends InputBase {
     }
 
     onChange(e: Event) {
-        var event = new CustomEvent("changed", {
-            detail: e
-        });
-        this.dispatchEvent(event);
+        let args : ChangedEventArgs = {
+            value: this.value
+        };
+        Dispatch(this, EventNames.Changed, args);
     }
 
     render() {

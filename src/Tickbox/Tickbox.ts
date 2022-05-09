@@ -6,23 +6,14 @@ import { InputTypes } from "../_Templates/InputTypes";
 import { RippleInitialiser } from "../_Utils/RippleModule";
 import Styles from 'bundle-text:./Tickbox.less';
 import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
+import { Dispatch } from "../_Core/DispatchFunction";
+import { EventNames } from "../_Core/Events/EventNames";
 
 @customElement("juel-tickbox")
 export class JuelTickbox extends InputBase {
     static styles = unsafeCSS(Styles);
 
     @property({ type: Boolean }) value: boolean;
-
-    updated() {
-        setTimeout(() => {
-            this.isRipple = getComputedStyle(this).getPropertyValue('--ripple');
-            console.log(this.isRipple)
-            if (this.isRipple) {
-                let btn = this.shadowRoot.firstElementChild as HTMLElement;
-                this.r = new RippleInitialiser(btn);
-            }
-        });
-    }
 
     disconnectedCallback() {
         if (this.isRipple) {
@@ -32,14 +23,10 @@ export class JuelTickbox extends InputBase {
     }
 
     onChange(e: Event) {
-        let target = e.target as HTMLInputElement;
-        this.value = target.checked;
-        var event = new CustomEvent<ChangedEventArgs>("changed", {
-            detail: {
-                value: this.value
-            }
-        });
-        this.dispatchEvent(event);
+        let args: ChangedEventArgs = {
+            value: this.value
+        };
+        Dispatch(this, EventNames.Changed, args);
     }
     
     render() {

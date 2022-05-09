@@ -7,7 +7,6 @@ import Styles from "bundle-text:./_CommonStyles/juel.less";
 (<any>window).jQuery = $;
 
 (function() {
-    console.log("JuelGlobal init");
     let style = document.createElement("style");
     style.id = "juel-styles";
     style.textContent = Styles;
