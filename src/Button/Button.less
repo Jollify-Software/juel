@@ -1,23 +1,5 @@
-:host {
-    display: inline-block;
-}
-.input-group {
-    display: flex;
-    align-items: center;
-    padding: .375rem;
-    border-radius: .25rem;
-    background-color: #e9ecef;
-    border: 1px solid #ced4da;
+@import '../_CommonStyles/InputGroup.less';
 
-    :first-child {
-        border-bottom-right-radius: 0px;
-        border-top-right-radius: 0px;
-    }
-    :last-child {
-        border-bottom-left-radius: 0px;
-        border-top-left-radius: 0px;
-    }
-}
 .btn {
     position: relative;
     overflow: hidden;
@@ -35,11 +17,6 @@ vertical-align: middle;
 .btn-group > .btn-group:not(:first-child) > button, .btn-group > button:nth-child(n+3), .btn-group > :not(.btn-check) + button {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-}
-
-.addon {
-    background-color: var(--background, var(--primary));
-        border-color: #0a58ca;
 }
 button {
     display            : inline-block;
@@ -67,13 +44,4 @@ button {
         background-color: var(--background, var(--primary));
         border-color: #0a58ca;
 
-    &#dropdown-toggle::after {
-margin-left: .255em;
-vertical-align: .255em;
-content: "";
-border-top: .3em solid;
-border-right: .3em solid transparent;
-border-bottom: 0;
-border-left: .3em solid transparent;
-    }
 }

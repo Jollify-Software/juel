@@ -22,7 +22,13 @@ export class JuelTickbox extends InputBase {
         }
     }
 
+    setValue(value: boolean) {
+        this.value = value;
+    }
+
     onChange(e: Event) {
+        let el = e.target as HTMLInputElement;
+        this.value = el.checked;
         let args: ChangedEventArgs = {
             value: this.value
         };

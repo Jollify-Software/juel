@@ -1,3 +1,6 @@
+import { Dispatch } from "../_Core/DispatchFunction";
+import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
+import { EventNames } from "../_Core/Events/EventNames";
 import { MenuItem } from "../_Core/MenuItem";
 import { Select } from "./Select";
 
@@ -66,11 +69,13 @@ export class SelectService {
                         if (select.value.length == 1) {
                             select.placeholderIndex = index;
                         }
-                        select.requestUpdate();
-                        let event = new CustomEvent('change', {
-                            detail: select.value
-                        });
-                        select.dispatchEvent(event);
+                        if (!select.multiple) {
+                            select.hide();
+                        }
+                        let args: ChangedEventArgs = {
+                            value: select.value
+                        };
+                        Dispatch(select, EventNames.Changed, args);
                     }
                 });
             });

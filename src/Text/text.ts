@@ -28,6 +28,8 @@ export class JuelText extends InputBase {
     }
 
     onChange(e: Event) {
+        let el = e.target as HTMLInputElement;
+        this.value = el.value;
         let args: ChangedEventArgs = {
             value: this.value
         };

@@ -37,6 +37,8 @@ export class JuelRange extends InputBase {
     }
 
     onChange(e: Event) {
+        let el = e.target as HTMLInputElement;
+        this.value = parseFloat(el.value);
         let args : ChangedEventArgs = {
             value: this.value
         };

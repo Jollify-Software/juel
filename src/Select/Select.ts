@@ -30,6 +30,8 @@ export class Select extends JuelComponent {
 
     @property()
     value: any[] = [];
+    items: HTMLElement;
+    trigger: HTMLElement;
 
     constructor() {
         super();
@@ -40,37 +42,46 @@ export class Select extends JuelComponent {
 
     setData(data: any) {
         this.data = data;
-        this.load();
+        this.requestUpdate();
     }
 
     setValue(value: any) {
         this.value = value
+        this.requestUpdate();
     }
 
-    load() {
+    firstLoad() {
         this.service.init(this);
         this.menuShown = false;
-        let items = this.shadowRoot.getElementById('items');
-        items.style.display = "none";
-        let trigger = this.shadowRoot.getElementById('trigger');
-        $(trigger).off("click").on('click', (e) => {
+        this.items = this.shadowRoot.getElementById('items');
+        this.items.style.display = "none";
+        this.trigger = this.shadowRoot.getElementById('trigger');
+        $(this.trigger).off("click").on('click', (e) => {
             console.log("Menu is shown " + this.menuShown)
             this.shadowRoot.getElementById('select').classList.toggle('open');
             if (this.menuShown == false) {
-                items.style.display = "inline-block";
-                items.style.opacity = "1";
-                this.menu = createPopper(
-                    trigger,
-                    items
-                );
-                this.menuShown = true;
+                this.show();
             } else {
-                items.style.display = "none";
-                items.style.opacity = "0";
-                this.menu = null;
-                this.menuShown = false;
+                this.hide();
             }
         });
+    }
+
+    hide() {
+        this.items.style.display = "none";
+        this.items.style.opacity = "0";
+        this.menu = null;
+        this.menuShown = false;
+    }
+
+    show() {
+        this.items.style.display = "inline-block";
+        this.items.style.opacity = "1";
+        this.menu = createPopper(
+            this.trigger,
+            this.items
+        );
+        this.menuShown = true;
     }
 
     GetPlaceholder() {
@@ -92,7 +103,7 @@ export class Select extends JuelComponent {
                         this.GetPlaceholder()) : ``}
                 </div>
                 <div id="arrow"></div>
-                ${ this.multiple == true && this.value.length > 1 ? html`<div id="badge">${this.value.length - 1}</div>` : `` }
+                ${ this.multiple == true && this.value && this.value.length > 1 ? html`<div id="badge">${this.value.length - 1}</div>` : `` }
             </div>
             <div id="items">
             ${ChildrenMap(this, (ele, i) => {
@@ -110,7 +121,7 @@ export class Select extends JuelComponent {
                     let klass = isHeading ? 'heading' : 'item';
                     if (this.data && this.data.length > 0 && this.data[index]) {
                         let value = this.data[index];
-                        if (this.value.some(x => x == value)) {
+                        if (this.value && 'some' in this.value && this.value.some(x => x == value)) {
                             klass += " selected";
                         }
                     }

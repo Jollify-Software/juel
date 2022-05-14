@@ -25,20 +25,17 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
         default:
             break;
     }
-    return html`
-            ${el.addon ?
-            html`<div part="input-group" class="input-group">
+    return html`<div part="input-group" class="input-group">
                     ${inputTemplate(el)}
-                    ${ el.addon == "dropdown" ?
+                    ${el.addon && el.addon == "dropdown" ?
                         html`<button id="dropdown-toggle" @click="${el.toggleDropdown}"></button>` : 
                         html`<div class="addon"><slot name="addon"></slot></div>`
                     }
-                    ${el.active == true && el.addonActive == true ?
+                    ${el.active == true && el.addon && el.addonActive == true ?
                         html`<div class="addon"><slot name="addon-active"></slot></div>`
                     : `` }
                 </div>
-                <div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` :
-            inputTemplate(el)
-        }
-        `;
+                ${el.addon && el.addon == "dropdown" ?
+                html`<div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` :
+                html`` }`;
 }
