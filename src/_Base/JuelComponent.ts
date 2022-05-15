@@ -1,6 +1,9 @@
 import { LitElement, PropertyValueMap } from "lit";
+import { property } from "lit/decorators";
 
 export class JuelComponent extends LitElement {
+
+    @property() juelParent: JuelComponent;
     loaded: boolean = false;
 
     protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
