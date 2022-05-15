@@ -12,9 +12,11 @@ export class Tooltip extends LitElement {
 
     @property()
     text: "";
+	@property() trigger: string;
 
     constructor() {
         super();
+		this.trigger = "mouseenter";
         if (!Tooltip.stylesSet) {
             let style = document.createElement('style');
             style.textContent = unsafeCSS(styles).cssText;
@@ -25,20 +27,18 @@ export class Tooltip extends LitElement {
 
     firstUpdated() {
         let el = this.shadowRoot.getElementById('tip');
-        let contentEl = this.querySelector('[slot="tip"]');
+        let contentEl = this.querySelector('[slot="content"]');
         let content: any = this.text;
         let interact = false;
-        let trigger: any = "mouseenter";
 
         if (contentEl) {
             content = contentEl;
             interact = true;
-            trigger = "click";
         }
         tippy(el, {
             content: content,
             appendTo: this,
-            trigger: trigger,
+            trigger: this.trigger,
             interactive: interact
         });
     }
