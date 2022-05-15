@@ -4,5 +4,6 @@ export enum EventNames {
     NextClick = "next-click",
     Changed = "changed",
     Selected = "selected",
-    Deselected = "deselected"
+    Deselected = "deselected",
+	Disposed = "disposed"
 }
