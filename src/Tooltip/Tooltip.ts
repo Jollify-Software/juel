@@ -27,7 +27,7 @@ export class Tooltip extends LitElement {
 
     firstUpdated() {
         let el = this.shadowRoot.getElementById('tip');
-        let contentEl = this.querySelector('[slot="content"]');
+        let contentEl = this.querySelector('[slot="tip"]'); // Must be a unique slot name as 'content' is used elsewhere
         let content: any = this.text;
         let interact = false;
 
