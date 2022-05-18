@@ -1,11 +1,14 @@
 import { html, LitElement, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import style from 'bundle-text:./Toggle.less';
-
-const CheckChange: string = "check-change";
+import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
+import { Dispatch } from "../_Core/DispatchFunction";
+import { EventNames } from "../_Core/Events/EventNames";
+import { JuelComponent } from "../_Base/JuelComponent";
+import { ToggleEvents } from "./ToggleEvents";
 
 @customElement("juel-toggle")
-export class JuelToggle extends LitElement {
+export class JuelToggle extends JuelComponent {
 
     static styles = unsafeCSS(style);
 
@@ -83,12 +86,10 @@ export class JuelToggle extends LitElement {
       this.classList.remove("checked");
       this.classList.add("unchecked");
     }
-    var event = new CustomEvent(CheckChange, {
-      detail: {
-        checked: this.checked
-      }
-  });
-  this.dispatchEvent(event);
+    let args: ChangedEventArgs = {
+      value: this.checked
+    }
+    Dispatch(this, ToggleEvents.Toggled, args);
   }
 
   reset() {
@@ -126,12 +127,10 @@ export class JuelToggle extends LitElement {
       this.classList.remove("checked");
       this.classList.add("unchecked");
     }
-    var event = new CustomEvent(CheckChange, {
-        detail: {
-          checked: this.checked
-        }
-    });
-    this.dispatchEvent(event);
+    let args: ChangedEventArgs = {
+      value: this.checked
+    }
+    Dispatch(this, ToggleEvents.Toggled, args);
     this.requestUpdate();
   }
 
