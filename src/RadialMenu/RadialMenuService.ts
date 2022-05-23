@@ -31,6 +31,15 @@ export class RadialMenuService {
     constructor(args: RadialMenuArgs) {
         var self = this;
 
+        if (args.onClick) {
+            let click = args.onClick;
+            args.onClick = (item) => {
+                if (item.action) {
+                    item.action();
+                }
+                click(item);
+            }
+        }
         self.parent = args.parent || null;
 
         self.size = args.size || this.DEFAULT_SIZE;
@@ -55,12 +64,15 @@ export class RadialMenuService {
         self.currentMenu = null;
         document.addEventListener('wheel', self.onMouseWheel.bind(self));
         document.addEventListener('keydown', self.onKeyDown.bind(self));
+
+        console.log(args);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     open(ele?: HTMLElement) {
         this.parent.style.display = "block";
         var self = this;
+        
         if (!self.currentMenu) {
             let items = self.menuItems;
 
@@ -70,6 +82,7 @@ export class RadialMenuService {
                 items = items.filter(i => !i.selector)
             }
             self.currentMenu = self.createMenu('menu inner', items);
+            console.log(self.currentMenu)
             self.holder.appendChild(self.currentMenu);
 
             // wait DOM commands to apply and then set class to allow transition to take effect
@@ -516,6 +529,11 @@ export class RadialMenuService {
         var self = this;
         var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('class', 'icons');
+
+        let icons = self.parent.querySelector('svg');
+        if (icons) {
+            svg.innerHTML = icons.innerHTML;
+        }
 
         // return
         var returnSymbol = document.createElementNS('http://www.w3.org/2000/svg', 'symbol');

@@ -19,7 +19,7 @@ export class JuelRadialMenu extends JuelComponent {
     buttonOverlay: boolean;
 
     @property()
-    displayMode: RadialMenuDisplayMode;
+    mode: RadialMenuDisplayMode;
 
     @property()
     size: number;
@@ -35,18 +35,17 @@ export class JuelRadialMenu extends JuelComponent {
 
     constructor() {
         super();
-        this.displayMode = RadialMenuDisplayMode.grid;
+        this.mode = RadialMenuDisplayMode.grid;
         this.closeOnClick = true;
         this.size = 400;
         this.buttonOverlay = true;
     }
 
-    load() {
-        if (this.displayMode != RadialMenuDisplayMode.svg) {
-            if (this.displayMode == RadialMenuDisplayMode.grid) {
+    firstLoad() {
+            if (this.mode == RadialMenuDisplayMode.grid) {
                 this.gridService = new RadialMenuGridService(this);
                 this.gridService.init();
-            } else if (this.displayMode == RadialMenuDisplayMode.svg) {
+            } else if (this.mode == RadialMenuDisplayMode.svg) {
                 this.style.position = 'absolute';
                 this.style.width = `${this.size}px`;
                 this.style.height = `${this.size}px`;
@@ -68,7 +67,6 @@ export class JuelRadialMenu extends JuelComponent {
                             this.shadowRoot.append(child);
                         }
                     }*/
-        }
     }
 
     toggle() {
@@ -78,7 +76,7 @@ export class JuelRadialMenu extends JuelComponent {
     }
 
     render() {
-        return html`${(this.displayMode == RadialMenuDisplayMode.grid) ?
+        return html`${(this.mode == RadialMenuDisplayMode.grid) ?
             html`<div class="menu">
                 <div id="items">
             ${ChildrenMap(this, (ele, index) => {

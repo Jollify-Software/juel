@@ -1,4 +1,4 @@
 export enum RadialMenuDisplayMode {
-    svg,
-    grid
+    svg= "svg",
+    grid = "grid"
 }
