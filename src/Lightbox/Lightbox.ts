@@ -3,14 +3,11 @@ import { property, customElement } from "lit/decorators";
 import { JuelScrollPane } from "../ScrollPane/ScrollPane";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import Styles from "bundle-text:./Lightbox.less";
+import { ExternalMediaModule } from "../_Modules/ExternalMediaModule";
+import { JuelComponent } from "../_Base/JuelComponent";
 
 @customElement("juel-lightbox")
-export class JuelLightbox extends LitElement {
-
-    static YouTubeRegExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    static YouTubeTemplate = (id) => {
-        return html`<iframe width="560" height="315" src="https://www.youtube.com/embed/${id}" title="YouTube video player" frameborder="0" allowfullscreen></iframe>`
-    }
+export class JuelLightbox extends JuelComponent {
 
     static styles = unsafeCSS(Styles);
 
@@ -24,8 +21,7 @@ export class JuelLightbox extends LitElement {
     sp: JuelScrollPane;
     @property() position: number = 0;
 
-    firstUpdated() {
-        setTimeout(() => {
+    firstLoad() {
             var elements = (Array.prototype.slice.call(document.querySelectorAll('[data-lightbox], [data-lightbox-src')) as HTMLElement[]);
             for (var el of elements) {
                 el.addEventListener('click', (e) => {
@@ -37,16 +33,14 @@ export class JuelLightbox extends LitElement {
                     this.sources.push(el.getAttribute('src'));
                 }
             }
-            
             /*
             this.content = (Array.prototype.slice.call(this.children) as HTMLElement[])
                 .filter(el => !el.matches("[slot]"));
             */
             this.requestUpdate();
-        });
     }
 
-    updated() {
+    load() {
         this.sp = this.shadowRoot.querySelector("juel-scroll-pane");
         $(this.sp).off("scroll").on("scroll", (e: CustomEvent) => {
             console.log(e.detail)
@@ -85,9 +79,9 @@ export class JuelLightbox extends LitElement {
                     ${
                         this.sources.map((src, index) => {
                             if (src.includes('youtu.be')) {
-                                var match = src.match(JuelLightbox.YouTubeRegExp);
+                                var match = src.match(ExternalMediaModule.youtube.regexp);
                                 if (match && match[2].length == 11) {
-                                    return JuelLightbox.YouTubeTemplate(match[2]);
+                                    return ExternalMediaModule.youtube.template({ id: match[2] });
                                 }
                                 return ``;
                             } else {

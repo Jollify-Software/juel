@@ -74,7 +74,8 @@ export class ScrollPaneService {
     }
 
     scrollTo(index: number) {
-        let el = $(this.children[index]);
+		console.log(this.container);
+        let el = $(this.container.querySelectorAll(`[data-index="${index}"]`));
         let margin: number = 0;
         let prev = el.prevAll();
 		console.log(prev)
@@ -93,6 +94,7 @@ export class ScrollPaneService {
 				this.sp.style.height = `${h}px`;
 			}
 		}
+		console.log(`-${margin}px`);
 		this.container.style.marginLeft = `-${margin}px`;
 	
 		this.sp.position = index;
@@ -115,7 +117,8 @@ export class ScrollPaneService {
 		if (this.sp.position >= this.sp.children.length) {
 			this.sp.position = 0;
 		}
-		while (this.sp.children[this.sp.position].classList.contains("hidden")) {
+		let prevEl = this.sp.children[this.sp.position];
+		while (prevEl && prevEl.classList.contains("hidden")) {
 			this.sp.position ++;
 			if (this.sp.position >= this.children.length) {
 				this.sp.position = 0;
@@ -129,7 +132,8 @@ export class ScrollPaneService {
 		if (this.sp.position < 0) {
 			this.sp.position = this.children.length - 1;
 		}
-		while (this.sp.children[this.sp.position].classList.contains("hidden")) {
+		let nextEl = this.sp.children[this.sp.position];
+		while (nextEl && nextEl.classList.contains("hidden")) {
 			this.sp.position --;
 			if (this.sp.position < 0) {
 				this.sp.position = this.children.length - 1;

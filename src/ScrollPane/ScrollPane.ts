@@ -63,8 +63,8 @@ export class JuelScrollPane extends JuelComponent {
             }
         });
 
-        this.service.init();
-        //setTimeout(() => this.service.init());
+        //this.service.init();
+        setTimeout(() => this.service.init(), 500);
     }
 
     reset(resetChildren: boolean = false) {

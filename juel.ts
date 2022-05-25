@@ -4,7 +4,6 @@ import { IsMobile } from './src/_Utils/IsMobile';
 import { Vh } from './src/_Utils/Vh';
 
 import './src/Accordion/Accordion';
-import './src/RadialMenu/RadialMenu';
 import './src/Loading/Loading';
 import './src/Tooltip/Tooltip';
 import './src/Tabs/Tabs';
@@ -25,6 +24,8 @@ import './src/Chart/Chart';
 import './src/Flip/Flip';
 import './src/DraggableContainer/DraggableContainer';
 import './src/ImagePreload/ImagePreload';
+
+import './src/Lightbox/Lightbox';
 /*
 import './src/Contents/Contents';
 import './src/Template/Template';
@@ -34,7 +35,7 @@ import './src/FishEye/FishEye';
 import './src/Parallax/Parallax';
 import './src/BoxMenu/BoxMenu';
 
-import './src/Lightbox/Lightbox';
+
 
 import './src/Spinner/Spinner';
 
