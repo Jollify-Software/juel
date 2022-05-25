@@ -35,6 +35,8 @@ export class Select extends JuelComponent {
 
     constructor() {
         super();
+        // TODO: I am not sure abouut using a service for the list or select components.
+        // I think we could use the Data directive and set each element's data in the render method.
         this.service = new SelectService();
 
         this.multiple = false;
