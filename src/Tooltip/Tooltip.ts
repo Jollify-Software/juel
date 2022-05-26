@@ -34,6 +34,7 @@ export class Tooltip extends LitElement {
         if (contentEl) {
             content = contentEl;
             interact = true;
+            this.trigger = "mousedown";
         }
         tippy(el, {
             content: content,

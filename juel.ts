@@ -26,13 +26,14 @@ import './src/DraggableContainer/DraggableContainer';
 import './src/ImagePreload/ImagePreload';
 
 import './src/Lightbox/Lightbox';
+import './src/Parallax/Parallax';
 /*
 import './src/Contents/Contents';
 import './src/Template/Template';
 
 import './src/SpeechSection/SpeechSection';
 import './src/FishEye/FishEye';
-import './src/Parallax/Parallax';
+
 import './src/BoxMenu/BoxMenu';
 
 
