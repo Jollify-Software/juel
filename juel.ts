@@ -21,12 +21,13 @@ import './src/Embed/Embed';
 import './src/Random/Random';
 import './src/NavBar/NavBar';
 import './src/Chart/Chart';
-import './src/Flip/Flip';
 import './src/DraggableContainer/DraggableContainer';
 import './src/ImagePreload/ImagePreload';
 
 import './src/Lightbox/Lightbox';
-import './src/Parallax/Parallax';
+//import './src/Parallax/Parallax'; // Doesn't work and not important
+import './src/Flip/Flip';
+import './src/Tilt/Tilt';
 /*
 import './src/Contents/Contents';
 import './src/Template/Template';

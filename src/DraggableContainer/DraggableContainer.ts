@@ -3,9 +3,10 @@ import { property, customElement } from "lit/decorators";
 import { DragMoveListener } from "../_Utils/DragMoveListener";
 import { emojiRegex } from "../_Utils/EmojiRegex";
 import interact from '@interactjs/interactjs';
+import { JuelComponent } from "../_Base/JuelComponent";
 
 @customElement("juel-draggable")
-export class DraggableContainer extends LitElement {
+export class DraggableContainer extends JuelComponent {
 
     constructor() {
         super();
@@ -14,7 +15,7 @@ export class DraggableContainer extends LitElement {
             }
     }
 
-    firstUpdated() {
+    firstLoad() {
         let html = this.innerHTML as any;
         html = html.replaceAll(emojiRegex, '<div>$1</div>');
         this.innerHTML = html;

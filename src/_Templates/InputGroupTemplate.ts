@@ -1,4 +1,5 @@
 import { html, TemplateResult } from "lit";
+import { when } from 'lit/directives/when'
 import { InputBase } from "../_Base/InputBase";
 import { ButtonTemplate } from "./ButtonTemplate";
 import { InputTypes } from "./InputTypes";
@@ -25,7 +26,7 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
         default:
             break;
     }
-    return html`<div part="input-group" class="input-group">
+    return html`${when(el.addon, () => html`<div part="input-group" class="input-group">
                     ${inputTemplate(el)}
                     ${el.addon && el.addon == "dropdown" ?
                         html`<button id="dropdown-toggle" @click="${el.toggleDropdown}"></button>` : 
@@ -34,7 +35,7 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
                     ${el.active == true && el.addon && el.addonActive == true ?
                         html`<div class="addon"><slot name="addon-active"></slot></div>`
                     : `` }
-                </div>
+                </div>`, () => inputTemplate(el))}
                 ${el.addon && el.addon == "dropdown" ?
                 html`<div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` :
                 html`` }`;

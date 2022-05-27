@@ -2,12 +2,13 @@ import { LitElement, html, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import { FishEyeService } from "./FishEyeService";
 import styles from 'bundle-text:./FishEye.css';
+import { JuelComponent } from "../_Base/JuelComponent";
 
 // TODO: FishEye doesn't work with emoji
 // In Service we are animating the width and height
 // Instead of this we should just set the scale transform
 @customElement("fish-eye")
-export class FishEye extends LitElement {
+export class FishEye extends JuelComponent {
 
     static styles = unsafeCSS(styles);
 
@@ -27,8 +28,8 @@ export class FishEye extends LitElement {
             this.service = new FishEyeService(this);
         }
 
-        firstUpdated() {
-            setTimeout(() => this.service.init());
+        firstLoad() {
+            this.service.init();
         }
 
         createRenderRoot() {

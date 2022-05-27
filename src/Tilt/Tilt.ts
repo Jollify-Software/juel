@@ -2,17 +2,18 @@ import { html, LitElement, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import VanillaTilt from "vanilla-tilt";
 import Styles from 'bundle-text:./Tilt.less';
+import { JuelComponent } from "../_Base/JuelComponent";
 
 
 @customElement("juel-tilt")
-export class JuelTilt extends LitElement {
+export class JuelTilt extends JuelComponent {
 
     static styles = unsafeCSS(Styles);
 
     @property({ type: Number })
     perspective = 250;
 
-    firstUpdated() {
+    firstLoad() {
         let el = this.shadowRoot.getElementById('tilt');
         VanillaTilt.init(el, {
             perspective: this.perspective

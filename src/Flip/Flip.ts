@@ -1,9 +1,10 @@
 import { html, LitElement, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import style from "bundle-text:./Flip.less";
+import { JuelComponent } from "../_Base/JuelComponent";
 
 @customElement("juel-flip")
-export class JuelFlip extends LitElement {
+export class JuelFlip extends JuelComponent {
 
     static styles = unsafeCSS(style);
 
@@ -34,7 +35,7 @@ export class JuelFlip extends LitElement {
             })
     }
 
-    firstUpdated() {
+    firstLoad() {
         this.init();
     }
 
