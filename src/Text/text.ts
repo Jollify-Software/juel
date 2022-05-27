@@ -20,6 +20,11 @@ export class JuelText extends InputBase {
     dropdownShown: boolean = false;
     dropdown: Instance;
 
+    constructor() {
+        super();
+        this.value = "";
+    }
+
     disconnectedCallback() {
         if (this.isRipple) {
             let btn = this.shadowRoot.firstElementChild as HTMLElement;

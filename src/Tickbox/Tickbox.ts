@@ -15,6 +15,11 @@ export class JuelTickbox extends InputBase {
 
     @property({ type: Boolean }) value: boolean;
 
+    constructor() {
+        super();
+        this.value = false;
+    }
+
     disconnectedCallback() {
         if (this.isRipple) {
             let btn = this.shadowRoot.firstElementChild as HTMLElement;
