@@ -11,17 +11,28 @@ export class JuelLightbox extends JuelComponent {
 
     static styles = unsafeCSS(Styles);
 
-    @property() type; string = "image"
-    @property({ type: Boolean }) icon: boolean = false;
+    @property() type: string;
+    @property({ type: Boolean }) icon;
     @property() preview: string;
 
-    open: boolean = false;
-    sources: string[] = [];
-    content: HTMLElement[] = [];
+    open: boolean;
+    sources: string[];
+    content: HTMLElement[];
     sp: JuelScrollPane;
-    @property() position: number = 0;
+    @property({ type: Number }) position;
+
+    constructor() {
+        super();
+        this.type = "image";
+        this.icon = false;
+        this.open = false;
+        this.sources = [];
+        this.content = [];
+        this.position = 0;
+    }
 
     firstLoad() {
+        this.sp = this.shadowRoot.querySelector("juel-scroll-pane");
             var elements = (Array.prototype.slice.call(document.querySelectorAll('[data-lightbox], [data-lightbox-src')) as HTMLElement[]);
             for (var el of elements) {
                 el.addEventListener('click', (e) => {
@@ -38,13 +49,14 @@ export class JuelLightbox extends JuelComponent {
                 .filter(el => !el.matches("[slot]"));
             */
             this.requestUpdate();
+            this.sp.requestUpdate();
     }
 
     load() {
-        this.sp = this.shadowRoot.querySelector("juel-scroll-pane");
         $(this.sp).off("scroll").on("scroll", (e: CustomEvent) => {
             console.log(e.detail)
             this.position = e.detail.index
+            this.requestUpdate()
         });
     }
 

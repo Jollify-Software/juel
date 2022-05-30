@@ -17,7 +17,7 @@ export class ScrollPaneService {
     }
 
     init() {
-        this.container = this.sp.shadowRoot.getElementById('container');
+        this.container = this.sp.shadowRoot.querySelector('.container');
 		let first = this.container.querySelector('.item') as HTMLElement;
 		let w = $(first).outerWidth();
 		let h = $(first).outerHeight();

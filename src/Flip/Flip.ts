@@ -9,11 +9,17 @@ export class JuelFlip extends JuelComponent {
     static styles = unsafeCSS(style);
 
     @property({ type: Boolean })
-    vertical = false;
+    vertical;
     /**
      * 
      */
-    @property() trigger = "click"
+    @property() trigger;
+
+    constructor() {
+      super();
+      this.vertical = false;
+      this.trigger = "click";
+    }
 
     init() {
         let evtName;
@@ -40,7 +46,8 @@ export class JuelFlip extends JuelComponent {
     }
 
     render() {
-        return html` <div id="container">
+
+      return html` <div id="container">
         <div id="inner">
           <div class="front" part="front">
             <slot name="front"></front>>

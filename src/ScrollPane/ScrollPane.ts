@@ -63,8 +63,8 @@ export class JuelScrollPane extends JuelComponent {
             }
         });
 
-        //this.service.init();
-        setTimeout(() => this.service.init(), 500);
+        this.service.init();
+        //setTimeout(() => this.service.init(), 500);
     }
 
     reset(resetChildren: boolean = false) {
@@ -98,7 +98,7 @@ export class JuelScrollPane extends JuelComponent {
 
     render() {
         return html`${this.controls ? html`<div id="next" part="next" @click="${this.scrollNext}"><span></span></div>` : ``}
-            <div id="container">
+            <div class="container">
                 ${ChildrenMap(this, (el, index) => {
             let id = el.id ? el.id : `item-${index}`;
             el.setAttribute('slot', id);
