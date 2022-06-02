@@ -1,13 +1,15 @@
-import icn_error from "bundle-text:../../res/icons/error.svg";
-import icn_info from "bundle-text:../../res/icons/info.svg";
-import icn_question from "bundle-text:../../res/icons/question.svg";
-import icn_success from "bundle-text:../../res/icons/success.svg";
-import icn_warning from "bundle-text:../../res/icons/warning.svg";
+import icn_close from "bundle-text:../../res/icons/close.svg";
+import icn_crosshair from "bundle-text:../../res/icons/crosshair.svg";
+import icn_indicator from "bundle-text:../../res/icons/indicator.svg";
+import icn_next from "bundle-text:../../res/icons/next.svg";
+import icn_previous from "bundle-text:../../res/icons/previous.svg";
+import icn_tick from "bundle-text:../../res/icons/tick.svg";
 
 export module SvgIcons {
-    export var error = icn_error;
-    export var info = icn_info;
-    export var question = icn_question;
-    export var success = icn_success;
-    export var warning = icn_warning;
+    export var close = icn_close;
+    export var crosshair = icn_crosshair;
+    export var indicator = icn_indicator;
+    export var next = icn_next;
+    export var previous = icn_previous;
+    export var tick = icn_tick;
 }
