@@ -2,6 +2,8 @@ import { createPopper, Instance } from "@popperjs/core";
 import { property } from "lit/decorators";
 import { RippleInitialiser } from "../_Utils/RippleModule";
 import { JuelComponent } from "./JuelComponent";
+import { createRef } from 'lit/directives/ref' 
+import { PropertyValueMap } from "lit";
 
 export class InputBase extends JuelComponent {
     @property() addon: string;
@@ -9,11 +11,26 @@ export class InputBase extends JuelComponent {
     @property() label: string;
     @property({ type: Boolean }) active: boolean;
 
+    input = createRef<HTMLInputElement>();
+
     dropdownShown: boolean = false;
     dropdown: Instance;
 
     isRipple: string;
     r: RippleInitialiser;
+
+    firstUpdated() {
+        if (this.input.value) {
+            this.input.value.focus();
+        }
+    }
+
+    focus(options?: FocusOptions): void {
+        if (this.input.value) {
+            this.input.value.focus();
+        }
+        super.focus(options)
+    }
 
     onClick(e: Event) {
     }
