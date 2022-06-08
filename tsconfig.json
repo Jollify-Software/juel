@@ -7,6 +7,7 @@
         "sourceMap": true,
         "esModuleInterop": true,
         "target": "es2019",
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "useDefineForClassFields": false
     }
 }
