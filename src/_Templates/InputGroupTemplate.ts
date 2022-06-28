@@ -3,6 +3,7 @@ import { when } from 'lit/directives/when'
 import { InputBase } from "../_Base/InputBase";
 import { ButtonTemplate } from "./ButtonTemplate";
 import { InputTypes } from "./InputTypes";
+import { MemoTemplate } from "./MemoTemplate";
 import { RangeTemplate } from "./RangeTemplate";
 import { TextTemplate } from "./TextTemplate";
 import { TickboxTemplate } from "./TickboxTemplate";
@@ -23,6 +24,8 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
         case InputTypes.Tickbox:
             inputTemplate = TickboxTemplate
             break;
+        case InputTypes.Memo:
+            inputTemplate = MemoTemplate;
         default:
             break;
     }
