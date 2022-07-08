@@ -12,6 +12,13 @@ import { ButtonEvents } from "./ButtonEvents";
 export class JuelButton extends InputBase {
     static styles = unsafeCSS(Styles);
 
+    @property({ type: Boolean }) submit: boolean;
+
+    constructor() {
+        super();
+        this.submit = false;
+    }
+
     updated() {
         setTimeout(() => {
             this.isRipple = getComputedStyle(this).getPropertyValue('--ripple');
@@ -35,6 +42,16 @@ export class JuelButton extends InputBase {
             detail: e
         });
         this.dispatchEvent(event);
+        if (this.submit == true) {
+            let frm = this.closest("form") as HTMLFormElement;
+            if (frm) {
+                if ("requestSubmit" in frm) {
+                    frm.requestSubmit();
+                } else {
+                    frm.submit();
+                }
+            }
+        }
     }
 
     render() {
