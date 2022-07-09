@@ -40,6 +40,13 @@
             </juel-toggle>
         </juel-button>
 
+		<juel-button addon="true" label="Hello">
+			<juel-button slot="addon" label="There"></juel-button>
+			<juel-button slot="addon" label="How"></juel-button>
+			<juel-button slot="addon" label="Are"></juel-button>
+			<juel-button slot="addon" label="You"></juel-button>
+			<juel-button slot="addon" label="?"></juel-button>
+		</juel-button>
 
         <script>
             var btn = document.querySelector('#btn')
@@ -47,6 +54,21 @@
                 btn.active = !btn.active;
             })
         </script>
+
+        <juel-embed type="markdown" theme="school-book">
+It is easy to put buttons in your app.  
+Just like this:
+
+```html
+<juel-button addon="true" label="Hello">
+    <juel-button slot="addon" label="There"></juel-button>
+    <juel-button slot="addon" label="How"></juel-button>
+    <juel-button slot="addon" label="Are"></juel-button>
+    <juel-button slot="addon" label="You"></juel-button>
+    <juel-button slot="addon" label="?"></juel-button>
+</juel-button>
+```
+</juel-embed>
 </body>
 
 </html>

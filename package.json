@@ -15,6 +15,7 @@
     "scripts": {
         "dev": "parcel juel.ts --no-optimize --no-scope-hoist",
         "build": "parcel build juel.ts --dist-dir dist --no-source-maps",
+        "serve": "npm run build && npx copyfiles dist/*.* examples -f && npx serve examples",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
@@ -47,17 +48,19 @@
     },
     "devDependencies": {
         "@parcel/optimizer-data-url": "^2.3.1",
-        "@parcel/transformer-typescript-tsc": "^2.3.1",
         "@parcel/transformer-inline-string": "^2.3.1",
         "@parcel/transformer-less": "^2.3.1",
+        "@parcel/transformer-typescript-tsc": "^2.3.1",
         "@types/bingmaps": "0.0.1",
         "@types/chart.js": "^2.9.32",
         "@types/hammerjs": "^2.0.36",
         "@types/jquery": "^3.3.38",
         "autoprefixer": "^9.8.6",
+        "copyfiles": "^2.4.1",
         "less": "^3.12.2",
         "parcel-plugin-text": "^0.9.6",
         "postcss": "^8.3.7",
+        "serve": "^13.0.4",
         "typescript": "^3.9.3"
     }
 }
