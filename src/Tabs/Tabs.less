@@ -1,9 +1,23 @@
 #tabs {
     display: flex;
+    flex-direction: row;
     overflow: visible;
     border: 1px solid #ccc;
     background-color: var(--light, #f1f1f1);
     height: 80px;
+  }
+
+  #tabs-container {
+    display: flex;
+    flex-direction: column;
+
+    &.vertical {
+      flex-direction: row;
+
+      #tabs {
+        flex-direction: column;
+      }
+    }
   }
   
   /* Style the buttons that are used to open the tab content */

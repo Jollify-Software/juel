@@ -12,11 +12,13 @@ export class JuelTabs extends JuelComponent {
     static styles = unsafeCSS(style);
     ids: string[] = [];
 
-    @property({type: Number}) index;
+    @property({type: Number}) index: number;
+    @property({type: Boolean}) vertical: boolean;
 
     constructor() {
         super();
         this.index = 0;
+        this.vertical = false;
     }
 
     displayTab(evt, id) {
@@ -73,7 +75,7 @@ export class JuelTabs extends JuelComponent {
     render() {
 
         return html`<slot name="header"></slot>
-            <div id="tabs-container">
+            <div id="tabs-container" class="${this.vertical ? `vertical` : ``}">
             <div id="tabs">
             <div><slot name="prepend"></slot></div>
             ${ChildrenMap(this, (ele, index) => {
