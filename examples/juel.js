@@ -22164,10 +22164,15 @@ $038e193f9971cdd6$export$6fdd3e3b8bc0fa25.markdownFunc = (em, content)=>{
             }, 400);
         }
         if (em.theme) {
-            let style = document.createElement("link");
-            style.setAttribute("rel", "stylesheet");
-            style.setAttribute("href", `${$038e193f9971cdd6$var$JuelEmbed_1.HlJsStylesRoot}${em.theme}.css`);
-            document.head.append(style);
+            let id = `hljs-theme-${em.theme}`;
+            let style = document.head.querySelector(`#${id}`);
+            if (!style) {
+                style = document.createElement("link");
+                style.id = id;
+                style.setAttribute("rel", "stylesheet");
+                style.setAttribute("href", `${$038e193f9971cdd6$var$JuelEmbed_1.HlJsStylesRoot}${em.theme}.css`);
+                document.head.append(style);
+            }
         }
     }
 };
