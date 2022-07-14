@@ -18408,7 +18408,7 @@ var $b073df56e351bf37$exports = {};
 
 
 var $8e1b34a24ee30b5f$exports = {};
-$8e1b34a24ee30b5f$exports = "#tabs {\n  background-color: var(--light, #f1f1f1);\n  height: 80px;\n  border: 1px solid #ccc;\n  flex-direction: row;\n  display: flex;\n  overflow: visible;\n}\n\n#tabs-container {\n  flex-direction: column;\n  display: flex;\n}\n\n#tabs-container.vertical {\n  flex-direction: row;\n}\n\n#tabs-container.vertical #tabs {\n  flex-direction: column;\n}\n\n#tabs .title {\n  background-color: inherit;\n  cursor: pointer;\n  border: none;\n  outline: none;\n  padding: 14px 16px;\n  transition: all .3s;\n}\n\n#tabs .title:hover {\n  background-color: var(--active, #ddd);\n}\n\n#tabs .title.active {\n  background-color: var(--active, #ccc);\n}\n\n.panel {\n  background-color: var(--light);\n  border: 1px solid #ccc;\n  border-top: none;\n  padding: 6px 12px;\n  animation: fadeEffect 1s;\n  display: none;\n}\n\n@keyframes fadeEffect {\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n";
+$8e1b34a24ee30b5f$exports = "#tabs {\n  background-color: var(--light, #f1f1f1);\n  height: 80px;\n  border: 1px solid #ccc;\n  flex-direction: row;\n  display: flex;\n  overflow: visible;\n}\n\n#tabs-container {\n  flex-direction: column;\n  display: flex;\n}\n\n#tabs-container.vertical {\n  flex-direction: row;\n}\n\n#tabs-container.vertical #tabs {\n  flex-direction: column;\n}\n\n#tabs-container.vertical #tabs .group {\n  flex-direction: column;\n  display: flex;\n}\n\n#tabs .title {\n  background-color: inherit;\n  cursor: pointer;\n  border: none;\n  outline: none;\n  padding: 14px 16px;\n}\n\n#tabs .title.open {\n  padding-bottom: 0;\n  padding-left: 0;\n  padding-right: 0;\n}\n\n#tabs .title.open span {\n  padding-left: 16px;\n}\n\n#tabs .title.open div {\n  display: inline-block;\n}\n\n#tabs .title div {\n  display: none;\n}\n\n#tabs .title:hover {\n  background-color: var(--active, #ddd);\n}\n\n#tabs .title.active {\n  background-color: var(--active, #ccc);\n}\n\n.panel {\n  background-color: var(--light);\n  border: 1px solid #ccc;\n  border-top: none;\n  padding: 6px 12px;\n  animation: fadeEffect 1s;\n  display: none;\n}\n\n@keyframes fadeEffect {\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n";
 
 
 
@@ -18423,6 +18423,17 @@ var $ad5a5e3d85db6c6d$export$3fd36d65bf762270;
     EventNames1["Deselected"] = "deselected";
     EventNames1["Disposed"] = "disposed";
 })($ad5a5e3d85db6c6d$export$3fd36d65bf762270 || ($ad5a5e3d85db6c6d$export$3fd36d65bf762270 = {}));
+
+
+/**
+ * @license
+ * Copyright 2021 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function $381ea5e2aef5c344$export$a55877ca9db47377(n1, o, r) {
+    return n1 ? o() : null == r ? void 0 : r();
+}
+
+
 
 
 var $b073df56e351bf37$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
@@ -18444,14 +18455,18 @@ let $b073df56e351bf37$export$2b39608944d1651e = class JuelTabs extends (0, $5e0a
         if (tabcontent) {
             for(i = 0; i < tabcontent.length; i++)tabcontent[i].style.display = "none";
             tablinks = this.shadowRoot.querySelectorAll(".title");
-            for(i = 0; i < tablinks.length; i++)tablinks[i].className = tablinks[i].className.replace(" active", "");
+            for(i = 0; i < tablinks.length; i++)tablinks[i].classList.remove("active");
             let el = this.shadowRoot.querySelector(`#${id}`);
             if (el) {
                 el.style.display = "block";
-                if (evt && evt.target) evt.target.className += " active";
+                if (evt && evt.target) evt.target.classList.add("active");
                 else {
                     let tab = this.shadowRoot.querySelector(`#${id}-title`);
-                    if (tab) tab.className += " active";
+                    if (tab) {
+                        let group = tab.closest(".group");
+                        if (group) group.classList.add("open");
+                        tab.classList.add("active");
+                    }
                 }
                 let e = new CustomEvent((0, $ad5a5e3d85db6c6d$export$3fd36d65bf762270).Changed, {
                     detail: {
@@ -18471,28 +18486,62 @@ let $b073df56e351bf37$export$2b39608944d1651e = class JuelTabs extends (0, $5e0a
             this.displayTab(null, this.ids[this.index]);
         }
     }
+    childrenMap(level) {
+        return (el1, index)=>{
+            let result = [];
+            let id = el1.id ? el1.id : `tab-section-${level == 0 ? index : `${level}-${index}`}`;
+            el1.setAttribute("slot", id);
+            if (level > 0) {
+                el1.remove();
+                this.append(el1);
+            }
+            let titleClass = "title";
+            let hasTitleEl = false;
+            let titleElId = `${id}-title`;
+            let titleEl = el1.previousElementSibling;
+            if (titleEl && titleEl.matches("[slot$='title']")) {
+                hasTitleEl = true;
+                titleEl.setAttribute("slot", titleElId);
+                if (level > 0) {
+                    titleEl.remove();
+                    this.append(titleEl);
+                }
+            }
+            let children = el1.children;
+            let hasChildTabs;
+            let hasContent = true;
+            for (let child of children)if (child.matches("[data-title], [slot$='title']")) {
+                hasChildTabs = true;
+                hasContent = false;
+            } else hasContent = true;
+            let event;
+            if (hasContent) {
+                this.ids.push(id);
+                event = (e)=>{
+                    e.stopPropagation();
+                    this.displayTab(e, id);
+                };
+            } else {
+                titleClass += " group";
+                event = (e)=>{
+                    let el = e.target;
+                    el.closest(".group").classList.toggle("open");
+                };
+            }
+            return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="${titleElId}" has-content="${hasContent}" class="${titleClass}" @click="${event}">
+                ${hasTitleEl ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<slot name="${titleElId}"></slot>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<span>
+                        ${el1.dataset.title ? el1.dataset.title : ""}
+                    </span>`}
+                ${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasChildTabs, ()=>(0, $57c09562a6d0b30e$export$eec70cb3a42440b6)(el1, this.childrenMap(level + 1), '[slot="header"], [slot="footer"], [slot="prepend"], [slot="append"], [slot$="title"]'))}
+                </div>`;
+        };
+    }
     render() {
         return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<slot name="header"></slot>
             <div id="tabs-container" class="${this.vertical ? `vertical` : ``}">
             <div id="tabs">
             <div><slot name="prepend"></slot></div>
-            ${(0, $57c09562a6d0b30e$export$eec70cb3a42440b6)(this, (ele, index)=>{
-            let id = ele.id ? ele.id : `tab-section-${index}`;
-            ele.setAttribute("slot", id);
-            let hasTitleEl = false;
-            let titleElId = `${id}-title`;
-            let titleEl = ele.previousElementSibling;
-            if (titleEl && titleEl.matches("[slot$='title']")) {
-                hasTitleEl = true;
-                titleEl.setAttribute("slot", titleElId);
-            }
-            this.ids.push(id);
-            return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="${titleElId}" class="title" @click="${(evt)=>this.displayTab(evt, id)}">
-                        ${hasTitleEl ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<slot name="${titleElId}"></slot>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<span>
-                                ${ele.dataset.title ? ele.dataset.title : ""}
-                            </span>`}
-                        `;
-        }, '[slot="header"], [slot="footer"], [slot="prepend"], [slot="append"], [slot$="title"]')}
+            ${(0, $57c09562a6d0b30e$export$eec70cb3a42440b6)(this, this.childrenMap(0), '[slot="header"], [slot="footer"], [slot="prepend"], [slot="append"], [slot$="title"]')}
                 <div><slot name="append"></slot></div>
                 </div>
                 ${this.ids.map((id)=>{
@@ -21664,16 +21713,6 @@ $87af919838071cce$var$__decorate([
         type: Boolean
     })
 ], $87af919838071cce$export$36eab7f492831059.prototype, "active", void 0);
-
-
-
-/**
- * @license
- * Copyright 2021 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ function $381ea5e2aef5c344$export$a55877ca9db47377(n1, o, r) {
-    return n1 ? o() : null == r ? void 0 : r();
-}
 
 
 

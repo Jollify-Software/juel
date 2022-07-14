@@ -16,6 +16,10 @@
 
       #tabs {
         flex-direction: column;
+        .group {
+          display: flex;
+          flex-direction: column;
+        }
       }
     }
   }
@@ -27,7 +31,21 @@
     outline: none;
     cursor: pointer;
     padding: 14px 16px;
-    transition: 0.3s;
+
+    &.open {
+      padding-left: 0px;
+      padding-right: 0px;
+      padding-bottom: 0px;
+      span {
+        padding-left: 16px;
+      }
+      div {
+        display: inline-block;
+      }
+    }
+    div {
+      display: none;
+    }
   }
   
   /* Change background color of buttons on hover */
