@@ -7,11 +7,14 @@ export module AudioModule {
             if (!audios) {
                 audios = {};
             }
-            audios['src'] = audio;
+            audios[src] = audio;
             audio.onended = () => {
                 delete audios[src];
             }
             audio.play();
+            return true;
+        } else {
+            return false;
         }
     }
 }

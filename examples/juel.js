@@ -6948,12 +6948,13 @@ var $be851a047ba833dd$export$d16c275374097133;
         if (!audios || !(src in audios)) {
             let audio = new Audio(src);
             if (!audios) audios = {};
-            audios["src"] = audio;
+            audios[src] = audio;
             audio.onended = ()=>{
                 delete audios[src];
             };
             audio.play();
-        }
+            return true;
+        } else return false;
     };
 })($be851a047ba833dd$export$d16c275374097133 || ($be851a047ba833dd$export$d16c275374097133 = {}));
 
@@ -18486,10 +18487,10 @@ let $b073df56e351bf37$export$2b39608944d1651e = class JuelTabs extends (0, $5e0a
             this.displayTab(null, this.ids[this.index]);
         }
     }
-    childrenMap(level) {
+    childrenMap(level, idStr) {
         return (el1, index)=>{
             let result = [];
-            let id = el1.id ? el1.id : `tab-section-${level == 0 ? index : `${level}-${index}`}`;
+            let id = el1.id ? el1.id : idStr ? `${idStr}-${index}` : `tab-section-${index}`;
             el1.setAttribute("slot", id);
             if (level > 0) {
                 el1.remove();
@@ -18532,7 +18533,7 @@ let $b073df56e351bf37$export$2b39608944d1651e = class JuelTabs extends (0, $5e0a
                 ${hasTitleEl ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<slot name="${titleElId}"></slot>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<span>
                         ${el1.dataset.title ? el1.dataset.title : ""}
                     </span>`}
-                ${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasChildTabs, ()=>(0, $57c09562a6d0b30e$export$eec70cb3a42440b6)(el1, this.childrenMap(level + 1), '[slot="header"], [slot="footer"], [slot="prepend"], [slot="append"], [slot$="title"]'))}
+                ${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasChildTabs, ()=>(0, $57c09562a6d0b30e$export$eec70cb3a42440b6)(el1, this.childrenMap(level + 1, id), '[slot="header"], [slot="footer"], [slot="prepend"], [slot="append"], [slot$="title"]'))}
                 </div>`;
         };
     }
@@ -22145,6 +22146,9 @@ var $038e193f9971cdd6$var$__decorate = undefined && undefined.__decorate || func
 };
 var $038e193f9971cdd6$var$JuelEmbed_1;
 let $038e193f9971cdd6$export$6fdd3e3b8bc0fa25 = $038e193f9971cdd6$var$JuelEmbed_1 = class JuelEmbed extends (0, $69a66af8deb391ea$export$3f2f9f5909897157) {
+    constructor(){
+        super();
+    }
     firstUpdated(_changedProperties) {
         if (this.url) fetch(this.url).then((response)=>{
             var contentType = response.headers.get("content-type");
@@ -22154,12 +22158,12 @@ let $038e193f9971cdd6$export$6fdd3e3b8bc0fa25 = $038e193f9971cdd6$var$JuelEmbed_
                 console.log(err);
             });
             else response.text().then((data)=>{
-                this.innerHTML = data;
+                let $data = $(data);
+                $(this).append($data);
                 this.requestUpdate();
             });
         });
         else if (this.innerHTML) {
-            console.log(this.innerHTML);
             let data = this.innerHTML;
             this.requestUpdate();
             setTimeout(()=>this.processMarkdown(data), 400);
@@ -22218,6 +22222,9 @@ $038e193f9971cdd6$export$6fdd3e3b8bc0fa25.markdownFunc = (em, content)=>{
 $038e193f9971cdd6$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
 ], $038e193f9971cdd6$export$6fdd3e3b8bc0fa25.prototype, "url", void 0);
+$038e193f9971cdd6$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $038e193f9971cdd6$export$6fdd3e3b8bc0fa25.prototype, "selector", void 0);
 $038e193f9971cdd6$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
 ], $038e193f9971cdd6$export$6fdd3e3b8bc0fa25.prototype, "type", void 0);
@@ -23215,6 +23222,780 @@ $b3c5609f1a35a9fc$var$__decorate([
 $b3c5609f1a35a9fc$export$18ef6d7c4b996651 = $b3c5609f1a35a9fc$var$__decorate([
     (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("juel-tilt")
 ], $b3c5609f1a35a9fc$export$18ef6d7c4b996651);
+
+
+var $d99092614941c881$exports = {};
+var $9fc1f110788ce737$exports = {};
+"use strict";
+Object.defineProperty($9fc1f110788ce737$exports, "__esModule", {
+    value: true
+});
+var $9fc1f110788ce737$var$constants;
+(function(constants1) {
+    constants1.typeOfFunction = "function";
+    constants1.boolTrue = true;
+})($9fc1f110788ce737$var$constants || ($9fc1f110788ce737$var$constants = {}));
+function $9fc1f110788ce737$var$bind(target, propertyKey, descriptor) {
+    if (!descriptor || typeof descriptor.value !== $9fc1f110788ce737$var$constants.typeOfFunction) throw new TypeError("Only methods can be decorated with @bind. <" + propertyKey + "> is not a method!");
+    return {
+        configurable: $9fc1f110788ce737$var$constants.boolTrue,
+        get: function() {
+            var bound = descriptor.value.bind(this);
+            // Credits to https://github.com/andreypopp/autobind-decorator for memoizing the result of bind against a symbol on the instance.
+            Object.defineProperty(this, propertyKey, {
+                value: bound,
+                configurable: $9fc1f110788ce737$var$constants.boolTrue,
+                writable: $9fc1f110788ce737$var$constants.boolTrue
+            });
+            return bound;
+        }
+    };
+}
+$9fc1f110788ce737$exports.bind = $9fc1f110788ce737$var$bind;
+$9fc1f110788ce737$exports.default = $9fc1f110788ce737$var$bind;
+
+
+
+
+function $ece0a5810ae2e6bf$export$f647ff1e6108fc22(elem, selector, filter) {
+    var siblings = [];
+    elem = elem.nextElementSibling;
+    while(elem){
+        if (elem.matches(selector)) break;
+        if (filter && !elem.matches(filter)) {
+            elem = elem.nextElementSibling;
+            continue;
+        }
+        siblings.push(elem);
+        elem = elem.nextElementSibling;
+    }
+    return siblings;
+}
+
+
+var $d99092614941c881$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let $d99092614941c881$export$fd5608fd81737ac = class JuelContents extends (0, $69a66af8deb391ea$export$3f2f9f5909897157) {
+    populateContents() {
+        this.contents = [];
+        var h1s = document.querySelectorAll("h1");
+        for (let h1 of h1s){
+            let item = {
+                id: h1.id,
+                title: h1.textContent
+            };
+            let h2s = (0, $ece0a5810ae2e6bf$export$f647ff1e6108fc22)(h1, `h1`, `h2`);
+            for (let h2 of h2s)this.populateChildren(h2, 2, item);
+            this.contents.push(item);
+        }
+    }
+    populateChildren(heading, level, item) {
+        let child = {
+            id: heading.id,
+            title: heading.textContent
+        };
+        let childHeadings = (0, $ece0a5810ae2e6bf$export$f647ff1e6108fc22)(heading, `h${level}`, `h${level + 1}`);
+        for (let h of childHeadings)this.populateChildren(h, level + 1, child);
+        if (!item.children) item.children = [
+            child
+        ];
+        else item.children.push(child);
+    }
+    firstUpdated() {
+        setTimeout(()=>{
+            this.populateContents();
+            this.requestUpdate();
+        });
+    }
+    renderContentsItem(item) {
+        return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<li>
+            <a href="#${item.id}">${item.title}</a>
+            ${item.children ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<ul>
+                    ${item.children.map(this.renderContentsItem)}
+                </ul>` : ""}
+        </li>`;
+    }
+    render() {
+        return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`
+            <ul id="toc">
+                ${this.contents ? this.contents.map(this.renderContentsItem) : ""}
+            </ul>
+        `;
+    }
+};
+$d99092614941c881$var$__decorate([
+    (0, (/*@__PURE__*/$parcel$interopDefault($9fc1f110788ce737$exports)))
+], $d99092614941c881$export$fd5608fd81737ac.prototype, "renderContentsItem", null);
+$d99092614941c881$export$fd5608fd81737ac = $d99092614941c881$var$__decorate([
+    (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("juel-contents")
+], $d99092614941c881$export$fd5608fd81737ac);
+
+
+var $cdb24e412cec7d79$exports = {};
+
+
+
+function $a073a184d3e52a18$export$f6089544e0fe0b13(templateString, data) {
+    return new Function("html", "return html`" + templateString + "`;").call(data, (0, $37260750aa7b368d$export$c0bb0b647f701bb5));
+}
+
+
+var $cdb24e412cec7d79$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let $cdb24e412cec7d79$export$c59a34fa9683e6aa = class JuelTemplate extends (0, $69a66af8deb391ea$export$3f2f9f5909897157) {
+    render() {
+        return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${this.context ? (0, $a073a184d3e52a18$export$f6089544e0fe0b13)(this.innerHTML, this.context) : ""}`;
+    }
+};
+$cdb24e412cec7d79$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $cdb24e412cec7d79$export$c59a34fa9683e6aa.prototype, "context", void 0);
+$cdb24e412cec7d79$export$c59a34fa9683e6aa = $cdb24e412cec7d79$var$__decorate([
+    (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("juel-template")
+], $cdb24e412cec7d79$export$c59a34fa9683e6aa);
+
+
+var $b3849b5a0a82fe66$exports = {};
+
+
+class $902c4372c93e9393$export$c926439f63623f31 {
+    constructor(ele){
+        this.voiceIndex = 0;
+        this.ele = ele;
+        this.voiceChangeHandler = this.voiceChangeHandler.bind(this);
+        this.volumeChangeHandler = this.volumeChangeHandler.bind(this);
+        this.rateChangeHandler = this.rateChangeHandler.bind(this);
+        this.pitchChangeHandler = this.pitchChangeHandler.bind(this);
+    }
+    getVoices() {
+        this.voices = window.speechSynthesis.getVoices();
+    }
+    voiceChangeHandler(e) {
+        this.voiceIndex = e.target.value;
+    }
+    volumeChangeHandler(e) {
+        this.volume = e.target.value;
+    }
+    rateChangeHandler(e) {
+        this.rate = e.target.value;
+    }
+    pitchChangeHandler(e) {
+        this.pitch = e.target.value;
+    }
+    initExternalControl() {
+        let con = $(this.ele.controls);
+        con.find('[data-control="voice"]').each((index, element)=>{
+            let options = this.voices.map((v, voiceIndex)=>{
+                let opt = document.createElement("option");
+                opt.value = voiceIndex.toString();
+                opt.text = `${v.name} (${v.lang})`;
+                return opt;
+            });
+            $(element).append(options);
+        }).change(this.voiceChangeHandler).on("selectmenuchange", this.voiceChangeHandler);
+        con.find('[data-control="volume"]').on("slidechange", (e, ui)=>{
+            e.target.value = ui.value;
+            this.volumeChangeHandler(e);
+        });
+        con.find('[data-control="rate"]').on("slidechange", (e, ui)=>{
+            e.target.value = ui.value;
+            this.rateChangeHandler(e);
+        });
+        con.find('[data-control="pitch"]').on("slidechange", (e, ui)=>{
+            e.target.value = ui.value / 100;
+            this.pitchChangeHandler(e);
+        });
+    }
+    init() {
+        let $ele = $(this.ele);
+        if (this.ele.controls != "true" && this.ele.controls != "false") this.initExternalControl();
+        $(this.ele.shadowRoot).find(".trigger").click((e)=>{
+            let text = $ele.find('[slot="content"').text();
+            let udder = new SpeechSynthesisUtterance(text);
+            if (this.voices) udder.voice = this.voices[this.voiceIndex];
+            if (this.volume) udder.volume = this.volume;
+            if (this.rate) udder.rate = this.rate;
+            if (this.pitch) udder.pitch = this.pitch;
+            window.speechSynthesis.speak(udder);
+        });
+    }
+}
+
+
+var $87095252ed887ac0$exports = {};
+$87095252ed887ac0$exports = ":host {\n  --trigger-font-size: 2em;\n}\n\n.trigger {\n  cursor: pointer;\n  font-size: var(--trigger-font-size);\n}\n\nspan.control {\n  display: inline-grid;\n}\n\n";
+
+
+var $b3849b5a0a82fe66$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let $b3849b5a0a82fe66$export$a9c64d4e42cb769c = class SpeechSection extends (0, $69a66af8deb391ea$export$3f2f9f5909897157) {
+    constructor(){
+        super();
+        this.pitchLabel = "Pitch";
+        this.rateLabel = "Rate";
+        this.voiceLabel = "Voice";
+        this.volumeLabel = "Volume";
+        this.controlPitch = false;
+        this.controlRate = false;
+        this.controlVolume = false;
+        this.service = new (0, $902c4372c93e9393$export$c926439f63623f31)(this);
+        this.service.getVoices();
+    }
+    firstUpdated() {
+        this.service.init();
+        this.service.volume = this.volume;
+    }
+    render() {
+        return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`
+        <div class="header">
+            <div class="trigger"><slot name="trigger">💬</slot></div>
+            ${this.controls == "true" ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`
+                    <span class="control">
+                        <label for="voice">${this.voiceLabel}</label>
+                        <select id="voice" @change="${this.service.voiceChangeHandler}">
+                            ${this.service.voices.map((v, i)=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<option value="${i}">${v.name} (${v.lang})</option>`)}
+                        </select>
+                    </span>
+                    ${this.controlVolume ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`
+                        <span class="control">
+                            <label for="volume">${this.volumeLabel}</label>
+                            <input type="range" id="volume" name="volume"
+                                value="1" min="0" max="1" step=".01" @change="${this.service.volumeChangeHandler}">
+                        </span>` : ""}
+                    ${this.controlRate ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`
+                            <span class="control">
+                                <label for="rate">${this.rateLabel}</label>
+                                <input type="range" id="rate"
+                                    value="1" min="0" max="1" step=".01" @change="${this.service.rateChangeHandler}">
+                            </span>` : ""}
+                    ${this.controlPitch ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`
+                            <span class="control">
+                                <label for="pitch">${this.pitchLabel}</label>
+                                <input type="range" id="pitch"
+                                    value="1" min="0" max="1" step=".01" @change="${this.service.pitchChangeHandler}">
+                            </span>` : ""}
+                    ` : ""}
+        </div>
+        <div class="content"><slot name="content"></slot></div>`;
+    }
+};
+$b3849b5a0a82fe66$export$a9c64d4e42cb769c.styles = (0, $0e96f61157968e0c$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($87095252ed887ac0$exports))));
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "lang", void 0);
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "pitch", void 0);
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "pitchLabel", void 0);
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "rate", void 0);
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "rateLabel", void 0);
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "voice", void 0);
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "voiceLabel", void 0);
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "volume", void 0);
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "volumeLabel", void 0);
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "controls", void 0);
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "controlPitch", void 0);
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "controlRate", void 0);
+$b3849b5a0a82fe66$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c.prototype, "controlVolume", void 0);
+$b3849b5a0a82fe66$export$a9c64d4e42cb769c = $b3849b5a0a82fe66$var$__decorate([
+    (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("speech-section")
+], $b3849b5a0a82fe66$export$a9c64d4e42cb769c);
+
+
+var $039e051edbcb40ce$exports = {};
+
+
+const $5731d812273396e7$var$caption_class = ".caption";
+class $5731d812273396e7$export$8100df246d13b588 {
+    constructor(ele){
+        this.ele = ele;
+    }
+    close(ele) {
+        let w = this.ele.closeWidth;
+        let h = this.ele.closeHeight;
+        if (ele[0]) ele[0].style.transform = "scale(1)";
+        ele.removeClass("open");
+        ele.children($5731d812273396e7$var$caption_class).css({
+            display: "none"
+        });
+    }
+    open(ele, scale, displayCaption) {
+        let w = this.ele.openWidth;
+        let h = this.ele.openHeight;
+        let caption = ele.children($5731d812273396e7$var$caption_class);
+        if (ele[0] && displayCaption && caption.length > 0) ele[0].style.transform = `scale(${scale}) translate(0, -${caption.height() / 2}px)`;
+        else if (ele[0]) ele[0].style.transform = `scale(${scale})`;
+        if (scale >= 1) {
+            ele.addClass("open");
+            if (displayCaption) ele.children($5731d812273396e7$var$caption_class).css({
+                display: "block",
+                top: -(h * scale / 2)
+            });
+        } else ele.addClass("lui-fisheye-part");
+    }
+    init() {
+        $(this.ele).children().each((index, element)=>{
+            let $this = $(element);
+            var title = $this.find($5731d812273396e7$var$caption_class);
+            let w = this.ele.style.getPropertyValue("--closeWidth");
+            let h = this.ele.style.getPropertyValue("--closeHeight");
+            title.css({
+                display: "none"
+            });
+            $this.hover(()=>{
+                this.open($this.prev(), 2);
+                this.open($this, 3, true);
+                this.open($this.next(), 2);
+            }, ()=>{
+                this.close($this.prev());
+                this.close($this);
+                this.close($this.next());
+            });
+        });
+    }
+}
+
+
+var $7540d147bb71b7b9$exports = {};
+$7540d147bb71b7b9$exports = ":host * {\n  text-align: center;\n}\n\n";
+
+
+
+var $039e051edbcb40ce$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let $039e051edbcb40ce$export$a299f63d80ba04f = class FishEye extends (0, $5e0a45860ddebf78$exports.JuelComponent) {
+    constructor(){
+        super();
+        this.service = new (0, $5731d812273396e7$export$8100df246d13b588)(this);
+    }
+    firstLoad() {
+        this.service.init();
+    }
+    createRenderRoot() {
+        return this;
+    }
+};
+$039e051edbcb40ce$export$a299f63d80ba04f.styles = (0, $0e96f61157968e0c$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($7540d147bb71b7b9$exports))));
+$039e051edbcb40ce$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $039e051edbcb40ce$export$a299f63d80ba04f.prototype, "closeWidth", void 0);
+$039e051edbcb40ce$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $039e051edbcb40ce$export$a299f63d80ba04f.prototype, "closeHeight", void 0);
+$039e051edbcb40ce$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $039e051edbcb40ce$export$a299f63d80ba04f.prototype, "openWidth", void 0);
+$039e051edbcb40ce$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $039e051edbcb40ce$export$a299f63d80ba04f.prototype, "openHeight", void 0);
+$039e051edbcb40ce$export$a299f63d80ba04f = $039e051edbcb40ce$var$__decorate([
+    (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("fish-eye")
+], $039e051edbcb40ce$export$a299f63d80ba04f);
+
+
+var $e575c7eff917e4c2$exports = {};
+
+
+class $5eae388e80fb9760$export$72d58a6e16efa33 {
+    constructor(ele){
+        this.changeDirection = false;
+        this.dirCase = 1;
+        this.patternPoints = [];
+        this.ele = ele;
+    }
+    bindElementEvents(index, ele, pos) {
+        ele.bind("mouseenter", (e)=>{
+            let $this = $(e.target);
+            event.stopPropagation();
+            this.closeFollowing($this);
+            pos = {
+                x: $this.offset().left,
+                y: $this.offset().top
+            };
+            if (this.ele.type != "all" && this.ele.type != "all-cascade") this.showNextElement(index, $this, pos);
+        }).bind("mouseleave", function(e) {
+            let $this = $(this);
+            if (index == 0) {
+                if ($this.nextAll(".open").length < 1) $this.removeClass("open").hide();
+            } else if ($this.prevAll(".open").length < 1) $this.removeClass("open").hide();
+        });
+    }
+    closeFollowing(ele) {
+        ele.nextAll(".open").removeClass("open").hide();
+    }
+    closeOpenSiblings(listItem) {
+        listItem.siblings().removeClass("open").each(function(index, element) {
+            $(element).children().slice(1).removeClass("open").hide();
+        });
+    }
+    closeOpenChildren(listItem) {
+        listItem.children(".open").removeClass("open").hide();
+    }
+    showElement(index, ele, pos) {
+        var pre = ele.prev();
+        ele.css({
+            left: pos.x,
+            top: pos.y,
+            zIndex: parseInt(pre.css("zIndex")) - 1
+        }).unbind("mouseenter mouseleave");
+        pos.x += this.patternPoints[index].x;
+        pos.y += this.patternPoints[index].y;
+        ele.stop().show().animate({
+            left: pos.x,
+            top: pos.y
+        }, this.ele.duration, ()=>{
+            this.bindElementEvents(index, ele, pos);
+        }).addClass("open");
+    }
+    showNextElement(index, ele, pos) {
+        var next = ele.next();
+        if (next.length > 0) this.showElement(index + 1, next, pos);
+    }
+    showAllCascade(index, ele, pos) {
+        var pre = ele.prev();
+        var x = pre.position().left;
+        var y = pre.position().top;
+        ele.css({
+            left: pos.x,
+            top: pos.y,
+            zIndex: pre.css("zIndex") - 1
+        });
+        pos.x += this.patternPoints[index].x;
+        pos.y += this.patternPoints[index].y;
+        ele.stop().show().animate({
+            left: pos.x,
+            top: pos.y
+        }, this.ele.duration, ()=>{
+            var next = ele.next();
+            if (next.length > 0) this.showAllCascade(index + 1, next, pos);
+        }).addClass("open");
+    }
+    createPatternPositions(index, pre) {
+        switch(this.ele.pattern){
+            case "zigzag":
+                if (pre && index != 0 && index % this.ele.span == 0) {
+                    this.patternPoints[index] = {
+                        x: pre.width(),
+                        y: 0
+                    };
+                    this.changeDirection = !this.changeDirection;
+                } else if (pre) {
+                    if (!this.changeDirection) this.patternPoints[index] = {
+                        x: 0,
+                        y: pre.height()
+                    };
+                    else this.patternPoints[index] = {
+                        x: 0,
+                        y: -pre.height()
+                    };
+                }
+                break;
+            case "square":
+                if (index != 0) {
+                    switch(this.dirCase){
+                        case 1:
+                            this.patternPoints[index] = {
+                                x: pre.width(),
+                                y: 0
+                            };
+                            break;
+                        case 2:
+                            this.patternPoints[index] = {
+                                x: 0,
+                                y: -pre.height()
+                            };
+                            break;
+                        case 3:
+                            this.patternPoints[index] = {
+                                x: -pre.width(),
+                                y: 0
+                            };
+                            break;
+                        case 4:
+                            this.patternPoints[index] = {
+                                x: 0,
+                                y: pre.height()
+                            };
+                            break;
+                    }
+                    if ((index + 1) % this.patternCount == 0) {
+                        this.dirCase++;
+                        if (this.dirCase == 2 || this.dirCase == 4) this.patternCount++;
+                        if (this.dirCase > 4) this.dirCase = 1;
+                    }
+                } else this.patternPoints[index] = {
+                    x: 0,
+                    y: pre.height()
+                };
+                break;
+        }
+    }
+    init() {
+        let $ele = $(this.ele);
+        $ele.children().each((index1, element)=>{
+            var listItem = $(element);
+            var pos = {
+                x: listItem.position().left,
+                y: listItem.position().top + listItem.height() + 4
+            };
+            if (this.ele.pattern == "square" && !this.patternCount) this.patternCount = 1;
+            listItem.children().first().css({
+                position: "relative",
+                zIndex: 100,
+                width: this.ele.width,
+                height: this.ele.height
+            });
+            listItem.children().slice(1).css({
+                position: "absolute",
+                width: this.ele.width,
+                height: this.ele.height
+            }).hide();
+            listItem.children().slice(1).each((index, child)=>{
+                this.createPatternPositions(index, $(child).prev());
+            });
+            listItem.bind("mouseenter", ()=>{
+                if (listItem.children().slice(1).hasClass("open")) listItem.children().removeClass("open").slice(1).hide();
+                else {
+                    pos = {
+                        x: listItem.offset().left,
+                        y: listItem.offset().top
+                    };
+                    this.closeOpenSiblings(listItem);
+                    this.closeOpenChildren(listItem);
+                    if (this.ele.type == "all") listItem.children().slice(1).each((index, child)=>{
+                        this.showElement(index, $(child), pos);
+                    });
+                    else if (this.ele.type == "all-cascade") listItem.children().first().each((index, child)=>{
+                        var next = $(child).next();
+                        if (next.length > 0) this.showAllCascade(index, next, pos);
+                    });
+                    else if (this.ele.type == "cascade") listItem.children().slice(1).each((index, child)=>{
+                        if (index == 0) this.showElement(index, $(child), pos);
+                    });
+                    listItem.addClass("open");
+                }
+            });
+            listItem.bind("mouseleave", function() {
+                if (!listItem.children().slice(1).hasClass("open")) listItem.children().removeClass("open").slice(1).hide();
+            });
+        });
+    }
+}
+
+
+var $e575c7eff917e4c2$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let $e575c7eff917e4c2$export$d2ca168f660d53d2 = class BoxMenu extends (0, $69a66af8deb391ea$export$3f2f9f5909897157) {
+    constructor(){
+        super();
+        this.slice = 1;
+        this.span = 2;
+        this.width = 100;
+        this.height = 100;
+        this.type = "cascade";
+        this.pattern = "zigzag";
+        this.duration = "fast";
+        this.direction = "right";
+        this.service = new (0, $5eae388e80fb9760$export$72d58a6e16efa33)(this);
+    }
+    firstUpdated() {
+        this.service.init();
+    }
+    render() {
+        return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<slot></slot>`;
+    }
+};
+$e575c7eff917e4c2$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $e575c7eff917e4c2$export$d2ca168f660d53d2.prototype, "slice", void 0);
+$e575c7eff917e4c2$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $e575c7eff917e4c2$export$d2ca168f660d53d2.prototype, "span", void 0);
+$e575c7eff917e4c2$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $e575c7eff917e4c2$export$d2ca168f660d53d2.prototype, "width", void 0);
+$e575c7eff917e4c2$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $e575c7eff917e4c2$export$d2ca168f660d53d2.prototype, "height", void 0);
+$e575c7eff917e4c2$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $e575c7eff917e4c2$export$d2ca168f660d53d2.prototype, "type", void 0);
+$e575c7eff917e4c2$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $e575c7eff917e4c2$export$d2ca168f660d53d2.prototype, "pattern", void 0);
+$e575c7eff917e4c2$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $e575c7eff917e4c2$export$d2ca168f660d53d2.prototype, "duration", void 0);
+$e575c7eff917e4c2$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $e575c7eff917e4c2$export$d2ca168f660d53d2.prototype, "direction", void 0);
+$e575c7eff917e4c2$export$d2ca168f660d53d2 = $e575c7eff917e4c2$var$__decorate([
+    (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("box-menu")
+], $e575c7eff917e4c2$export$d2ca168f660d53d2);
+
+
+var $ea0819ddf412b59a$exports = {};
+
+
+function $3df9fe8bd8bcdc7c$export$636b3443dac3eaf9(start, stop, step) {
+    return Array.from({
+        length: (stop - start) / step + 1
+    }, (_, i)=>start + i * step);
+}
+
+
+var $4d9dd558b601a400$exports = {};
+$4d9dd558b601a400$exports = ":host {\n  display: inline-flex;\n}\n\n#container {\n  height: 100px;\n  overflow: hidden;\n}\n\n#items h1 {\n  height: 100px;\n  margin: 0;\n  font-size: 64px;\n}\n\n";
+
+
+
+var $736ca119f3df4efc$export$cdbe365d8c7d477d;
+(function(MathUtil1) {
+    function clamp(num, min, max) {
+        return Math.min(Math.max(num, min), max);
+    }
+    MathUtil1.clamp = clamp;
+})($736ca119f3df4efc$export$cdbe365d8c7d477d || ($736ca119f3df4efc$export$cdbe365d8c7d477d = {}));
+
+
+var $ea0819ddf412b59a$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let $ea0819ddf412b59a$export$7dec0544e22d70df = class JuelSpinner extends (0, $69a66af8deb391ea$export$3f2f9f5909897157) {
+    constructor(){
+        super();
+        this.value = "0";
+        this.min = 0;
+        this.max = 10;
+        this.step = 1;
+        this.pos = 0;
+        if (!("Hammer" in window)) window["Hammer"] = (0, (/*@__PURE__*/$parcel$interopDefault($285a58c52cac528e$exports)));
+    }
+    setTransition(el) {
+        el.style.transition = "margin .73s";
+    }
+    firstUpdated() {
+        let items = this.shadowRoot.getElementById("items");
+        let mc = new (0, (/*@__PURE__*/$parcel$interopDefault($285a58c52cac528e$exports)))(this.shadowRoot.getElementById("container"));
+        mc.get("pan").set({
+            direction: (0, (/*@__PURE__*/$parcel$interopDefault($285a58c52cac528e$exports))).DIRECTION_VERTICAL
+        });
+        mc.on("pan", (e)=>{
+            let margin = (0, $736ca119f3df4efc$export$cdbe365d8c7d477d).clamp(this.pos + e.deltaY * -1, -((items.childElementCount - 1) * 100 + 50), 50);
+            items.style.marginTop = `${margin}px`;
+            items.style.transition = null;
+        });
+        mc.on("panend", (e)=>{
+            this.pos = (0, $736ca119f3df4efc$export$cdbe365d8c7d477d).clamp(this.pos + Math.round(e.deltaY * -1 / 100) * 100, -((items.childElementCount - 1) * 100), 0);
+            items.style.marginTop = `${this.pos}px`;
+            this.setTransition(items);
+            let index = this.pos < 0 ? this.pos / -100 : 0;
+            let ray = this.items ? this.items : (0, $3df9fe8bd8bcdc7c$export$636b3443dac3eaf9)(this.min, this.max, this.step);
+            this.value = ray[index];
+        });
+    }
+    increase() {
+        let items = this.shadowRoot.getElementById("items");
+        this.pos = (0, $736ca119f3df4efc$export$cdbe365d8c7d477d).clamp(this.pos + 100, -((items.childElementCount - 1) * 100), 0);
+        items.style.marginTop = `${this.pos}px`;
+        this.setTransition(items);
+    }
+    decrease() {
+        let items = this.shadowRoot.getElementById("items");
+        this.pos = (0, $736ca119f3df4efc$export$cdbe365d8c7d477d).clamp(this.pos + -100, -((items.childElementCount - 1) * 100), 0);
+        items.style.marginTop = `${this.pos}px`;
+        this.setTransition(items);
+    }
+    render() {
+        return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`
+            <button id="increase" @click="${this.increase}"></button>
+            <div id="container">
+            <div id="items">
+                ${(this.items ? this.items : (0, $3df9fe8bd8bcdc7c$export$636b3443dac3eaf9)(this.min, this.max, this.step)).map((item, index)=>{
+            return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<h1>${item}</h1>`;
+        })}
+            </div>
+            </div>
+            <button id="decrease" @click="${this.decrease}"></button>
+        `;
+    }
+};
+$ea0819ddf412b59a$export$7dec0544e22d70df.styles = (0, $0e96f61157968e0c$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($4d9dd558b601a400$exports))));
+$ea0819ddf412b59a$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
+        type: String
+    })
+], $ea0819ddf412b59a$export$7dec0544e22d70df.prototype, "value", void 0);
+$ea0819ddf412b59a$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
+        type: Number
+    })
+], $ea0819ddf412b59a$export$7dec0544e22d70df.prototype, "min", void 0);
+$ea0819ddf412b59a$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
+        type: Number
+    })
+], $ea0819ddf412b59a$export$7dec0544e22d70df.prototype, "max", void 0);
+$ea0819ddf412b59a$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
+        type: Number
+    })
+], $ea0819ddf412b59a$export$7dec0544e22d70df.prototype, "step", void 0);
+$ea0819ddf412b59a$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
+        type: Array
+    })
+], $ea0819ddf412b59a$export$7dec0544e22d70df.prototype, "items", void 0);
+$ea0819ddf412b59a$export$7dec0544e22d70df = $ea0819ddf412b59a$var$__decorate([
+    (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("juel-spinner")
+], $ea0819ddf412b59a$export$7dec0544e22d70df);
+
+
 
 
 $(function() {

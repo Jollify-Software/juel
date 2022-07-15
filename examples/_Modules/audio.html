@@ -7,7 +7,10 @@
 
         <script>
             function play() {
-                juel.audio.play("Shepherd_Hey.mp3")
+                var canPlay = juel.audio.play("../_Assets/Shepherd_Hey.mp3");
+                if (!canPlay) {
+                    alert("Cannot play audio")
+                }
             }
         </script>
     </body>

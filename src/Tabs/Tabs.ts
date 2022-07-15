@@ -77,10 +77,10 @@ export class JuelTabs extends JuelComponent {
         }
     }
 
-    childrenMap(level: number) {
+    childrenMap(level: number, idStr: string = undefined) {
         return (el: HTMLElement, index: number) => {
             let result: TemplateResult[] = [];
-            let id = el.id ? el.id : `tab-section-${level == 0 ? index : `${level}-${index}`}`;
+            let id = el.id ? el.id : idStr ? `${idStr}-${index}` : `tab-section-${index}`;
             el.setAttribute('slot', id);
             if (level > 0) {
                 el.remove();
@@ -130,7 +130,7 @@ export class JuelTabs extends JuelComponent {
                         ${(el.dataset.title ? el.dataset.title : "")}
                     </span>`
                 }
-                ${when(hasChildTabs, () => ChildrenMap(el, this.childrenMap(level + 1),
+                ${when(hasChildTabs, () => ChildrenMap(el, this.childrenMap(level + 1, id),
                     '[slot="header"], [slot="footer"], [slot="prepend"], [slot="append"], [slot$="title"]'))}
                 </div>`;
         }

@@ -1,116 +1,65 @@
 <html>
 
 <head>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="../../dist/juel.js"></script>
-
-    <style>
-        .container {
-            width: 100%;
-            height: 400px;
-            margin: 20% auto;
-        }
-    </style>
 </head>
 
 <body>
-<juel-tabs id="signin-tabs" vertical="true">
-                <div slot="header">
-                    <button class="help" @onclick="Help">Help</button>
-                </div>
-                <div data-title="@VM.UserLabel">
-                    <div class="form-group">
-                        <label for="email">@VM.EmailLabel</label>
-                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" @bind-value="SignInRequest.Username" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">@VM.PasswordLabel</label>
-                        <input type="password" class="form-control" id="password" @bind-value="SignInRequest.Password" disabled>
-                    </div>
-                    <div class="form-group form-check">
-                        <input type="checkbox" class="form-check-input" id="remember" disabled>
-                        <label class="form-check-label" for="remember">@VM.RememberLabel</label>
-                    </div>
-                    <button id="signin" @onclick="UserSignin" class="card-link btn btn-primary">@VM.SigninLabel</button>
-                    <button @onclick="UserSignup" class="card-link btn btn-secondary">@VM.SignupLabel</button>
-                </div>
-                <div data-title="@VM.TeamLabel">
-                    <div class="form-group">
-                        <label for="team-email">@VM.EmailLabel</label>
-                        <input type="email" class="form-control" id="team-email" aria-describedby="emailHelp" @bind-value="SignInRequest.Username" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="password-team">@VM.PasswordLabel</label>
-                        <input type="password" class="form-control" id="password-team" @bind-value="SignInRequest.Password" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="key-team">@VM.ClientKeyLabel</label>
-                        <input type="password" class="form-control" id="team-key" @bind-value="SignInRequest.Key" disabled>
-                    </div>
-                    <div class="form-group form-check">
-                        <input type="checkbox" class="form-check-input" id="remeber-team" disabled>
-                        <label class="form-check-label" for="remember-team">@VM.RememberLabel</label>
-                    </div>
-                    <button @onclick="UserSignin" class="card-link btn btn-primary">@VM.SigninLabel</button>
-                    <button @onclick="UserSignup" class="card-link btn btn-secondary">@VM.SignupLabel</button>
-                </div>
-            </juel-tabs>
-    <div id="file-input-demo" class="container">
-        <juel-tabs index="2">
-          <div slot="header">
-            <button>Help</button>
-          </div>
-          <h1 slot="prepend">
-            123
+
+    <juel-tabs index="2">
+        <div slot="header">
+            <button>Header</button>
+        </div>
+        <h1 slot="prepend">
+            Prepend
         </h1>
         <h1 slot="append">
-            456
+            Append
         </h1>
-            <div data-title="Section 1">
-              <p>
-              Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer
-              ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit
-              amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut
-              odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.
-              </p>
-            </div>
-            <h1 slot="title">Hello there</h1>
-            <div>
-              <p>
-              Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet
-              purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris turpis porttitor
-              velit, faucibus interdum tellus libero ac justo. Vivamus non quam. In
-              suscipit faucibus urna.
-              </p>
-            </div>
-            <div data-title="Section 3">
-              <p>
-              Nam enim risus, molestie et, porta ac, aliquam ac, risus. Quisque lobortis.
-              Phasellus pellentesque purus in massa. Aenean in pede. Phasellus ac libero
-              ac tellus pellentesque semper. Sed ac felis. Sed commodo, magna quis
-              lacinia ornare, quam ante aliquam nisi, eu iaculis leo purus venenatis dui.
-              </p>
-              <ul>
+        <div data-title="Section 1">
+            <p>
+                Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer
+                ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit
+                amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut
+                odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.
+            </p>
+        </div>
+        <h1 slot="title">Hello there</h1>
+        <div>
+            <p>
+                Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet
+                purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris turpis porttitor
+                velit, faucibus interdum tellus libero ac justo. Vivamus non quam. In
+                suscipit faucibus urna.
+            </p>
+        </div>
+        <div data-title="Section 3">
+            <p>
+                Nam enim risus, molestie et, porta ac, aliquam ac, risus. Quisque lobortis.
+                Phasellus pellentesque purus in massa. Aenean in pede. Phasellus ac libero
+                ac tellus pellentesque semper. Sed ac felis. Sed commodo, magna quis
+                lacinia ornare, quam ante aliquam nisi, eu iaculis leo purus venenatis dui.
+            </p>
+            <ul>
                 <li>List item one</li>
                 <li>List item two</li>
                 <li>List item three</li>
-              </ul>
-            </div>
-            <div data-title="Section 4">
-              <p>
-              Cras dictum. Pellentesque habitant morbi tristique senectus et netus
-              et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in
-              faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lacinia
-              mauris vel est.
-              </p>
-              <p>
-              Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus.
-              Class aptent taciti sociosqu ad litora torquent per conubia nostra, per
-              inceptos himenaeos.
-              </p>
-            </div>
-        </juel-tabs>
-    </div>
+            </ul>
+        </div>
+        <div data-title="Section 4">
+            <p>
+                Cras dictum. Pellentesque habitant morbi tristique senectus et netus
+                et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in
+                faucibus orci luctus et ultrices posuere cubilia Curae; Aenean lacinia
+                mauris vel est.
+            </p>
+            <p>
+                Suspendisse eu nisl. Nullam ut libero. Integer dignissim consequat lectus.
+                Class aptent taciti sociosqu ad litora torquent per conubia nostra, per
+                inceptos himenaeos.
+            </p>
+        </div>
+    </juel-tabs>
 </body>
 
 </html>

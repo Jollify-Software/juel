@@ -49,10 +49,15 @@ export class JuelEmbed extends LitElement {
     }
 
     @property() url: string;
+    @property() selector: string;
     @property() type: string;
     @property() theme: string;
 
     content: string;
+
+    constructor() {
+        super();
+    }
 
     protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         if (this.url) {
@@ -67,16 +72,17 @@ export class JuelEmbed extends LitElement {
                     });
                 } else {
                     response.text().then(data => {
-                        this.innerHTML = data;
+                        let $data = $(data);
+                        $(this).append(
+                            $data
+                        );
                         this.requestUpdate();
                     })
                 }
             });
         } else if (this.innerHTML) {
-            console.log(this.innerHTML)
             let data = this.innerHTML;
             this.requestUpdate();
-            //this.innerHTML = "";
             setTimeout(() => this.processMarkdown(data), 400);
         }
     }

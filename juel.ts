@@ -29,7 +29,7 @@ import './src/Lightbox/Lightbox';
 //import './src/Parallax/Parallax'; // Doesn't work and not important
 import './src/Flip/Flip';
 import './src/Tilt/Tilt';
-/*
+
 import './src/Contents/Contents';
 import './src/Template/Template';
 
@@ -47,7 +47,7 @@ import './src/Random/Random';
 
 
 import './src/Tilt/Tilt';
-*/
+
 
 //import './src/ParticleSystem/ParticleSystem';
 
