@@ -11,7 +11,7 @@ export class JuelChart extends LitElement {
     @property() indexAxis: string;
 
     chart: any;
-    data: any;
+    @property({ type: Object }) data: any;
     canvas: HTMLCanvasElement;
     g: CanvasRenderingContext2D;
 
