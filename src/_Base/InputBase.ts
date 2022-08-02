@@ -6,6 +6,7 @@ import { createRef } from 'lit/directives/ref'
 import { PropertyValueMap } from "lit";
 
 export class InputBase extends JuelComponent {
+    @property({ attribute: "prepend" }) addBefore: string;
     @property() addon: string;
     @property({ type: Boolean }) addonActive: boolean;
     @property() label: string;

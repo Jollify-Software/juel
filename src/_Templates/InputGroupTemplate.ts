@@ -30,6 +30,7 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
             break;
     }
     return html`${when(el.addon, () => html`<div part="input-group" class="input-group">
+                    ${el.addBefore ? html`<div class="addon"><slot name="prepend"><slot></div>` : ``}
                     ${inputTemplate(el)}
                     ${el.addon && el.addon == "dropdown" ?
                         html`<button id="dropdown-toggle" @click="${el.toggleDropdown}"></button>` : 
