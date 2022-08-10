@@ -10,6 +10,7 @@ export class InputBase extends JuelComponent {
     @property() addon: string;
     @property({ type: Boolean }) addonActive: boolean;
     @property() label: string;
+    @property() name: string;
     @property({ type: Boolean }) active: boolean;
 
     input = createRef<HTMLInputElement>();

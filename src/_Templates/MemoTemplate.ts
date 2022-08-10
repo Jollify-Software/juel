@@ -4,5 +4,5 @@ import { ref } from "lit/directives/ref";
 import { JuelMemo } from "../Memo/Memo";
 
 export function MemoTemplate(el: JuelMemo) {
-    return html`<label part="label" for="text"><slot name="content">${el.label}</slot></label><textarea ${ref(el.input)} .value=${ifDefined(el.value)}></textarea>`;
+    return html`<label name="${ifDefined(el.name)}" part="label" for="text"><slot name="content">${el.label}</slot></label><textarea ${ref(el.input)} .value=${ifDefined(el.value)}></textarea>`;
 }
