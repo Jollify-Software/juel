@@ -1,0 +1,18 @@
+<html>
+    <script src="../../dist/juel.js"></script>
+    <body>
+        <form>
+            <juel-text label="Name"></juel-text>
+            <juel-text label="Message"></juel-text>
+            <juel-button label="Submit" submit="true"></juel-button>
+        </form>
+        <script>
+            document.body.querySelector("form").addEventListener("submit", (e) => {
+                e.preventDefault();
+                console.log(new FormData(e.target));
+                alert("Submitted!")
+                return false;
+            });
+        </script>
+    </body>
+</html>
