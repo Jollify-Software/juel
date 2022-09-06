@@ -3,7 +3,7 @@ import { createPopper, Instance } from "@popperjs/core";
 import { property } from "lit/decorators";
 import { RippleInitialiser } from "../_Utils/RippleModule";
 import { JuelComponent } from "./JuelComponent";
-import { createRef } from 'lit/directives/ref' 
+import { createRef } from 'lit/directives/ref'
 import { PropertyValueMap } from "lit";
 import bind from "bind-decorator";
 
@@ -44,11 +44,17 @@ export class InputBase extends JuelComponent {
     nextOrSubmit() {
         let next = this.$this.nextAll(InputBase.InputElementNames);
         if (next.length == 0) {
-            let frm = this.$this[0].closest("form") as HTMLFormElement;
-            if (frm && 'requestSubmit' in frm) {
-                frm.requestSubmit();
-            } else if (frm) {
-                frm.submit();
+            let steps = this.closest("juel-steps") as any;
+            if (steps) {
+                steps.next();
+                (<any>$).tabNext();
+            } else {
+                let frm = this.closest("form") as HTMLFormElement;
+                if (frm && 'requestSubmit' in frm) {
+                    frm.requestSubmit();
+                } else if (frm) {
+                    frm.submit();
+                }
             }
         } else {
             (<any>$).tabNext();

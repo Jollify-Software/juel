@@ -21502,6 +21502,109 @@ class $9021e13842516968$export$df83e21cb27a0989 {
 var $87af919838071cce$exports = {};
 
 $parcel$export($87af919838071cce$exports, "InputBase", () => $87af919838071cce$export$36eab7f492831059, (v) => $87af919838071cce$export$36eab7f492831059 = v);
+/*!
+ * jQuery.tabbable 1.0 - Simple utility for selecting the next / previous ':tabbable' element.
+ * https://github.com/marklagendijk/jQuery.tabbable
+ *
+ * Includes ':tabbable' and ':focusable' selectors from jQuery UI Core
+ *
+ * Copyright 2013, Mark Lagendijk
+ * Released under the MIT license
+ *
+ */ (function($) {
+    "use strict";
+    /**
+	 * Focusses the next :focusable element. Elements with tabindex=-1 are focusable, but not tabable.
+	 * Does not take into account that the taborder might be different as the :tabbable elements order
+	 * (which happens when using tabindexes which are greater than 0).
+	 */ $.focusNext = function() {
+        selectNextTabbableOrFocusable(":focusable");
+    };
+    /**
+	 * Focusses the previous :focusable element. Elements with tabindex=-1 are focusable, but not tabable.
+	 * Does not take into account that the taborder might be different as the :tabbable elements order
+	 * (which happens when using tabindexes which are greater than 0).
+	 */ $.focusPrev = function() {
+        selectPrevTabbableOrFocusable(":focusable");
+    };
+    /**
+	 * Focusses the next :tabable element.
+	 * Does not take into account that the taborder might be different as the :tabbable elements order
+	 * (which happens when using tabindexes which are greater than 0).
+	 */ $.tabNext = function() {
+        selectNextTabbableOrFocusable(":tabbable");
+    };
+    /**
+	 * Focusses the previous :tabbable element
+	 * Does not take into account that the taborder might be different as the :tabbable elements order
+	 * (which happens when using tabindexes which are greater than 0).
+	 */ $.tabPrev = function() {
+        selectPrevTabbableOrFocusable(":tabbable");
+    };
+    function selectNextTabbableOrFocusable(selector) {
+        var selectables = $(selector);
+        var current = $(":focus");
+        var nextIndex = 0;
+        if (current.length === 1) {
+            var currentIndex = selectables.index(current);
+            if (currentIndex + 1 < selectables.length) nextIndex = currentIndex + 1;
+        }
+        selectables.eq(nextIndex).focus();
+    }
+    function selectPrevTabbableOrFocusable(selector) {
+        var selectables = $(selector);
+        var current = $(":focus");
+        var prevIndex = selectables.length - 1;
+        if (current.length === 1) {
+            var currentIndex = selectables.index(current);
+            if (currentIndex > 0) prevIndex = currentIndex - 1;
+        }
+        selectables.eq(prevIndex).focus();
+    }
+    /**
+	 * :focusable and :tabbable, both taken from jQuery UI Core
+	 */ $.extend($.expr[":"], {
+        data: $.expr.createPseudo ? $.expr.createPseudo(function(dataName) {
+            return function(elem) {
+                return !!$.data(elem, dataName);
+            };
+        }) : // support: jQuery <1.8
+        function(elem, i, match) {
+            return !!$.data(elem, match[3]);
+        },
+        focusable: function(element) {
+            return focusable(element, !isNaN($.attr(element, "tabindex")));
+        },
+        tabbable: function(element) {
+            var tabIndex = $.attr(element, "tabindex"), isTabIndexNaN = isNaN(tabIndex);
+            return (isTabIndexNaN || tabIndex >= 0) && focusable(element, !isTabIndexNaN);
+        }
+    });
+    /**
+	 * focussable function, taken from jQuery UI Core
+	 * @param element
+	 * @returns {*}
+	 */ function focusable(element1) {
+        var map, mapName, img, nodeName = element1.nodeName.toLowerCase(), isTabIndexNotNaN = !isNaN($.attr(element1, "tabindex"));
+        if ("area" === nodeName) {
+            map = element1.parentNode;
+            mapName = map.name;
+            if (!element1.href || !mapName || map.nodeName.toLowerCase() !== "map") return false;
+            img = $("img[usemap=#" + mapName + "]")[0];
+            return !!img && visible(img);
+        }
+        // Luke: Added extra strings for juel-?
+        return (/input|text|memo|radio|select|textarea|button|object/.test(nodeName) ? !element1.disabled : "a" === nodeName ? element1.href || isTabIndexNotNaN : isTabIndexNotNaN) && // the element and all of its ancestors must be visible
+        visible(element1);
+        function visible(element) {
+            return $.expr.filters.visible(element) && !$(element).parents().addBack().filter(function() {
+                return $.css(this, "visibility") === "hidden";
+            }).length;
+        }
+    }
+})(jQuery);
+
+
 
 
 
@@ -21665,6 +21768,36 @@ const $3444fcda03099cf9$var$h = new WeakMap, $3444fcda03099cf9$export$eff4d24c3f
 
 
 
+var $9fc1f110788ce737$exports = {};
+"use strict";
+Object.defineProperty($9fc1f110788ce737$exports, "__esModule", {
+    value: true
+});
+var $9fc1f110788ce737$var$constants;
+(function(constants1) {
+    constants1.typeOfFunction = "function";
+    constants1.boolTrue = true;
+})($9fc1f110788ce737$var$constants || ($9fc1f110788ce737$var$constants = {}));
+function $9fc1f110788ce737$var$bind(target, propertyKey, descriptor) {
+    if (!descriptor || typeof descriptor.value !== $9fc1f110788ce737$var$constants.typeOfFunction) throw new TypeError("Only methods can be decorated with @bind. <" + propertyKey + "> is not a method!");
+    return {
+        configurable: $9fc1f110788ce737$var$constants.boolTrue,
+        get: function() {
+            var bound = descriptor.value.bind(this);
+            // Credits to https://github.com/andreypopp/autobind-decorator for memoizing the result of bind against a symbol on the instance.
+            Object.defineProperty(this, propertyKey, {
+                value: bound,
+                configurable: $9fc1f110788ce737$var$constants.boolTrue,
+                writable: $9fc1f110788ce737$var$constants.boolTrue
+            });
+            return bound;
+        }
+    };
+}
+$9fc1f110788ce737$exports.bind = $9fc1f110788ce737$var$bind;
+$9fc1f110788ce737$exports.default = $9fc1f110788ce737$var$bind;
+
+
 var $87af919838071cce$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -21678,11 +21811,31 @@ class $87af919838071cce$export$36eab7f492831059 extends (0, $5e0a45860ddebf78$ex
         this.dropdownShown = false;
     }
     firstUpdated() {
+        this.$this = $(this);
+        this.addEventListener("keyup", (e)=>{
+            console.log("Up");
+            console.log(e);
+            if (e.key == "Enter") this.nextOrSubmit();
+        });
         if (this.input.value) this.input.value.focus();
+    }
+    nextOrSubmit() {
+        let next = this.$this.nextAll($87af919838071cce$export$36eab7f492831059.InputElementNames);
+        if (next.length == 0) {
+            let steps = this.closest("juel-steps");
+            if (steps) {
+                steps.next();
+                $.tabNext();
+            } else {
+                let frm = this.closest("form");
+                if (frm && "requestSubmit" in frm) frm.requestSubmit();
+                else if (frm) frm.submit();
+            }
+        } else $.tabNext();
     }
     focus(options) {
         if (this.input.value) this.input.value.focus();
-        super.focus(options);
+        else super.focus(options);
     }
     onClick(e) {}
     toggleDropdown() {
@@ -21698,6 +21851,12 @@ class $87af919838071cce$export$36eab7f492831059 extends (0, $5e0a45860ddebf78$ex
         }
     }
 }
+$87af919838071cce$export$36eab7f492831059.InputElementNames = "juel-text, juel-memo, juel-range, juel-tickbox, juel-radio";
+$87af919838071cce$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
+        attribute: "prepend"
+    })
+], $87af919838071cce$export$36eab7f492831059.prototype, "addBefore", void 0);
 $87af919838071cce$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
 ], $87af919838071cce$export$36eab7f492831059.prototype, "addon", void 0);
@@ -21710,18 +21869,34 @@ $87af919838071cce$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
 ], $87af919838071cce$export$36eab7f492831059.prototype, "label", void 0);
 $87af919838071cce$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $87af919838071cce$export$36eab7f492831059.prototype, "name", void 0);
+$87af919838071cce$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
         type: Boolean
     })
 ], $87af919838071cce$export$36eab7f492831059.prototype, "active", void 0);
+$87af919838071cce$var$__decorate([
+    (0, (/*@__PURE__*/$parcel$interopDefault($9fc1f110788ce737$exports)))
+], $87af919838071cce$export$36eab7f492831059.prototype, "nextOrSubmit", null);
 
+
+
+
+
+
+/**
+ * @license
+ * Copyright 2018 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ const $e5c00ea60213b8cf$export$f68dd208b5df064d = (l1)=>null != l1 ? l1 : (0, $37260750aa7b368d$export$45b790e32b2810ee);
 
 
 
 
 
 function $b5f612b565643fa9$export$e2c86a3545f3ce2b(el) {
-    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<button ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} type="${el.submit ? "submit" : "button"}" part="button" class="btn" part="button" @click="${el.onClick}"><slot name="content">${el.label}</slot></button>`;
+    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<button name="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.name)}" ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} type="${el.submit ? "submit" : "button"}" part="button" class="btn" part="button" @click="${el.onClick}"><slot name="content">${el.label}</slot></button>`;
 }
 
 
@@ -21739,18 +21914,9 @@ var $dc4b52ff7b13e73e$export$930c13e962764648;
 
 
 
-/**
- * @license
- * Copyright 2018 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ const $e5c00ea60213b8cf$export$f68dd208b5df064d = (l1)=>null != l1 ? l1 : (0, $37260750aa7b368d$export$45b790e32b2810ee);
-
-
-
-
 
 function $80c9569cbe5f8124$export$8bbc79aa2dc8500d(el) {
-    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<label part="label" for="text"><slot name="content">${el.label}</slot></label><textarea ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} .value=${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.value)}></textarea>`;
+    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<label name="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.name)}" part="label" for="text"><slot name="content">${el.label}</slot></label><textarea ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} .value=${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.value)}></textarea>`;
 }
 
 
@@ -21758,7 +21924,7 @@ function $80c9569cbe5f8124$export$8bbc79aa2dc8500d(el) {
 
 
 function $676d1b44660c3f35$export$43c51f51f0b06995(el) {
-    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<label for="input"><slot name="content">${el.label}</slot></label><input ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} id="input" type="range" .value=${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.value)} min="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.min)}" max="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.max)}" step="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.step)}" @change="${el.onChange}">`;
+    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<label name="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.name)}" for="input"><slot name="content">${el.label}</slot></label><input ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} id="input" type="range" .value=${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.value)} min="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.min)}" max="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.max)}" step="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.step)}" @change="${el.onChange}">`;
 }
 
 
@@ -21766,18 +21932,31 @@ function $676d1b44660c3f35$export$43c51f51f0b06995(el) {
 
 
 function $60a5e4ce075c13f8$export$554cf187947ae74d(el) {
-    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<label part="label" for="text"><slot name="content">${el.label}</slot></label><input ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} part="input" .value="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.value)}" class="text" @change="${el.onChange}">`;
+    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<label name="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.name)}" part="label" for="text"><slot name="content">${el.label}</slot></label><input ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} part="input" .value="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.value)}" class="text" @change="${el.onChange}">`;
 }
+
 
 
 
 
 function $f0e8e0f43dc255e6$export$85d8fe04c954eac(el) {
-    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<label for="input"><slot name="content">${el.label}</slot></label><input ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} type="checkbox" .checked="${el.value}" id="input" @change="${el.onChange}">`;
+    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<label name="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.name)}" for="input"><slot name="content">${el.label}</slot></label><input ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} type="checkbox" .checked="${el.value}" id="input" @change="${el.onChange}">`;
 }
 
 
 function $ad1647a61f7e0cde$export$475a25926aecae05(el, type) {
+    let hasAfter = false;
+    let isAfterBtn;
+    let hasBefore;
+    let isBeforeBtn;
+    let hasDropdown = false;
+    let addon = el.querySelector('[slot="after"]');
+    if (addon) hasAfter = true;
+    let dropdown = el.querySelector('[slot="dropdown"]');
+    if (dropdown) {
+        hasAfter = true;
+        hasDropdown = true;
+    }
     let inputTemplate;
     switch(type){
         case (0, $dc4b52ff7b13e73e$export$930c13e962764648).Button:
@@ -21797,12 +21976,13 @@ function $ad1647a61f7e0cde$export$475a25926aecae05(el, type) {
         default:
             break;
     }
-    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(el.addon, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div part="input-group" class="input-group">
+    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasAfter, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div part="input-group" class="input-group">
+                    ${hasBefore ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="addon"><slot name="addon-before"></slot></div>` : ``}
                     ${inputTemplate(el)}
-                    ${el.addon && el.addon == "dropdown" ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<button id="dropdown-toggle" @click="${el.toggleDropdown}"></button>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="addon"><slot name="addon"></slot></div>`}
+                    ${hasDropdown ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<button id="dropdown-toggle" @click="${el.toggleDropdown}"></button>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="addon"><slot name="after"></slot></div>`}
                     ${el.active == true && el.addon && el.addonActive == true ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="addon"><slot name="addon-active"></slot></div>` : ``}
                 </div>`, ()=>inputTemplate(el))}
-                ${el.addon && el.addon == "dropdown" ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)``}`;
+                ${hasDropdown ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)``}`;
 }
 
 
@@ -22533,6 +22713,11 @@ $c55dd34de669419a$var$__decorate([
 $c55dd34de669419a$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
 ], $c55dd34de669419a$export$febfb6857279d236.prototype, "indexAxis", void 0);
+$c55dd34de669419a$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
+        type: Object
+    })
+], $c55dd34de669419a$export$febfb6857279d236.prototype, "data", void 0);
 $c55dd34de669419a$export$febfb6857279d236 = $c55dd34de669419a$var$__decorate([
     (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("juel-chart")
 ], $c55dd34de669419a$export$febfb6857279d236);
@@ -23225,35 +23410,6 @@ $b3c5609f1a35a9fc$export$18ef6d7c4b996651 = $b3c5609f1a35a9fc$var$__decorate([
 
 
 var $d99092614941c881$exports = {};
-var $9fc1f110788ce737$exports = {};
-"use strict";
-Object.defineProperty($9fc1f110788ce737$exports, "__esModule", {
-    value: true
-});
-var $9fc1f110788ce737$var$constants;
-(function(constants1) {
-    constants1.typeOfFunction = "function";
-    constants1.boolTrue = true;
-})($9fc1f110788ce737$var$constants || ($9fc1f110788ce737$var$constants = {}));
-function $9fc1f110788ce737$var$bind(target, propertyKey, descriptor) {
-    if (!descriptor || typeof descriptor.value !== $9fc1f110788ce737$var$constants.typeOfFunction) throw new TypeError("Only methods can be decorated with @bind. <" + propertyKey + "> is not a method!");
-    return {
-        configurable: $9fc1f110788ce737$var$constants.boolTrue,
-        get: function() {
-            var bound = descriptor.value.bind(this);
-            // Credits to https://github.com/andreypopp/autobind-decorator for memoizing the result of bind against a symbol on the instance.
-            Object.defineProperty(this, propertyKey, {
-                value: bound,
-                configurable: $9fc1f110788ce737$var$constants.boolTrue,
-                writable: $9fc1f110788ce737$var$constants.boolTrue
-            });
-            return bound;
-        }
-    };
-}
-$9fc1f110788ce737$exports.bind = $9fc1f110788ce737$var$bind;
-$9fc1f110788ce737$exports.default = $9fc1f110788ce737$var$bind;
-
 
 
 

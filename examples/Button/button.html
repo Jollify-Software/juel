@@ -2,73 +2,77 @@
 
 <head>
     <script src="../../dist/juel.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+        integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        #btn::part(input-group) {
-            
-        }
+        #btn::part(input-group) {}
     </style>
 </head>
 
 <body>
-    <juel-button label="Hello"></juel-button>
-        <juel-button label="Button" addon="dropdown">
-            <ul slot="dropdown">
-                <li>One</li>
-                <li>Two</li>
-                <li>Three</li>
-            </ul>
-        </juel-button>
-        <juel-button><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-button>
-        <juel-button addon="dropdown" addonActive="true">
-            <strong slot="content">Launch app <i class="fas fa-rocket"></i></strong>
-            <ul slot="dropdown">
-                <li>One</li>
-                <li>Two</li>
-                <li>Three</li>
-            </ul>
-            <h1 slot="addon-active">Active!</h1>
-        </juel-button>
 
-        <hr>
-
-        <juel-button id="btn" addon="true">
-            <img slot="content" src="../_Assets/animated.png"/>
-            <juel-toggle slot="addon" custom="true">
-                <img slot="unchecked" src="../_Assets/record.png"/>
-                <img slot="checked" src="../_Assets/stop.png"/>
-            </juel-toggle>
-        </juel-button>
-
-		<juel-button addon="true" label="Hello" data-title="Hello there">
-			<juel-button slot="addon" label="There"></juel-button>
-			<juel-button slot="addon" label="How"></juel-button>
-			<juel-button slot="addon" label="Are"></juel-button>
-			<juel-button slot="addon" label="You"></juel-button>
-			<juel-button slot="addon" label="?"></juel-button>
-		</juel-button>
-
-        <script>
-            var btn = document.querySelector('#btn')
-            btn.addEventListener('click', e => {
-                btn.active = !btn.active;
-            })
-        </script>
-
-        <juel-embed type="markdown" theme="school-book">
-It is easy to put buttons in your app.  
-Just like this:
-
-```html
-<juel-button addon="true" label="Hello">
-    <juel-button slot="addon" label="There"></juel-button>
-    <juel-button slot="addon" label="How"></juel-button>
-    <juel-button slot="addon" label="Are"></juel-button>
-    <juel-button slot="addon" label="You"></juel-button>
-    <juel-button slot="addon" label="?"></juel-button>
-</juel-button>
+    <juel-tabs>
+        <div data-title="Result">
+            <juel-button label="Hello"></juel-button>
+            <juel-button><b slot="content">Hello</b></juel-button>
+            <juel-button><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-button>
+        </div>
+        <div data-title="HTML">
+            <juel-embed type="markdown">
+```HTML
+<juel-button label="Hello"></juel-button>
+<juel-button><b slot="content">Hello</b></juel-button>
+<juel-button><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-button>
 ```
-</juel-embed>
+            </juel-embed>
+        </div>
+    </juel-tabs>
+
+    <juel-accordion>
+        <div data-title="Groups">
+            <juel-button label="Button">
+                <ul slot="dropdown">
+                    <li>One</li>
+                    <li>Two</li>
+                    <li>Three</li>
+                </ul>
+            </juel-button>
+            <juel-button>
+                <strong slot="content">Launch app <i class="fas fa-rocket"></i></strong>
+                <ul slot="dropdown">
+                    <li>One</li>
+                    <li>Two</li>
+                    <li>Three</li>
+                </ul>
+                <h1 slot="addon-active">Active!</h1>
+            </juel-button>
+            <juel-button id="btn" addon="true">
+                <img slot="content" src="../_Assets/animated.png" />
+                <juel-toggle slot="after" custom="true">
+                    <img slot="unchecked" src="../_Assets/record.png" />
+                    <img slot="checked" src="../_Assets/stop.png" />
+                </juel-toggle>
+            </juel-button>
+        
+            <juel-button label="Hello" data-title="Hello there">
+                <juel-button slot="after" label="There"></juel-button>
+                <juel-button slot="after" label="How"></juel-button>
+                <juel-button slot="after" label="Are"></juel-button>
+                <juel-button slot="after" label="You"></juel-button>
+                <juel-button slot="after" label="?"></juel-button>
+            </juel-button>
+        </div>
+    </juel-accordion>
+
+    <script>
+        var btn = document.querySelector('#btn')
+        btn.addEventListener('click', e => {
+            btn.active = !btn.active;
+        })
+    </script>
+
+
 </body>
 
 </html>

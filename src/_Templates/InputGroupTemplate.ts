@@ -10,6 +10,22 @@ import { TickboxTemplate } from "./TickboxTemplate";
 
 
 export function InputGroupTemplate(el: InputBase, type: InputTypes) {
+    let hasAfter: boolean = false; // Does the input have an addon
+    let isAfterBtn: boolean; // Is the addon a button
+    let hasBefore: boolean; // Does this input have an addon before
+    let isBeforeBtn: boolean; // Is the addon after a button?
+    let hasDropdown: boolean = false; // Does the input have a dropdown?
+
+    let addon = el.querySelector('[slot="after"]');
+    if (addon) {
+        hasAfter = true;
+    }
+    let dropdown = el.querySelector('[slot="dropdown"]');
+    if (dropdown) {
+        hasAfter = true;
+        hasDropdown = true;
+    }
+
     let inputTemplate: (el: InputBase) => TemplateResult;
     switch (type) {
         case InputTypes.Button:
@@ -29,18 +45,18 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
         default:
             break;
     }
-    return html`${when(el.addon, () => html`<div part="input-group" class="input-group">
-                    ${el.addBefore ? html`<div class="addon"><slot name="prepend"><slot></div>` : ``}
+    return html`${when(hasAfter, () => html`<div part="input-group" class="input-group">
+                    ${hasBefore ? html`<div class="addon"><slot name="addon-before"></slot></div>` : ``}
                     ${inputTemplate(el)}
-                    ${el.addon && el.addon == "dropdown" ?
+                    ${hasDropdown ?
                         html`<button id="dropdown-toggle" @click="${el.toggleDropdown}"></button>` : 
-                        html`<div class="addon"><slot name="addon"></slot></div>`
+                        html`<div class="addon"><slot name="after"></slot></div>`
                     }
                     ${el.active == true && el.addon && el.addonActive == true ?
                         html`<div class="addon"><slot name="addon-active"></slot></div>`
                     : `` }
                 </div>`, () => inputTemplate(el))}
-                ${el.addon && el.addon == "dropdown" ?
+                ${hasDropdown ?
                 html`<div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` :
                 html`` }`;
 }
