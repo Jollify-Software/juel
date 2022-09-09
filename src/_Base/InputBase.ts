@@ -77,7 +77,10 @@ export class InputBase extends JuelComponent {
         if (this.dropdownShown == false) {
             this.dropdown = createPopper(
                 this.shadowRoot.querySelector('#dropdown-toggle'),
-                items
+                items,
+                {
+                    placement: "bottom-end"
+                }
             );
             items.style.display = "initial";
             this.dropdownShown = true;

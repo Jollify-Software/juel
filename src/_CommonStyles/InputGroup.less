@@ -1,5 +1,6 @@
 :host {
     display: inline-block;
+    position: relative;
 }
 
 input.text {
@@ -9,7 +10,6 @@ input.text {
 .input-group {
     display         : inline-flex;
     flex-direction  : var(--direction, row);
-    align-items     : var(--align, flex-start);
     padding         : .375rem;
     border-radius   : .25rem;
     background-color: #e9ecef;
@@ -31,12 +31,41 @@ input.text {
     border-color    : #0a58ca;
 }
 
-.dropdown-toggle::after {
-    margin-left   : .255em;
+#dropdown-toggle::after {
+    display: inline-block;
     vertical-align: .255em;
     content       : "";
     border-top    : .3em solid;
     border-right  : .3em solid transparent;
     border-bottom : 0;
     border-left   : .3em solid transparent;
+}
+
+#dropdown-items {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    width: 100%;
+    margin: 0;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: .25rem;
+}
+::slotted(ul) {
+    list-style: none;
+    padding: .5rem 1rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+::slotted(ol) {
+    list-style: none;
+    padding: .5rem 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
 }
