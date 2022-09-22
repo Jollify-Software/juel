@@ -29,14 +29,28 @@
         </div>
     </juel-tabs>
 
-    <!-- <juel-accordion> -->
+    <juel-accordion>
+        <div data-title="Types">
+            <juel-button type="primary" label="Primary"></juel-button>
+            <juel-button type="Secondary" label="Secondary"></juel-button>
+            <juel-button type="tertiary" label="Tertiary"></juel-button>
+            <juel-button type="info" label="Info"></juel-button>
+            <juel-button type="success" label="Success"></juel-button>
+            <juel-button type="Danger" label="Danger"></juel-button>
+            <juel-button type="Warning" label="Warning"></juel-button>
+            <juel-button type="light" label="Light"></juel-button>
+            <juel-button type="dark" label="Dark"></juel-button>
+        </div>
+
+        <div data-title="Render styles">
+            <juel-button render-style="default" label="Default"></juel-button>
+            <juel-button render-style="primary" label="Outline"></juel-button>
+        </div>
+
         <div data-title="Groups">
-            <juel-button label="Hello" data-title="Hello there">
-                <juel-button slot="after" label="There"></juel-button>
-                <juel-button slot="after" label="How"></juel-button>
-                <juel-button slot="after" label="Are"></juel-button>
-                <juel-button slot="after" label="You"></juel-button>
-                <juel-button slot="after" label="?"></juel-button>
+            <juel-button label="Left">
+                <juel-button slot="append" label="Middle"></juel-button>
+                <juel-button slot="append" label="Right"></juel-button>
             </juel-button>
 
             <juel-button label="Button">
@@ -54,17 +68,17 @@
                     <li>Two</li>
                     <li>Three</li>
                 </ul>
-                <h1 slot="addon-active">Active!</h1>
+                <h1 slot="append-active">Active!</h1>
             </juel-button>
             <juel-button id="btn" addon="true">
                 <img slot="content" src="../_Assets/animated.png" />
-                <juel-toggle slot="after" custom="true">
+                <juel-toggle slot="append" custom="true">
                     <img slot="unchecked" src="../_Assets/record.png" />
                     <img slot="checked" src="../_Assets/stop.png" />
                 </juel-toggle>
             </juel-button>
         </div>
-    <!-- </juel-accordion> -->
+    </juel-accordion>
 
     <script>
         var btn = document.querySelector('#btn')

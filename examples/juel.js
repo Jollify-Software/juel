@@ -13706,7 +13706,7 @@ var $9742dbc094643ff0$exports = {};
 
 
 var $1023b8a9a7973857$exports = {};
-$1023b8a9a7973857$exports = "body {\n  font-family: var(--body-font-family);\n  font-size: var(--body-font-size);\n  font-weight: var(--body-font-weight);\n  line-height: var(--body-line-height);\n  color: var(--body-color);\n  text-align: var(--body-text-align);\n  background-color: var(--body-bg);\n  -webkit-text-size-adjust: 100%;\n  -webkit-tap-highlight-color: transparent;\n  margin: 0;\n}\n\njuel-dialog-manager > *, .hide {\n  display: none;\n}\n\n.fullscreen {\n  width: 100vw;\n  height: 100vh;\n}\n\n.flex, .flex form {\n  flex-direction: column;\n  display: flex;\n}\n\n.icon {\n  width: 48px;\n  height: 48px;\n}\n\n.icon-md {\n  width: 32px;\n  height: 32px;\n}\n\n.icon-sm {\n  width: 16px;\n  height: 16px;\n}\n\n:root {\n  --primary: #007bff;\n  --primary-text: #343a40;\n  --secondary: #6c757d;\n  --secondary-text: #f8f9fa;\n  --tertiary: salmon;\n  --tertiary-text: salmon;\n  --highlight: #007bff;\n  --active: #e7f1ff --light: #f8f9fa;\n  --dark: #343a40;\n  --success: #28a745;\n  --info: #17a2b8;\n  --warning: #ffc107;\n  --danger: #dc3545;\n  --highlight-text: #343a40;\n  --active-text: #0c63e4;\n  --light-text: #f8f9fa;\n  --dark-text: #343a40;\n  --success-text: #28a745;\n  --info-text: #343a40;\n  --warning-text: #343a40;\n  --danger-text: #dc3545;\n  --icon-previous: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22var%28--fil%2C%20%2323fff%29%22%20d%3D%22M11.354%201.646a.5.5%200%200%201%200%20.708L5.707%208l5.647%205.646a.5.5%200%200%201-.708.708l-6-6a.5.5%200%200%201%200-.708l6-6a.5.5%200%200%201%20.708%200z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-next: url(\"data:image/svg+xml,%3Ccsvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22var%28--fill%2C%20%2323fff%29%22%20d%3D%22M4.646%201.646a.5.5%200%200%201%20.708%200l6%206a.5.5%200%200%201%200%20.708l-6%206a.5.5%200%200%201-.708-.708L10.293%208%204.646%202.354a.5.5%200%200%201%200-.708z%22%3E%3C%2Fpath%3E%3C%2Fcsvg%3E\");\n  --icon-indicator: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22rgba%28280%2C0%2C0%2C.5%29%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M5%2014l6-6-6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-crosshair: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20id%3D%22root%22%20version%3D%221.1%22%20viewBox%3D%220%200%2016%2016%22%3E%3Ccircle%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20cx%3D%228%22%20cy%3D%228%22%20r%3D%226%22%3E%3C%2Fcircle%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%208%200%20L%208%206.5%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%200%208%20L%206.5%208%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%208%209.5%20L%208%2016%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%209.5%208%20L%2016%208%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-close: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220px%22%20height%3D%2220px%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22var%28--fill%2C%20black%29%22%20d%3D%22M%204.7070312%203.2929688%20L%203.2929688%204.7070312%20L%2010.585938%2012%20L%203.2929688%2019.292969%20L%204.7070312%2020.707031%20L%2012%2013.414062%20L%2019.292969%2020.707031%20L%2020.707031%2019.292969%20L%2013.414062%2012%20L%2020.707031%204.7070312%20L%2019.292969%203.2929688%20L%2012%2010.585938%20L%204.7070312%203.2929688%20z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-tick: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22var%28--stroke%2C%20black%29%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%223%22%20d%3D%22M6%2010l3%203l6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --justify: center;\n  --padding-left: 32px;\n  --padding-right: 32px;\n  --body-color-rgb: 33, 37, 41;\n  --body-bg-rgb: 255, 255, 255;\n  --font-sans-serif: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Liberation Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n  --font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\n  --gradient: linear-gradient(180deg, #ffffff26, #fff0);\n  --body-font-family: var(--bs-font-sans-serif);\n  --body-font-size: 1rem;\n  --body-font-weight: 400;\n  --body-line-height: 1.5;\n  --body-color: #212529;\n}\n\n::part(ripple) {\n  background-color: #ffffffb3;\n  border-radius: 50%;\n  animation: ripple .6s linear;\n  position: absolute;\n  transform: scale(0);\n}\n\n";
+$1023b8a9a7973857$exports = "body {\n  font-family: var(--body-font-family);\n  font-size: var(--body-font-size);\n  font-weight: var(--body-font-weight);\n  line-height: var(--body-line-height);\n  color: var(--body-color);\n  text-align: var(--body-text-align);\n  background-color: var(--body-bg);\n  -webkit-text-size-adjust: 100%;\n  -webkit-tap-highlight-color: transparent;\n  margin: 0;\n}\n\njuel-dialog-manager > *, .hide {\n  display: none;\n}\n\n.fullscreen {\n  width: 100vw;\n  height: 100vh;\n}\n\n.flex, .flex form {\n  flex-direction: column;\n  display: flex;\n}\n\n.icon {\n  width: 48px;\n  height: 48px;\n}\n\n.icon-md {\n  width: 32px;\n  height: 32px;\n}\n\n.icon-sm {\n  width: 16px;\n  height: 16px;\n}\n\n:root {\n  --primary: #007bff;\n  --primary-text: #343a40;\n  --secondary: #6c757d;\n  --secondary-text: #f8f9fa;\n  --tertiary: salmon;\n  --tertiary-text: salmon;\n  --highlight: #007bff;\n  --active: #e7f1ff --light: #f8f9fa;\n  --dark: #343a40;\n  --success: #28a745;\n  --info: #17a2b8;\n  --warning: #ffc107;\n  --danger: #dc3545;\n  --highlight-text: #343a40;\n  --active-text: #0c63e4;\n  --light-text: #f8f9fa;\n  --dark-text: #343a40;\n  --success-text: #28a745;\n  --info-text: #343a40;\n  --warning-text: #343a40;\n  --danger-text: #dc3545;\n  --icon-previous: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22var%28--fil%2C%20%2323fff%29%22%20d%3D%22M11.354%201.646a.5.5%200%200%201%200%20.708L5.707%208l5.647%205.646a.5.5%200%200%201-.708.708l-6-6a.5.5%200%200%201%200-.708l6-6a.5.5%200%200%201%20.708%200z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-next: url(\"data:image/svg+xml,%3Ccsvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22var%28--fill%2C%20%2323fff%29%22%20d%3D%22M4.646%201.646a.5.5%200%200%201%20.708%200l6%206a.5.5%200%200%201%200%20.708l-6%206a.5.5%200%200%201-.708-.708L10.293%208%204.646%202.354a.5.5%200%200%201%200-.708z%22%3E%3C%2Fpath%3E%3C%2Fcsvg%3E\");\n  --icon-indicator: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22rgba%28280%2C0%2C0%2C.5%29%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M5%2014l6-6-6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-crosshair: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20id%3D%22root%22%20version%3D%221.1%22%20viewBox%3D%220%200%2016%2016%22%3E%3Ccircle%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20cx%3D%228%22%20cy%3D%228%22%20r%3D%226%22%3E%3C%2Fcircle%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%208%200%20L%208%206.5%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%200%208%20L%206.5%208%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%208%209.5%20L%208%2016%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%209.5%208%20L%2016%208%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-close: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220px%22%20height%3D%2220px%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22var%28--fill%2C%20black%29%22%20d%3D%22M%204.7070312%203.2929688%20L%203.2929688%204.7070312%20L%2010.585938%2012%20L%203.2929688%2019.292969%20L%204.7070312%2020.707031%20L%2012%2013.414062%20L%2019.292969%2020.707031%20L%2020.707031%2019.292969%20L%2013.414062%2012%20L%2020.707031%204.7070312%20L%2019.292969%203.2929688%20L%2012%2010.585938%20L%204.7070312%203.2929688%20z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-tick: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22var%28--stroke%2C%20black%29%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%223%22%20d%3D%22M6%2010l3%203l6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --justify: center;\n  --padding-left: 32px;\n  --padding-right: 32px;\n  --body-color-rgb: 33, 37, 41;\n  --body-bg-rgb: 255, 255, 255;\n  --font-sans-serif: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Liberation Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n  --font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\n  --gradient: linear-gradient(180deg, #ffffff26, #fff0);\n  --body-font-family: var(--font-sans-serif);\n  --body-font-size: 1rem;\n  --body-font-weight: 400;\n  --body-line-height: 1.5;\n  --body-color: #212529;\n}\n\n::part(ripple) {\n  background-color: #ffffffb3;\n  border-radius: 50%;\n  animation: ripple .6s linear;\n  position: absolute;\n  transform: scale(0);\n}\n\n";
 
 
 window.juel = (0, $66369552d2da71b5$export$80e45fb591232624);
@@ -14650,6 +14650,7 @@ class $5e0a45860ddebf78$export$c6e5a5bea44a61ec extends (0, $69a66af8deb391ea$ex
         super.firstUpdated(_changedProperties);
     }
     firstLoad() {}
+    childrenRendered() {}
     updated(_changedProperties) {
         setTimeout(()=>{
             setTimeout(()=>{
@@ -21463,7 +21464,7 @@ var $4c552c6c58db8c5f$exports = {};
 
 
 var $5809dbd51563ce1e$exports = {};
-$5809dbd51563ce1e$exports = ":host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  background-color: #e9ecef;\n  border: 1px solid #ced4da;\n  border-radius: .25rem;\n  padding: .375rem;\n  display: inline-flex;\n}\n\n.input-group :first-child {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.input-group :last-child {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\n.addon {\n  background-color: var(--background, var(--primary));\n  border-color: #0a58ca;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n#dropdown-items {\n  z-index: 1000;\n  width: 100%;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n.btn {\n  position: relative;\n  overflow: hidden;\n}\n\n.btn-group {\n  vertical-align: middle;\n  display: inline-flex;\n  position: relative;\n}\n\n.btn-group > .btn-group:not(:last-child) > button, .btn-group > button:not(:last-child):not(.dropdown) {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.btn-group > .btn-group:not(:first-child) > button, .btn-group > button:nth-child(n+3), .btn-group > :not(.btn-check) + button {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\nbutton {\n  color: #212529;\n  text-align: center;\n  vertical-align: middle;\n  cursor: pointer;\n  user-select: none;\n  color: #fff;\n  background-color: #0000;\n  background-color: var(--background, var(--primary));\n  border: 1px solid #0a58ca;\n  border-radius: .25rem;\n  padding: .375rem .75rem;\n  font-size: 1rem;\n  font-weight: 400;\n  line-height: 1.5;\n  text-decoration: none;\n  transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;\n  display: inline-block;\n}\n\n";
+$5809dbd51563ce1e$exports = ":host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  background-color: #e9ecef;\n  border: 1px solid #ced4da;\n  border-radius: .25rem;\n  padding: .375rem;\n  display: inline-flex;\n}\n\n.input-group :first-child {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.input-group :last-child {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\n.append {\n  background-color: var(--background, var(--primary));\n  border-color: #0a58ca;\n}\n\n.end-rounded {\n  border-top-right-radius: .25rem;\n  border-bottom-right-radius: .25rem;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n#dropdown-items {\n  z-index: 1000;\n  width: 100%;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n.btn {\n  position: relative;\n  overflow: hidden;\n}\n\n.btn-group {\n  vertical-align: middle;\n  display: inline-flex;\n  position: relative;\n}\n\n.btn-group > .btn-group:not(:last-child) > button, .btn-group > button:not(:last-child):not(.dropdown) {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.btn-group > .btn-group:not(:first-child) > button, .btn-group > button:nth-child(n+3), .btn-group > :not(.btn-check) + button {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\nbutton {\n  color: #212529;\n  text-align: center;\n  vertical-align: middle;\n  cursor: pointer;\n  user-select: none;\n  color: #fff;\n  background-color: #0000;\n  background-color: var(--background, var(--primary));\n  border: 1px solid #0a58ca;\n  border-radius: .25rem;\n  padding: .375rem .75rem;\n  font-size: 1rem;\n  font-weight: 400;\n  line-height: 1.5;\n  text-decoration: none;\n  transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;\n  display: inline-block;\n}\n\n";
 
 
 var $4a92183a680bdf45$exports = {};
@@ -21811,6 +21812,7 @@ class $87af919838071cce$export$36eab7f492831059 extends (0, $5e0a45860ddebf78$ex
         this.dropdownShown = false;
     }
     firstUpdated() {
+        super.firstUpdated();
         this.$this = $(this);
         this.addEventListener("keyup", (e)=>{
             console.log("Up");
@@ -21947,16 +21949,22 @@ function $f0e8e0f43dc255e6$export$85d8fe04c954eac(el) {
 
 
 function $ad1647a61f7e0cde$export$475a25926aecae05(el, type) {
-    let hasAfter = false;
+    let hasAppend = false;
+    let appendClass = "append";
     let isAfterBtn;
     let hasBefore;
     let isBeforeBtn;
     let hasDropdown = false;
-    let addon = el.querySelector('[slot="after"]');
-    if (addon) hasAfter = true;
+    let addon = el.querySelectorAll('[slot="append"]');
+    if (addon.length > 0) {
+        hasAppend = true;
+        console.log(addon);
+        let last = addon.item(addon.length - 1);
+        if (last.nodeName == "juel-button") appendClass += " end-rounded";
+    }
     let dropdown = el.querySelector('[slot="dropdown"]');
     if (dropdown) {
-        hasAfter = true;
+        hasAppend = true;
         hasDropdown = true;
     }
     let inputTemplate;
@@ -21978,11 +21986,11 @@ function $ad1647a61f7e0cde$export$475a25926aecae05(el, type) {
         default:
             break;
     }
-    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasAfter, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div part="input-group" class="input-group">
+    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasAppend, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div part="input-group" class="input-group">
                     ${hasBefore ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="addon"><slot name="addon-before"></slot></div>` : ``}
                     ${inputTemplate(el)}
-                    ${hasDropdown ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<button id="dropdown-toggle" @click="${el.toggleDropdown}"></button>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="addon"><slot name="after"></slot></div>`}
-                    ${el.active == true && el.addon && el.addonActive == true ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="addon"><slot name="addon-active"></slot></div>` : ``}
+                    ${hasDropdown ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<button id="dropdown-toggle" @click="${el.toggleDropdown}"></button>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="${appendClass}"><slot name="append"></slot></div>`}
+                    ${el.active == true && el.addon && el.addonActive == true ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="${appendClass}"><slot name="append-active"></slot></div>` : ``}
                 </div>`, ()=>inputTemplate(el))}
                 ${hasDropdown ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)``}`;
 }
@@ -21995,6 +22003,27 @@ var $b7dfb4ba9ef40c22$export$312c261205d4c8ea;
 })($b7dfb4ba9ef40c22$export$312c261205d4c8ea || ($b7dfb4ba9ef40c22$export$312c261205d4c8ea = {}));
 
 
+var $419c393c4fbb32b6$export$deac0a0b3bd8dbae;
+(function(AlertTypes1) {
+    AlertTypes1["Primary"] = "primary";
+    AlertTypes1["Secondary"] = "secondary";
+    AlertTypes1["Tertiary"] = "tertiary";
+    AlertTypes1["Info"] = "info";
+    AlertTypes1["Success"] = "success";
+    AlertTypes1["Warning"] = "warning";
+    AlertTypes1["Danger"] = "danger";
+    AlertTypes1["Light"] = "light";
+    AlertTypes1["Dark"] = "dark";
+})($419c393c4fbb32b6$export$deac0a0b3bd8dbae || ($419c393c4fbb32b6$export$deac0a0b3bd8dbae = {}));
+
+
+var $759c8a464b7b2a35$export$6358468680f28ac0;
+(function(ButtonRenderStyles1) {
+    ButtonRenderStyles1["Default"] = "default";
+    ButtonRenderStyles1["Outline"] = "outline";
+})($759c8a464b7b2a35$export$6358468680f28ac0 || ($759c8a464b7b2a35$export$6358468680f28ac0 = {}));
+
+
 var $4c552c6c58db8c5f$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -22004,6 +22033,8 @@ var $4c552c6c58db8c5f$var$__decorate = undefined && undefined.__decorate || func
 let $4c552c6c58db8c5f$export$51a2e5404c8126eb = class JuelButton extends (0, $87af919838071cce$exports.InputBase) {
     constructor(){
         super();
+        this.type = (0, $419c393c4fbb32b6$export$deac0a0b3bd8dbae).Primary;
+        this.renderStyle = (0, $759c8a464b7b2a35$export$6358468680f28ac0).Default;
         this.submit = false;
     }
     updated() {
@@ -22041,6 +22072,14 @@ let $4c552c6c58db8c5f$export$51a2e5404c8126eb = class JuelButton extends (0, $87
 };
 $4c552c6c58db8c5f$export$51a2e5404c8126eb.styles = (0, $0e96f61157968e0c$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($5809dbd51563ce1e$exports))));
 $4c552c6c58db8c5f$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $4c552c6c58db8c5f$export$51a2e5404c8126eb.prototype, "type", void 0);
+$4c552c6c58db8c5f$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
+        attribute: "render-style"
+    })
+], $4c552c6c58db8c5f$export$51a2e5404c8126eb.prototype, "renderStyle", void 0);
+$4c552c6c58db8c5f$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
         type: Boolean
     })
@@ -22054,7 +22093,7 @@ var $ab5d565f41b21eff$exports = {};
 
 
 var $184926c371e253fd$exports = {};
-$184926c371e253fd$exports = ":host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  background-color: #e9ecef;\n  border: 1px solid #ced4da;\n  border-radius: .25rem;\n  padding: .375rem;\n  display: inline-flex;\n}\n\n.input-group :first-child {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.input-group :last-child {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\n.addon {\n  background-color: var(--background, var(--primary));\n  border-color: #0a58ca;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n#dropdown-items {\n  z-index: 1000;\n  width: 100%;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n";
+$184926c371e253fd$exports = ":host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  background-color: #e9ecef;\n  border: 1px solid #ced4da;\n  border-radius: .25rem;\n  padding: .375rem;\n  display: inline-flex;\n}\n\n.input-group :first-child {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.input-group :last-child {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\n.append {\n  background-color: var(--background, var(--primary));\n  border-color: #0a58ca;\n}\n\n.end-rounded {\n  border-top-right-radius: .25rem;\n  border-bottom-right-radius: .25rem;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n#dropdown-items {\n  z-index: 1000;\n  width: 100%;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n";
 
 
 
@@ -22216,7 +22255,7 @@ var $eec489b14b43f080$exports = {};
 
 
 var $d657a7e2ba92d216$exports = {};
-$d657a7e2ba92d216$exports = ":host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  background-color: #e9ecef;\n  border: 1px solid #ced4da;\n  border-radius: .25rem;\n  padding: .375rem;\n  display: inline-flex;\n}\n\n.input-group :first-child {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.input-group :last-child {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\n.addon {\n  background-color: var(--background, var(--primary));\n  border-color: #0a58ca;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n#dropdown-items {\n  z-index: 1000;\n  width: 100%;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n:host {\n  align-items: center;\n  display: flex;\n}\n\ninput {\n  appearance: none;\n  width: 1em;\n  height: 1em;\n  --icon: pink;\n  background-color: var(--primary);\n  width: 40px;\n  height: 40px;\n  border: 1px solid #00000040;\n  border-radius: .25em;\n  margin: 2%;\n  position: relative;\n  box-shadow: inset 0 0 12px #add8e6;\n}\n\ninput:checked:before {\n  content: \"\";\n  width: 8px;\n  height: 50%;\n  transform-origin: 0 100%;\n  z-index: 1;\n  background-color: #7b2d14;\n  border-radius: 2px;\n  position: absolute;\n  top: 50%;\n  transform: translateX(12px)rotate(-45deg);\n}\n\ninput:checked:after {\n  content: \"\";\n  height: 8px;\n  width: 100%;\n  transform-origin: 0 100%;\n  background-color: #c83478;\n  border-radius: 2px;\n  position: absolute;\n  bottom: 0;\n  transform: translateX(12px)rotate(-45deg);\n}\n\n";
+$d657a7e2ba92d216$exports = ":host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  background-color: #e9ecef;\n  border: 1px solid #ced4da;\n  border-radius: .25rem;\n  padding: .375rem;\n  display: inline-flex;\n}\n\n.input-group :first-child {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.input-group :last-child {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\n.append {\n  background-color: var(--background, var(--primary));\n  border-color: #0a58ca;\n}\n\n.end-rounded {\n  border-top-right-radius: .25rem;\n  border-bottom-right-radius: .25rem;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n#dropdown-items {\n  z-index: 1000;\n  width: 100%;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n:host {\n  align-items: center;\n  display: flex;\n}\n\ninput {\n  appearance: none;\n  width: 1em;\n  height: 1em;\n  --icon: pink;\n  background-color: var(--primary);\n  width: 40px;\n  height: 40px;\n  border: 1px solid #00000040;\n  border-radius: .25em;\n  margin: 2%;\n  position: relative;\n  box-shadow: inset 0 0 12px #add8e6;\n}\n\ninput:checked:before {\n  content: \"\";\n  width: 8px;\n  height: 50%;\n  transform-origin: 0 100%;\n  z-index: 1;\n  background-color: #7b2d14;\n  border-radius: 2px;\n  position: absolute;\n  top: 50%;\n  transform: translateX(12px)rotate(-45deg);\n}\n\ninput:checked:after {\n  content: \"\";\n  height: 8px;\n  width: 100%;\n  transform-origin: 0 100%;\n  background-color: #c83478;\n  border-radius: 2px;\n  position: absolute;\n  bottom: 0;\n  transform: translateX(12px)rotate(-45deg);\n}\n\n";
 
 
 

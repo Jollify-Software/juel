@@ -7,15 +7,21 @@ import { InputBase } from "../_Base/InputBase";
 import { InputGroupTemplate } from "../_Templates/InputGroupTemplate";
 import { InputTypes } from "../_Templates/InputTypes";
 import { ButtonEvents } from "./ButtonEvents";
+import { AlertTypes } from "../_Core/AlertTypes";
+import { ButtonRenderStyles } from "./ButtonRenderStyles";
 
 @customElement("juel-button")
 export class JuelButton extends InputBase {
     static styles = unsafeCSS(Styles);
 
+    @property() type: AlertTypes;
+    @property({ attribute: "render-style" }) renderStyle: ButtonRenderStyles;
     @property({ type: Boolean }) submit: boolean;
 
     constructor() {
         super();
+        this.type = AlertTypes.Primary;
+        this.renderStyle = ButtonRenderStyles.Default;
         this.submit = false;
     }
 
