@@ -6,7 +6,7 @@ export class JuelComponent extends LitElement {
     @property() juelParent: JuelComponent;
     loaded: boolean = false;
 
-    protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         setTimeout(() => {
             this.requestUpdate();
             setTimeout(() => {
@@ -18,6 +18,10 @@ export class JuelComponent extends LitElement {
 
     firstLoad() {
 
+    }
+
+    childrenRendered() {
+        
     }
 
     protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {

@@ -39,8 +39,24 @@
             </juel-toggle>
         </juel-text>
 
-        <script>
-        </script>
+        <juel-accordion>
+            <div data-title="Groups">
+                <juel-text placeholder="Username">
+                    <strong slot="before">@</strong>
+                </juel-text>
+                <juel-text>
+                    <strong slot="after">@example.com</strong>
+                </juel-text>
+                <juel-text>
+                    <strong slot="before">£</strong>
+                    <strong slot="after">.00</strong>
+                </juel-text>
+                <juel-text placeholder="Username">
+                    <strong slot="after">@</strong>
+                    <juel-text slot="after" placeholder="after"></juel-text>
+                </juel-text>
+            </div>
+        </juel-accordion>
 </body>
 
 </html>

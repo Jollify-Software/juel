@@ -27,6 +27,7 @@ export class InputBase extends JuelComponent {
     r: RippleInitialiser;
 
     firstUpdated() {
+        super.firstUpdated();
         this.$this = $(this);
         this.addEventListener("keyup", e => {
             console.log("Up");

@@ -29,8 +29,16 @@
         </div>
     </juel-tabs>
 
-    <juel-accordion>
+    <!-- <juel-accordion> -->
         <div data-title="Groups">
+            <juel-button label="Hello" data-title="Hello there">
+                <juel-button slot="after" label="There"></juel-button>
+                <juel-button slot="after" label="How"></juel-button>
+                <juel-button slot="after" label="Are"></juel-button>
+                <juel-button slot="after" label="You"></juel-button>
+                <juel-button slot="after" label="?"></juel-button>
+            </juel-button>
+
             <juel-button label="Button">
                 <ul slot="dropdown">
                     <li>One</li>
@@ -38,6 +46,7 @@
                     <li>Three</li>
                 </ul>
             </juel-button>
+            
             <juel-button>
                 <strong slot="content">Launch app <i class="fas fa-rocket"></i></strong>
                 <ul slot="dropdown">
@@ -54,16 +63,8 @@
                     <img slot="checked" src="../_Assets/stop.png" />
                 </juel-toggle>
             </juel-button>
-        
-            <juel-button label="Hello" data-title="Hello there">
-                <juel-button slot="after" label="There"></juel-button>
-                <juel-button slot="after" label="How"></juel-button>
-                <juel-button slot="after" label="Are"></juel-button>
-                <juel-button slot="after" label="You"></juel-button>
-                <juel-button slot="after" label="?"></juel-button>
-            </juel-button>
         </div>
-    </juel-accordion>
+    <!-- </juel-accordion> -->
 
     <script>
         var btn = document.querySelector('#btn')
