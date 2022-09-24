@@ -2,6 +2,7 @@
 
 <head>
     <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../demo.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
         integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -44,13 +45,22 @@
 
         <div data-title="Render styles">
             <juel-button render-style="default" label="Default"></juel-button>
-            <juel-button render-style="primary" label="Outline"></juel-button>
+            <juel-button render-style="outline" label="Outline"></juel-button>
         </div>
 
         <div data-title="Groups">
             <juel-button label="Left">
                 <juel-button slot="append" label="Middle"></juel-button>
                 <juel-button slot="append" label="Right"></juel-button>
+            </juel-button>
+            <juel-button>
+                <div slot="content" class="icon align-centre"></div>
+                <juel-button slot="prepend">
+                    <div slot="content" class="icon align-right"></div>
+                </juel-button>
+                <juel-button slot="append">
+                    <div slot="content" class="icon align-left"></div>
+                </juel-button>
             </juel-button>
 
             <juel-button label="Button">

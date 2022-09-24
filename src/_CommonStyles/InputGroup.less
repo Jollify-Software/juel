@@ -14,26 +14,29 @@ input.text {
     border-radius   : .25rem;
     background-color: #e9ecef;
     border          : 1px solid #ced4da;
-
-    :first-child {
-        border-bottom-right-radius: 0px;
-        border-top-right-radius   : 0px;
-    }
-
-    :last-child {
-        border-bottom-left-radius: 0px;
-        border-top-left-radius   : 0px;
-    }
 }
 
-.append {
+.append, .prepend {
     background-color: var(--background, var(--primary));
     border-color    : #0a58ca;
 }
 
-.end-rounded {
+.rounded {
+    border-radius      : .25rem;
+}
+
+.right-rounded {
     border-top-right-radius: .25rem;
     border-bottom-right-radius: .25rem;
+}
+
+.left-rounded {
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;
+}
+
+.no-rounded {
+    border-radius: 0;
 }
 
 #dropdown-toggle::after {

@@ -3,18 +3,24 @@
     "version": "1.0.0",
     "description": "User Interface web components",
     "main": "dist/juel.js",
+    "demo": "examples/demo.css",
     "files": [
         "dist/juel.js"
     ],
     "targets": {
         "main": {
+            "distDir": "dist",
             "includeNodeModules": true
+        },
+        "demo": {
+            "distDir": "./examples",
+            "sourceMap": false
         }
     },
     "browserslist": "last 2 Chrome versions",
     "scripts": {
         "dev": "parcel juel.ts --no-optimize --no-scope-hoist",
-        "build": "parcel build juel.ts --dist-dir dist --no-source-maps",
+        "build": "parcel build juel.ts --target main --no-source-maps && parcel build examples/demo.less --target demo",
         "serve": "npm run build && npx copyfiles dist/*.* examples -f && npx serve examples",
         "test": "echo \"Error: no test specified\" && exit 1"
     },

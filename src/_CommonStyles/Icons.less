@@ -1,21 +1,27 @@
 .icons() {
-    // https://yoksel.github.io/url-encoder/
-    --icon-previous: url("data-url:~/res/icons/previous.svg");
-    --icon-next: url("data-url:~/res/icons/next.svg");
-    --icon-indicator: url("data-url:~/res/icons/indicator.svg");
-    --icon-crosshair: url("data-url:~/res/icons/crosshair.svg");
-    --icon-close: url("data-url:~/res/icons/close.svg");
-    --icon-tick: url("data-url:~/res/icons/tick.svg");
+    --icon-previous: url("data-url:~/icons/previous.svg");
+    --icon-next: url("data-url:~/icons/next.svg");
+    --icon-indicator: url("data-url:~/icons/indicator.svg");
+    --icon-crosshair: url("data-url:~/icons/crosshair.svg");
+    --icon-close: url("data-url:~/icons/close.svg");
+    --icon-tick: url("data-url:~/icons/tick.svg");
 }
-.icon {
+.icn() {
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.icon-lg {
+    .icn();
     width: 48px;
     height: 48px;
 }
-.icon-md {
+.icon {
+    .icn();
     width: 32px;
     height: 32px;
 }
 .icon-sm {
+    .icn();
     width: 16px;
     height: 16px;
 }

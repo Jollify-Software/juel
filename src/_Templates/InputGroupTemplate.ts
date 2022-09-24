@@ -11,28 +11,35 @@ import { TickboxTemplate } from "./TickboxTemplate";
 
 export function InputGroupTemplate(el: InputBase, type: InputTypes) {
     let hasAppend: boolean = false; // Does the input have an addon
-    let appendClass = "append";
+    let appendClass = "append right-rounded";
     let isAfterBtn: boolean; // Is the addon a button
-    let hasBefore: boolean; // Does this input have an addon before
+    let hasPrepend: boolean; // Does this input have an addon before
+    let prependClass = "prepend left-rounded";
     let isBeforeBtn: boolean; // Is the addon after a button?
     let hasDropdown: boolean = false; // Does the input have a dropdown?
+    let klass: string = '' // The main class for the input
 
-    let addon = el.querySelectorAll('[slot="append"]');
-    if (addon.length > 0) {
+    let addons = el.querySelectorAll('[slot="append"]');
+    if (addons.length > 0) {
         hasAppend = true;
-        let last = addon.item(addon.length - 1);
-        // Should the append end with rounded corners
-        if (last.nodeName.toLowerCase() == "juel-button") {
-            appendClass += " end-rounded"
-        }
+    } else {
+        klass += " right-rounded";
     }
     let dropdown = el.querySelector('[slot="dropdown"]');
     if (dropdown) {
         hasAppend = true;
         hasDropdown = true;
+        // The dropdown is an addon so remove the right-rounded class
+        klass = klass.replace("right-rounded", '');
+    }
+    addons = el.querySelectorAll('[slot="prepend"]');
+    if (addons.length > 0) {
+        hasPrepend = true;
+    } else {
+        klass += " left-rounded";
     }
 
-    let inputTemplate: (el: InputBase) => TemplateResult;
+    let inputTemplate: (el: InputBase, klass:string) => TemplateResult;
     switch (type) {
         case InputTypes.Button:
             inputTemplate = ButtonTemplate;
@@ -52,16 +59,16 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
             break;
     }
     return html`${when(hasAppend, () => html`<div part="input-group" class="input-group">
-                    ${hasBefore ? html`<div class="addon"><slot name="prepend"></slot></div>` : ``}
-                    ${inputTemplate(el)}
+                    ${hasPrepend ? html`<div class="${prependClass}"><slot name="prepend"></slot></div>` : ``}
+                    ${inputTemplate(el, klass)}
                     ${hasDropdown ?
-            html`<button id="dropdown-toggle" @click="${el.toggleDropdown}"></button>` :
+            html`<button id="dropdown-toggle" class="${appendClass}" @click="${el.toggleDropdown}"></button>` :
             html`<div class="${appendClass}"><slot name="append"></slot></div>`
         }
                     ${el.active == true && el.addon && el.addonActive == true ?
             html`<div class="${appendClass}"><slot name="append-active"></slot></div>`
             : ``}
-                </div>`, () => inputTemplate(el))}
+                </div>`, () => inputTemplate(el, klass))}
                 ${hasDropdown ?
             html`<div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` :
             html``}`;

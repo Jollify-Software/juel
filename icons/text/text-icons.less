@@ -1,0 +1,28 @@
+body {
+    --icon-align-centre: url("data-url:~/icons/text/align-centre.svg");
+    --icon-align-justify: url("data-url:~/icons/text/align-justify.svg");
+    --icon-align-left: url("data-url:~/icons/text/align-left.svg");
+    --icon-align-right: url("data-url:~/icons/text/align-right.svg");
+    --icon-indent: url("data-url:~/icons/text/indent.svg");
+    --icon-outdent: url("data-url:~/icons/text/outdent.svg");
+}
+.icon {
+    &.align-centre {
+        background-image: var(--icon-align-centre);
+    }
+    &.align-justify {
+        background-image: var(--icon-align-justify);
+    }
+    &.align-left {
+        background-image: var(--icon-align-left);
+    }
+    &.align-right {
+        background-image: var(--icon-align-right);
+    }
+    &.indent {
+        background-image: var(--icon-indent);
+    }
+    &.outdent {
+        background-image: var(--icon-outdent);
+    }
+}
