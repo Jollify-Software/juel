@@ -1,4 +1,4 @@
-export enum ButtonRenderStyles {
+export enum RenderStyles {
     Default = "default",
     Outline = "outline"
 }

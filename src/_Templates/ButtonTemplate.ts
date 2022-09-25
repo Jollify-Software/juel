@@ -6,6 +6,6 @@ import { attr } from "../_Directives/AttrDirective";
 
 export function ButtonTemplate(el: JuelButton, klass: string) {
     return html`<button name="${ifDefined(el.name)}" ${ref(el.input)}
-        type="${el.submit ? "submit" : "button"}" part="button" class="btn${klass}"
+        type="${el.submit ? "submit" : "button"}" part="button" class="${klass}"
         part="button" @click="${el.onClick}"><slot name="content">${el.label}</slot></button>`;
 }

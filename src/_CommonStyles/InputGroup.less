@@ -1,3 +1,37 @@
+@import './_Colours.less';
+
+each(@colours, {
+    @var: ~'var(--@{key})';
+    @lightened: if(luma(@value) < 50%, lighten(@value, 10%), darken(@value, 10%));
+    .@{key} {
+        background-color: @var;
+        color: if(luma(@value) > 50%, black, white);
+        border: 1px solid @var;
+        &:hover {
+            background-color: @lightened;
+            border-color: @lightened;
+        }
+        &:active {
+            box-shadow: 0 0 10px @var;
+        }
+        &.outline {
+            background-color: initial;
+            color: @var;
+            border-color: @var;
+            &:hover {
+                background-color: @var;
+                color: if(luma(@value) > 50%, black, white);
+            }
+        }
+        &.right-rounded {
+            border-right: 1px solid @var;
+        }
+        &.left-rounded {
+            border-left: 1px solid @var;
+        }
+    }
+})
+
 :host {
     display: inline-block;
     position: relative;
@@ -16,9 +50,10 @@ input.text {
     border          : 1px solid #ced4da;
 }
 
+
+
 .append, .prepend {
-    background-color: var(--background, var(--primary));
-    border-color    : #0a58ca;
+
 }
 
 .rounded {

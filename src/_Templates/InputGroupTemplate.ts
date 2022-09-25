@@ -1,6 +1,7 @@
 import { html, TemplateResult } from "lit";
 import { when } from 'lit/directives/when'
 import { InputBase } from "../_Base/InputBase";
+import { RenderStyles } from "../_Core/RenderStyles";
 import { ButtonTemplate } from "./ButtonTemplate";
 import { InputTypes } from "./InputTypes";
 import { MemoTemplate } from "./MemoTemplate";
@@ -12,18 +13,24 @@ import { TickboxTemplate } from "./TickboxTemplate";
 export function InputGroupTemplate(el: InputBase, type: InputTypes) {
     let hasAppend: boolean = false; // Does the input have an addon
     let appendClass = "append right-rounded";
-    let isAfterBtn: boolean; // Is the addon a button
+    let hasAppendActive: boolean = false;
     let hasPrepend: boolean; // Does this input have an addon before
     let prependClass = "prepend left-rounded";
     let isBeforeBtn: boolean; // Is the addon after a button?
     let hasDropdown: boolean = false; // Does the input have a dropdown?
-    let klass: string = '' // The main class for the input
+    let klass: string = el.type // The main class for the input
+    if (el.renderStyle != RenderStyles.Default) {
+        klass += ` ${el.renderStyle}`;
+    }
 
     let addons = el.querySelectorAll('[slot="append"]');
     if (addons.length > 0) {
         hasAppend = true;
-    } else {
+    } else if (!el.hasAttribute("slot")) {
         klass += " right-rounded";
+    }
+    if (el.querySelector('[slot="append-active"]')) {
+        hasAppendActive = true;
     }
     let dropdown = el.querySelector('[slot="dropdown"]');
     if (dropdown) {
@@ -35,7 +42,7 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
     addons = el.querySelectorAll('[slot="prepend"]');
     if (addons.length > 0) {
         hasPrepend = true;
-    } else {
+    } else if (!el.hasAttribute("slot")) {
         klass += " left-rounded";
     }
 
@@ -65,7 +72,7 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
             html`<button id="dropdown-toggle" class="${appendClass}" @click="${el.toggleDropdown}"></button>` :
             html`<div class="${appendClass}"><slot name="append"></slot></div>`
         }
-                    ${el.active == true && el.addon && el.addonActive == true ?
+                    ${el.active == true && hasAppendActive ?
             html`<div class="${appendClass}"><slot name="append-active"></slot></div>`
             : ``}
                 </div>`, () => inputTemplate(el, klass))}

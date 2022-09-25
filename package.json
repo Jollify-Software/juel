@@ -60,7 +60,7 @@
         "@types/bingmaps": "0.0.1",
         "@types/chart.js": "^2.9.32",
         "@types/hammerjs": "^2.0.36",
-        "@types/jquery": "^3.3.38",
+        "@types/jquery": "^3.5.14",
         "autoprefixer": "^9.8.6",
         "copyfiles": "^2.4.1",
         "less": "^3.12.2",

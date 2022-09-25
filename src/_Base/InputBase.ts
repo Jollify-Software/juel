@@ -6,12 +6,14 @@ import { JuelComponent } from "./JuelComponent";
 import { createRef } from 'lit/directives/ref'
 import { PropertyValueMap } from "lit";
 import bind from "bind-decorator";
+import { RenderStyles } from '../_Core/RenderStyles';
+import { AlertTypes } from '../_Core/AlertTypes';
 
 export class InputBase extends JuelComponent {
     static InputElementNames: string = "juel-text, juel-memo, juel-range, juel-tickbox, juel-radio";
 
-    @property({ attribute: "prepend" }) addBefore: string;
-    @property() addon: string;
+    @property() type: AlertTypes;
+    @property({ attribute: "render-style" }) renderStyle: RenderStyles;
     @property({ type: Boolean }) addonActive: boolean;
     @property() label: string;
     @property() name: string;
@@ -25,6 +27,12 @@ export class InputBase extends JuelComponent {
 
     isRipple: string;
     r: RippleInitialiser;
+
+    constructor() {
+        super();
+        this.type = AlertTypes.Primary;
+        this.renderStyle = RenderStyles.Default;
+    }
 
     firstUpdated() {
         super.firstUpdated();
