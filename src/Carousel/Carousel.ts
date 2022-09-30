@@ -22,23 +22,25 @@ export class JuelCarousel extends JuelComponent {
     }
 
     navigateTo(index: number) {
-          /* Find the current card */
-  const currCard = this.shadowRoot.querySelector(`[data-index="${index}"]`);
-  if (currCard) {
-  /* Set the prevCard based on its availability */
-  const prevCard = currCard.previousElementSibling
-      ? currCard.previousElementSibling
-      : this.shadowRoot.querySelector(".container").lastElementChild;
-    currCard.classList.remove("active");
-    prevCard.classList.add("active");
-  }
+        /* Find the current card */
+        const currItm = this.shadowRoot.querySelector(`[data-index="${index}"]`);
+        if (currItm) {
+            /* Set the prevCard based on its availability */
+            const nextItm = $(currItm.previousElementSibling
+                ? currItm.previousElementSibling
+                : this.shadowRoot.querySelector(".container").lastElementChild);
+            currItm.classList.remove("active");
+            nextItm[0].classList.add("active");
+            this.style.setProperty('--item-width', nextItm.outerWidth().toString());
+            this.style.setProperty('--item-height', nextItm.outerHeight().toString());
+        }
     }
 
     prevClick() {
         if (this.position == 0) {
-            this.position = this.itemsCount -1;
+            this.position = this.itemsCount - 1;
         } else {
-            this.position --;
+            this.position--;
         }
         this.navigateTo(this.position);
     }
@@ -47,7 +49,7 @@ export class JuelCarousel extends JuelComponent {
         if (this.position == this.itemsCount - 1) {
             this.position = 0;
         } else {
-            this.position ++;
+            this.position++;
         }
         this.navigateTo(this.position);
     }
@@ -65,13 +67,20 @@ export class JuelCarousel extends JuelComponent {
         return html`${when(hasCtrls, () => html`<juel-button label="&lt;" @button-clicked="${this.prevClick}"></juel-button>`)}
         <div class="container">
         ${ChildrenMap(this, (el, index) => {
-            this.itemsCount ++;
+            this.itemsCount++;
             let id = el.id ? el.id : `item-${index}`;
+            let klass = "item";
+            if (index == this.position) {
+                klass += " active";
+                let $el = $(el);
+                this.style.setProperty('--item-width', $el.outerWidth().toString());
+                this.style.setProperty('--item-height', $el.outerHeight().toString());
+            }
             el.setAttribute('slot', id);
             el.setAttribute('draggable', 'false');
             el.setAttribute('ondragstart', "event.preventDefault();")
             return html`
-                        <div class="item${index == this.position ? " active" : ""}" data-index="${index}" draggable="false" @click="${this.itemClick}">
+                        <div class="${klass}" data-index="${index}" draggable="false" @click="${this.itemClick}">
                         <slot name="${id}"></slot>
                         </div>`;
         })}
