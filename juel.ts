@@ -4,6 +4,7 @@ import { IsMobile } from './src/_Utils/IsMobile';
 import { Vh } from './src/_Utils/Vh';
 
 import './src/Accordion/Accordion';
+import './src/Carousel/Carousel';
 import './src/Loading/Loading';
 import './src/Tooltip/Tooltip';
 import './src/Tabs/Tabs';
