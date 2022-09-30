@@ -12,9 +12,10 @@ import { EventNames } from "../_Core/Events/EventNames";
 
 @customElement("juel-text")
 export class JuelText extends InputBase {
-    static styles = unsafeCSS(Styles);
+    static styles = unsafeCSS(Styles)
 
     @property() value: string;
+    @property() placeholder: string;
 
     isRipple: string;
     dropdownShown: boolean = false;

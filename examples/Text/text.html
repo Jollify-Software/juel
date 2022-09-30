@@ -11,7 +11,7 @@
 </head>
 
 <body>
-        <juel-text value="Hello" addon="dropdown">
+        <juel-text value="Hello">
             <ul slot="dropdown">
                 <li>One</li>
                 <li>Two</li>
@@ -19,21 +19,21 @@
             </ul>
         </juel-text>
         <juel-text><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-text>
-        <juel-text addon="dropdown" addonActive="true">
+        <juel-text>
             <strong slot="content">Launch app <i class="fas fa-rocket"></i></strong>
             <ul slot="dropdown">
                 <li>One</li>
                 <li>Two</li>
                 <li>Three</li>
             </ul>
-            <h1 slot="addon-active">Active!</h1>
+            <h1 slot="append-active">Active!</h1>
         </juel-text>
 
         <hr>
 
-        <juel-text id="btn" addon="true">
+        <juel-text id="btn">
             <img slot="content" src="../_Assets/animated.png"/>
-            <juel-toggle slot="addon" custom="true">
+            <juel-toggle slot="append" custom="true">
                 <img slot="unchecked" src="../_Assets/record.png"/>
                 <img slot="checked" src="../_Assets/stop.png"/>
             </juel-toggle>
@@ -42,18 +42,18 @@
         <juel-accordion>
             <div data-title="Groups">
                 <juel-text placeholder="Username">
-                    <strong slot="before">@</strong>
+                    <strong slot="prepend">@</strong>
+                </juel-text>
+                <juel-text value="Hello">
+                    <strong slot="append">@example.com</strong>
                 </juel-text>
                 <juel-text>
-                    <strong slot="after">@example.com</strong>
-                </juel-text>
-                <juel-text>
-                    <strong slot="before">£</strong>
-                    <strong slot="after">.00</strong>
+                    <strong slot="prepend">£</strong>
+                    <strong slot="append">.00</strong>
                 </juel-text>
                 <juel-text placeholder="Username">
-                    <strong slot="after">@</strong>
-                    <juel-text slot="after" placeholder="after"></juel-text>
+                    <strong slot="append">@</strong>
+                    <juel-text slot="append" placeholder="example.com"></juel-text>
                 </juel-text>
             </div>
         </juel-accordion>
