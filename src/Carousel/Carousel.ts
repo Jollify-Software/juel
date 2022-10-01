@@ -40,16 +40,22 @@ export class JuelCarousel extends JuelComponent {
         if (this.controls.includes(' ')) {
             let splity = this.controls.split(' ');
             // 1st is true|false
-            if (splity[1].endsWith('ms')) {
-                this.interval = parseInt(splity[1].replace('ms', ''));
-            } else if (splity[1].endsWith('s')) {
-                this.interval = parseInt(splity[1].replace('s', '')) * 1000;
-            }
+            this.setInterval(splity[0]);
+        } else {
+            this.setInterval(this.controls);
         }
         if (this.interval) {
             this.intervalHandler = setInterval(() => {
                 this.next(null);
             }, this.interval);
+        }
+    }
+
+    setInterval(str: string) {
+        if (str.endsWith('ms')) {
+            this.interval = parseInt(str.replace('ms', ''));
+        } else if (str.endsWith('s')) {
+            this.interval = parseInt(str.replace('s', '')) * 1000;
         }
     }
 

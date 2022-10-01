@@ -1,0 +1,41 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+</head>
+
+<body>
+    <style>
+        video {
+            position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+        }
+    </style>
+    <juel-carousel controls="4s">
+        <video autoplay muted loop>
+            <source src="https://jollify.app/video/moai.mp4">
+        </video>
+        <video autoplay muted loop>
+            <source src="https://jollify.app/video/island.mp4">
+        </video>
+        <video autoplay="autoplay" muted="muted" loop="loop">
+            <source src="https://jollify.app/video/water.mp4">
+        </video>
+        <video autoplay="autoplay" muted="muted" loop="loop">
+            <source src="https://jollify.app/video/ocean.mp4">
+        </video>
+        <video autoplay="autoplay" muted="muted" loop="loop">
+            <source src="https://jollify.app/video/beach.mp4">
+        </video>
+        <video autoplay="autoplay" muted="muted" loop="loop">
+            <source src="https://jollify.app/video/sea.mp4">
+        </video>
+    </juel-carousel>
+</body>
+
+</html>

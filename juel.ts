@@ -12,6 +12,7 @@ import './src/Select/Select';
 import './src/ScrollPane/ScrollPane';
 import './src/List/List';
 import './src/Menu/Menu';
+import './src/Modal/Modal';
 import './src/Toggle/Toggle';
 import './src/Button/Button';
 import './src/Text/Text';

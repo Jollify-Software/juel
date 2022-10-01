@@ -1,0 +1,1 @@
+{"mappings":"ACAA","sources":["examples/demos.less","icons/text/text-icons.less"],"sourcesContent":["@import '~/icons/text/text-icons.less';",null],"names":[],"version":3,"file":"demos.css.map","sourceRoot":"/__parcel_source_root/"}

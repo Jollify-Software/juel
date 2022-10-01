@@ -13706,7 +13706,7 @@ var $9742dbc094643ff0$exports = {};
 
 
 var $1023b8a9a7973857$exports = {};
-$1023b8a9a7973857$exports = "body {\n  font-family: var(--body-font-family);\n  font-size: var(--body-font-size);\n  font-weight: var(--body-font-weight);\n  line-height: var(--body-line-height);\n  color: var(--body-color);\n  text-align: var(--body-text-align);\n  background-color: var(--body-bg);\n  -webkit-text-size-adjust: 100%;\n  -webkit-tap-highlight-color: transparent;\n  margin: 0;\n}\n\njuel-dialog-manager > *, .hide {\n  display: none;\n}\n\n.fullscreen {\n  width: 100vw;\n  height: 100vh;\n}\n\n.flex, .flex form {\n  flex-direction: column;\n  display: flex;\n}\n\n.icon {\n  width: 48px;\n  height: 48px;\n}\n\n.icon-md {\n  width: 32px;\n  height: 32px;\n}\n\n.icon-sm {\n  width: 16px;\n  height: 16px;\n}\n\n:root {\n  --primary: #007bff;\n  --primary-text: #343a40;\n  --secondary: #6c757d;\n  --secondary-text: #f8f9fa;\n  --tertiary: salmon;\n  --tertiary-text: salmon;\n  --highlight: #007bff;\n  --active: #e7f1ff --light: #f8f9fa;\n  --dark: #343a40;\n  --success: #28a745;\n  --info: #17a2b8;\n  --warning: #ffc107;\n  --danger: #dc3545;\n  --highlight-text: #343a40;\n  --active-text: #0c63e4;\n  --light-text: #f8f9fa;\n  --dark-text: #343a40;\n  --success-text: #28a745;\n  --info-text: #343a40;\n  --warning-text: #343a40;\n  --danger-text: #dc3545;\n  --icon-previous: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22var%28--fil%2C%20%2323fff%29%22%20d%3D%22M11.354%201.646a.5.5%200%200%201%200%20.708L5.707%208l5.647%205.646a.5.5%200%200%201-.708.708l-6-6a.5.5%200%200%201%200-.708l6-6a.5.5%200%200%201%20.708%200z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-next: url(\"data:image/svg+xml,%3Ccsvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22var%28--fill%2C%20%2323fff%29%22%20d%3D%22M4.646%201.646a.5.5%200%200%201%20.708%200l6%206a.5.5%200%200%201%200%20.708l-6%206a.5.5%200%200%201-.708-.708L10.293%208%204.646%202.354a.5.5%200%200%201%200-.708z%22%3E%3C%2Fpath%3E%3C%2Fcsvg%3E\");\n  --icon-indicator: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22rgba%28280%2C0%2C0%2C.5%29%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M5%2014l6-6-6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-crosshair: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20id%3D%22root%22%20version%3D%221.1%22%20viewBox%3D%220%200%2016%2016%22%3E%3Ccircle%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20cx%3D%228%22%20cy%3D%228%22%20r%3D%226%22%3E%3C%2Fcircle%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%208%200%20L%208%206.5%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%200%208%20L%206.5%208%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%208%209.5%20L%208%2016%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%209.5%208%20L%2016%208%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-close: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220px%22%20height%3D%2220px%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22var%28--fill%2C%20black%29%22%20d%3D%22M%204.7070312%203.2929688%20L%203.2929688%204.7070312%20L%2010.585938%2012%20L%203.2929688%2019.292969%20L%204.7070312%2020.707031%20L%2012%2013.414062%20L%2019.292969%2020.707031%20L%2020.707031%2019.292969%20L%2013.414062%2012%20L%2020.707031%204.7070312%20L%2019.292969%203.2929688%20L%2012%2010.585938%20L%204.7070312%203.2929688%20z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-tick: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22var%28--stroke%2C%20black%29%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%223%22%20d%3D%22M6%2010l3%203l6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --justify: center;\n  --padding-left: 32px;\n  --padding-right: 32px;\n  --body-color-rgb: 33, 37, 41;\n  --body-bg-rgb: 255, 255, 255;\n  --font-sans-serif: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Liberation Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n  --font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\n  --gradient: linear-gradient(180deg, #ffffff26, #fff0);\n  --body-font-family: var(--font-sans-serif);\n  --body-font-size: 1rem;\n  --body-font-weight: 400;\n  --body-line-height: 1.5;\n  --body-color: #212529;\n}\n\n::part(ripple) {\n  background-color: #ffffffb3;\n  border-radius: 50%;\n  animation: ripple .6s linear;\n  position: absolute;\n  transform: scale(0);\n}\n\n";
+$1023b8a9a7973857$exports = "body {\n  font-family: var(--body-font-family);\n  font-size: var(--body-font-size);\n  font-weight: var(--body-font-weight);\n  line-height: var(--body-line-height);\n  color: var(--body-color);\n  text-align: var(--body-text-align);\n  background-color: var(--body-bg);\n  -webkit-text-size-adjust: 100%;\n  -webkit-tap-highlight-color: transparent;\n  margin: 0;\n}\n\njuel-dialog-manager > *, .hide {\n  display: none;\n}\n\n.fullscreen {\n  width: 100vw;\n  height: 100vh;\n}\n\n.flex, .flex form {\n  flex-direction: column;\n  display: flex;\n}\n\n.icon-lg {\n  width: 48px;\n  height: 48px;\n  background-position: center;\n  background-repeat: no-repeat;\n}\n\n.icon {\n  width: 32px;\n  height: 32px;\n  background-position: center;\n  background-repeat: no-repeat;\n}\n\n.icon-sm {\n  width: 16px;\n  height: 16px;\n  background-position: center;\n  background-repeat: no-repeat;\n}\n\n:root {\n  --primary: #007bff;\n  --primary-text: #343a40;\n  --secondary: #6c757d;\n  --secondary-text: #f8f9fa;\n  --tertiary: salmon;\n  --tertiary-text: salmon;\n  --highlight: #007bff;\n  --active: #e7f1ff --light: #f8f9fa;\n  --dark: #343a40;\n  --success: #28a745;\n  --info: #17a2b8;\n  --warning: #ffc107;\n  --danger: #dc3545;\n  --highlight-text: #343a40;\n  --active-text: #0c63e4;\n  --light-text: #f8f9fa;\n  --dark-text: #343a40;\n  --success-text: #28a745;\n  --info-text: #343a40;\n  --warning-text: #343a40;\n  --danger-text: #dc3545;\n  --icon-previous: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22var%28--fil%2C%20%2323fff%29%22%20d%3D%22M11.354%201.646a.5.5%200%200%201%200%20.708L5.707%208l5.647%205.646a.5.5%200%200%201-.708.708l-6-6a.5.5%200%200%201%200-.708l6-6a.5.5%200%200%201%20.708%200z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-next: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22var%28--fill%2C%20%2323fff%29%22%20d%3D%22M4.646%201.646a.5.5%200%200%201%20.708%200l6%206a.5.5%200%200%201%200%20.708l-6%206a.5.5%200%200%201-.708-.708L10.293%208%204.646%202.354a.5.5%200%200%201%200-.708z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-indicator: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22rgba%28280%2C0%2C0%2C.5%29%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M5%2014l6-6-6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-crosshair: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20id%3D%22root%22%20version%3D%221.1%22%20viewBox%3D%220%200%2016%2016%22%3E%3Ccircle%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20cx%3D%228%22%20cy%3D%228%22%20r%3D%226%22%3E%3C%2Fcircle%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%208%200%20L%208%206.5%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%200%208%20L%206.5%208%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%208%209.5%20L%208%2016%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%209.5%208%20L%2016%208%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-close: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220px%22%20height%3D%2220px%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22var%28--fill%2C%20black%29%22%20d%3D%22M%204.7070312%203.2929688%20L%203.2929688%204.7070312%20L%2010.585938%2012%20L%203.2929688%2019.292969%20L%204.7070312%2020.707031%20L%2012%2013.414062%20L%2019.292969%2020.707031%20L%2020.707031%2019.292969%20L%2013.414062%2012%20L%2020.707031%204.7070312%20L%2019.292969%203.2929688%20L%2012%2010.585938%20L%204.7070312%203.2929688%20z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-tick: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22var%28--stroke%2C%20black%29%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%223%22%20d%3D%22M6%2010l3%203l6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --justify: center;\n  --padding-left: 32px;\n  --padding-right: 32px;\n  --body-color-rgb: 33, 37, 41;\n  --body-bg-rgb: 255, 255, 255;\n  --font-sans-serif: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Liberation Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n  --font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\n  --gradient: linear-gradient(180deg, #ffffff26, #fff0);\n  --body-font-family: var(--font-sans-serif);\n  --body-font-size: 1rem;\n  --body-font-weight: 400;\n  --body-line-height: 1.5;\n  --body-color: #212529;\n}\n\n::part(ripple) {\n  background-color: #ffffffb3;\n  border-radius: 50%;\n  animation: ripple .6s linear;\n  position: absolute;\n  transform: scale(0);\n}\n\n";
 
 
 window.juel = (0, $66369552d2da71b5$export$80e45fb591232624);
@@ -14731,6 +14731,121 @@ $5c4d424c0d6a93d1$var$__decorate([
 $5c4d424c0d6a93d1$export$ab4cd39c32ba0bf9 = $5c4d424c0d6a93d1$var$__decorate([
     (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("juel-accordion")
 ], $5c4d424c0d6a93d1$export$ab4cd39c32ba0bf9);
+
+
+var $f401d5ecd398af0f$exports = {};
+
+
+/**
+ * @license
+ * Copyright 2021 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ function $381ea5e2aef5c344$export$a55877ca9db47377(n1, o, r) {
+    return n1 ? o() : null == r ? void 0 : r();
+}
+
+
+
+
+
+
+var $f82e8a1761111201$exports = {};
+$f82e8a1761111201$exports = ":host {\n  display: flex;\n}\n\n.container {\n  width: var(--item-width);\n  height: var(--item-height);\n  position: relative;\n}\n\n.item {\n  pointer-events: none;\n  display: none;\n  position: absolute;\n  top: 0;\n  left: 0;\n}\n\n.item.active {\n  pointer-events: all;\n  display: block;\n}\n\n";
+
+
+var $f401d5ecd398af0f$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let $f401d5ecd398af0f$export$94d94cce01dab8d8 = class JuelCarousel extends (0, $5e0a45860ddebf78$exports.JuelComponent) {
+    constructor(){
+        super();
+        this.position = 0;
+        this.controls = "true";
+    }
+    navigateTo(index) {
+        const currItm = $(this.shadowRoot.querySelector(`[data-index="${index}"]`));
+        if (currItm) {
+            currItm.siblings(".item").removeClass("active");
+            currItm.addClass("active");
+            this.style.setProperty("--item-width", currItm.outerWidth().toString());
+            this.style.setProperty("--item-height", currItm.outerHeight().toString());
+        }
+    }
+    firstLoad() {
+        if (this.controls.includes(" ")) {
+            let splity = this.controls.split(" ");
+            if (splity[1].endsWith("ms")) this.interval = parseInt(splity[1].replace("ms", ""));
+            else if (splity[1].endsWith("s")) this.interval = parseInt(splity[1].replace("s", "")) * 1000;
+        }
+        if (this.interval) this.intervalHandler = setInterval(()=>{
+            this.next(null);
+        }, this.interval);
+    }
+    prev(e) {
+        this.isForward = false;
+        if (this.position == 0) this.position = this.itemsCount - 1;
+        else this.position--;
+        this.navigateTo(this.position);
+    }
+    next(e) {
+        this.isForward = true;
+        if (e && this.intervalHandler) clearInterval(this.intervalHandler);
+        if (this.position == this.itemsCount - 1) this.position = 0;
+        else this.position++;
+        this.navigateTo(this.position);
+    }
+    itemClick(e) {
+        if (e) e.stopPropagation();
+    }
+    render() {
+        let hasCtrls = this.controls.includes("true");
+        this.itemsCount = 0;
+        return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasCtrls, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<juel-button label="&lt;" @button-clicked="${this.prev}"></juel-button>`)}
+        <div class="container">
+        ${(0, $57c09562a6d0b30e$export$eec70cb3a42440b6)(this, (el, index)=>{
+            this.itemsCount++;
+            let id = el.id ? el.id : `item-${index}`;
+            let klass = "item";
+            if (index == this.position) {
+                klass += " active";
+                let $el = $(el);
+                this.style.setProperty("--item-width", $el.outerWidth().toString());
+                this.style.setProperty("--item-height", $el.outerHeight().toString());
+            }
+            let hasTitleEl = false;
+            let titleElId = `${id}-caption`;
+            let titleEl = el.nextElementSibling;
+            if (titleEl && titleEl.matches('[slot*="caption"')) {
+                hasTitleEl = true;
+                titleEl.setAttribute("slot", titleElId);
+            }
+            el.setAttribute("slot", id);
+            el.setAttribute("draggable", "false");
+            el.setAttribute("ondragstart", "event.preventDefault();");
+            return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`
+                        <div class="${klass}" data-index="${index}" draggable="false" @click="${this.itemClick}">
+                        <slot name="${id}"></slot>
+                        ${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasTitleEl, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="caption"><slot name="${titleElId}"</div>`)}
+                        ${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(el.hasAttribute("data-caption"), ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="caption">${el.dataset.caption}</div>`)}
+                        </div>`;
+        }, '[slot*="caption"]')}
+        </div>
+        ${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasCtrls, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<juel-button label="&gt;" @button-clicked="${this.next}"></juel-button>`)}`;
+    }
+};
+$f401d5ecd398af0f$export$94d94cce01dab8d8.styles = (0, $0e96f61157968e0c$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($f82e8a1761111201$exports))));
+$f401d5ecd398af0f$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $f401d5ecd398af0f$export$94d94cce01dab8d8.prototype, "position", void 0);
+$f401d5ecd398af0f$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $f401d5ecd398af0f$export$94d94cce01dab8d8.prototype, "controls", void 0);
+$f401d5ecd398af0f$export$94d94cce01dab8d8 = $f401d5ecd398af0f$var$__decorate([
+    (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("juel-carousel")
+], $f401d5ecd398af0f$export$94d94cce01dab8d8);
 
 
 var $6f8ae91e0990ffcf$exports = {};
@@ -18427,16 +18542,6 @@ var $ad5a5e3d85db6c6d$export$3fd36d65bf762270;
 })($ad5a5e3d85db6c6d$export$3fd36d65bf762270 || ($ad5a5e3d85db6c6d$export$3fd36d65bf762270 = {}));
 
 
-/**
- * @license
- * Copyright 2021 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ function $381ea5e2aef5c344$export$a55877ca9db47377(n1, o, r) {
-    return n1 ? o() : null == r ? void 0 : r();
-}
-
-
-
 
 var $b073df56e351bf37$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -21287,6 +21392,52 @@ $243f8b1ed5efb10f$export$67cd5d4df7dfa10f = $243f8b1ed5efb10f$var$__decorate([
 ], $243f8b1ed5efb10f$export$67cd5d4df7dfa10f);
 
 
+var $9cd2e0592802f44c$exports = {};
+
+
+
+var $ce47740d682c9295$exports = {};
+$ce47740d682c9295$exports = "@keyframes move-down {\n  from {\n    transform: translateY(-50px);\n  }\n\n  to {\n    transform: translateY(0);\n  }\n}\n\n.modal {\n  width: 100vw;\n  height: 100vh;\n  background: #00000080;\n  justify-content: center;\n  align-items: center;\n  display: none;\n  position: fixed;\n  top: 0;\n  left: 0;\n}\n\n.modal.open {\n  display: flex;\n}\n\n.modal.open .container {\n  animation: move-down .6s ease-out;\n}\n\n.container {\n  width: 90%;\n  max-width: 450px;\n  background-color: #fff;\n  position: relative;\n}\n\n.close {\n  height: 40px;\n  width: 40px;\n  text-align: center;\n  cursor: pointer;\n  background-color: #fff;\n  font-size: 3rem;\n  line-height: 40px;\n  transition: color .15s linear;\n  position: absolute;\n  top: 0;\n  right: 0;\n}\n\n.close:hover {\n  color: red;\n}\n\n";
+
+
+var $9cd2e0592802f44c$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let $9cd2e0592802f44c$export$ad96773db7b3902 = class JuelModal extends (0, $5e0a45860ddebf78$exports.JuelComponent) {
+    load() {
+        if (this.trigger) $(this.trigger).on("click", ()=>{
+            this.open();
+        });
+    }
+    open() {
+        $(this.shadowRoot.querySelector(".modal")).addClass("open");
+    }
+    close() {
+        $(this.shadowRoot.querySelector(".modal")).removeClass("open");
+    }
+    render() {
+        return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="modal">
+            <div class="container">
+            span class="close" @click="${this.close}">&times;</span>
+            <div class="content">
+            <slot></slot>
+            </div>
+            </div>
+        </div>`;
+    }
+};
+$9cd2e0592802f44c$export$ad96773db7b3902.styles = (0, $0e96f61157968e0c$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($ce47740d682c9295$exports))));
+$9cd2e0592802f44c$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $9cd2e0592802f44c$export$ad96773db7b3902.prototype, "trigger", void 0);
+$9cd2e0592802f44c$export$ad96773db7b3902 = $9cd2e0592802f44c$var$__decorate([
+    (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("juel-modal")
+], $9cd2e0592802f44c$export$ad96773db7b3902);
+
+
 var $393090e0a6905930$exports = {};
 
 
@@ -21464,7 +21615,7 @@ var $4c552c6c58db8c5f$exports = {};
 
 
 var $5809dbd51563ce1e$exports = {};
-$5809dbd51563ce1e$exports = ":host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  background-color: #e9ecef;\n  border: 1px solid #ced4da;\n  border-radius: .25rem;\n  padding: .375rem;\n  display: inline-flex;\n}\n\n.input-group :first-child {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.input-group :last-child {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\n.append {\n  background-color: var(--background, var(--primary));\n  border-color: #0a58ca;\n}\n\n.end-rounded {\n  border-top-right-radius: .25rem;\n  border-bottom-right-radius: .25rem;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n#dropdown-items {\n  z-index: 1000;\n  width: 100%;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n.btn {\n  position: relative;\n  overflow: hidden;\n}\n\n.btn-group {\n  vertical-align: middle;\n  display: inline-flex;\n  position: relative;\n}\n\n.btn-group > .btn-group:not(:last-child) > button, .btn-group > button:not(:last-child):not(.dropdown) {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.btn-group > .btn-group:not(:first-child) > button, .btn-group > button:nth-child(n+3), .btn-group > :not(.btn-check) + button {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\nbutton {\n  color: #212529;\n  text-align: center;\n  vertical-align: middle;\n  cursor: pointer;\n  user-select: none;\n  color: #fff;\n  background-color: #0000;\n  background-color: var(--background, var(--primary));\n  border: 1px solid #0a58ca;\n  border-radius: .25rem;\n  padding: .375rem .75rem;\n  font-size: 1rem;\n  font-weight: 400;\n  line-height: 1.5;\n  text-decoration: none;\n  transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;\n  display: inline-block;\n}\n\n";
+$5809dbd51563ce1e$exports = ".primary {\n  background-color: var(--primary);\n  color: #fff;\n  border: 1px solid var(--primary);\n}\n\n.primary:hover {\n  background-color: #3395ff;\n  border-color: #3395ff;\n}\n\n.primary:active {\n  box-shadow: 0 0 10px var(--primary);\n}\n\n.primary.outline {\n  background-color: initial;\n  color: var(--primary);\n  border-color: var(--primary);\n}\n\n.primary.outline:hover {\n  background-color: var(--primary);\n  color: #fff;\n}\n\n.primary.right-rounded {\n  border-right: 1px solid var(--primary);\n}\n\n.primary.left-rounded {\n  border-left: 1px solid var(--primary);\n}\n\n.secondary {\n  background-color: var(--secondary);\n  color: #fff;\n  border: 1px solid var(--secondary);\n}\n\n.secondary:hover {\n  background-color: #868e96;\n  border-color: #868e96;\n}\n\n.secondary:active {\n  box-shadow: 0 0 10px var(--secondary);\n}\n\n.secondary.outline {\n  background-color: initial;\n  color: var(--secondary);\n  border-color: var(--secondary);\n}\n\n.secondary.outline:hover {\n  background-color: var(--secondary);\n  color: #fff;\n}\n\n.secondary.right-rounded {\n  border-right: 1px solid var(--secondary);\n}\n\n.secondary.left-rounded {\n  border-left: 1px solid var(--secondary);\n}\n\n.tertiary {\n  background-color: var(--tertiary);\n  color: #fff;\n  border: 1px solid var(--tertiary);\n}\n\n.tertiary:hover {\n  background-color: #fcaca3;\n  border-color: #fcaca3;\n}\n\n.tertiary:active {\n  box-shadow: 0 0 10px var(--tertiary);\n}\n\n.tertiary.outline {\n  background-color: initial;\n  color: var(--tertiary);\n  border-color: var(--tertiary);\n}\n\n.tertiary.outline:hover {\n  background-color: var(--tertiary);\n  color: #fff;\n}\n\n.tertiary.right-rounded {\n  border-right: 1px solid var(--tertiary);\n}\n\n.tertiary.left-rounded {\n  border-left: 1px solid var(--tertiary);\n}\n\n.light {\n  background-color: var(--light);\n  color: #000;\n  border: 1px solid var(--light);\n}\n\n.light:hover {\n  background-color: #dae0e5;\n  border-color: #dae0e5;\n}\n\n.light:active {\n  box-shadow: 0 0 10px var(--light);\n}\n\n.light.outline {\n  background-color: initial;\n  color: var(--light);\n  border-color: var(--light);\n}\n\n.light.outline:hover {\n  background-color: var(--light);\n  color: #000;\n}\n\n.light.right-rounded {\n  border-right: 1px solid var(--light);\n}\n\n.light.left-rounded {\n  border-left: 1px solid var(--light);\n}\n\n.dark {\n  background-color: var(--dark);\n  color: #fff;\n  border: 1px solid var(--dark);\n}\n\n.dark:hover {\n  background-color: #4b535c;\n  border-color: #4b535c;\n}\n\n.dark:active {\n  box-shadow: 0 0 10px var(--dark);\n}\n\n.dark.outline {\n  background-color: initial;\n  color: var(--dark);\n  border-color: var(--dark);\n}\n\n.dark.outline:hover {\n  background-color: var(--dark);\n  color: #fff;\n}\n\n.dark.right-rounded {\n  border-right: 1px solid var(--dark);\n}\n\n.dark.left-rounded {\n  border-left: 1px solid var(--dark);\n}\n\n.success {\n  background-color: var(--success);\n  color: #fff;\n  border: 1px solid var(--success);\n}\n\n.success:hover {\n  background-color: #34ce57;\n  border-color: #34ce57;\n}\n\n.success:active {\n  box-shadow: 0 0 10px var(--success);\n}\n\n.success.outline {\n  background-color: initial;\n  color: var(--success);\n  border-color: var(--success);\n}\n\n.success.outline:hover {\n  background-color: var(--success);\n  color: #fff;\n}\n\n.success.right-rounded {\n  border-right: 1px solid var(--success);\n}\n\n.success.left-rounded {\n  border-left: 1px solid var(--success);\n}\n\n.info {\n  background-color: var(--info);\n  color: #fff;\n  border: 1px solid var(--info);\n}\n\n.info:hover {\n  background-color: #1fc8e3;\n  border-color: #1fc8e3;\n}\n\n.info:active {\n  box-shadow: 0 0 10px var(--info);\n}\n\n.info.outline {\n  background-color: initial;\n  color: var(--info);\n  border-color: var(--info);\n}\n\n.info.outline:hover {\n  background-color: var(--info);\n  color: #fff;\n}\n\n.info.right-rounded {\n  border-right: 1px solid var(--info);\n}\n\n.info.left-rounded {\n  border-left: 1px solid var(--info);\n}\n\n.warning {\n  background-color: var(--warning);\n  color: #000;\n  border: 1px solid var(--warning);\n}\n\n.warning:hover {\n  background-color: #d39e00;\n  border-color: #d39e00;\n}\n\n.warning:active {\n  box-shadow: 0 0 10px var(--warning);\n}\n\n.warning.outline {\n  background-color: initial;\n  color: var(--warning);\n  border-color: var(--warning);\n}\n\n.warning.outline:hover {\n  background-color: var(--warning);\n  color: #000;\n}\n\n.warning.right-rounded {\n  border-right: 1px solid var(--warning);\n}\n\n.warning.left-rounded {\n  border-left: 1px solid var(--warning);\n}\n\n.danger {\n  background-color: var(--danger);\n  color: #fff;\n  border: 1px solid var(--danger);\n}\n\n.danger:hover {\n  background-color: #e4606d;\n  border-color: #e4606d;\n}\n\n.danger:active {\n  box-shadow: 0 0 10px var(--danger);\n}\n\n.danger.outline {\n  background-color: initial;\n  color: var(--danger);\n  border-color: var(--danger);\n}\n\n.danger.outline:hover {\n  background-color: var(--danger);\n  color: #fff;\n}\n\n.danger.right-rounded {\n  border-right: 1px solid var(--danger);\n}\n\n.danger.left-rounded {\n  border-left: 1px solid var(--danger);\n}\n\n:host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  background-color: #e9ecef;\n  border: 1px solid #ced4da;\n  border-radius: .25rem;\n  padding: .375rem;\n  display: inline-flex;\n}\n\n.rounded {\n  border-radius: .25rem;\n}\n\n.right-rounded {\n  border-top-right-radius: .25rem;\n  border-bottom-right-radius: .25rem;\n}\n\n.left-rounded {\n  border-top-left-radius: .25rem;\n  border-bottom-left-radius: .25rem;\n}\n\n.no-rounded {\n  border-radius: 0;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n#dropdown-items {\n  z-index: 1000;\n  width: 100%;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n.btn {\n  position: relative;\n  overflow: hidden;\n}\n\n.btn-group {\n  vertical-align: middle;\n  display: inline-flex;\n  position: relative;\n}\n\n.btn-group > .btn-group:not(:last-child) > button, .btn-group > button:not(:last-child):not(.dropdown) {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.btn-group > .btn-group:not(:first-child) > button, .btn-group > button:nth-child(n+3), .btn-group > :not(.btn-check) + button {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\nbutton {\n  color: #212529;\n  text-align: center;\n  vertical-align: middle;\n  cursor: pointer;\n  user-select: none;\n  color: #fff;\n  background-color: #0000;\n  border: 1px solid #0000;\n  padding: .375rem .75rem;\n  font-size: 1rem;\n  font-weight: 400;\n  line-height: 1.5;\n  text-decoration: none;\n  transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;\n  display: inline-block;\n}\n\n";
 
 
 var $4a92183a680bdf45$exports = {};
@@ -21799,6 +21950,27 @@ $9fc1f110788ce737$exports.bind = $9fc1f110788ce737$var$bind;
 $9fc1f110788ce737$exports.default = $9fc1f110788ce737$var$bind;
 
 
+var $93c81e86350bfb0e$export$93670b5b1e39bfb8;
+(function(RenderStyles1) {
+    RenderStyles1["Default"] = "default";
+    RenderStyles1["Outline"] = "outline";
+})($93c81e86350bfb0e$export$93670b5b1e39bfb8 || ($93c81e86350bfb0e$export$93670b5b1e39bfb8 = {}));
+
+
+var $419c393c4fbb32b6$export$deac0a0b3bd8dbae;
+(function(AlertTypes1) {
+    AlertTypes1["Primary"] = "primary";
+    AlertTypes1["Secondary"] = "secondary";
+    AlertTypes1["Tertiary"] = "tertiary";
+    AlertTypes1["Info"] = "info";
+    AlertTypes1["Success"] = "success";
+    AlertTypes1["Warning"] = "warning";
+    AlertTypes1["Danger"] = "danger";
+    AlertTypes1["Light"] = "light";
+    AlertTypes1["Dark"] = "dark";
+})($419c393c4fbb32b6$export$deac0a0b3bd8dbae || ($419c393c4fbb32b6$export$deac0a0b3bd8dbae = {}));
+
+
 var $87af919838071cce$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -21807,9 +21979,11 @@ var $87af919838071cce$var$__decorate = undefined && undefined.__decorate || func
 };
 class $87af919838071cce$export$36eab7f492831059 extends (0, $5e0a45860ddebf78$exports.JuelComponent) {
     constructor(){
-        super(...arguments);
+        super();
         this.input = (0, $3444fcda03099cf9$export$7d1e3a5e95ceca43)();
         this.dropdownShown = false;
+        this.type = (0, $419c393c4fbb32b6$export$deac0a0b3bd8dbae).Primary;
+        this.renderStyle = (0, $93c81e86350bfb0e$export$93670b5b1e39bfb8).Default;
     }
     firstUpdated() {
         super.firstUpdated();
@@ -21857,13 +22031,13 @@ class $87af919838071cce$export$36eab7f492831059 extends (0, $5e0a45860ddebf78$ex
 }
 $87af919838071cce$export$36eab7f492831059.InputElementNames = "juel-text, juel-memo, juel-range, juel-tickbox, juel-radio";
 $87af919838071cce$var$__decorate([
-    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
-        attribute: "prepend"
-    })
-], $87af919838071cce$export$36eab7f492831059.prototype, "addBefore", void 0);
-$87af919838071cce$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
-], $87af919838071cce$export$36eab7f492831059.prototype, "addon", void 0);
+], $87af919838071cce$export$36eab7f492831059.prototype, "type", void 0);
+$87af919838071cce$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
+        attribute: "render-style"
+    })
+], $87af919838071cce$export$36eab7f492831059.prototype, "renderStyle", void 0);
 $87af919838071cce$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
         type: Boolean
@@ -21889,6 +22063,7 @@ $87af919838071cce$var$__decorate([
 
 
 
+
 /**
  * @license
  * Copyright 2018 Google LLC
@@ -21899,8 +22074,10 @@ $87af919838071cce$var$__decorate([
 
 
 
-function $b5f612b565643fa9$export$e2c86a3545f3ce2b(el) {
-    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<button name="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.name)}" ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} type="${el.submit ? "submit" : "button"}" part="button" class="btn" part="button" @click="${el.onClick}"><slot name="content">${el.label}</slot></button>`;
+function $b5f612b565643fa9$export$e2c86a3545f3ce2b(el, klass) {
+    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<button name="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.name)}" ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)}
+        type="${el.submit ? "submit" : "button"}" part="button" class="${klass}"
+        part="button" @click="${el.onClick}"><slot name="content">${el.label}</slot></button>`;
 }
 
 
@@ -21935,8 +22112,9 @@ function $676d1b44660c3f35$export$43c51f51f0b06995(el) {
 
 
 
-function $60a5e4ce075c13f8$export$554cf187947ae74d(el) {
-    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<label name="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.name)}" part="label" for="text"><slot name="content">${el.label}</slot></label><input ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} part="input" .value="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.value)}" class="text" @change="${el.onChange}">`;
+function $60a5e4ce075c13f8$export$554cf187947ae74d(el, klass) {
+    return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<label name="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.name)}" part="label" for="text"><slot name="content">${el.label}</slot></label>
+        <input ${(0, $3444fcda03099cf9$export$eff4d24c3ff7876e)(el.input)} part="input" .value="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.value)}" .placeholder="${(0, $e5c00ea60213b8cf$export$f68dd208b5df064d)(el.placeholder)}" class="text" @change="${el.onChange}">`;
 }
 
 
@@ -21950,23 +22128,27 @@ function $f0e8e0f43dc255e6$export$85d8fe04c954eac(el) {
 
 function $ad1647a61f7e0cde$export$475a25926aecae05(el, type) {
     let hasAppend = false;
-    let appendClass = "append";
-    let isAfterBtn;
-    let hasBefore;
+    let appendClass = "append right-rounded";
+    let hasAppendActive = false;
+    let hasPrepend;
+    let prependClass = "prepend left-rounded";
     let isBeforeBtn;
     let hasDropdown = false;
-    let addon = el.querySelectorAll('[slot="append"]');
-    if (addon.length > 0) {
-        hasAppend = true;
-        console.log(addon);
-        let last = addon.item(addon.length - 1);
-        if (last.nodeName == "juel-button") appendClass += " end-rounded";
-    }
+    let klass = el.type;
+    if (el.renderStyle != (0, $93c81e86350bfb0e$export$93670b5b1e39bfb8).Default) klass += ` ${el.renderStyle}`;
+    let addons = el.querySelectorAll('[slot="append"]');
+    if (addons.length > 0) hasAppend = true;
+    else if (!el.hasAttribute("slot")) klass += " right-rounded";
+    if (el.querySelector('[slot="append-active"]')) hasAppendActive = true;
     let dropdown = el.querySelector('[slot="dropdown"]');
     if (dropdown) {
         hasAppend = true;
         hasDropdown = true;
+        klass = klass.replace("right-rounded", "");
     }
+    addons = el.querySelectorAll('[slot="prepend"]');
+    if (addons.length > 0) hasPrepend = true;
+    else if (!el.hasAttribute("slot")) klass += " left-rounded";
     let inputTemplate;
     switch(type){
         case (0, $dc4b52ff7b13e73e$export$930c13e962764648).Button:
@@ -21987,11 +22169,11 @@ function $ad1647a61f7e0cde$export$475a25926aecae05(el, type) {
             break;
     }
     return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasAppend, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div part="input-group" class="input-group">
-                    ${hasBefore ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="addon"><slot name="addon-before"></slot></div>` : ``}
-                    ${inputTemplate(el)}
-                    ${hasDropdown ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<button id="dropdown-toggle" @click="${el.toggleDropdown}"></button>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="${appendClass}"><slot name="append"></slot></div>`}
-                    ${el.active == true && el.addon && el.addonActive == true ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="${appendClass}"><slot name="append-active"></slot></div>` : ``}
-                </div>`, ()=>inputTemplate(el))}
+                    ${hasPrepend ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="${prependClass}"><slot name="prepend"></slot></div>` : ``}
+                    ${inputTemplate(el, klass)}
+                    ${hasDropdown ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<button id="dropdown-toggle" class="${appendClass}" @click="${el.toggleDropdown}"></button>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="${appendClass}"><slot name="append"></slot></div>`}
+                    ${el.active == true && hasAppendActive ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="${appendClass}"><slot name="append-active"></slot></div>` : ``}
+                </div>`, ()=>inputTemplate(el, klass))}
                 ${hasDropdown ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)``}`;
 }
 
@@ -22003,27 +22185,6 @@ var $b7dfb4ba9ef40c22$export$312c261205d4c8ea;
 })($b7dfb4ba9ef40c22$export$312c261205d4c8ea || ($b7dfb4ba9ef40c22$export$312c261205d4c8ea = {}));
 
 
-var $419c393c4fbb32b6$export$deac0a0b3bd8dbae;
-(function(AlertTypes1) {
-    AlertTypes1["Primary"] = "primary";
-    AlertTypes1["Secondary"] = "secondary";
-    AlertTypes1["Tertiary"] = "tertiary";
-    AlertTypes1["Info"] = "info";
-    AlertTypes1["Success"] = "success";
-    AlertTypes1["Warning"] = "warning";
-    AlertTypes1["Danger"] = "danger";
-    AlertTypes1["Light"] = "light";
-    AlertTypes1["Dark"] = "dark";
-})($419c393c4fbb32b6$export$deac0a0b3bd8dbae || ($419c393c4fbb32b6$export$deac0a0b3bd8dbae = {}));
-
-
-var $759c8a464b7b2a35$export$6358468680f28ac0;
-(function(ButtonRenderStyles1) {
-    ButtonRenderStyles1["Default"] = "default";
-    ButtonRenderStyles1["Outline"] = "outline";
-})($759c8a464b7b2a35$export$6358468680f28ac0 || ($759c8a464b7b2a35$export$6358468680f28ac0 = {}));
-
-
 var $4c552c6c58db8c5f$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -22033,8 +22194,6 @@ var $4c552c6c58db8c5f$var$__decorate = undefined && undefined.__decorate || func
 let $4c552c6c58db8c5f$export$51a2e5404c8126eb = class JuelButton extends (0, $87af919838071cce$exports.InputBase) {
     constructor(){
         super();
-        this.type = (0, $419c393c4fbb32b6$export$deac0a0b3bd8dbae).Primary;
-        this.renderStyle = (0, $759c8a464b7b2a35$export$6358468680f28ac0).Default;
         this.submit = false;
     }
     updated() {
@@ -22072,14 +22231,6 @@ let $4c552c6c58db8c5f$export$51a2e5404c8126eb = class JuelButton extends (0, $87
 };
 $4c552c6c58db8c5f$export$51a2e5404c8126eb.styles = (0, $0e96f61157968e0c$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($5809dbd51563ce1e$exports))));
 $4c552c6c58db8c5f$var$__decorate([
-    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
-], $4c552c6c58db8c5f$export$51a2e5404c8126eb.prototype, "type", void 0);
-$4c552c6c58db8c5f$var$__decorate([
-    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
-        attribute: "render-style"
-    })
-], $4c552c6c58db8c5f$export$51a2e5404c8126eb.prototype, "renderStyle", void 0);
-$4c552c6c58db8c5f$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
         type: Boolean
     })
@@ -22093,7 +22244,7 @@ var $ab5d565f41b21eff$exports = {};
 
 
 var $184926c371e253fd$exports = {};
-$184926c371e253fd$exports = ":host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  background-color: #e9ecef;\n  border: 1px solid #ced4da;\n  border-radius: .25rem;\n  padding: .375rem;\n  display: inline-flex;\n}\n\n.input-group :first-child {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.input-group :last-child {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\n.append {\n  background-color: var(--background, var(--primary));\n  border-color: #0a58ca;\n}\n\n.end-rounded {\n  border-top-right-radius: .25rem;\n  border-bottom-right-radius: .25rem;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n#dropdown-items {\n  z-index: 1000;\n  width: 100%;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n";
+$184926c371e253fd$exports = ".primary {\n  background-color: var(--primary);\n  color: #fff;\n  border: 1px solid var(--primary);\n}\n\n.primary:hover {\n  background-color: #3395ff;\n  border-color: #3395ff;\n}\n\n.primary:active {\n  box-shadow: 0 0 10px var(--primary);\n}\n\n.primary.outline {\n  background-color: initial;\n  color: var(--primary);\n  border-color: var(--primary);\n}\n\n.primary.outline:hover {\n  background-color: var(--primary);\n  color: #fff;\n}\n\n.primary.right-rounded {\n  border-right: 1px solid var(--primary);\n}\n\n.primary.left-rounded {\n  border-left: 1px solid var(--primary);\n}\n\n.secondary {\n  background-color: var(--secondary);\n  color: #fff;\n  border: 1px solid var(--secondary);\n}\n\n.secondary:hover {\n  background-color: #868e96;\n  border-color: #868e96;\n}\n\n.secondary:active {\n  box-shadow: 0 0 10px var(--secondary);\n}\n\n.secondary.outline {\n  background-color: initial;\n  color: var(--secondary);\n  border-color: var(--secondary);\n}\n\n.secondary.outline:hover {\n  background-color: var(--secondary);\n  color: #fff;\n}\n\n.secondary.right-rounded {\n  border-right: 1px solid var(--secondary);\n}\n\n.secondary.left-rounded {\n  border-left: 1px solid var(--secondary);\n}\n\n.tertiary {\n  background-color: var(--tertiary);\n  color: #fff;\n  border: 1px solid var(--tertiary);\n}\n\n.tertiary:hover {\n  background-color: #fcaca3;\n  border-color: #fcaca3;\n}\n\n.tertiary:active {\n  box-shadow: 0 0 10px var(--tertiary);\n}\n\n.tertiary.outline {\n  background-color: initial;\n  color: var(--tertiary);\n  border-color: var(--tertiary);\n}\n\n.tertiary.outline:hover {\n  background-color: var(--tertiary);\n  color: #fff;\n}\n\n.tertiary.right-rounded {\n  border-right: 1px solid var(--tertiary);\n}\n\n.tertiary.left-rounded {\n  border-left: 1px solid var(--tertiary);\n}\n\n.light {\n  background-color: var(--light);\n  color: #000;\n  border: 1px solid var(--light);\n}\n\n.light:hover {\n  background-color: #dae0e5;\n  border-color: #dae0e5;\n}\n\n.light:active {\n  box-shadow: 0 0 10px var(--light);\n}\n\n.light.outline {\n  background-color: initial;\n  color: var(--light);\n  border-color: var(--light);\n}\n\n.light.outline:hover {\n  background-color: var(--light);\n  color: #000;\n}\n\n.light.right-rounded {\n  border-right: 1px solid var(--light);\n}\n\n.light.left-rounded {\n  border-left: 1px solid var(--light);\n}\n\n.dark {\n  background-color: var(--dark);\n  color: #fff;\n  border: 1px solid var(--dark);\n}\n\n.dark:hover {\n  background-color: #4b535c;\n  border-color: #4b535c;\n}\n\n.dark:active {\n  box-shadow: 0 0 10px var(--dark);\n}\n\n.dark.outline {\n  background-color: initial;\n  color: var(--dark);\n  border-color: var(--dark);\n}\n\n.dark.outline:hover {\n  background-color: var(--dark);\n  color: #fff;\n}\n\n.dark.right-rounded {\n  border-right: 1px solid var(--dark);\n}\n\n.dark.left-rounded {\n  border-left: 1px solid var(--dark);\n}\n\n.success {\n  background-color: var(--success);\n  color: #fff;\n  border: 1px solid var(--success);\n}\n\n.success:hover {\n  background-color: #34ce57;\n  border-color: #34ce57;\n}\n\n.success:active {\n  box-shadow: 0 0 10px var(--success);\n}\n\n.success.outline {\n  background-color: initial;\n  color: var(--success);\n  border-color: var(--success);\n}\n\n.success.outline:hover {\n  background-color: var(--success);\n  color: #fff;\n}\n\n.success.right-rounded {\n  border-right: 1px solid var(--success);\n}\n\n.success.left-rounded {\n  border-left: 1px solid var(--success);\n}\n\n.info {\n  background-color: var(--info);\n  color: #fff;\n  border: 1px solid var(--info);\n}\n\n.info:hover {\n  background-color: #1fc8e3;\n  border-color: #1fc8e3;\n}\n\n.info:active {\n  box-shadow: 0 0 10px var(--info);\n}\n\n.info.outline {\n  background-color: initial;\n  color: var(--info);\n  border-color: var(--info);\n}\n\n.info.outline:hover {\n  background-color: var(--info);\n  color: #fff;\n}\n\n.info.right-rounded {\n  border-right: 1px solid var(--info);\n}\n\n.info.left-rounded {\n  border-left: 1px solid var(--info);\n}\n\n.warning {\n  background-color: var(--warning);\n  color: #000;\n  border: 1px solid var(--warning);\n}\n\n.warning:hover {\n  background-color: #d39e00;\n  border-color: #d39e00;\n}\n\n.warning:active {\n  box-shadow: 0 0 10px var(--warning);\n}\n\n.warning.outline {\n  background-color: initial;\n  color: var(--warning);\n  border-color: var(--warning);\n}\n\n.warning.outline:hover {\n  background-color: var(--warning);\n  color: #000;\n}\n\n.warning.right-rounded {\n  border-right: 1px solid var(--warning);\n}\n\n.warning.left-rounded {\n  border-left: 1px solid var(--warning);\n}\n\n.danger {\n  background-color: var(--danger);\n  color: #fff;\n  border: 1px solid var(--danger);\n}\n\n.danger:hover {\n  background-color: #e4606d;\n  border-color: #e4606d;\n}\n\n.danger:active {\n  box-shadow: 0 0 10px var(--danger);\n}\n\n.danger.outline {\n  background-color: initial;\n  color: var(--danger);\n  border-color: var(--danger);\n}\n\n.danger.outline:hover {\n  background-color: var(--danger);\n  color: #fff;\n}\n\n.danger.right-rounded {\n  border-right: 1px solid var(--danger);\n}\n\n.danger.left-rounded {\n  border-left: 1px solid var(--danger);\n}\n\n:host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  background-color: #e9ecef;\n  border: 1px solid #ced4da;\n  border-radius: .25rem;\n  padding: .375rem;\n  display: inline-flex;\n}\n\n.rounded {\n  border-radius: .25rem;\n}\n\n.right-rounded {\n  border-top-right-radius: .25rem;\n  border-bottom-right-radius: .25rem;\n}\n\n.left-rounded {\n  border-top-left-radius: .25rem;\n  border-bottom-left-radius: .25rem;\n}\n\n.no-rounded {\n  border-radius: 0;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n#dropdown-items {\n  z-index: 1000;\n  width: 100%;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n";
 
 
 
@@ -22135,6 +22286,9 @@ $ab5d565f41b21eff$export$fba804f6e4c18126.styles = (0, $0e96f61157968e0c$export$
 $ab5d565f41b21eff$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
 ], $ab5d565f41b21eff$export$fba804f6e4c18126.prototype, "value", void 0);
+$ab5d565f41b21eff$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $ab5d565f41b21eff$export$fba804f6e4c18126.prototype, "placeholder", void 0);
 $ab5d565f41b21eff$export$fba804f6e4c18126 = $ab5d565f41b21eff$var$__decorate([
     (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("juel-text")
 ], $ab5d565f41b21eff$export$fba804f6e4c18126);
@@ -22255,7 +22409,7 @@ var $eec489b14b43f080$exports = {};
 
 
 var $d657a7e2ba92d216$exports = {};
-$d657a7e2ba92d216$exports = ":host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  background-color: #e9ecef;\n  border: 1px solid #ced4da;\n  border-radius: .25rem;\n  padding: .375rem;\n  display: inline-flex;\n}\n\n.input-group :first-child {\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n}\n\n.input-group :last-child {\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\n.append {\n  background-color: var(--background, var(--primary));\n  border-color: #0a58ca;\n}\n\n.end-rounded {\n  border-top-right-radius: .25rem;\n  border-bottom-right-radius: .25rem;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n#dropdown-items {\n  z-index: 1000;\n  width: 100%;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n:host {\n  align-items: center;\n  display: flex;\n}\n\ninput {\n  appearance: none;\n  width: 1em;\n  height: 1em;\n  --icon: pink;\n  background-color: var(--primary);\n  width: 40px;\n  height: 40px;\n  border: 1px solid #00000040;\n  border-radius: .25em;\n  margin: 2%;\n  position: relative;\n  box-shadow: inset 0 0 12px #add8e6;\n}\n\ninput:checked:before {\n  content: \"\";\n  width: 8px;\n  height: 50%;\n  transform-origin: 0 100%;\n  z-index: 1;\n  background-color: #7b2d14;\n  border-radius: 2px;\n  position: absolute;\n  top: 50%;\n  transform: translateX(12px)rotate(-45deg);\n}\n\ninput:checked:after {\n  content: \"\";\n  height: 8px;\n  width: 100%;\n  transform-origin: 0 100%;\n  background-color: #c83478;\n  border-radius: 2px;\n  position: absolute;\n  bottom: 0;\n  transform: translateX(12px)rotate(-45deg);\n}\n\n";
+$d657a7e2ba92d216$exports = ".primary {\n  background-color: var(--primary);\n  color: #fff;\n  border: 1px solid var(--primary);\n}\n\n.primary:hover {\n  background-color: #3395ff;\n  border-color: #3395ff;\n}\n\n.primary:active {\n  box-shadow: 0 0 10px var(--primary);\n}\n\n.primary.outline {\n  background-color: initial;\n  color: var(--primary);\n  border-color: var(--primary);\n}\n\n.primary.outline:hover {\n  background-color: var(--primary);\n  color: #fff;\n}\n\n.primary.right-rounded {\n  border-right: 1px solid var(--primary);\n}\n\n.primary.left-rounded {\n  border-left: 1px solid var(--primary);\n}\n\n.secondary {\n  background-color: var(--secondary);\n  color: #fff;\n  border: 1px solid var(--secondary);\n}\n\n.secondary:hover {\n  background-color: #868e96;\n  border-color: #868e96;\n}\n\n.secondary:active {\n  box-shadow: 0 0 10px var(--secondary);\n}\n\n.secondary.outline {\n  background-color: initial;\n  color: var(--secondary);\n  border-color: var(--secondary);\n}\n\n.secondary.outline:hover {\n  background-color: var(--secondary);\n  color: #fff;\n}\n\n.secondary.right-rounded {\n  border-right: 1px solid var(--secondary);\n}\n\n.secondary.left-rounded {\n  border-left: 1px solid var(--secondary);\n}\n\n.tertiary {\n  background-color: var(--tertiary);\n  color: #fff;\n  border: 1px solid var(--tertiary);\n}\n\n.tertiary:hover {\n  background-color: #fcaca3;\n  border-color: #fcaca3;\n}\n\n.tertiary:active {\n  box-shadow: 0 0 10px var(--tertiary);\n}\n\n.tertiary.outline {\n  background-color: initial;\n  color: var(--tertiary);\n  border-color: var(--tertiary);\n}\n\n.tertiary.outline:hover {\n  background-color: var(--tertiary);\n  color: #fff;\n}\n\n.tertiary.right-rounded {\n  border-right: 1px solid var(--tertiary);\n}\n\n.tertiary.left-rounded {\n  border-left: 1px solid var(--tertiary);\n}\n\n.light {\n  background-color: var(--light);\n  color: #000;\n  border: 1px solid var(--light);\n}\n\n.light:hover {\n  background-color: #dae0e5;\n  border-color: #dae0e5;\n}\n\n.light:active {\n  box-shadow: 0 0 10px var(--light);\n}\n\n.light.outline {\n  background-color: initial;\n  color: var(--light);\n  border-color: var(--light);\n}\n\n.light.outline:hover {\n  background-color: var(--light);\n  color: #000;\n}\n\n.light.right-rounded {\n  border-right: 1px solid var(--light);\n}\n\n.light.left-rounded {\n  border-left: 1px solid var(--light);\n}\n\n.dark {\n  background-color: var(--dark);\n  color: #fff;\n  border: 1px solid var(--dark);\n}\n\n.dark:hover {\n  background-color: #4b535c;\n  border-color: #4b535c;\n}\n\n.dark:active {\n  box-shadow: 0 0 10px var(--dark);\n}\n\n.dark.outline {\n  background-color: initial;\n  color: var(--dark);\n  border-color: var(--dark);\n}\n\n.dark.outline:hover {\n  background-color: var(--dark);\n  color: #fff;\n}\n\n.dark.right-rounded {\n  border-right: 1px solid var(--dark);\n}\n\n.dark.left-rounded {\n  border-left: 1px solid var(--dark);\n}\n\n.success {\n  background-color: var(--success);\n  color: #fff;\n  border: 1px solid var(--success);\n}\n\n.success:hover {\n  background-color: #34ce57;\n  border-color: #34ce57;\n}\n\n.success:active {\n  box-shadow: 0 0 10px var(--success);\n}\n\n.success.outline {\n  background-color: initial;\n  color: var(--success);\n  border-color: var(--success);\n}\n\n.success.outline:hover {\n  background-color: var(--success);\n  color: #fff;\n}\n\n.success.right-rounded {\n  border-right: 1px solid var(--success);\n}\n\n.success.left-rounded {\n  border-left: 1px solid var(--success);\n}\n\n.info {\n  background-color: var(--info);\n  color: #fff;\n  border: 1px solid var(--info);\n}\n\n.info:hover {\n  background-color: #1fc8e3;\n  border-color: #1fc8e3;\n}\n\n.info:active {\n  box-shadow: 0 0 10px var(--info);\n}\n\n.info.outline {\n  background-color: initial;\n  color: var(--info);\n  border-color: var(--info);\n}\n\n.info.outline:hover {\n  background-color: var(--info);\n  color: #fff;\n}\n\n.info.right-rounded {\n  border-right: 1px solid var(--info);\n}\n\n.info.left-rounded {\n  border-left: 1px solid var(--info);\n}\n\n.warning {\n  background-color: var(--warning);\n  color: #000;\n  border: 1px solid var(--warning);\n}\n\n.warning:hover {\n  background-color: #d39e00;\n  border-color: #d39e00;\n}\n\n.warning:active {\n  box-shadow: 0 0 10px var(--warning);\n}\n\n.warning.outline {\n  background-color: initial;\n  color: var(--warning);\n  border-color: var(--warning);\n}\n\n.warning.outline:hover {\n  background-color: var(--warning);\n  color: #000;\n}\n\n.warning.right-rounded {\n  border-right: 1px solid var(--warning);\n}\n\n.warning.left-rounded {\n  border-left: 1px solid var(--warning);\n}\n\n.danger {\n  background-color: var(--danger);\n  color: #fff;\n  border: 1px solid var(--danger);\n}\n\n.danger:hover {\n  background-color: #e4606d;\n  border-color: #e4606d;\n}\n\n.danger:active {\n  box-shadow: 0 0 10px var(--danger);\n}\n\n.danger.outline {\n  background-color: initial;\n  color: var(--danger);\n  border-color: var(--danger);\n}\n\n.danger.outline:hover {\n  background-color: var(--danger);\n  color: #fff;\n}\n\n.danger.right-rounded {\n  border-right: 1px solid var(--danger);\n}\n\n.danger.left-rounded {\n  border-left: 1px solid var(--danger);\n}\n\n:host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  background-color: #e9ecef;\n  border: 1px solid #ced4da;\n  border-radius: .25rem;\n  padding: .375rem;\n  display: inline-flex;\n}\n\n.rounded {\n  border-radius: .25rem;\n}\n\n.right-rounded {\n  border-top-right-radius: .25rem;\n  border-bottom-right-radius: .25rem;\n}\n\n.left-rounded {\n  border-top-left-radius: .25rem;\n  border-bottom-left-radius: .25rem;\n}\n\n.no-rounded {\n  border-radius: 0;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n#dropdown-items {\n  z-index: 1000;\n  width: 100%;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n:host {\n  align-items: center;\n  display: flex;\n}\n\ninput {\n  appearance: none;\n  width: 1em;\n  height: 1em;\n  --icon: pink;\n  background-color: var(--primary);\n  width: 40px;\n  height: 40px;\n  border: 1px solid #00000040;\n  border-radius: .25em;\n  margin: 2%;\n  position: relative;\n  box-shadow: inset 0 0 12px #add8e6;\n}\n\ninput:checked:before {\n  content: \"\";\n  width: 8px;\n  height: 50%;\n  transform-origin: 0 100%;\n  z-index: 1;\n  background-color: #7b2d14;\n  border-radius: 2px;\n  position: absolute;\n  top: 50%;\n  transform: translateX(12px)rotate(-45deg);\n}\n\ninput:checked:after {\n  content: \"\";\n  height: 8px;\n  width: 100%;\n  transform-origin: 0 100%;\n  background-color: #c83478;\n  border-radius: 2px;\n  position: absolute;\n  bottom: 0;\n  transform: translateX(12px)rotate(-45deg);\n}\n\n";
 
 
 
