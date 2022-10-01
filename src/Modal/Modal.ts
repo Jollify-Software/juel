@@ -31,7 +31,7 @@ export class JuelModal extends JuelComponent {
     render() {
         return html`<div class="modal">
             <div class="container">
-            <span class="close" @click="${this.close}">&times;</span>
+            <div class="header"><slot name="title"></slot><span class="close" @click="${this.close}"></span></div>
             <div class="content">
             <slot></slot>
             </div>
