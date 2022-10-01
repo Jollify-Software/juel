@@ -14,6 +14,9 @@ export class JuelCarousel extends JuelComponent {
     // TODO: Indicators, transition: zoom(in|out)|fade, previous/next slots
 
     itemsCount: number;
+    interval: number;
+    intervalHandler: number;
+    isForward: boolean; // The direction the carousel is going
 
     constructor() {
         super();
@@ -23,20 +26,35 @@ export class JuelCarousel extends JuelComponent {
 
     navigateTo(index: number) {
         /* Find the current card */
-        const currItm = this.shadowRoot.querySelector(`[data-index="${index}"]`);
+        const currItm = $(this.shadowRoot.querySelector(`[data-index="${index}"]`));
         if (currItm) {
             /* Set the prevCard based on its availability */
-            const nextItm = $(currItm.previousElementSibling
-                ? currItm.previousElementSibling
-                : this.shadowRoot.querySelector(".container").lastElementChild);
-            currItm.classList.remove("active");
-            nextItm[0].classList.add("active");
-            this.style.setProperty('--item-width', nextItm.outerWidth().toString());
-            this.style.setProperty('--item-height', nextItm.outerHeight().toString());
+            currItm.siblings(".item").removeClass("active");
+            currItm.addClass("active");
+            this.style.setProperty('--item-width', currItm.outerWidth().toString());
+            this.style.setProperty('--item-height', currItm.outerHeight().toString());
         }
     }
 
-    prevClick() {
+    firstLoad(): void {
+        if (this.controls.includes(' ')) {
+            let splity = this.controls.split(' ');
+            // 1st is true|false
+            if (splity[1].endsWith('ms')) {
+                this.interval = parseInt(splity[1].replace('ms', ''));
+            } else if (splity[1].endsWith('s')) {
+                this.interval = parseInt(splity[1].replace('s', '')) * 1000;
+            }
+        }
+        if (this.interval) {
+            this.intervalHandler = setInterval(() => {
+                this.next(null);
+            }, this.interval);
+        }
+    }
+
+    prev(e) {
+        this.isForward = false;
         if (this.position == 0) {
             this.position = this.itemsCount - 1;
         } else {
@@ -45,7 +63,11 @@ export class JuelCarousel extends JuelComponent {
         this.navigateTo(this.position);
     }
 
-    nextClick() {
+    next(e) {
+        this.isForward = true;
+        if (e && this.intervalHandler) {
+            clearInterval(this.intervalHandler);
+        }
         if (this.position == this.itemsCount - 1) {
             this.position = 0;
         } else {
@@ -62,9 +84,9 @@ export class JuelCarousel extends JuelComponent {
     }
 
     render() {
-        let hasCtrls: boolean = this.controls == "true";
+        let hasCtrls: boolean = this.controls.includes("true");
         this.itemsCount = 0;
-        return html`${when(hasCtrls, () => html`<juel-button label="&lt;" @button-clicked="${this.prevClick}"></juel-button>`)}
+        return html`${when(hasCtrls, () => html`<juel-button label="&lt;" @button-clicked="${this.prev}"></juel-button>`)}
         <div class="container">
         ${ChildrenMap(this, (el, index) => {
             this.itemsCount++;
@@ -76,15 +98,24 @@ export class JuelCarousel extends JuelComponent {
                 this.style.setProperty('--item-width', $el.outerWidth().toString());
                 this.style.setProperty('--item-height', $el.outerHeight().toString());
             }
+            let hasTitleEl = false;
+            let titleElId = `${id}-caption`;
+            let titleEl = el.nextElementSibling;
+            if (titleEl && titleEl.matches('[slot*="caption"')) {
+                hasTitleEl = true;
+                titleEl.setAttribute('slot', titleElId);
+            }
             el.setAttribute('slot', id);
             el.setAttribute('draggable', 'false');
             el.setAttribute('ondragstart', "event.preventDefault();")
             return html`
                         <div class="${klass}" data-index="${index}" draggable="false" @click="${this.itemClick}">
                         <slot name="${id}"></slot>
+                        ${when(hasTitleEl, () => html`<div class="caption"><slot name="${titleElId}"</div>`)}
+                        ${when(el.hasAttribute("data-caption"), () => html`<div class="caption">${el.dataset.caption}</div>`)}
                         </div>`;
-        })}
+        }, '[slot*="caption"]')}
         </div>
-        ${when(hasCtrls, () => html`<juel-button label="&gt;" @button-clicked="${this.nextClick}"></juel-button>`)}`;
+        ${when(hasCtrls, () => html`<juel-button label="&gt;" @button-clicked="${this.next}"></juel-button>`)}`;
     }
 }
