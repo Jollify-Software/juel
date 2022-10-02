@@ -4,9 +4,10 @@ import { when } from "lit/directives/when";
 import { JuelComponent } from "../_Base/JuelComponent";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import Styles from 'bundle-text:./Carousel.less';
+import { NavigationBase } from "../_Base/NavigationBase";
 
 @customElement("juel-carousel")
-export class JuelCarousel extends JuelComponent {
+export class JuelCarousel extends NavigationBase {
     static styles = unsafeCSS(Styles);
 
     @property() position: number;
@@ -27,7 +28,7 @@ export class JuelCarousel extends JuelComponent {
     navigateTo(index: number) {
         /* Find the current card */
         const currItm = $(this.shadowRoot.querySelector(`[data-index="${index}"]`));
-        if (currItm) {
+        if (currItm && currItm.length > 0) {
             /* Set the prevCard based on its availability */
             currItm.siblings(".item").removeClass("active");
             currItm.addClass("active");
@@ -36,7 +37,22 @@ export class JuelCarousel extends JuelComponent {
         }
     }
 
+    navigateToSelector(selector: string): void {
+        let el = this.querySelector(selector);
+        if (el) {
+            let children = $(this).children().not('[slot*="caption"]');
+            let index = children.index(el);
+            console.log(index);
+            if (index >= 0) {
+                this.position = index;
+                this.navigateTo(index);
+            }
+            //let index = Array.prototype.indexOf.call(this.children, el);
+        }
+    }
+
     firstLoad(): void {
+        super.firstLoad()
         if (this.controls.includes(' ')) {
             let splity = this.controls.split(' ');
             // 1st is true|false
