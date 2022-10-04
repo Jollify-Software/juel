@@ -1,19 +1,80 @@
 :host {
-    display: flex;
+    position: relative;
+    display: inline-flex;
 }
+
 .container {
     position: relative;
     width: var(--item-width);
     height: var(--item-height);
 }
+
 .item {
     position: absolute;
     top: 0;
     left: 0;
     display: none;
     pointer-events: none;
-    &.active { /* When the item is in view */
+
+    &.active {
+        /* When the item is in view */
         display: block;
         pointer-events: all;
+    }
+}
+
+#previous {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 10%;
+    padding: 0;
+    text-align: center;
+    opacity: .25;
+    transition: opacity .15s ease;
+    cursor: pointer;
+
+    &:hover {
+        opacity: .45;
+    }
+
+    span {
+        width: 2rem;
+        height: 2rem;
+        background-image: var(--icon-previous);
+        filter: invert(1);
+    }
+}
+
+#next {
+    right: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 10%;
+    padding: 0;
+    text-align: center;
+    opacity: .25;
+    transition: opacity .15s ease;
+    cursor: pointer;
+
+    &:hover {
+        opacity: .45;
+    }
+
+    span {
+        width: 2rem;
+        height: 2rem;
+        background-image: var(--icon-next);
+        filter: invert(1);
     }
 }

@@ -108,7 +108,7 @@ export class JuelCarousel extends NavigationBase {
     render() {
         let hasCtrls: boolean = this.controls.includes("true");
         this.itemsCount = 0;
-        return html`${when(hasCtrls, () => html`<juel-button label="&lt;" @button-clicked="${this.prev}"></juel-button>`)}
+        return html`${when(hasCtrls, () => html`<div id="previous" @click="${this.prev}"><span></span></div>`)}
         <div class="container">
         ${ChildrenMap(this, (el, index) => {
             this.itemsCount++;
@@ -123,7 +123,7 @@ export class JuelCarousel extends NavigationBase {
             let hasTitleEl = false;
             let titleElId = `${id}-caption`;
             let titleEl = el.nextElementSibling;
-            if (titleEl && titleEl.matches('[slot*="caption"')) {
+            if (titleEl && titleEl.matches('[slot*="caption"]')) {
                 hasTitleEl = true;
                 titleEl.setAttribute('slot', titleElId);
             }
@@ -138,6 +138,6 @@ export class JuelCarousel extends NavigationBase {
                         </div>`;
         }, '[slot*="caption"]')}
         </div>
-        ${when(hasCtrls, () => html`<juel-button label="&gt;" @button-clicked="${this.next}"></juel-button>`)}`;
+        ${when(hasCtrls, () => html`<div id="next" @click="${this.next}"><span></span></div>`)}`;
     }
 }
