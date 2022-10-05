@@ -3,10 +3,9 @@
     display: inline-flex;
 }
 
-.container {
-    position: relative;
-    width: var(--item-width);
-    height: var(--item-height);
+.container, .item {
+    width: var(--item-width, 100%);
+    height: var(--item-height, 100%);
 }
 
 .item {
@@ -22,7 +21,23 @@
         pointer-events: all;
     }
 }
-
+.caption {
+    position: absolute;
+    right: 15%;
+    bottom: 1.25rem;
+    left: 15%;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+    color: #fff;
+    text-align: center;
+}
+::slotted(.carousel-item) {
+    width: 100%;
+    height: 100%;
+}
+::slotted(div[slot*="caption"]) {
+    display: inline;
+}
 #previous {
     position: absolute;
     top: 0;

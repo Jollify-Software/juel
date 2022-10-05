@@ -32,8 +32,15 @@ export class JuelCarousel extends NavigationBase {
             /* Set the prevCard based on its availability */
             currItm.siblings(".item").removeClass("active");
             currItm.addClass("active");
-            this.style.setProperty('--item-width', currItm.outerWidth().toString());
-            this.style.setProperty('--item-height', currItm.outerHeight().toString());
+
+            let w = currItm.outerWidth();
+            if (w > 0) {
+                this.style.setProperty('--item-width', w.toString());
+            }
+            let h = currItm.outerHeight();
+            if (h > 0) {
+                this.style.setProperty('--item-height', h.toString());
+            }
         }
     }
 
@@ -117,8 +124,14 @@ export class JuelCarousel extends NavigationBase {
             if (index == this.position) {
                 klass += " active";
                 let $el = $(el);
-                this.style.setProperty('--item-width', $el.outerWidth().toString());
-                this.style.setProperty('--item-height', $el.outerHeight().toString());
+                let w = $el.outerWidth();
+                if (w > 0) {
+                    this.style.setProperty('--item-width', w.toString());
+                }
+                let h = $el.outerHeight();
+                if (h > 0) {
+                    this.style.setProperty('--item-height', h.toString());
+                }
             }
             let hasTitleEl = false;
             let titleElId = `${id}-caption`;
@@ -128,6 +141,7 @@ export class JuelCarousel extends NavigationBase {
                 titleEl.setAttribute('slot', titleElId);
             }
             el.setAttribute('slot', id);
+            el.classList.add("carousel-item");
             el.setAttribute('draggable', 'false');
             el.setAttribute('ondragstart', "event.preventDefault();")
             return html`
