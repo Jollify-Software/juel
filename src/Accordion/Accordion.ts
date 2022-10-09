@@ -1,16 +1,13 @@
-import { LitElement, html, unsafeCSS } from "lit";
+import { html, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import style from 'bundle-text:./Accordion.less';
-import { AccordionService } from "./AccordionService";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
-import { JuelComponent } from "../_Base/JuelComponent";
+import { NavigationBase } from "../_Base/NavigationBase";
 
 @customElement("juel-accordion")
-export class JuelAccordion extends JuelComponent {
+export class JuelAccordion extends NavigationBase {
 
     static styles = unsafeCSS(style);
-
-    service: AccordionService;
 
     @property({ type: String }) size: string;
     @property({ type: Boolean }) horizontal: boolean;
@@ -21,33 +18,38 @@ export class JuelAccordion extends JuelComponent {
         this.size = "500px";
         this.horizontal = false;
         this.multiple = false;
-
-        this.service = new AccordionService(this);
     }
 
-    load() {
-            this.service.init();
+    navigateToSelector(selector: string): void {
+      let children = $(this).children().not('[slot*="title"]');
+      let el = this.querySelector(selector);
+      if (el) {
+        let index = children.index(el);
+        console.log(index)
+        if (index >= 0) {
+          this.navigateToIndex(index);
+        }
+      }
+    }
+
+    navigateToIndex(index: number) {
+      let el = this.shadowRoot.querySelector(`[data-index="${index}"]`);
+      if (el) {
+        el.classList.toggle("active");
+        if (el.classList.contains("active")) {
+          $(el).siblings(".title").removeClass("active");
+        }
+      }
     }
 
     titleClick(e: Event) {
         let el = e.target as HTMLElement;
         /* Toggle between adding and removing the "active" class,
-              to highlight the button that controls the panel */
-              el.classList.toggle("active");
-          
-              /* Toggle between hiding and showing the active panel 
-              var panel = this.nextElementSibling as HTMLElement;
-              if (panel.style.display === "block") {
-                panel.style.display = "none";
-              } else {
-                panel.style.display = "block";
-              }
-              if (panel.style.maxHeight) {
-                panel.style.maxHeight = null;
-              } else {
-                panel.style.maxHeight = panel.scrollHeight + "px";
-              }
-              */
+        to highlight the button that controls the panel */
+        el.classList.toggle("active");
+        if (el.classList.contains("active")) {
+          $(el).siblings(".title").removeClass("active");
+        }
     }
 
     render() {
@@ -62,8 +64,12 @@ export class JuelAccordion extends JuelComponent {
                     if (titleEl && titleEl.matches('[slot*="title"')) {
                         hasTitleEl = true;
                         titleEl.setAttribute('slot', titleElId);
+                        if (titleEl.hasAttribute("id") && ele.hasAttribute("id") == false) {
+                          ele.id = titleEl.id;
+                          titleEl.removeAttribute("id");
+                        }
                     }
-                    return html`<div class="title">
+                    return html`<div class="title" data-index="${index}" @click="${this.titleClick}">
                         ${hasTitleEl ?
                             html`<slot name="${titleElId}"></slot>` :
                             html`<span>
