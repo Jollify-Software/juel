@@ -4,10 +4,10 @@ import style from 'bundle-text:./ScrollPane.less';
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import { ScrollPaneService } from "./ScrollPaneService";
 import Hammer from 'hammerjs';
-import { JuelComponent } from "../_Base/JuelComponent";
+import { NavigationBase } from "../_Base/NavigationBase";
 
 @customElement("juel-scroll-pane")
-export class JuelScrollPane extends JuelComponent {
+export class JuelScrollPane extends NavigationBase {
 
     static SCROLL: string = "scroll";
 
@@ -15,7 +15,6 @@ export class JuelScrollPane extends JuelComponent {
 
     service: ScrollPaneService;
 
-    @property() position: number;
     @property({ type: Boolean }) vertical: boolean;
     @property({ type: Boolean }) auto: boolean;
     @property() interval;
@@ -31,6 +30,9 @@ export class JuelScrollPane extends JuelComponent {
     @property({ type: Number }) width: number;
     @property({ type: Boolean }) autoHeight: boolean;
     @property({ type: Boolean }) fullHeight: boolean;
+
+    positionHistory: number[] = [];
+    container: HTMLElement;
 
     constructor() {
         super();
@@ -52,6 +54,8 @@ export class JuelScrollPane extends JuelComponent {
     }
 
     firstLoad() {
+        super.firstLoad();
+        this.container = this.shadowRoot.querySelector('.container');
         let mc = new Hammer(this);
         mc.on('swipe', (e) => {
             // Left = 2
@@ -71,8 +75,42 @@ export class JuelScrollPane extends JuelComponent {
         this.service.reset(resetChildren);
     }
 
-    scrollIndex(index: number) {
-        this.service.scrollTo(index);
+    navigateTo(index: number): void {
+        let el = $(this.container.querySelectorAll(`[data-index="${index}"]`));
+        let margin: number = 0;
+        let prev = el.prevAll();
+		console.log(prev)
+        if (prev.length > 0) {
+			prev.each((i, sib) => {	
+				margin+= (!this.width) ? $(sib).outerWidth() : this.width;
+			});
+		}
+		if (!this.fullHeight) {
+			let w = el.outerWidth();
+			let h = el.outerHeight();
+			if (w > 0) {
+				this.style.setProperty('--item-width', w.toString());
+			}
+			if (window['isMobile'] == false && h > 0) {
+				this.style.setProperty('--item-height', h.toString());
+			}
+		}
+		console.log(`-${margin}px`);
+		this.container.style.setProperty('--scroll-margin', margin.toString());
+	
+		this.position = index;
+
+		let evt = new CustomEvent(JuelScrollPane.SCROLL, {
+			detail: {
+				index: index,
+				element: el
+			}
+		});
+		this.positionHistory.push(this.position);
+		if (this.positionHistory.length == this.children.length) {
+			this.positionHistory = [];
+		}
+		this.dispatchEvent(evt);
     }
 
     scrollNext(e: Event) {
@@ -100,8 +138,22 @@ export class JuelScrollPane extends JuelComponent {
         return html`${this.controls ? html`<div id="next" part="next" @click="${this.scrollNext}"><span></span></div>` : ``}
             <div class="container">
                 ${ChildrenMap(this, (el, index) => {
+                    let klass = "item";
+            if (index == this.position) {
+                klass += " active";
+                let $el = $(el);
+                let w = $el.outerWidth();
+                if (w > 0) {
+                    this.style.setProperty('--item-width', w.toString());
+                }
+                let h = $el.outerHeight();
+                if (h > 0) {
+                    this.style.setProperty('--item-height', h.toString());
+                }
+            }
             let id = el.id ? el.id : `item-${index}`;
             el.setAttribute('slot', id);
+            el.classList.add("item");
             el.setAttribute('draggable', 'false');
             el.setAttribute('ondragstart', "event.preventDefault();")
             return html`

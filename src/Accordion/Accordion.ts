@@ -42,14 +42,16 @@ export class JuelAccordion extends NavigationBase {
       }
     }
 
-    titleClick(e: Event) {
-        let el = e.target as HTMLElement;
+    titleClick(index: number) {
+        let el = this.shadowRoot.querySelector(`[data-index="${index}"]`);
+        if (el) {
         /* Toggle between adding and removing the "active" class,
         to highlight the button that controls the panel */
         el.classList.toggle("active");
         if (el.classList.contains("active")) {
           $(el).siblings(".title").removeClass("active");
         }
+      }
     }
 
     render() {
@@ -69,7 +71,7 @@ export class JuelAccordion extends NavigationBase {
                           titleEl.removeAttribute("id");
                         }
                     }
-                    return html`<div class="title" data-index="${index}" @click="${this.titleClick}">
+                    return html`<div class="title" data-index="${index}" @click="${() => this.titleClick(index)}">
                         ${hasTitleEl ?
                             html`<slot name="${titleElId}"></slot>` :
                             html`<span>

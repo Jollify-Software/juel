@@ -10,7 +10,6 @@ import { NavigationBase } from "../_Base/NavigationBase";
 export class JuelCarousel extends NavigationBase {
     static styles = unsafeCSS(Styles);
 
-    @property() position: number;
     @property() controls: string; // TODO: CControl: 5s, 500ms
     // TODO: Indicators, transition: zoom(in|out)|fade, previous/next slots
 
@@ -49,7 +48,6 @@ export class JuelCarousel extends NavigationBase {
         if (el) {
             let children = $(this).children().not('[slot*="caption"]');
             let index = children.index(el);
-            console.log(index);
             if (index >= 0) {
                 this.position = index;
                 this.navigateTo(index);
@@ -141,7 +139,7 @@ export class JuelCarousel extends NavigationBase {
                 titleEl.setAttribute('slot', titleElId);
             }
             el.setAttribute('slot', id);
-            el.classList.add("carousel-item");
+            el.classList.add("item");
             el.setAttribute('draggable', 'false');
             el.setAttribute('ondragstart', "event.preventDefault();")
             return html`
