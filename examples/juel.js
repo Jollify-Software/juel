@@ -6961,6 +6961,9 @@ var $be851a047ba833dd$export$d16c275374097133;
 
 var $66369552d2da71b5$export$80e45fb591232624;
 (function(JuelModule1) {
+    JuelModule1.params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop)=>searchParams.get(prop)
+    });
     JuelModule1.audio = (0, $be851a047ba833dd$export$d16c275374097133);
 })($66369552d2da71b5$export$80e45fb591232624 || ($66369552d2da71b5$export$80e45fb591232624 = {}));
 
@@ -13706,7 +13709,7 @@ var $9742dbc094643ff0$exports = {};
 
 
 var $1023b8a9a7973857$exports = {};
-$1023b8a9a7973857$exports = "body {\n  font-family: var(--body-font-family);\n  font-size: var(--body-font-size);\n  font-weight: var(--body-font-weight);\n  line-height: var(--body-line-height);\n  color: var(--body-color);\n  text-align: var(--body-text-align);\n  background-color: var(--body-bg);\n  -webkit-text-size-adjust: 100%;\n  -webkit-tap-highlight-color: transparent;\n  margin: 0;\n}\n\njuel-dialog-manager > *, .hide {\n  display: none;\n}\n\n.fullscreen {\n  width: 100vw;\n  height: 100vh;\n}\n\n.flex, .flex form {\n  flex-direction: column;\n  display: flex;\n}\n\n.icon-lg {\n  width: 48px;\n  height: 48px;\n  background-position: center;\n  background-repeat: no-repeat;\n}\n\n.icon {\n  width: 32px;\n  height: 32px;\n  background-position: center;\n  background-repeat: no-repeat;\n}\n\n.icon-sm {\n  width: 16px;\n  height: 16px;\n  background-position: center;\n  background-repeat: no-repeat;\n}\n\n:root {\n  --primary: #007bff;\n  --primary-text: #343a40;\n  --secondary: #6c757d;\n  --secondary-text: #f8f9fa;\n  --tertiary: salmon;\n  --tertiary-text: salmon;\n  --highlight: #007bff;\n  --active: #e7f1ff --light: #f8f9fa;\n  --dark: #343a40;\n  --success: #28a745;\n  --info: #17a2b8;\n  --warning: #ffc107;\n  --danger: #dc3545;\n  --highlight-text: #343a40;\n  --active-text: #0c63e4;\n  --light-text: #f8f9fa;\n  --dark-text: #343a40;\n  --success-text: #28a745;\n  --info-text: #343a40;\n  --warning-text: #343a40;\n  --danger-text: #dc3545;\n  --icon-previous: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22var%28--fil%2C%20%2323fff%29%22%20d%3D%22M11.354%201.646a.5.5%200%200%201%200%20.708L5.707%208l5.647%205.646a.5.5%200%200%201-.708.708l-6-6a.5.5%200%200%201%200-.708l6-6a.5.5%200%200%201%20.708%200z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-next: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22var%28--fill%2C%20%2323fff%29%22%20d%3D%22M4.646%201.646a.5.5%200%200%201%20.708%200l6%206a.5.5%200%200%201%200%20.708l-6%206a.5.5%200%200%201-.708-.708L10.293%208%204.646%202.354a.5.5%200%200%201%200-.708z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-indicator: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22rgba%28280%2C0%2C0%2C.5%29%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M5%2014l6-6-6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-crosshair: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20id%3D%22root%22%20version%3D%221.1%22%20viewBox%3D%220%200%2016%2016%22%3E%3Ccircle%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20cx%3D%228%22%20cy%3D%228%22%20r%3D%226%22%3E%3C%2Fcircle%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%208%200%20L%208%206.5%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%200%208%20L%206.5%208%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%208%209.5%20L%208%2016%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%209.5%208%20L%2016%208%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-close: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220px%22%20height%3D%2220px%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22var%28--fill%2C%20black%29%22%20d%3D%22M%204.7070312%203.2929688%20L%203.2929688%204.7070312%20L%2010.585938%2012%20L%203.2929688%2019.292969%20L%204.7070312%2020.707031%20L%2012%2013.414062%20L%2019.292969%2020.707031%20L%2020.707031%2019.292969%20L%2013.414062%2012%20L%2020.707031%204.7070312%20L%2019.292969%203.2929688%20L%2012%2010.585938%20L%204.7070312%203.2929688%20z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-tick: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22var%28--stroke%2C%20black%29%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%223%22%20d%3D%22M6%2010l3%203l6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --justify: center;\n  --padding-left: 32px;\n  --padding-right: 32px;\n  --body-color-rgb: 33, 37, 41;\n  --body-bg-rgb: 255, 255, 255;\n  --font-sans-serif: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Liberation Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n  --font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\n  --gradient: linear-gradient(180deg, #ffffff26, #fff0);\n  --body-font-family: var(--font-sans-serif);\n  --body-font-size: 1rem;\n  --body-font-weight: 400;\n  --body-line-height: 1.5;\n  --body-color: #212529;\n}\n\n::part(ripple) {\n  background-color: #ffffffb3;\n  border-radius: 50%;\n  animation: ripple .6s linear;\n  position: absolute;\n  transform: scale(0);\n}\n\n";
+$1023b8a9a7973857$exports = "body {\n  font-family: var(--body-font-family);\n  font-size: var(--body-font-size);\n  font-weight: var(--body-font-weight);\n  line-height: var(--body-line-height);\n  color: var(--body-color);\n  text-align: var(--body-text-align);\n  background-color: var(--body-bg);\n  -webkit-text-size-adjust: 100%;\n  -webkit-tap-highlight-color: transparent;\n  margin: 0;\n}\n\njuel-dialog-manager > *, .hide {\n  display: none;\n}\n\n.fullscreen {\n  width: 100vw;\n  height: 100vh;\n}\n\n.flex {\n  flex-flow: column wrap;\n  display: flex;\n}\n\n.flex form {\n  flex-direction: column;\n  display: flex;\n}\n\n.item p {\n  margin: 0;\n}\n\n.icon-lg {\n  width: 48px;\n  height: 48px;\n  background-position: center;\n  background-repeat: no-repeat;\n}\n\n.icon {\n  width: 32px;\n  height: 32px;\n  background-position: center;\n  background-repeat: no-repeat;\n}\n\n.icon-sm {\n  width: 16px;\n  height: 16px;\n  background-position: center;\n  background-repeat: no-repeat;\n}\n\n:root {\n  --primary: #007bff;\n  --primary-text: #343a40;\n  --secondary: #6c757d;\n  --secondary-text: #f8f9fa;\n  --tertiary: salmon;\n  --tertiary-text: salmon;\n  --highlight: #007bff;\n  --active: #e7f1ff --light: #f8f9fa;\n  --dark: #343a40;\n  --success: #28a745;\n  --info: #17a2b8;\n  --warning: #ffc107;\n  --danger: #dc3545;\n  --highlight-text: #343a40;\n  --active-text: #0c63e4;\n  --light-text: #f8f9fa;\n  --dark-text: #343a40;\n  --success-text: #28a745;\n  --info-text: #343a40;\n  --warning-text: #343a40;\n  --danger-text: #dc3545;\n  --icon-previous: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22var%28--fil%2C%20%2323fff%29%22%20d%3D%22M11.354%201.646a.5.5%200%200%201%200%20.708L5.707%208l5.647%205.646a.5.5%200%200%201-.708.708l-6-6a.5.5%200%200%201%200-.708l6-6a.5.5%200%200%201%20.708%200z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-next: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22var%28--fill%2C%20%2323fff%29%22%20d%3D%22M4.646%201.646a.5.5%200%200%201%20.708%200l6%206a.5.5%200%200%201%200%20.708l-6%206a.5.5%200%200%201-.708-.708L10.293%208%204.646%202.354a.5.5%200%200%201%200-.708z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-indicator: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22rgba%28280%2C0%2C0%2C.5%29%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M5%2014l6-6-6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-crosshair: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20id%3D%22root%22%20version%3D%221.1%22%20viewBox%3D%220%200%2016%2016%22%3E%3Ccircle%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20cx%3D%228%22%20cy%3D%228%22%20r%3D%226%22%3E%3C%2Fcircle%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%208%200%20L%208%206.5%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%200%208%20L%206.5%208%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%208%209.5%20L%208%2016%22%3E%3C%2Fpath%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20d%3D%22M%209.5%208%20L%2016%208%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-close: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220px%22%20height%3D%2220px%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22var%28--fill%2C%20black%29%22%20d%3D%22M%204.7070312%203.2929688%20L%203.2929688%204.7070312%20L%2010.585938%2012%20L%203.2929688%2019.292969%20L%204.7070312%2020.707031%20L%2012%2013.414062%20L%2019.292969%2020.707031%20L%2020.707031%2019.292969%20L%2013.414062%2012%20L%2020.707031%204.7070312%20L%2019.292969%203.2929688%20L%2012%2010.585938%20L%204.7070312%203.2929688%20z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --icon-tick: url(\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22var%28--stroke%2C%20black%29%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%223%22%20d%3D%22M6%2010l3%203l6-6%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E\");\n  --justify: center;\n  --padding-left: 32px;\n  --padding-right: 32px;\n  --body-color-rgb: 33, 37, 41;\n  --body-bg-rgb: 255, 255, 255;\n  --font-sans-serif: system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", \"Liberation Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n  --font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;\n  --gradient: linear-gradient(180deg, #ffffff26, #fff0);\n  --body-font-family: var(--font-sans-serif);\n  --body-font-size: 1rem;\n  --body-font-weight: 400;\n  --body-line-height: 1.5;\n  --body-color: #212529;\n}\n\n::part(ripple) {\n  background-color: #ffffffb3;\n  border-radius: 50%;\n  animation: ripple .6s linear;\n  position: absolute;\n  transform: scale(0);\n}\n\n";
 
 
 window.juel = (0, $66369552d2da71b5$export$80e45fb591232624);
@@ -14597,24 +14600,7 @@ function $9030ca0c7e8a59fc$export$4682af2d9ee91415(n3) {
 
 
 var $d37c65794785f5bf$exports = {};
-$d37c65794785f5bf$exports = ":host {\n  width: 100%;\n  display: block;\n}\n\n#container {\n  flex-direction: column;\n  display: flex;\n}\n\n#container .title {\n  width: 100%;\n  text-align: left;\n  overflow-anchor: none;\n  background-color: var(--light, #fff);\n  color: var(--dark-text, #212529);\n  cursor: pointer;\n  border: 0;\n  border-radius: 0;\n  align-items: center;\n  padding: 1rem 1.25rem;\n  font-size: 1rem;\n  transition: color .15s;\n  display: flex;\n  position: relative;\n}\n\n#container .title.active {\n  background-color: var(--active, #e7f1ff);\n  color: var(--active-text);\n  box-shadow: inset 0 -1px #00000020;\n}\n\n#container .title.active + .panel {\n  max-height: 200px;\n}\n\n#container .title:hover {\n  background-color: var(--active);\n  color: var(--active-text);\n}\n\n#container .panel {\n  max-height: 0;\n  background-color: --light;\n  border: 1px solid #00000020;\n  padding: 0 18px;\n  transition: max-height .2s ease-out, max-width .2s ease-out;\n  overflow: auto;\n}\n\n#container .panel:first-of-type {\n  border-top-left-radius: .25rem;\n  border-top-right-radius: .25rem;\n}\n\n#container.horizontal {\n  flex-direction: row;\n}\n\n#container.horizontal .title.active + .panel {\n  max-width: 200px;\n}\n\n#container.horizontal .panel {\n  max-width: 0;\n}\n\n";
-
-
-class $a0686d78f030e4db$export$8f125625db3161c2 {
-    constructor(element){
-        this.element = element;
-    }
-    init() {
-        let h = 0;
-        let btns = $(this.element.shadowRoot).find(".title");
-        btns.each((index, el)=>{
-            $(el).off("click").on("click", function() {
-                el.classList.toggle("active");
-                if (el.classList.contains("active")) $(el).siblings(".title").removeClass("active");
-            });
-        });
-    }
-}
+$d37c65794785f5bf$exports = ":host {\n  width: 100%;\n  display: block;\n}\n\n#container {\n  height: 100%;\n  flex-direction: column;\n  display: flex;\n}\n\n#container .title {\n  width: 100%;\n  text-align: left;\n  overflow-anchor: none;\n  background-color: var(--light, #fff);\n  color: var(--dark-text, #212529);\n  cursor: pointer;\n  border: 0;\n  border-radius: 0;\n  align-items: center;\n  padding: 1rem 1.25rem;\n  font-size: 1rem;\n  transition: color .15s;\n  display: flex;\n  position: relative;\n}\n\n#container .title.active {\n  background-color: var(--active, #e7f1ff);\n  color: var(--active-text);\n  box-shadow: inset 0 -1px #00000020;\n}\n\n#container .title.active + .panel {\n  max-height: 100%;\n}\n\n#container .title:hover {\n  background-color: var(--active);\n  color: var(--active-text);\n}\n\n#container .panel {\n  max-height: 0;\n  background-color: --light;\n  border: 1px solid #00000020;\n  padding: 0 18px;\n  transition: max-height .2s ease-out, max-width .2s ease-out;\n  overflow: auto;\n}\n\n#container .panel:first-of-type {\n  border-top-left-radius: .25rem;\n  border-top-right-radius: .25rem;\n}\n\n#container.horizontal {\n  flex-direction: row;\n}\n\n#container.horizontal .title.active + .panel {\n  max-width: 100%;\n}\n\n#container.horizontal .panel {\n  max-width: 0;\n}\n\n";
 
 
 function $57c09562a6d0b30e$export$eec70cb3a42440b6(el1, map, ...exclude) {
@@ -14623,6 +14609,10 @@ function $57c09562a6d0b30e$export$eec70cb3a42440b6(el1, map, ...exclude) {
     else return children.map(map);
 }
 
+
+var $130bfe10b6a54799$exports = {};
+
+$parcel$export($130bfe10b6a54799$exports, "NavigationBase", () => $130bfe10b6a54799$export$d91c39b5881d9277, (v) => $130bfe10b6a54799$export$d91c39b5881d9277 = v);
 
 var $5e0a45860ddebf78$exports = {};
 
@@ -14667,26 +14657,59 @@ $5e0a45860ddebf78$var$__decorate([
 ], $5e0a45860ddebf78$export$c6e5a5bea44a61ec.prototype, "juelParent", void 0);
 
 
+var $130bfe10b6a54799$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+class $130bfe10b6a54799$export$d91c39b5881d9277 extends (0, $5e0a45860ddebf78$exports.JuelComponent) {
+    firstLoad() {
+        if (window.location.hash) this.navigateToSelector(window.location.hash);
+    }
+    navigateTo(index) {}
+    navigateToSelector(selector) {}
+}
+$130bfe10b6a54799$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $130bfe10b6a54799$export$d91c39b5881d9277.prototype, "position", void 0);
+
+
 var $5c4d424c0d6a93d1$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-let $5c4d424c0d6a93d1$export$ab4cd39c32ba0bf9 = class JuelAccordion extends (0, $5e0a45860ddebf78$exports.JuelComponent) {
+let $5c4d424c0d6a93d1$export$ab4cd39c32ba0bf9 = class JuelAccordion extends (0, $130bfe10b6a54799$exports.NavigationBase) {
     constructor(){
         super();
         this.size = "500px";
         this.horizontal = false;
         this.multiple = false;
-        this.service = new (0, $a0686d78f030e4db$export$8f125625db3161c2)(this);
     }
-    load() {
-        this.service.init();
+    navigateToSelector(selector) {
+        let children = $(this).children().not('[slot*="title"]');
+        let el = this.querySelector(selector);
+        if (el) {
+            let index = children.index(el);
+            console.log(index);
+            if (index >= 0) this.navigateToIndex(index);
+        }
     }
-    titleClick(e) {
-        let el = e.target;
-        el.classList.toggle("active");
+    navigateToIndex(index) {
+        let el = this.shadowRoot.querySelector(`[data-index="${index}"]`);
+        if (el) {
+            el.classList.toggle("active");
+            if (el.classList.contains("active")) $(el).siblings(".title").removeClass("active");
+        }
+    }
+    titleClick(index) {
+        let el = this.shadowRoot.querySelector(`[data-index="${index}"]`);
+        if (el) {
+            el.classList.toggle("active");
+            if (el.classList.contains("active")) $(el).siblings(".title").removeClass("active");
+        }
     }
     render() {
         return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="container" class="${this.horizontal == true ? "horizontal" : ""}">
@@ -14699,8 +14722,12 @@ let $5c4d424c0d6a93d1$export$ab4cd39c32ba0bf9 = class JuelAccordion extends (0, 
             if (titleEl && titleEl.matches('[slot*="title"')) {
                 hasTitleEl = true;
                 titleEl.setAttribute("slot", titleElId);
+                if (titleEl.hasAttribute("id") && ele.hasAttribute("id") == false) {
+                    ele.id = titleEl.id;
+                    titleEl.removeAttribute("id");
+                }
             }
-            return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="title">
+            return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="title" data-index="${index}" @click="${()=>this.titleClick(index)}">
                         ${hasTitleEl ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<slot name="${titleElId}"></slot>` : (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<span>
                                 ${ele.dataset.title ? ele.dataset.title : ""}
                             </span>`}
@@ -14748,9 +14775,9 @@ var $f401d5ecd398af0f$exports = {};
 
 
 
-
 var $f82e8a1761111201$exports = {};
-$f82e8a1761111201$exports = ":host {\n  display: flex;\n}\n\n.container {\n  width: var(--item-width);\n  height: var(--item-height);\n  position: relative;\n}\n\n.item {\n  pointer-events: none;\n  display: none;\n  position: absolute;\n  top: 0;\n  left: 0;\n}\n\n.item.active {\n  pointer-events: all;\n  display: block;\n}\n\n";
+$f82e8a1761111201$exports = ":host {\n  display: inline-flex;\n  position: relative;\n}\n\n.container, .item {\n  width: var(--item-width, 100%);\n  height: var(--item-height, 100%);\n}\n\n.item {\n  pointer-events: none;\n  display: none;\n}\n\n.item.active {\n  pointer-events: all;\n  display: block;\n}\n\n.caption {\n  color: #fff;\n  text-align: center;\n  padding-top: 1.25rem;\n  padding-bottom: 1.25rem;\n  position: absolute;\n  bottom: 1.25rem;\n  left: 15%;\n  right: 15%;\n}\n\n::slotted(.carousel-item) {\n  width: 100%;\n  height: 100%;\n}\n\n::slotted(div[slot*=\"caption\"]) {\n  display: inline;\n}\n\n#previous {\n  z-index: 1;\n  width: 10%;\n  text-align: center;\n  opacity: .25;\n  cursor: pointer;\n  justify-content: center;\n  align-items: center;\n  padding: 0;\n  transition: opacity .15s;\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n}\n\n#previous:hover {\n  opacity: .45;\n}\n\n#previous span {\n  width: 2rem;\n  height: 2rem;\n  background-image: var(--icon-previous);\n  filter: invert();\n}\n\n#next {\n  z-index: 1;\n  width: 10%;\n  text-align: center;\n  opacity: .25;\n  cursor: pointer;\n  justify-content: center;\n  align-items: center;\n  padding: 0;\n  transition: opacity .15s;\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: 0;\n}\n\n#next:hover {\n  opacity: .45;\n}\n\n#next span {\n  width: 2rem;\n  height: 2rem;\n  background-image: var(--icon-next);\n  filter: invert();\n}\n\n";
+
 
 
 var $f401d5ecd398af0f$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
@@ -14759,7 +14786,7 @@ var $f401d5ecd398af0f$var$__decorate = undefined && undefined.__decorate || func
     else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-let $f401d5ecd398af0f$export$94d94cce01dab8d8 = class JuelCarousel extends (0, $5e0a45860ddebf78$exports.JuelComponent) {
+let $f401d5ecd398af0f$export$94d94cce01dab8d8 = class JuelCarousel extends (0, $130bfe10b6a54799$exports.NavigationBase) {
     constructor(){
         super();
         this.position = 0;
@@ -14767,22 +14794,39 @@ let $f401d5ecd398af0f$export$94d94cce01dab8d8 = class JuelCarousel extends (0, $
     }
     navigateTo(index) {
         const currItm = $(this.shadowRoot.querySelector(`[data-index="${index}"]`));
-        if (currItm) {
+        if (currItm && currItm.length > 0) {
             currItm.siblings(".item").removeClass("active");
             currItm.addClass("active");
-            this.style.setProperty("--item-width", currItm.outerWidth().toString());
-            this.style.setProperty("--item-height", currItm.outerHeight().toString());
+            let w = currItm.outerWidth();
+            if (w > 0) this.style.setProperty("--item-width", w.toString());
+            let h = currItm.outerHeight();
+            if (h > 0) this.style.setProperty("--item-height", h.toString());
+        }
+    }
+    navigateToSelector(selector) {
+        let el = this.querySelector(selector);
+        if (el) {
+            let children = $(this).children().not('[slot*="caption"]');
+            let index = children.index(el);
+            if (index >= 0) {
+                this.position = index;
+                this.navigateTo(index);
+            }
         }
     }
     firstLoad() {
+        super.firstLoad();
         if (this.controls.includes(" ")) {
             let splity = this.controls.split(" ");
-            if (splity[1].endsWith("ms")) this.interval = parseInt(splity[1].replace("ms", ""));
-            else if (splity[1].endsWith("s")) this.interval = parseInt(splity[1].replace("s", "")) * 1000;
-        }
+            this.setInterval(splity[0]);
+        } else this.setInterval(this.controls);
         if (this.interval) this.intervalHandler = setInterval(()=>{
             this.next(null);
         }, this.interval);
+    }
+    setInterval(str) {
+        if (str.endsWith("ms")) this.interval = parseInt(str.replace("ms", ""));
+        else if (str.endsWith("s")) this.interval = parseInt(str.replace("s", "")) * 1000;
     }
     prev(e) {
         this.isForward = false;
@@ -14803,7 +14847,7 @@ let $f401d5ecd398af0f$export$94d94cce01dab8d8 = class JuelCarousel extends (0, $
     render() {
         let hasCtrls = this.controls.includes("true");
         this.itemsCount = 0;
-        return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasCtrls, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<juel-button label="&lt;" @button-clicked="${this.prev}"></juel-button>`)}
+        return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasCtrls, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="previous" @click="${this.prev}"><span></span></div>`)}
         <div class="container">
         ${(0, $57c09562a6d0b30e$export$eec70cb3a42440b6)(this, (el, index)=>{
             this.itemsCount++;
@@ -14812,17 +14856,20 @@ let $f401d5ecd398af0f$export$94d94cce01dab8d8 = class JuelCarousel extends (0, $
             if (index == this.position) {
                 klass += " active";
                 let $el = $(el);
-                this.style.setProperty("--item-width", $el.outerWidth().toString());
-                this.style.setProperty("--item-height", $el.outerHeight().toString());
+                let w = $el.outerWidth();
+                if (w > 0) this.style.setProperty("--item-width", w.toString());
+                let h = $el.outerHeight();
+                if (h > 0) this.style.setProperty("--item-height", h.toString());
             }
             let hasTitleEl = false;
             let titleElId = `${id}-caption`;
             let titleEl = el.nextElementSibling;
-            if (titleEl && titleEl.matches('[slot*="caption"')) {
+            if (titleEl && titleEl.matches('[slot*="caption"]')) {
                 hasTitleEl = true;
                 titleEl.setAttribute("slot", titleElId);
             }
             el.setAttribute("slot", id);
+            el.classList.add("item");
             el.setAttribute("draggable", "false");
             el.setAttribute("ondragstart", "event.preventDefault();");
             return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`
@@ -14833,13 +14880,10 @@ let $f401d5ecd398af0f$export$94d94cce01dab8d8 = class JuelCarousel extends (0, $
                         </div>`;
         }, '[slot*="caption"]')}
         </div>
-        ${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasCtrls, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<juel-button label="&gt;" @button-clicked="${this.next}"></juel-button>`)}`;
+        ${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasCtrls, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="next" @click="${this.next}"><span></span></div>`)}`;
     }
 };
 $f401d5ecd398af0f$export$94d94cce01dab8d8.styles = (0, $0e96f61157968e0c$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($f82e8a1761111201$exports))));
-$f401d5ecd398af0f$var$__decorate([
-    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
-], $f401d5ecd398af0f$export$94d94cce01dab8d8.prototype, "position", void 0);
 $f401d5ecd398af0f$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
 ], $f401d5ecd398af0f$export$94d94cce01dab8d8.prototype, "controls", void 0);
@@ -18924,7 +18968,7 @@ $parcel$export($9d3d012ca8c1ae60$exports, "JuelScrollPane", () => $9d3d012ca8c1a
 
 
 var $34ca301052f0712a$exports = {};
-$34ca301052f0712a$exports = ":host {\n  transition: width .8s, height .8s;\n  display: flex;\n  overflow: hidden auto;\n}\n\n.container {\n  width: 100%;\n  height: 100%;\n  align-items: flex-start;\n  transition: margin .8s, width .8s, height .8s;\n  display: inline-flex;\n}\n\n#previous {\n  z-index: 1;\n  width: 10%;\n  color: #fff;\n  text-align: center;\n  opacity: .25;\n  cursor: pointer;\n  background: #000;\n  border: 0;\n  justify-content: center;\n  align-items: center;\n  padding: 0;\n  transition: opacity .15s;\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n}\n\n#previous span {\n  width: 2rem;\n  height: 2rem;\n  background-image: var(--icon-previous);\n}\n\n#next {\n  z-index: 1;\n  width: 10%;\n  color: #fff;\n  text-align: center;\n  opacity: .25;\n  cursor: pointer;\n  background: #000;\n  border: 0;\n  justify-content: center;\n  align-items: center;\n  padding: 0;\n  transition: opacity .15s;\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: 0;\n}\n\n#next span {\n  width: 2rem;\n  height: 2rem;\n  background-image: var(--icon-next);\n}\n\n@media screen and (max-height: 500px) {\n  .item {\n    height: 100%;\n  }\n}\n\n";
+$34ca301052f0712a$exports = ":host {\n  transition: width .8s, height .8s;\n  display: flex;\n  overflow: hidden auto;\n}\n\n.container {\n  width: var(--item-width, 100%);\n  height: var(--item-height, 100%);\n  margin-left: var(--scroll-margin, 0);\n  align-items: flex-start;\n  transition: margin .8s, width .8s, height .8s;\n  display: inline-flex;\n}\n\n#previous {\n  z-index: 1;\n  width: 10%;\n  color: #fff;\n  text-align: center;\n  opacity: .25;\n  cursor: pointer;\n  background: #000;\n  border: 0;\n  justify-content: center;\n  align-items: center;\n  padding: 0;\n  transition: opacity .15s;\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n}\n\n#previous span {\n  width: 2rem;\n  height: 2rem;\n  background-image: var(--icon-previous);\n}\n\n#next {\n  z-index: 1;\n  width: 10%;\n  color: #fff;\n  text-align: center;\n  opacity: .25;\n  cursor: pointer;\n  background: #000;\n  border: 0;\n  justify-content: center;\n  align-items: center;\n  padding: 0;\n  transition: opacity .15s;\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  right: 0;\n}\n\n#next span {\n  width: 2rem;\n  height: 2rem;\n  background-image: var(--icon-next);\n}\n\n@media screen and (max-height: 500px) {\n  .item {\n    height: 100%;\n  }\n}\n\n";
 
 
 
@@ -21054,9 +21098,11 @@ var $9d3d012ca8c1ae60$var$__decorate = undefined && undefined.__decorate || func
     else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-let $9d3d012ca8c1ae60$export$a594d2c8fae2c977 = class JuelScrollPane extends (0, $5e0a45860ddebf78$exports.JuelComponent) {
+var $9d3d012ca8c1ae60$var$JuelScrollPane_1;
+let $9d3d012ca8c1ae60$export$a594d2c8fae2c977 = $9d3d012ca8c1ae60$var$JuelScrollPane_1 = class JuelScrollPane extends (0, $130bfe10b6a54799$exports.NavigationBase) {
     constructor(){
         super();
+        this.positionHistory = [];
         this.service = new (0, $6149df29e8066370$export$a4f347957ca31449)(this);
         this.master = 0;
         this.width = null;
@@ -21071,6 +21117,8 @@ let $9d3d012ca8c1ae60$export$a594d2c8fae2c977 = class JuelScrollPane extends (0,
         if (!("Hammer" in window)) window["Hammer"] = (0, (/*@__PURE__*/$parcel$interopDefault($285a58c52cac528e$exports)));
     }
     firstLoad() {
+        super.firstLoad();
+        this.container = this.shadowRoot.querySelector(".container");
         let mc = new (0, (/*@__PURE__*/$parcel$interopDefault($285a58c52cac528e$exports)))(this);
         mc.on("swipe", (e)=>{
             if (e.direction == 2) this.service.next();
@@ -21081,8 +21129,32 @@ let $9d3d012ca8c1ae60$export$a594d2c8fae2c977 = class JuelScrollPane extends (0,
     reset(resetChildren = false) {
         this.service.reset(resetChildren);
     }
-    scrollIndex(index) {
-        this.service.scrollTo(index);
+    navigateTo(index) {
+        let el = $(this.container.querySelectorAll(`[data-index="${index}"]`));
+        let margin = 0;
+        let prev = el.prevAll();
+        console.log(prev);
+        if (prev.length > 0) prev.each((i, sib)=>{
+            margin += !this.width ? $(sib).outerWidth() : this.width;
+        });
+        if (!this.fullHeight) {
+            let w = el.outerWidth();
+            let h = el.outerHeight();
+            if (w > 0) this.style.setProperty("--item-width", w.toString());
+            if (window["isMobile"] == false && h > 0) this.style.setProperty("--item-height", h.toString());
+        }
+        console.log(`-${margin}px`);
+        this.container.style.setProperty("--scroll-margin", margin.toString());
+        this.position = index;
+        let evt = new CustomEvent($9d3d012ca8c1ae60$var$JuelScrollPane_1.SCROLL, {
+            detail: {
+                index: index,
+                element: el
+            }
+        });
+        this.positionHistory.push(this.position);
+        if (this.positionHistory.length == this.children.length) this.positionHistory = [];
+        this.dispatchEvent(evt);
     }
     scrollNext(e) {
         if (e) e.stopPropagation();
@@ -21099,8 +21171,18 @@ let $9d3d012ca8c1ae60$export$a594d2c8fae2c977 = class JuelScrollPane extends (0,
         return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${this.controls ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="next" part="next" @click="${this.scrollNext}"><span></span></div>` : ``}
             <div class="container">
                 ${(0, $57c09562a6d0b30e$export$eec70cb3a42440b6)(this, (el, index)=>{
+            let klass = "item";
+            if (index == this.position) {
+                klass += " active";
+                let $el = $(el);
+                let w = $el.outerWidth();
+                if (w > 0) this.style.setProperty("--item-width", w.toString());
+                let h = $el.outerHeight();
+                if (h > 0) this.style.setProperty("--item-height", h.toString());
+            }
             let id = el.id ? el.id : `item-${index}`;
             el.setAttribute("slot", id);
+            el.classList.add("item");
             el.setAttribute("draggable", "false");
             el.setAttribute("ondragstart", "event.preventDefault();");
             return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`
@@ -21114,9 +21196,6 @@ let $9d3d012ca8c1ae60$export$a594d2c8fae2c977 = class JuelScrollPane extends (0,
 };
 $9d3d012ca8c1ae60$export$a594d2c8fae2c977.SCROLL = "scroll";
 $9d3d012ca8c1ae60$export$a594d2c8fae2c977.styles = (0, $0e96f61157968e0c$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($34ca301052f0712a$exports))));
-$9d3d012ca8c1ae60$var$__decorate([
-    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
-], $9d3d012ca8c1ae60$export$a594d2c8fae2c977.prototype, "position", void 0);
 $9d3d012ca8c1ae60$var$__decorate([
     (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
         type: Boolean
@@ -21176,7 +21255,7 @@ $9d3d012ca8c1ae60$var$__decorate([
         type: Boolean
     })
 ], $9d3d012ca8c1ae60$export$a594d2c8fae2c977.prototype, "fullHeight", void 0);
-$9d3d012ca8c1ae60$export$a594d2c8fae2c977 = $9d3d012ca8c1ae60$var$__decorate([
+$9d3d012ca8c1ae60$export$a594d2c8fae2c977 = $9d3d012ca8c1ae60$var$JuelScrollPane_1 = $9d3d012ca8c1ae60$var$__decorate([
     (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("juel-scroll-pane")
 ], $9d3d012ca8c1ae60$export$a594d2c8fae2c977);
 
@@ -21397,7 +21476,7 @@ var $9cd2e0592802f44c$exports = {};
 
 
 var $ce47740d682c9295$exports = {};
-$ce47740d682c9295$exports = "@keyframes move-down {\n  from {\n    transform: translateY(-50px);\n  }\n\n  to {\n    transform: translateY(0);\n  }\n}\n\n.modal {\n  width: 100vw;\n  height: 100vh;\n  background: #00000080;\n  justify-content: center;\n  align-items: center;\n  display: none;\n  position: fixed;\n  top: 0;\n  left: 0;\n}\n\n.modal.open {\n  display: flex;\n}\n\n.modal.open .container {\n  animation: move-down .6s ease-out;\n}\n\n.container {\n  width: 90%;\n  max-width: 450px;\n  background-color: #fff;\n  position: relative;\n}\n\n.close {\n  height: 40px;\n  width: 40px;\n  text-align: center;\n  cursor: pointer;\n  background-color: #fff;\n  font-size: 3rem;\n  line-height: 40px;\n  transition: color .15s linear;\n  position: absolute;\n  top: 0;\n  right: 0;\n}\n\n.close:hover {\n  color: red;\n}\n\n";
+$ce47740d682c9295$exports = "@keyframes move-down {\n  from {\n    transform: translateY(-50px);\n  }\n\n  to {\n    transform: translateY(0);\n  }\n}\n\n.modal {\n  width: 100vw;\n  height: 100vh;\n  background: #00000080;\n  justify-content: center;\n  align-items: center;\n  display: none;\n  position: fixed;\n  top: 0;\n  left: 0;\n}\n\n.modal.open {\n  display: flex;\n}\n\n.modal.open .container {\n  animation: move-down .6s ease-out;\n}\n\n.container {\n  width: 90%;\n  max-width: 450px;\n  background-color: #fff;\n  border: 1px solid #0003;\n  border-radius: .3rem;\n  position: relative;\n}\n\n.header {\n  border-bottom: 1px solid #dee2e6;\n  flex-shrink: 0;\n  justify-content: space-between;\n  align-items: center;\n  padding: 1rem;\n  display: flex;\n}\n\n.content {\n  pointer-events: auto;\n  background-color: #fff;\n  background-clip: padding-box;\n  outline: 0;\n  flex-direction: column;\n  padding: 1rem;\n  display: flex;\n  position: relative;\n}\n\n.close {\n  cursor: pointer;\n  background-image: var(--icon-close);\n  opacity: .5;\n  width: 26px;\n  height: 26px;\n  background-position: center;\n  background-repeat: no-repeat;\n  margin-top: 3%;\n}\n\n.close:hover {\n  opacity: 1;\n}\n\n::slotted(h1), ::slotted(h2), ::slotted(h3), ::slotted(h4), ::slotted(h5), ::slotted(h6) {\n  margin: 0;\n}\n\n";
 
 
 var $9cd2e0592802f44c$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
@@ -21421,7 +21500,7 @@ let $9cd2e0592802f44c$export$ad96773db7b3902 = class JuelModal extends (0, $5e0a
     render() {
         return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="modal">
             <div class="container">
-            span class="close" @click="${this.close}">&times;</span>
+            <div class="header"><slot name="title"></slot><span class="close" @click="${this.close}"></span></div>
             <div class="content">
             <slot></slot>
             </div>
@@ -22523,6 +22602,7 @@ var $038e193f9971cdd6$var$JuelEmbed_1;
 let $038e193f9971cdd6$export$6fdd3e3b8bc0fa25 = $038e193f9971cdd6$var$JuelEmbed_1 = class JuelEmbed extends (0, $69a66af8deb391ea$export$3f2f9f5909897157) {
     constructor(){
         super();
+        this.selector = "body";
     }
     firstUpdated(_changedProperties) {
         if (this.url) fetch(this.url).then((response)=>{
@@ -22533,9 +22613,12 @@ let $038e193f9971cdd6$export$6fdd3e3b8bc0fa25 = $038e193f9971cdd6$var$JuelEmbed_
                 console.log(err);
             });
             else response.text().then((data)=>{
-                let $data = $(data);
-                $(this).append($data);
-                this.requestUpdate();
+                let match = data.match(/(?<=<body>)[\s\S]+(?=<\/body>)/);
+                if (match && match.length == 1) {
+                    let $data = $(match[0]);
+                    $(this).append($data);
+                    this.requestUpdate();
+                }
             });
         });
         else if (this.innerHTML) {

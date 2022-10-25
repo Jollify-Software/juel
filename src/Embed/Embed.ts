@@ -73,11 +73,14 @@ export class JuelEmbed extends LitElement {
                     });
                 } else {
                     response.text().then(data => {
-                        let $data = $(data);
+                        let match = data.match(/(?<=<body>)[\s\S]+(?=<\/body>)/);
+                        if (match && match.length == 1) {
+                        let $data = $(match[0]);
                         $(this).append(
-                            $data.find(this.selector)
+                            $data
                         );
                         this.requestUpdate();
+                        }
                     })
                 }
             });
