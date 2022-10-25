@@ -57,6 +57,7 @@ export class JuelEmbed extends LitElement {
 
     constructor() {
         super();
+        this.selector = "body"
     }
 
     protected firstUpdated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
@@ -74,7 +75,7 @@ export class JuelEmbed extends LitElement {
                     response.text().then(data => {
                         let $data = $(data);
                         $(this).append(
-                            $data
+                            $data.find(this.selector)
                         );
                         this.requestUpdate();
                     })
