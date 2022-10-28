@@ -26,22 +26,21 @@ export class Select extends ListBase {
 
     constructor() {
         super();
+        this.menuShown = false;
     }
 
     firstLoad() {
-        this.menuShown = false;
         this.items = this.shadowRoot.getElementById('items');
         this.items.style.display = "none";
-        this.trigger = this.shadowRoot.getElementById('trigger');
-        $(this.trigger).off("click").on('click', (e) => {
-            console.log("Menu is shown " + this.menuShown)
-            this.shadowRoot.getElementById('select').classList.toggle('open');
-            if (this.menuShown == false) {
-                this.show();
-            } else {
-                this.hide();
-            }
-        });
+    }
+
+    toggle() {
+        this.shadowRoot.getElementById('select').classList.toggle('open');
+        if (this.menuShown == false) {
+            this.show();
+        } else {
+            this.hide();
+        }
     }
 
     hide() {
@@ -88,14 +87,16 @@ export class Select extends ListBase {
     render() {
         let index = -1;
         return html`<div id="select">
-            <div id="trigger">
+            ${when(this.input,
+                () => html`<div id="trigger"><input type="text"><button id="dropdown-toggle" @click="${this.toggle}"></div></div>`,
+                () => html`<div id="trigger" @click="${this.toggle}">
                 <div id="selected-placeholder">
                     ${this.placeholderIndex != null ? unsafeHTML(
                         this.getPlaceholder()) : nothing}
                 </div>
-                <div id="arrow"></div>
+                <button id="dropdown-toggle"></button>
                 ${ this.multiselect == true && this.selectedIndexes && this.selectedIndexes.length > 1 ? html`<div id="badge">${this.selectedIndexes.length - 1}</div>` : `` }
-            </div>
+            </div>`)}
             <div id="items">
             ${ChildrenMap(this, (ele, i) => {
                 let isHeading = false;

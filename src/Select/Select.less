@@ -1,3 +1,4 @@
+@import '../_CommonStyles/DropDown.less';
 
 :host {
     position: relative;
@@ -8,6 +9,12 @@
     --items-height: 200px;
     cursor: pointer;
     padding: 2px 4px;
+  }
+
+  #trigger {
+    width: 100%;
+    height: 100%;
+    display: flex;
   }
 
   #items {
@@ -65,10 +72,8 @@ left: 80%;
 }
   }
   
-#selected-placeholder {
-  
-  
-  
+#selected-placeholder, input {
+  width: 100%;
 }
   
   select {

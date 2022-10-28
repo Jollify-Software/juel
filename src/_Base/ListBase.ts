@@ -2,19 +2,17 @@ import { property, state } from "lit/decorators";
 import { Dispatch } from "../_Core/DispatchFunction";
 import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
 import { EventNames } from "../_Core/Events/EventNames";
-import { GetDisplayKnownProperty, KnownProperties } from "../_Core/KnownProperties";
-import { JuelComponent } from "./JuelComponent";
+import { GetDisplayKnownProperty } from "../_Core/KnownProperties";
+import { JuelDataComponent } from "./JuelDataComponent";
 
-export class ListBase extends JuelComponent {
+export class ListBase extends JuelDataComponent {
 
     static selectedClass = "selected";
     static appearClass = "juel-appear";
     static ValueKey = "value";
 
-    @property() data: any[];
     @property({ type: Boolean }) multiselect: boolean;
-    @property() key: string;
-    @property() text: string;
+    @property({ type: Boolean }) input: boolean;
 
     @state()
     protected placeholderIndex: number;
@@ -27,8 +25,6 @@ export class ListBase extends JuelComponent {
         this.placeholderIndex = null;
         this.selectedIndexes = [];
         this.selectedData = [];
-        this.key = null;
-        this.text = null;
     }
 
     getPlaceholder() {
@@ -40,8 +36,8 @@ export class ListBase extends JuelComponent {
                 } else {
                     val = this.selectItem[0];
                 }
-                if (this.text && this.text in val) {
-                    return val[this.text];
+                if (this.textField && this.textField in val) {
+                    return val[this.textField];
                 } else {
                     return GetDisplayKnownProperty(val);
                 }
@@ -71,14 +67,6 @@ export class ListBase extends JuelComponent {
             sel.append(opt);
         }
         return sel;
-    }
-
-    setData(data: any[]) {
-        this.data = data;
-    }
-
-    getData() {
-        return this.data;
     }
 
     getSelectedData() {

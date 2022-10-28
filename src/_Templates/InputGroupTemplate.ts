@@ -1,4 +1,4 @@
-import { html, TemplateResult } from "lit";
+import { html, nothing, TemplateResult } from "lit";
 import { when } from 'lit/directives/when'
 import { InputBase } from "../_Base/InputBase";
 import { RenderStyles } from "../_Core/RenderStyles";
@@ -74,9 +74,9 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
         }
                     ${el.active == true && hasAppendActive ?
             html`<div class="${appendClass}"><slot name="append-active"></slot></div>`
-            : ``}
+            : nothing}
                 </div>`, () => inputTemplate(el, klass))}
                 ${hasDropdown ?
             html`<div id="dropdown-items" style="display:none"><slot name="dropdown"></slot></div>` :
-            html``}`;
+            nothing}`;
 }

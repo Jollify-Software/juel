@@ -37,4 +37,17 @@ export class JuelComponent extends LitElement {
     load(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
 
     }
+
+    get(property) {
+        if (property in this) {
+            return this[property];
+        }
+        return null;
+    }
+
+    set(property: string, value: any) {
+        if (property in this) {
+            this[property] = value;
+        }
+    }
 }
