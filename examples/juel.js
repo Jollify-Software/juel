@@ -18792,6 +18792,11 @@ var $7cd237bcc800ad08$exports = {};
 $7cd237bcc800ad08$exports = ":host {\n  font-family: Arial;\n  position: relative;\n}\n\nsvg {\n  width: 32px;\n  height: 32px;\n}\n\ndiv {\n  display: inline-block;\n}\n\n#items {\n  background-color: var(--light);\n  z-index: 101;\n}\n\n#badge {\n  width: 16px;\n  height: 16px;\n  background: red;\n  border-radius: 25px;\n  place-content: center;\n  font-size: small;\n  display: flex;\n  position: absolute;\n  top: 6px;\n  left: 80%;\n}\n\n#badge:before {\n  content: \"✕\";\n}\n\n#selected-placeholder {\n  cursor: pointer;\n  user-select: none;\n  border: 1px solid #000;\n  padding: 8px 16px;\n}\n\nselect {\n  display: none;\n}\n\n#select #arrow {\n  content: \"\";\n  width: 0;\n  height: 0;\n  border: 6px solid #0000;\n  border-color: var(--primary) transparent transparent transparent;\n  position: absolute;\n  top: 14px;\n  right: 10px;\n}\n\n#select.open #arrow {\n  border-color: transparent transparent var(--primary) transparent;\n  top: 7px;\n}\n\n#items-container, .selected {\n  cursor: pointer;\n  border: 1px solid #000;\n}\n\n#items-container {\n  display: inline-block;\n  position: absolute;\n}\n\n.item {\n  width: 100%;\n  display: inline-block;\n}\n\n.item.selected, .item:hover {\n  background-color: var(--primary);\n}\n\n";
 
 
+
+var $f115d3f4689f467d$exports = {};
+
+$parcel$export($f115d3f4689f467d$exports, "ListBase", () => $f115d3f4689f467d$export$8f4a37dcf1e373df, (v) => $f115d3f4689f467d$export$8f4a37dcf1e373df = v);
+
 function $38d8c756f0a655d2$export$65fee5f8f91a342f(el, name, args) {
     let evt = new CustomEvent(name, {
         detail: args
@@ -18802,13 +18807,23 @@ function $38d8c756f0a655d2$export$65fee5f8f91a342f(el, name, args) {
 
 
 
-class $7cf92cd4e9126847$export$448ee86705ad98f3 {
+
+var $f115d3f4689f467d$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+class $f115d3f4689f467d$export$8f4a37dcf1e373df extends (0, $5e0a45860ddebf78$exports.JuelComponent) {
     constructor(){
-        this.selectedSlot = null;
+        super();
+        this.multiselect = false;
+        this.selectedIndexes = [];
+        this.selectedData = [];
     }
-    createSelect(select) {
+    createFormInput() {
         let sel = document.createElement("select");
-        let options = select.data.map((item)=>{
+        let options = this.data.map((item)=>{
             let opt = document.createElement("option");
             opt.textContent = item;
             opt.value = item;
@@ -18817,43 +18832,71 @@ class $7cf92cd4e9126847$export$448ee86705ad98f3 {
         for (let opt1 of options)sel.append(opt1);
         return sel;
     }
-    init(select) {
-        let service = this;
-        let children = select.children;
-        if (!select.data) select.data = Array.prototype.slice.call(children).filter((el)=>el.classList.contains("juel-item")).map((el)=>"value" in el.dataset ? el.dataset.value : el.textContent);
-        if (select.multiple) select.value = [];
-        let firstItm = $(select.shadowRoot.querySelector(".item"));
-        let placeholder = select.shadowRoot.querySelector("#selected-placeholder");
-        placeholder.style.minWidth = `${firstItm.outerWidth()}px`;
-        placeholder.style.minHeight = `${firstItm.outerHeight()}px`;
-        select.shadowRoot.querySelectorAll(".item").forEach((el)=>{
-            $(el).off("click").on("click", function(event) {
-                service.selectedSlot = el.querySelector("slot").getAttribute("name");
-                let item1 = select.querySelector(`[slot="${service.selectedSlot}"]`);
-                if (item1) {
-                    let index = parseInt(el.dataset.index);
-                    let value = select.data[index];
-                    if (select.multiple == false) select.value = [
-                        value
-                    ];
-                    else if (!select.value.some((item)=>item == value)) select.value.push(value);
-                    else {
-                        select.value = select.value.filter((item)=>item != value);
-                        if (select.placeholderIndex == index && select.value.length > 0) select.placeholderIndex = select.data.indexOf(select.value[0]);
-                        if (select.value.length == 0) select.placeholderIndex = null;
-                    }
-                    if (select.value.length == 1) select.placeholderIndex = index;
-                    if (!select.multiple) select.hide();
-                    let args = {
-                        value: select.value
-                    };
-                    (0, $38d8c756f0a655d2$export$65fee5f8f91a342f)(select, (0, $ad5a5e3d85db6c6d$export$3fd36d65bf762270).Changed, args);
-                }
-            });
-        });
+    setData(data) {
+        this.data = data;
     }
+    getData() {
+        return this.data;
+    }
+    getSelectedData() {
+        return this.selectedData;
+    }
+    setSelectedIndexes(indexes) {
+        for (let i of indexes)this.selectItem(i);
+    }
+    getSelectedIndexes() {
+        return this.selectedIndexes;
+    }
+    selectItem(index) {
+        let el = this.shadowRoot.querySelector(`[data-index="${index}"]`);
+        if (el) {
+            let $el = $(el);
+            let value = $el.data($f115d3f4689f467d$export$8f4a37dcf1e373df.ValueKey);
+            if (!this.multiselect) {
+                $el.siblings().each((i, e)=>{
+                    $(e).removeClass($f115d3f4689f467d$export$8f4a37dcf1e373df.selectedClass).find(".juel-appear").hide("slow");
+                });
+                this.selectedIndexes = [];
+                this.selectedData = [];
+            }
+            if ($el.hasClass($f115d3f4689f467d$export$8f4a37dcf1e373df.selectedClass)) {
+                $el.removeClass($f115d3f4689f467d$export$8f4a37dcf1e373df.selectedClass);
+                $el.find(".juel-appear").hide("slow");
+                this.selectedIndexes = this.selectedIndexes.filter((i)=>i != index);
+                if (value) this.selectedData = this.selectedData.filter((val)=>val != value);
+                this.onItemSelected(index, el);
+                let args = {
+                    index: index,
+                    value: value
+                };
+                (0, $38d8c756f0a655d2$export$65fee5f8f91a342f)(this, (0, $ad5a5e3d85db6c6d$export$3fd36d65bf762270).Selected, args);
+            } else {
+                $el.addClass($f115d3f4689f467d$export$8f4a37dcf1e373df.selectedClass);
+                $el.find(".juel-appear").show("slow");
+                this.selectedIndexes.push(index);
+                if (value) this.selectedData.push(value);
+                this.onItemDeselected(index, el);
+                let args = {
+                    index: index,
+                    value: value
+                };
+                (0, $38d8c756f0a655d2$export$65fee5f8f91a342f)(this, (0, $ad5a5e3d85db6c6d$export$3fd36d65bf762270).Deselected, args);
+            }
+        }
+    }
+    onItemSelected(index, el) {}
+    onItemDeselected(index, el) {}
 }
-
+$f115d3f4689f467d$export$8f4a37dcf1e373df.selectedClass = "selected";
+$f115d3f4689f467d$export$8f4a37dcf1e373df.ValueKey = "value";
+$f115d3f4689f467d$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
+], $f115d3f4689f467d$export$8f4a37dcf1e373df.prototype, "data", void 0);
+$f115d3f4689f467d$var$__decorate([
+    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
+        type: Boolean
+    })
+], $f115d3f4689f467d$export$8f4a37dcf1e373df.prototype, "multiselect", void 0);
 
 
 
@@ -18863,25 +18906,13 @@ var $0db6702f2e2ee9fc$var$__decorate = undefined && undefined.__decorate || func
     else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-let $0db6702f2e2ee9fc$export$ef9b1a59e592288f = class Select extends (0, $5e0a45860ddebf78$exports.JuelComponent) {
+let $0db6702f2e2ee9fc$export$ef9b1a59e592288f = class Select extends (0, $f115d3f4689f467d$exports.ListBase) {
     constructor(){
         super();
         this.menuShown = false;
         this.placeholderIndex = null;
-        this.value = [];
-        this.service = new (0, $7cf92cd4e9126847$export$448ee86705ad98f3)();
-        this.multiple = false;
-    }
-    setData(data) {
-        this.data = data;
-        this.requestUpdate();
-    }
-    setValue(value) {
-        this.value = value;
-        this.requestUpdate();
     }
     firstLoad() {
-        this.service.init(this);
         this.menuShown = false;
         this.items = this.shadowRoot.getElementById("items");
         this.items.style.display = "none";
@@ -18910,18 +18941,26 @@ let $0db6702f2e2ee9fc$export$ef9b1a59e592288f = class Select extends (0, $5e0a45
         if (el1) return el1.innerHTML;
         else return "";
     }
+    onItemSelected(index, el) {
+        if (!this.placeholderIndex) this.placeholderIndex = index;
+        if (!this.multiselect) this.hide();
+    }
+    onItemDeselected(index, el) {
+        if (this.selectedIndexes.length == 0) this.placeholderIndex = null;
+        if (!this.multiselect) this.hide();
+    }
     render() {
         let index = -1;
         return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="select">
             <div id="trigger">
                 <div id="selected-placeholder">
-                    ${this.placeholderIndex != null ? (0, $06981aafc7b47e91$export$b6e69390c23686fb)(this.GetPlaceholder()) : ``}
+                    ${this.placeholderIndex != null ? (0, $06981aafc7b47e91$export$b6e69390c23686fb)(this.GetPlaceholder()) : (0, $37260750aa7b368d$export$45b790e32b2810ee)}
                 </div>
                 <div id="arrow"></div>
-                ${this.multiple == true && this.value && this.value.length > 1 ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="badge">${this.value.length - 1}</div>` : ``}
+                ${this.multiselect == true && this.selectedIndexes && this.selectedIndexes.length > 1 ? (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="badge">${this.selectedIndexes.length - 1}</div>` : ``}
             </div>
             <div id="items">
-            ${(0, $57c09562a6d0b30e$export$eec70cb3a42440b6)(this, (ele, i)=>{
+            ${(0, $57c09562a6d0b30e$export$eec70cb3a42440b6)(this, (ele, i1)=>{
             let isHeading = false;
             if (ele.tagName.startsWith("H")) isHeading = true;
             else {
@@ -18929,34 +18968,22 @@ let $0db6702f2e2ee9fc$export$ef9b1a59e592288f = class Select extends (0, $5e0a45
                 ele.classList.add("juel-item");
                 ele.dataset.index = index;
             }
-            let id = ele.id ? ele.id : `item-${i}`;
+            let id = ele.id ? ele.id : `item-${i1}`;
             ele.setAttribute("slot", id);
             let klass = isHeading ? "heading" : "item";
-            if (this.data && this.data.length > 0 && this.data[index]) {
-                let value = this.data[index];
-                if (this.value && "some" in this.value && this.value.some((x)=>x == value)) klass += " selected";
-            }
-            return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`
-                        <div class="${klass}" data-index="${index}"}>
+            if (this.selectedIndexes && this.selectedIndexes.some((i)=>i == index)) klass += " selected";
+            let ind = index;
+            return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(isHeading, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div class="${klass}">
                         <slot name="${id}"></slot>
-                        </div>`;
+                        </div>`, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div @click="${()=>this.selectItem(ind)}" class="${klass}" data-index="${index}">
+                        <slot name="${id}"></slot>
+                        </div>`)}`;
         })}
             </div>
         </div>`;
     }
 };
 $0db6702f2e2ee9fc$export$ef9b1a59e592288f.styles = (0, $0e96f61157968e0c$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($7cd237bcc800ad08$exports))));
-$0db6702f2e2ee9fc$var$__decorate([
-    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
-], $0db6702f2e2ee9fc$export$ef9b1a59e592288f.prototype, "data", void 0);
-$0db6702f2e2ee9fc$var$__decorate([
-    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
-        type: Boolean
-    })
-], $0db6702f2e2ee9fc$export$ef9b1a59e592288f.prototype, "multiple", void 0);
-$0db6702f2e2ee9fc$var$__decorate([
-    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
-], $0db6702f2e2ee9fc$export$ef9b1a59e592288f.prototype, "value", void 0);
 $0db6702f2e2ee9fc$export$ef9b1a59e592288f = $0db6702f2e2ee9fc$var$__decorate([
     (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("juel-select")
 ], $0db6702f2e2ee9fc$export$ef9b1a59e592288f);
@@ -21264,59 +21291,30 @@ var $48a9952e168b5fc7$exports = {};
 
 
 var $dd06c83c907a8a20$exports = {};
-$dd06c83c907a8a20$exports = "li.selected {\n  background-color: var(--primary);\n  color: #fff;\n}\n\n#myInput {\n  width: 100%;\n  background-position: 10px 12px;\n  background-repeat: no-repeat;\n  border: 1px solid #ddd;\n  margin-bottom: 12px;\n  padding: 12px 20px 12px 40px;\n  font-size: 16px;\n}\n\n#myUL {\n  margin: 0;\n  padding: 0;\n  list-style-type: none;\n}\n\n#myUL li a {\n  color: #000;\n  background-color: #f6f6f6;\n  border: 1px solid #ddd;\n  margin-top: -1px;\n  padding: 12px;\n  font-size: 18px;\n  text-decoration: none;\n  display: block;\n}\n\n#myUL li a:hover:not(.header) {\n  background-color: #eee;\n}\n\n";
+$dd06c83c907a8a20$exports = "#items-container {\n  border-radius: .25rem;\n  flex-direction: column;\n  margin-bottom: 0;\n  padding-left: 0;\n  display: flex;\n}\n\nli {\n  color: #212529;\n  background-color: #fff;\n  border: 1px solid #00000020;\n  padding: .5rem 1rem;\n  text-decoration: none;\n  display: block;\n  position: relative;\n}\n\nli.selected {\n  background-color: var(--primary);\n  color: #fff;\n}\n\n";
 
 
-class $dfb8aa29da9a55f4$export$c03f8af9dcb6e561 {
-    init(list) {
-        let children = list.children;
-        if (!list.data) list.data = Array.prototype.slice.call(children).filter((el)=>el.classList.contains("juel-item")).map((el)=>el.textContent.trim());
-        console.log(list.data);
-        list.selected = [];
-        list.shadowRoot.querySelectorAll(".item").forEach((el)=>{
-            $(el).off("click").on("click", function(event) {
-                let slot = el.querySelector("slot").getAttribute("name");
-                let item = list.querySelector(`[slot="${slot}"]`);
-                if (item) {
-                    let value = list.data[parseInt(el.dataset.index)];
-                    if (el.classList.contains("selected")) {
-                        list.selected = list.selected.filter((val)=>val != value);
-                        $(item).find(".juel-appear").hide("slow");
-                        let evt = new CustomEvent("deselected", {
-                            detail: {
-                                index: parseInt(el.dataset.index),
-                                value: value
-                            }
-                        });
-                        list.dispatchEvent(evt);
-                    } else {
-                        if (list.multi) list.selected.push(value);
-                        else {
-                            list.selected = [
-                                value
-                            ];
-                            $(el).siblings().each(function(index, ele) {
-                                ele.classList.remove("selected");
-                                let sl = ele.querySelector("slot").getAttribute("name");
-                                let itm = list.querySelector(`[slot="${sl}"]`);
-                                $(itm).find(".juel-appear").hide("slow");
-                            });
-                        }
-                        $(item).find(".juel-appear").show("slow");
-                        let evt = new CustomEvent("selected", {
-                            detail: {
-                                index: parseInt(el.dataset.index),
-                                value: value
-                            }
-                        });
-                        list.dispatchEvent(evt);
-                    }
-                    el.classList.toggle("selected");
-                }
-            });
-        });
+
+
+
+function $a073a184d3e52a18$export$f6089544e0fe0b13(templateString, data) {
+    return new Function("html", "return html`" + templateString + "`;").call(data, (0, $37260750aa7b368d$export$c0bb0b647f701bb5));
+}
+
+
+
+
+class $099b5b2b33a1cb18$var$DataDirective extends (0, $782b9679dcaaea44$export$befdefbdce210f91) {
+    update(part, [name, data1]) {
+        let el = part.element;
+        if (el) $(el).data(name, data1);
+        return this.render(name, data1);
+    }
+    render(name, data) {
+        return 0, $37260750aa7b368d$export$9c068ae9cc5db4e8;
     }
 }
+const $099b5b2b33a1cb18$export$4051a07651545597 = (0, $782b9679dcaaea44$export$99b43ad1ed32e735)($099b5b2b33a1cb18$var$DataDirective);
 
 
 
@@ -21326,55 +21324,50 @@ var $48a9952e168b5fc7$var$__decorate = undefined && undefined.__decorate || func
     else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-let $48a9952e168b5fc7$export$ba3591c76cfe5f21 = class JuelList extends (0, $69a66af8deb391ea$export$3f2f9f5909897157) {
+let $48a9952e168b5fc7$export$ba3591c76cfe5f21 = class JuelList extends (0, $f115d3f4689f467d$exports.ListBase) {
     constructor(){
         super();
-        this.service = new (0, $dfb8aa29da9a55f4$export$c03f8af9dcb6e561)();
-    }
-    firstUpdated() {
-        setTimeout(()=>{
-            this.requestUpdate();
-        });
-    }
-    updated() {
-        setTimeout(()=>{
-            this.service.init(this);
-        });
     }
     render() {
+        let template = this.querySelector("template");
+        let hasTemplate = template != null;
         let index = -1;
         return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<div id="list">
             <div id="selected-placeholder">
             </div>
             <ul id="items-container">
-            ${(0, $57c09562a6d0b30e$export$eec70cb3a42440b6)(this, (ele, i)=>{
-            let isHeading = false;
-            if (ele.tagName.startsWith("H")) isHeading = true;
-            else {
+            ${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(hasTemplate && this.data && this.data.length, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${this.data.map((value)=>{
                 index++;
-                ele.classList.add("juel-item");
-                $(ele).find(".juel-appear").hide();
-            }
-            let id = ele.id ? ele.id : `item-${i}`;
-            ele.setAttribute("slot", id);
-            return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`
-                        <li class="${isHeading == true ? `heading` : `item`}" data-index="${index}">
+                let klass = "item";
+                if (this.selectedIndexes && this.selectedIndexes.some((i)=>i == index)) klass += " selected";
+                let i1 = index;
+                return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<li @click="${()=>this.selectItem(i1)}" class="${klass}" ${(0, $099b5b2b33a1cb18$export$4051a07651545597)("data", value)} data-index="${index}">
+                    ${(0, $a073a184d3e52a18$export$f6089544e0fe0b13)(template.innerHTML, value)}
+                    </li>`;
+            })}`, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${(0, $57c09562a6d0b30e$export$eec70cb3a42440b6)(this, (ele, i2)=>{
+                let isHeading = false;
+                if (ele.tagName.startsWith("H")) isHeading = true;
+                else {
+                    index++;
+                    ele.classList.add("juel-item");
+                    $(ele).find(".juel-appear").hide();
+                }
+                let id = ele.id ? ele.id : `item-${i2}`;
+                ele.setAttribute("slot", id);
+                let klass = isHeading ? "heading" : "item";
+                if (this.selectedIndexes && this.selectedIndexes.some((i)=>i == index)) klass += " selected";
+                let ind = index;
+                return (0, $37260750aa7b368d$export$c0bb0b647f701bb5)`${(0, $381ea5e2aef5c344$export$a55877ca9db47377)(isHeading, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<li class="${klass}")}>
                         <slot name="${id}"></slot>
-                        </li>`;
-        })}
+                        </li>`, ()=>(0, $37260750aa7b368d$export$c0bb0b647f701bb5)`<li @click="${()=>this.selectItem(ind)}" class="${klass}" data-index="${index}")}>
+                        <slot name="${id}"></slot>
+                        </li>`)}`;
+            })}`)}
             </ul>
         </div>`;
     }
 };
 $48a9952e168b5fc7$export$ba3591c76cfe5f21.styles = (0, $0e96f61157968e0c$export$8d80f9cac07cdb3)((0, (/*@__PURE__*/$parcel$interopDefault($dd06c83c907a8a20$exports))));
-$48a9952e168b5fc7$var$__decorate([
-    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)()
-], $48a9952e168b5fc7$export$ba3591c76cfe5f21.prototype, "data", void 0);
-$48a9952e168b5fc7$var$__decorate([
-    (0, $5fa65b806545cdfc$export$d541bacb2bda4494)({
-        type: Boolean
-    })
-], $48a9952e168b5fc7$export$ba3591c76cfe5f21.prototype, "multi", void 0);
 $48a9952e168b5fc7$export$ba3591c76cfe5f21 = $48a9952e168b5fc7$var$__decorate([
     (0, $3f78cf6008406935$export$da64fc29f17f9d0e)("juel-list")
 ], $48a9952e168b5fc7$export$ba3591c76cfe5f21);
@@ -23771,11 +23764,6 @@ $d99092614941c881$export$fd5608fd81737ac = $d99092614941c881$var$__decorate([
 
 var $cdb24e412cec7d79$exports = {};
 
-
-
-function $a073a184d3e52a18$export$f6089544e0fe0b13(templateString, data) {
-    return new Function("html", "return html`" + templateString + "`;").call(data, (0, $37260750aa7b368d$export$c0bb0b647f701bb5));
-}
 
 
 var $cdb24e412cec7d79$var$__decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {

@@ -1,11 +1,12 @@
-import { LitElement, html, unsafeCSS } from "lit";
+import { LitElement, html, unsafeCSS, nothing } from "lit";
 import { property, customElement } from "lit/decorators";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { createPopper, Instance } from '@popperjs/core';
 import style from 'bundle-text:./Select.less';
-import { SelectService } from "./SelectService";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import { JuelComponent } from "../_Base/JuelComponent";
+import { ListBase } from "../_Base/ListBase";
+import { when } from "lit/directives/when";
 
 /**
  * ## Universal CSS Properties
@@ -13,47 +14,21 @@ import { JuelComponent } from "../_Base/JuelComponent";
  * * --background-colour-secondary;
  */
 @customElement("juel-select")
-export class Select extends JuelComponent {
+export class Select extends ListBase {
 
     static styles = unsafeCSS(style);
 
-    service: SelectService;
-
-    @property()
-    data: any[];
-    @property({ type: Boolean })
-    multiple: boolean;
-
     menu: Instance;
     menuShown: boolean = false;
-    placeholderIndex: number = null;
 
-    @property()
-    value: any[] = [];
     items: HTMLElement;
     trigger: HTMLElement;
 
     constructor() {
         super();
-        // TODO: I am not sure abouut using a service for the list or select components.
-        // I think we could use the Data directive and set each element's data in the render method.
-        this.service = new SelectService();
-
-        this.multiple = false;
-    }
-
-    setData(data: any) {
-        this.data = data;
-        this.requestUpdate();
-    }
-
-    setValue(value: any) {
-        this.value = value
-        this.requestUpdate();
     }
 
     firstLoad() {
-        this.service.init(this);
         this.menuShown = false;
         this.items = this.shadowRoot.getElementById('items');
         this.items.style.display = "none";
@@ -86,13 +61,27 @@ export class Select extends JuelComponent {
         this.menuShown = true;
     }
 
-    GetPlaceholder() {
-        let el = (Array.prototype.slice.call(this.children) as HTMLElement[])
-                            .find(el => el.classList.contains("juel-item") && parseInt(el.dataset.index) == this.placeholderIndex);
-        if (el) {
-            return el.innerHTML;
-        } else {
-            return '';
+    onItemSelected(index: number, el: HTMLElement): void {
+        console.log("Item selected")
+        if (this.placeholderIndex == null || (this.placeholderIndex != index && this.multiselect == false)) {
+            this.placeholderIndex = index;
+            
+        }
+        console.log(this.placeholderIndex)
+        if (!this.multiselect) {
+            this.hide();
+        }
+    }
+
+    onItemDeselected(index: number, el: HTMLElement): void {
+        console.log("Item deselected")
+        if (this.selectedIndexes.length > 0 && this.selectedIndexes.some(i => i == index) == false) {
+            this.placeholderIndex = this.selectedIndexes[0];
+        } else if (this.selectedIndexes.length == 0) {
+            this.placeholderIndex = null;
+        }
+        if (!this.multiselect) {
+            this.hide();
         }
     }
 
@@ -102,10 +91,10 @@ export class Select extends JuelComponent {
             <div id="trigger">
                 <div id="selected-placeholder">
                     ${this.placeholderIndex != null ? unsafeHTML(
-                        this.GetPlaceholder()) : ``}
+                        this.getPlaceholder()) : nothing}
                 </div>
                 <div id="arrow"></div>
-                ${ this.multiple == true && this.value && this.value.length > 1 ? html`<div id="badge">${this.value.length - 1}</div>` : `` }
+                ${ this.multiselect == true && this.selectedIndexes && this.selectedIndexes.length > 1 ? html`<div id="badge">${this.selectedIndexes.length - 1}</div>` : `` }
             </div>
             <div id="items">
             ${ChildrenMap(this, (ele, i) => {
@@ -121,17 +110,17 @@ export class Select extends JuelComponent {
                     ele.setAttribute('slot', id);
                     
                     let klass = isHeading ? 'heading' : 'item';
-                    if (this.data && this.data.length > 0 && this.data[index]) {
-                        let value = this.data[index];
-                        if (this.value && 'some' in this.value && this.value.some(x => x == value)) {
-                            klass += " selected";
-                        }
+                    if (this.selectedIndexes && this.selectedIndexes.some(i => i == index)) {
+                        klass += " selected"
                     }
-
-                    return html`
-                        <div class="${klass}" data-index="${index}"}>
+                    let ind = index;
+                    return html`${when(isHeading,
+                        () => html`<div class="${klass}">
                         <slot name="${id}"></slot>
-                        </div>`;
+                        </div>`,
+                        () => html`<div @click="${() => this.selectItem(ind)}" class="${klass}" data-index="${index}">
+                        <slot name="${id}"></slot>
+                        </div>`)}`;
                 })}
             </div>
         </div>`;

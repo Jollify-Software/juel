@@ -1,7 +1,6 @@
 import { LitElement, html, unsafeCSS, nothing } from "lit";
 import { property, customElement } from "lit/decorators";
 import style from 'bundle-text:./List.less';
-import { ListService } from "./ListService";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import { JuelComponent } from "../_Base/JuelComponent";
 import { when } from "lit/directives/when";
@@ -27,7 +26,7 @@ export class JuelList extends ListBase {
         return html`<div id="list">
             <div id="selected-placeholder">
             </div>
-            <ul id="items-container">
+            <ul id="items">
             ${when(hasTemplate && this.data && this.data.length,
                 () => html`${this.data.map(value => {
                     index++;
@@ -60,7 +59,7 @@ export class JuelList extends ListBase {
                         () => html`<li class="${klass}")}>
                         <slot name="${id}"></slot>
                         </li>`,
-                        () => html`<li @click="${() => this.selectItem(ind)}" class="${klass}" data-index="${index}")}>
+                        () => html`<li @click="${() => this.selectItem(ind)}" class="${klass}" data-index="${index}">
                         <slot name="${id}"></slot>
                         </li>`)}`;
                 })}`)}
