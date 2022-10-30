@@ -6,7 +6,7 @@ export function FillTemplate(templateString: string, data: any): TemplateResult 
 };
 
 export function FillTemplateUnsafe(templateString: string, data: any): TemplateResult {
-    templateString = templateString.replace(/(this\.\w+)\b(?!\.)/g, "unsafeHTML($1)");
+    templateString = templateString.replace(/(this(\.\w+)+)/g, "unsafeHTML($1)");
     console.log(templateString);
     return new Function('html', 'unsafeHTML', "return html`"+templateString +"`;").call(data, html, unsafeHTML);
 };

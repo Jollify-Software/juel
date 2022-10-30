@@ -20,6 +20,6 @@ export function ListItemsTemplate(list: JuelDataComponent): TemplateResult {
             return res.template;
         })}`;
     } else {
-        return ChildrenItemsTemplate(list);
+        return ChildrenItemsTemplate(list as ListBase);
     }
 }

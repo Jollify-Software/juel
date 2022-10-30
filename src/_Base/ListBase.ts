@@ -132,7 +132,7 @@ export class ListBase extends JuelDataComponent {
                 this.onItemDeselected(index, el as HTMLElement);
                 let args: ChangedEventArgs = {
                     index: index,
-                    value: value ? value : slotted.textContent
+                    value: value ? value : slotted ? slotted.textContent : el.textContent
                 };
                 Dispatch(this, EventNames.Deselected, args);
             }
@@ -149,7 +149,7 @@ export class ListBase extends JuelDataComponent {
                 this.onItemSelected(index, el as HTMLElement);
                 let args: ChangedEventArgs = {
                     index: index,
-                    value: value ? value : slotted.textContent
+                    value: value ? value : slotted ? slotted.textContent : el.textContent
                 };
                 Dispatch(this, EventNames.Selected, args);
             }

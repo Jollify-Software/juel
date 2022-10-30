@@ -82,13 +82,34 @@ export class JuelDataComponent extends JuelComponent {
                 obj[this.textField] = txt;
                 return obj;
             });
-            // TODO: Map into search result object containing name of property
+
+            this.searchResult = {
+                data: suggestions,
+                term: term
+            }
+        } else {
+            let children: HTMLElement[] = [...this.children]
+                .filter(x => x.classList.contains("juel-item")) as HTMLElement[];
+            let suggestions = children.filter(x => {
+                if (x.textContent.toLowerCase().includes(term.toLowerCase())) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }).map(el => {
+                let obj = {};
+                let regex = new RegExp(`(?<!<[\\w="\\s]*)(${term})(?![\\w\\s]*>)`, "gi");
+                console.log(el.innerHTML)
+                obj[this.textField] = el.innerHTML.replace(regex, "<b>$1</b>");
+                return obj;
+            });
+
             this.searchResult = {
                 data: suggestions,
                 term: term
             }
         }
-        return null;
+        console.log(this.searchResult)
     }
 
     retrieveDataStrings() {
