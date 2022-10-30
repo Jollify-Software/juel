@@ -1,0 +1,33 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+</head>
+
+<body>
+        <juel-list id="list-data" input="true">
+            <template>
+                ${this.text}
+            </template>
+        </juel-list>
+
+        <script>
+            var list = document.getElementById("list-data");
+            list.data = [
+                {
+                    text: "Dolphin 🐬"
+                },
+                {
+                    text: "Whale 🐋"
+                },
+                {
+                    text: "Squid 🦑"
+                },
+                {
+                    text: "Snail 🐌"
+                }
+            ]
+        </script>
+</body>
+
+</html>

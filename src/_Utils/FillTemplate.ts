@@ -1,5 +1,12 @@
 import { html, TemplateResult } from "lit";
+import { unsafeHTML } from "lit/directives/unsafe-html";
 
 export function FillTemplate(templateString: string, data: any): TemplateResult {
     return new Function('html', "return html`"+templateString +"`;").call(data, html);
+};
+
+export function FillTemplateUnsafe(templateString: string, data: any): TemplateResult {
+    templateString = templateString.replace(/(this\.\w+)\b(?!\.)/g, "unsafeHTML($1)");
+    console.log(templateString);
+    return new Function('html', 'unsafeHTML', "return html`"+templateString +"`;").call(data, html, unsafeHTML);
 };

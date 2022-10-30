@@ -20,7 +20,7 @@
     "browserslist": "last 2 Chrome versions",
     "scripts": {
         "dev": "parcel juel.ts --no-optimize --no-scope-hoist",
-        "build": "parcel build juel.ts --target main --no-source-maps && parcel build examples/demo.less --target demo",
+        "build": "parcel build juel.ts --no-optimize --target main --no-source-maps && parcel build examples/demo.less --target demo",
         "serve": "npm run build && npx copyfiles dist/*.* examples -f && npx serve examples",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
@@ -35,6 +35,7 @@
     },
     "homepage": "https://github.com/Jollify-Software/juel#readme",
     "dependencies": {
+        "lit": "^2.4.0",
         "@interactjs/interactjs": "^1.10.11",
         "@popperjs/core": "^2.10.1",
         "@swc/helpers": "^0.2.13",
@@ -44,7 +45,6 @@
         "golden-layout": "^2.3.0",
         "hammerjs": "^2.0.8",
         "jquery": "^3.5.1",
-        "lit": "^2.2.0",
         "parcel": "^2.3.1",
         "proton-engine": "^4.1.3",
         "raf-manager": "^0.3.0",

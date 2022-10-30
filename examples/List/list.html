@@ -2,44 +2,13 @@
 
 <head>
     <script src="../../dist/juel.js"></script>
-
-    <style>
-        .container {
-            width: 100%;
-            height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        div {
-            display: inline-block;
-            margin: 4px;
-        }
-    </style>
 </head>
 
 <body>
-    <div class="container">
-        <juel-list>
-            <div>
-                <span class="caption">Dolphin</span> 🐬
-            </div>
-            <div>
-                <span class="caption">Whale</span> 🐋
-            </div>
-            <div>
-                <span class="caption">Squid</span> 🦑
-            </div>
-            <div>
-                <span class="caption">Snail</span> 🐌
-            </div>
-        </juel-list>
-
-        <juel-template>Selected ${this}!!</juel-template>
+        <juel-template id="list-selected">Selected ${this}!!</juel-template>
 
         Animals
-        <juel-list>
+        <juel-list id="list">
             <h3>Sea Animals</h3>
             <div>
                 <span class="caption">Dolphin</span> 🐬
@@ -68,15 +37,13 @@
     </div>
 
     <script>
-        var tmpl = document.querySelector('juel-template');
-        var list = document.querySelector('juel-list');
+        var tmpl = document.querySelector('#list-selected');
+        var list = document.querySelector('#list');
         list.addEventListener('selected', function(evt) {
-            tmpl.context = list.selected;
-            console.log(list.selected);
+            tmpl.context = evt.detail.value;
         })
         list.addEventListener('deselected', function(evt) {
-            tmpl.context = list.selected;
-            console.log(list.selected);
+            tmpl.context = evt.detail.value;
         })
     </script>
 </body>

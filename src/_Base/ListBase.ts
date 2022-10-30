@@ -16,8 +16,8 @@ export class ListBase extends JuelDataComponent {
 
     @state()
     protected placeholderIndex: number;
-    protected selectedIndexes: number[];
-    protected selectedData: any[];
+    selectedIndexes: number[];
+    selectedData: any[];
 
     constructor() {
         super();
@@ -67,6 +67,12 @@ export class ListBase extends JuelDataComponent {
             sel.append(opt);
         }
         return sel;
+    }
+
+    search(term: string) {
+        this.selectedIndexes = [];
+        this.selectedData = [];
+        super.search(term);
     }
 
     getSelectedData() {
@@ -126,7 +132,7 @@ export class ListBase extends JuelDataComponent {
                 this.onItemDeselected(index, el as HTMLElement);
                 let args: ChangedEventArgs = {
                     index: index,
-                    value: value
+                    value: value ? value : slotted.textContent
                 };
                 Dispatch(this, EventNames.Deselected, args);
             }
@@ -143,7 +149,7 @@ export class ListBase extends JuelDataComponent {
                 this.onItemSelected(index, el as HTMLElement);
                 let args: ChangedEventArgs = {
                     index: index,
-                    value: value
+                    value: value ? value : slotted.textContent
                 };
                 Dispatch(this, EventNames.Selected, args);
             }

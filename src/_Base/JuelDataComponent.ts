@@ -1,5 +1,6 @@
 import { TemplateResult } from "lit";
-import { property } from "lit/decorators";
+import { property, state } from "lit/decorators";
+import { SearchResult } from "../_Core/SearchResult";
 import { FillTemplate } from "../_Utils/FillTemplate";
 import { JuelComponent } from "./JuelComponent";
 
@@ -11,15 +12,25 @@ export class JuelDataComponent extends JuelComponent {
     @property({ attribute: "text-field" }) textField: string;
     // TODO: Fields? Copy of juel-pro/Form/FormField?
 
-    retrievedDataStrings: Array<string | TemplateResult>;
+    retrievedDataStrings: Array<string | TemplateResult>; // Do we still need?
+    template: string;
+    @state()
+    searchResult: SearchResult; // TODO: SearchResult[]
+
 
     constructor() {
         super();
         this.data = [];
+        this.textField = "text";
     }
 
     firstLoad(): void {
         let template = this.querySelector("template");
+        if (template) {
+            this.template = template.innerHTML;
+        } else {
+            this.template = `\${this.${this.textField}}`;
+        }
         if (template && !this.itemTemplate) {
             this.itemTemplate = (value) => {
                 return new Promise((resolve, reject) => {
@@ -29,20 +40,53 @@ export class JuelDataComponent extends JuelComponent {
         }
     }
 
+    inputChange(e: Event) {
+        console.log("OnInput");
+        let target: HTMLElement = null;
+        if (e.composed) {
+            target = e.composedPath()[0] as HTMLElement;
+        } else {
+            target = e.target as HTMLElement;
+        };
+        if (target && 'value' in target) {
+            let el = e.target as HTMLInputElement;
+            if (el.value) {
+                console.log("search")
+                this.search(el.value);
+            } else {
+                this.searchResult = null;
+            }
+        }
+    }
+
     // TODO: Move to list base?
     search(term: string) {
         if (this.textField && this.data && this.data.length > 0) {
             let suggestions = this.data.filter(x => {
-                // TODO: Concat textField with fields and search all properties
-                let txt = x[this.textField] as string;
-                if (txt.includes(term)) {
-                    return true;
+                if (this.textField in x) {
+                    // TODO: Concat textField with fields and search all properties
+                    let txt = x[this.textField] as string;
+                    if (txt.toLowerCase().includes(term.toLowerCase())) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 } else {
                     return false;
                 }
+            }).map(value => {
+                let obj = { ...value };
+                let regex = new RegExp(`(${term})`, "gi");
+                let txt = obj[this.textField] as string;
+                txt = txt.replace(regex, "<b>$1</b>")
+                obj[this.textField] = txt;
+                return obj;
             });
             // TODO: Map into search result object containing name of property
-            return suggestions;
+            this.searchResult = {
+                data: suggestions,
+                term: term
+            }
         }
         return null;
     }

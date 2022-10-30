@@ -1,4 +1,4 @@
-import { html, LitElement } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { property, customElement } from "lit/decorators";
 import { FillTemplate } from "../_Utils/FillTemplate";
 
@@ -7,6 +7,6 @@ export class JuelTemplate extends LitElement {
     @property() context: any
 
     render() {
-        return html`${this.context ? FillTemplate(this.innerHTML, this.context) : '' }`;
+        return html`${this.context ? FillTemplate(this.innerHTML, this.context) : nothing }`;
     }
 }
