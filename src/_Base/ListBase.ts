@@ -108,6 +108,9 @@ export class ListBase extends JuelDataComponent {
         if (el) {
             let $el = $(el);
             let value = $el.data(ListBase.ValueKey);
+            if ((!value) && this.data && this.data.length > index) {
+                value = this.data[index];
+            }
             if (!this.multiselect) {
                 $el.siblings().each((i, e) => {
                     $(e).removeClass(ListBase.selectedClass);

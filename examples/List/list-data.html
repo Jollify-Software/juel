@@ -5,51 +5,59 @@
 </head>
 
 <body>
-        <juel-list id="list-data" input="true">
-            <template>
-                ${this.text}
-            </template>
-        </juel-list>
+    <juel-template id="list-data-selected">Selected ${this.name}!!</juel-template>
+    <juel-list id="list-data" input="true">
+        <template>
+            ${this.text}
+        </template>
+    </juel-list>
 
-        <script>
-            var list = document.getElementById("list-data");
-            list.fields = [
-                {
-                    name: "name",
-                    text: "Name"
-                },
-                {
-                    name: "age",
-                    text: "Age"
-                },
-                {
-                    name: "gender",
-                    text: "Gender"
-                }
-            ];
-            list.data = [
-                {
-                    name: "Bill",
-                    age: 23,
-                    gender: "Male"
-                },
-                {
-                    name: "Jane",
-                    age: 19,
-                    gender: "Female"
-                },
-                {
-                    name: "Bob",
-                    age: 24,
-                    gender: "Male"
-                },
-                {
-                    name: "Jill",
-                    age: 16,
-                    gender: "Female"
-                }
-            ];
-        </script>
+    <script>
+        var tmpl = document.querySelector('#list-data-selected');
+        var list = document.getElementById("list-data");
+        list.fields = [
+            {
+                name: "name",
+                text: "Name"
+            },
+            {
+                name: "age",
+                text: "Age"
+            },
+            {
+                name: "gender",
+                text: "Gender"
+            }
+        ];
+        list.data = [
+            {
+                name: "Bill",
+                age: 23,
+                gender: "Male"
+            },
+            {
+                name: "Jane",
+                age: 19,
+                gender: "Female"
+            },
+            {
+                name: "Bob",
+                age: 24,
+                gender: "Male"
+            },
+            {
+                name: "Jill",
+                age: 16,
+                gender: "Female"
+            }
+        ];
+        list.addEventListener('selected', function (evt) {
+            tmpl.context = evt.detail.value;
+        })
+        list.addEventListener('deselected', function (evt) {
+            tmpl.context = evt.detail.value;
+        })
+    </script>
 </body>
 
 </html>
