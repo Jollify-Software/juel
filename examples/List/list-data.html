@@ -13,20 +13,42 @@
 
         <script>
             var list = document.getElementById("list-data");
+            list.fields = [
+                {
+                    name: "name",
+                    text: "Name"
+                },
+                {
+                    name: "age",
+                    text: "Age"
+                },
+                {
+                    name: "gender",
+                    text: "Gender"
+                }
+            ];
             list.data = [
                 {
-                    text: "Dolphin 🐬"
+                    name: "Bill",
+                    age: 23,
+                    gender: "Male"
                 },
                 {
-                    text: "Whale 🐋"
+                    name: "Jane",
+                    age: 19,
+                    gender: "Female"
                 },
                 {
-                    text: "Squid 🦑"
+                    name: "Bob",
+                    age: 24,
+                    gender: "Male"
                 },
                 {
-                    text: "Snail 🐌"
+                    name: "Jill",
+                    age: 16,
+                    gender: "Female"
                 }
-            ]
+            ];
         </script>
 </body>
 

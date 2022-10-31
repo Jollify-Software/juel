@@ -29,9 +29,7 @@ export class JuelList extends ListBase {
         return html`<div id="list">
             ${when(this.input, () => html`<input type="text" @input="${e => this.onInput(e)}">`, () => html`<div id="selected-placeholder">`)}
             </div>
-            <ul id="items">
             ${ListItemsTemplate(this)}
-            </ul>
         </div>`;
     }
 

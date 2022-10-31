@@ -1,5 +1,6 @@
 import { TemplateResult } from "lit";
 import { property, state } from "lit/decorators";
+import { Field } from "../_Core/Data/Field";
 import { SearchResult } from "../_Core/SearchResult";
 import { FillTemplate } from "../_Utils/FillTemplate";
 import { JuelComponent } from "./JuelComponent";
@@ -11,6 +12,7 @@ export class JuelDataComponent extends JuelComponent {
     @property({ attribute: "key-field" }) keyField: string;
     @property({ attribute: "text-field" }) textField: string;
     // TODO: Fields? Copy of juel-pro/Form/FormField?
+    @property({ type: Array }) fields: Field[];
 
     retrievedDataStrings: Array<string | TemplateResult>; // Do we still need?
     template: string;
@@ -22,6 +24,7 @@ export class JuelDataComponent extends JuelComponent {
         super();
         this.data = [];
         this.textField = "text";
+        this.fields = [];
     }
 
     firstLoad(): void {
@@ -62,30 +65,44 @@ export class JuelDataComponent extends JuelComponent {
     // TODO: Move to list base?
     search(term: string) {
         if (this.textField && this.data && this.data.length > 0) {
+            let matchedFields: string[] = [];
+            let fieldNames: string[] = [];
+            if (this.fields && this.fields.length > 0) {
+                fieldNames = this.fields.map(x => x.name);
+            } else {
+                fieldNames.unshift(this.textField);
+            }
             let suggestions = this.data.filter(x => {
-                if (this.textField in x) {
-                    // TODO: Concat textField with fields and search all properties
-                    let txt = x[this.textField] as string;
-                    if (txt.toLowerCase().includes(term.toLowerCase())) {
-                        return true;
+                let match = false;
+                for (let name of fieldNames) {
+                    if (name in x) {
+                        let txt = x[name].toString() as string;
+                        console.log(txt)
+                        if (txt.toLowerCase().includes(term.toLowerCase())) {
+                            matchedFields.push(name);
+                            match = true;
+                        }
                     } else {
-                        return false;
+                        match = false;
                     }
-                } else {
-                    return false;
                 }
+                return match;
             }).map(value => {
                 let obj = { ...value };
                 let regex = new RegExp(`(${term})`, "gi");
-                let txt = obj[this.textField] as string;
-                txt = txt.replace(regex, "<b>$1</b>")
-                obj[this.textField] = txt;
+                for (let name of fieldNames) {
+                let txt = obj[name].toString() as string;
+                if (regex.test(txt)) {
+                    txt = txt.replace(regex, "<b>$1</b>")
+                    obj[name] = txt;
+                }
+                }
                 return obj;
             });
-
             this.searchResult = {
                 data: suggestions,
-                term: term
+                term: term,
+                fields: matchedFields
             }
         } else {
             let children: HTMLElement[] = [...this.children]

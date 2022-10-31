@@ -103,9 +103,7 @@ export class Select extends ListBase {
                 <button id="dropdown-toggle"></button>
                 ${ this.multiselect == true && this.selectedIndexes && this.selectedIndexes.length > 1 ? html`<div id="badge">${this.selectedIndexes.length - 1}</div>` : `` }
             </div>`)}
-            <div id="items">
             ${ListItemsTemplate(this)}
-            </div>
         </div>`;
     }
 

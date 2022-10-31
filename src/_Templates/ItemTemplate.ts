@@ -49,12 +49,10 @@ export function ItemTemplate(component: JuelDataComponent, item: any, index: num
                 </li>`;
             }
         } else {
-            if (isHeading) {
-                template = html`<li @click="${() => list.selectItem(ind)}" class="${klass}" ${data("data", item)}>
-            ${FillTemplate(component.template, item)}
-            </li>`;
+            if (list.fields && list.fields.length > 0) {
+                template = html`<tr class="${klass}"><tr>`;
             } else {
-                template = html`<li @click="${() => list.selectItem(ind)}" class="${klass}" ${data("data", item)} data-index="${index}">
+                template = html`<li @click="${() => list.selectItem(ind)}" class="${klass}" ${data(ListBase.ValueKey, item)} data-index="${index}">
             ${list.searchResult ? component.template ? FillTemplateUnsafe(component.template, item) : unsafeHTML(item[list.textField]) : FillTemplate(component.template, item)}
             </li>`;
             }
