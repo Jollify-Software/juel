@@ -40,7 +40,7 @@ export class JuelDataComponent extends JuelComponent {
         }
     }
 
-    inputChange(e: Event) {
+    onInput(e: Event) {
         console.log("OnInput");
         let target: HTMLElement = null;
         if (e.composed) {

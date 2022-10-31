@@ -7,6 +7,7 @@ import { ChildrenMap } from "../_Utils/ChildrenMap";
 import { JuelComponent } from "../_Base/JuelComponent";
 import { ListBase } from "../_Base/ListBase";
 import { when } from "lit/directives/when";
+import { ListItemsTemplate } from "../_Templates/ListItemsTemplate";
 
 /**
  * ## Universal CSS Properties
@@ -60,6 +61,11 @@ export class Select extends ListBase {
         this.menuShown = true;
     }
 
+    onInput(e: Event): void {
+        this.show();
+        super.onInput(e);
+    }
+
     onItemSelected(index: number, el: HTMLElement): void {
         console.log("Item selected")
         if (this.placeholderIndex == null || (this.placeholderIndex != index && this.multiselect == false)) {
@@ -88,7 +94,7 @@ export class Select extends ListBase {
         let index = -1;
         return html`<div id="select">
             ${when(this.input,
-                () => html`<div id="trigger"><input type="text"><button id="dropdown-toggle" @click="${this.toggle}"></div></div>`,
+                () => html`<div id="trigger"><input type="text" @input="${e => this.onInput(e)}"><button id="dropdown-toggle" @click="${this.toggle}"></div></div>`,
                 () => html`<div id="trigger" @click="${this.toggle}">
                 <div id="selected-placeholder">
                     ${this.placeholderIndex != null ? unsafeHTML(
@@ -98,31 +104,7 @@ export class Select extends ListBase {
                 ${ this.multiselect == true && this.selectedIndexes && this.selectedIndexes.length > 1 ? html`<div id="badge">${this.selectedIndexes.length - 1}</div>` : `` }
             </div>`)}
             <div id="items">
-            ${ChildrenMap(this, (ele, i) => {
-                let isHeading = false;
-                if (ele.tagName.startsWith("H")) {
-                    isHeading = true;
-                } else {
-                    index++;
-                    ele.classList.add("juel-item");
-                    ele.dataset.index = index as any;
-                }
-                    let id = ele.id ? ele.id :  `item-${i}`;
-                    ele.setAttribute('slot', id);
-                    
-                    let klass = isHeading ? 'heading' : 'item';
-                    if (this.selectedIndexes && this.selectedIndexes.some(i => i == index)) {
-                        klass += " selected"
-                    }
-                    let ind = index;
-                    return html`${when(isHeading,
-                        () => html`<div class="${klass}">
-                        <slot name="${id}"></slot>
-                        </div>`,
-                        () => html`<div @click="${() => this.selectItem(ind)}" class="${klass}" data-index="${index}">
-                        <slot name="${id}"></slot>
-                        </div>`)}`;
-                })}
+            ${ListItemsTemplate(this)}
             </div>
         </div>`;
     }

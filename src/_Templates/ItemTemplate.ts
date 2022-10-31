@@ -1,4 +1,5 @@
 import { html, nothing, TemplateResult } from "lit";
+import { unsafeHTML } from "lit/directives/unsafe-html";
 import { JuelDataComponent } from "../_Base/JuelDataComponent";
 import { ListBase } from "../_Base/ListBase";
 import { PositionedTemplateResult } from "../_Core/PositionedTemplateResult";
@@ -54,7 +55,7 @@ export function ItemTemplate(component: JuelDataComponent, item: any, index: num
             </li>`;
             } else {
                 template = html`<li @click="${() => list.selectItem(ind)}" class="${klass}" ${data("data", item)} data-index="${index}">
-            ${list.searchResult ? FillTemplateUnsafe(component.template, item) : FillTemplate(component.template, item)}
+            ${list.searchResult ? component.template ? FillTemplateUnsafe(component.template, item) : unsafeHTML(item[list.textField]) : FillTemplate(component.template, item)}
             </li>`;
             }
         }
