@@ -91,7 +91,6 @@ export class Select extends ListBase {
     }
 
     render() {
-        let index = -1;
         return html`<div id="select">
             ${when(this.input,
                 () => html`<div id="trigger"><input type="text" @input="${e => this.onInput(e)}"><button id="dropdown-toggle" @click="${this.toggle}"></div></div>`,

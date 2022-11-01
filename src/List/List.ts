@@ -22,13 +22,10 @@ export class JuelList extends ListBase {
     }
 
     render() {
-        let template = this.querySelector("template");
-        let hasTemplate = template != null;
-
-        let index = -1;
         return html`<div id="list">
-            ${when(this.input, () => html`<input type="text" @input="${e => this.onInput(e)}">`, () => html`<div id="selected-placeholder">`)}
-            </div>
+            ${when(this.input,
+                () => html`<input type="text" @input="${e => this.onInput(e)}">`,
+                () => nothing)}
             ${ListItemsTemplate(this)}
         </div>`;
     }
