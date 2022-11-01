@@ -68,7 +68,7 @@ export class JuelDataComponent extends JuelComponent {
             let matchedFields: string[] = [];
             let fieldNames: string[] = [];
             if (this.fields && this.fields.length > 0) {
-                fieldNames = this.fields.map(x => x.name);
+                fieldNames = this.fields.filter(x => x.visible).map(x => x.name);
             } else {
                 fieldNames.unshift(this.textField);
             }

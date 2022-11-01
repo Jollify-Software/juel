@@ -6,11 +6,16 @@ import { TableRowTemplate } from "./TableRowTemplate";
 export function TableTemplate(list: ListBase) {
     let position: number = -1;
     return html`<table id="items">
-    <tr>
-    ${map(list.fields, field => {
+    <colgroup>
+    ${map(list.fields.filter(x => x.visible), (field, index) => {
+        return html`<col class="col-${field.name}">`;
+    })}
+    <colgroup>
+    <thead><tr>
+    ${map(list.fields.filter(x => x.visible), field => {
         return html`<th>${field.text}</th>`;
     })}
-    </tr>
+    </tr></thead>
     ${list.searchResult ?
         map(list.searchResult.data, (item, index) => {
             let res = TableRowTemplate(list, item, index, position);
