@@ -50,6 +50,7 @@ import './src/Random/Random';
 
 import './src/Tilt/Tilt';
 
+import './src/ReciteMe/ReciteMe';
 
 //import './src/ParticleSystem/ParticleSystem';
 
