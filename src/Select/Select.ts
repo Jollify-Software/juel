@@ -91,16 +91,23 @@ export class Select extends ListBase {
     }
 
     render() {
+        console.log(this.multiselect == true && this.selectedIndexes && this.selectedIndexes.length > 1);
         return html`<div id="select">
             ${when(this.input,
-                () => html`<div id="trigger"><input type="text" @input="${e => this.onInput(e)}"><button id="dropdown-toggle" @click="${this.toggle}"></div></div>`,
+                () => html`<div id="trigger"><input type="text" @input="${e => this.onInput(e)}">
+                ${when(this.multiselect == true && this.selectedIndexes && this.selectedIndexes.length > 1,
+                    () => html`<juel-badge .label=${this.selectedIndexes.length - 1}></juel-label>`,
+                    () => nothing)}
+                <button id="dropdown-toggle" @click="${this.toggle}"></div></div>`,
                 () => html`<div id="trigger" @click="${this.toggle}">
                 <div id="selected-placeholder">
                     ${this.placeholderIndex != null ? unsafeHTML(
                         this.getPlaceholder()) : nothing}
                 </div>
                 <button id="dropdown-toggle"></button>
-                ${ this.multiselect == true && this.selectedIndexes && this.selectedIndexes.length > 1 ? html`<div id="badge">${this.selectedIndexes.length - 1}</div>` : `` }
+                ${when(this.multiselect == true && this.selectedIndexes && this.selectedIndexes.length > 1,
+                    () => html`<juel-badge .label=${this.selectedIndexes.length - 1}></juel-label>`,
+                    () => nothing)}
             </div>`)}
             ${ListItemsTemplate(this)}
         </div>`;

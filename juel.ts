@@ -8,6 +8,7 @@ import './src/Carousel/Carousel';
 import './src/Loading/Loading';
 import './src/Tooltip/Tooltip';
 import './src/Tabs/Tabs';
+import './src/Badge/Badge';
 import './src/Select/Select';
 import './src/ScrollPane/ScrollPane';
 import './src/List/List';
