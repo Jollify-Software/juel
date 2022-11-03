@@ -6,6 +6,18 @@
 
 <body>
     <juel-tickbox label="Tick"></juel-tickbox>
+
+    <script>
+        var obj = {
+            isTrue: true
+        };
+        var el = document.querySelector("juel-tickbox");
+        el.value = obj.isTrue;
+        el.addEventListener("changed", e => {
+            obj.isTrue = e.detail.value;
+            console.log(obj.isTrue);
+        })
+    </script>
     </body>
 
 </html>

@@ -35,7 +35,6 @@
     },
     "homepage": "https://github.com/Jollify-Software/juel#readme",
     "dependencies": {
-        "lit": "^2.4.0",
         "@interactjs/interactjs": "^1.10.11",
         "@popperjs/core": "^2.10.1",
         "@swc/helpers": "^0.2.13",
@@ -64,6 +63,7 @@
         "autoprefixer": "^9.8.6",
         "copyfiles": "^2.4.1",
         "less": "^3.12.2",
+        "lit": "^2.4.0",
         "parcel-plugin-text": "^0.9.6",
         "postcss": "^8.3.7",
         "serve": "^13.0.4",
