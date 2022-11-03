@@ -49,6 +49,12 @@ export class Select extends ListBase {
         this.items.style.opacity = "0";
         this.menu = null;
         this.menuShown = false;
+        if (this.input) {
+            let el = this.shadowRoot.querySelector("input");
+            if (el) {
+                el.value = this.getPlaceholder();
+            }
+        }
     }
 
     show() {
@@ -67,12 +73,16 @@ export class Select extends ListBase {
     }
 
     onItemSelected(index: number, el: HTMLElement): void {
-        console.log("Item selected")
         if (this.placeholderIndex == null || (this.placeholderIndex != index && this.multiselect == false)) {
             this.placeholderIndex = index;
             
         }
-        console.log(this.placeholderIndex)
+        if (this.input) {
+            let el = this.shadowRoot.querySelector("input");
+            if (el && (!el.value)) {
+                el.value = this.getPlaceholder();
+            }
+        }
         if (!this.multiselect) {
             this.hide();
         }
