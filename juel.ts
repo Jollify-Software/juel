@@ -25,6 +25,7 @@ import './src/Embed/Embed';
 import './src/Random/Random';
 import './src/NavBar/NavBar';
 import './src/Chart/Chart';
+import './src/Chart/ChartDataSet';
 import './src/DraggableContainer/DraggableContainer';
 import './src/ImagePreload/ImagePreload';
 

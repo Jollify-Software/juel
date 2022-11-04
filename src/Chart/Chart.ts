@@ -1,17 +1,28 @@
-import { html, LitElement } from "lit";
+import Chart from "chart.js";
+import { html, LitElement, PropertyValueMap } from "lit";
 import { property, customElement } from "lit/decorators";
+import { JuelComponent } from "../_Base/JuelComponent";
+import { ArrayConverter } from "../_Converters/ArrayConverter";
 
 @customElement("juel-chart")
-export class JuelChart extends LitElement {
+export class JuelChart extends JuelComponent {
+
+    static ChartScriptId: string = "juel-chart-js";
+    static ChartScriptUrl: string = "https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js";
+
+    chartScriptLoaded: Promise<any>;
+
     @property({ type: Number}) width: number;
     @property({ type: Number}) height: number;
     @property() type: string;
+    @property({ converter: ArrayConverter(',') }) labels: string[];
     @property({ type: Boolean}) responsive: boolean;
     @property() legend: string;
     @property() indexAxis: string;
 
-    chart: any;
+    chart: Chart;
     @property({ type: Object }) data: any;
+    @property({ type: Object }) options: any;
     canvas: HTMLCanvasElement;
     g: CanvasRenderingContext2D;
 
@@ -20,15 +31,15 @@ export class JuelChart extends LitElement {
 
         this.width = 400;
         this.height = 400;
-        this.type = "bar";        
+        this.type = "bar";
+        this.data = {};
+        this.options = {};
     }
 
-    updated() {
-        setTimeout(() => {
-            if ('Chart' in window) {
-            let data = this.getData();
+    protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        this.data.labels = this.labels
 
-            let plugins: any = {};
+        let plugins: any = {};
             if (this.legend) {
                 if (this.legend == "false") {
                     plugins.legend = {
@@ -46,44 +57,58 @@ export class JuelChart extends LitElement {
                     text: this.title
                 }
             }
-            let options: any = {
-                responsive: this.responsive
-            };
+            this.options.responsive = this.responsive;
             if (this.indexAxis) {
-                options.indexAxis = this.indexAxis;
+                this.options.indexAxis = this.indexAxis;
             }
             if (plugins) {
-                options.plugins = plugins;
+                this.options.plugins = plugins;
             }
 
-            let config: any = {
-                type: this.type,
-                data: data,
-                options: options
-            };
-            console.log(config);
+            this.g = (<HTMLCanvasElement>this.shadowRoot.getElementById("canvas"))
+                .getContext("2d");
+            this.scriptElement();
+    }
 
+    scriptElement(): void {
+        let script = document.querySelector(`#${JuelChart.ChartScriptId}`) as HTMLScriptElement;
+        if ('Chart' in window || script) {
+            this.chartScriptLoaded = new Promise(resolve => {
+                script.addEventListener("load", () => {
+                    resolve(1);
+                });
+            });
+        } else {
+            script = document.createElement("script");
+            script.id = JuelChart.ChartScriptId;
+            this.chartScriptLoaded = new Promise(resolve => {
+                script.addEventListener("load", () => {
+                    resolve(1);
+                });
+            });
+            script.src = JuelChart.ChartScriptUrl;
+            document.head.append(script);
+        }
+    }
+
+    renderChart() {
+        this.chartScriptLoaded.then(() => {
             let ChartFunc = window['Chart'] as any;
-            this.chart = new ChartFunc(this.g, config)
-
+        let config: any = {
+            type: this.type,
+            data: this.data,
+            options: this.options
+        };
+        if (!this.chart) {
+        this.chart = new ChartFunc(this.g, config)
+        } else {
+            this.chart.data = this.data;
+            this.chart.update();
         }
         });
     }
 
-    getData() {
-        if (this.data) {
-            return this.data;
-        } else {
-            let el = this.shadowRoot.getElementById("data").firstElementChild as HTMLSlotElement;
-            let els = el.assignedNodes();
-            this.data = JSON.parse(els[0].nodeValue);
-            this.g = (<HTMLCanvasElement>this.shadowRoot.getElementById("canvas"))
-                .getContext("2d");
-            return this.data;
-        }
-    }
-
     render() {
-        return html`<div id="data" style="display:none"><slot></slot></div><canvas id="canvas" width="${this.width}" height="${this.height}""></canvas>`;
+        return html`<canvas id="canvas" width="${this.width}" height="${this.height}""></canvas>`;
     }
 }

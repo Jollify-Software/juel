@@ -57,7 +57,7 @@
         "@parcel/transformer-less": "^2.3.1",
         "@parcel/transformer-typescript-tsc": "^2.3.1",
         "@types/bingmaps": "0.0.1",
-        "@types/chart.js": "^2.9.32",
+        "@types/chart.js": "^2.9.37",
         "@types/hammerjs": "^2.0.36",
         "@types/jquery": "^3.5.14",
         "autoprefixer": "^9.8.6",
