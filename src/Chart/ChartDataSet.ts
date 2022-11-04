@@ -1,11 +1,11 @@
-import { LitElement } from "lit";
 import { customElement, property } from "lit/decorators";
+import { CommandBase } from "../_Base/CommandBase";
 import { ArrayConverter } from "../_Converters/ArrayConverter";
 import { BooleanConverter } from "../_Converters/BooleanConverter";
 import { JuelChart } from "./Chart";
 
 @customElement("juel-chart-dataset")
-export class JuelChartDataSet extends LitElement {
+export class JuelChartDataSet extends CommandBase {
     @property() label: string;
     @property({ converter: ArrayConverter() }) data: any[];
     @property() type: string;
