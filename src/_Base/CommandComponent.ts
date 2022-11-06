@@ -1,7 +1,6 @@
-import { LitElement } from "lit";
 import { JuelComponent } from "./JuelComponent";
 
-export class CommandBase extends LitElement {
+export class CommandComponent extends JuelComponent {
 
     getParentComponent(): JuelComponent {
         if (this.parentElement) {
@@ -12,7 +11,7 @@ export class CommandBase extends LitElement {
             }
         }
     }
-
+    
     protected createRenderRoot(): Element | ShadowRoot {
         return this;
     }

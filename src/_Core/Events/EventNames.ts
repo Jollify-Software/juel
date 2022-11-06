@@ -5,5 +5,6 @@ export enum EventNames {
     Changed = "changed",
     Selected = "selected",
     Deselected = "deselected",
-	Disposed = "disposed"
+	Disposed = "disposed",
+    ItemSelected = "item-selected"
 }

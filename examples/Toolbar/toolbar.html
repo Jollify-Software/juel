@@ -1,0 +1,30 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+</head>
+
+<body>
+    <juel-toolbar id="toolbar">
+        <juel-toolbar-item label="Load"></juel-toolbar-item>
+        <juel-toolbar-item label="Save"></juel-toolbar-item>
+        <juel-toolbar-item label="Custom item">
+            <template>
+                ${this.label}
+                <juel-select>
+                    <b>1</b>
+                    <b>2</b>
+                    <b>3</b>
+                </juel-select>
+            </template>
+        </juel-toolbar-item>
+    </juel-toolbar>
+    <script>
+         var toolbar = document.getElementById("toolbar");
+         toolbar.addEventListener("item-selected", (e) => {
+            console.log(e.detail.index)
+         })
+    </script>
+</body>
+
+</html>

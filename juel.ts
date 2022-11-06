@@ -29,6 +29,9 @@ import './src/Chart/ChartDataSet';
 import './src/DraggableContainer/DraggableContainer';
 import './src/ImagePreload/ImagePreload';
 
+import './src/Toolbar/Toolbar';
+import './src/Toolbar/ToolbarItem';
+
 import './src/Lightbox/Lightbox';
 //import './src/Parallax/Parallax'; // Doesn't work and not important
 import './src/Flip/Flip';
