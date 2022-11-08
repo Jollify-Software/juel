@@ -18,10 +18,8 @@ export class JuelChartDataSet extends CommandBase {
     @property({ attribute: "point-background-colour" }) pointBackgroundColour: string;
 
     updated() {
-        console.log(this.parentElement.nodeName);
         if (this.parentElement.nodeName == "JUEL-CHART") {
             let dataset = {};
-            console.log(this.data)
             dataset['label'] = this.label;
             dataset['data'] = this.data;
             dataset['type'] = this.type;
@@ -42,9 +40,5 @@ export class JuelChartDataSet extends CommandBase {
                 chart.renderChart();
             }
         }
-    }
-
-    protected createRenderRoot(): Element | ShadowRoot {
-        return this;
     }
 }

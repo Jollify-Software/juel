@@ -29,6 +29,7 @@ import './src/Chart/ChartDataSet';
 import './src/DraggableContainer/DraggableContainer';
 import './src/ImagePreload/ImagePreload';
 
+import './src/Page/Page';
 import './src/Toolbar/Toolbar';
 import './src/Toolbar/ToolbarItem';
 
