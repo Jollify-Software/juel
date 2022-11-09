@@ -1,4 +1,4 @@
-import { LitElement, PropertyValueMap } from "lit";
+import { CSSResult, CSSResultGroup, LitElement, PropertyValueMap } from "lit";
 import { property } from "lit/decorators";
 
 export class JuelComponent extends LitElement {

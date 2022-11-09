@@ -5,6 +5,7 @@
     --icon-crosshair: url("data-url:~/icons/crosshair.svg");
     --icon-close: url("data-url:~/icons/close.svg");
     --icon-tick: url("data-url:~/icons/tick.svg");
+	--icon-access: url("data-url:~/icons/access.svg");
 }
 .icn() {
     background-position: center;
@@ -15,13 +16,17 @@
     width: 48px;
     height: 48px;
 }
-.icon {
-    .icn();
-    width: 32px;
-    height: 32px;
-}
 .icon-sm {
     .icn();
     width: 16px;
     height: 16px;
+}
+.icon {
+    .icn();
+    width: 32px;
+    height: 32px;
+	
+	&.access {
+        background-image: var(--icon-access);
+    }
 }

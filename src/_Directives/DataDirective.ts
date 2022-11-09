@@ -1,5 +1,5 @@
 import { noChange } from "lit";
-import { Directive, directive, DirectiveParameters, ElementPart } from "lit-html/directive";
+import { Directive, directive, DirectiveParameters, ElementPart } from "lit/directive";
 
 class DataDirective extends Directive {
     update(part: ElementPart, [name, data]: DirectiveParameters<this>) {
