@@ -37,7 +37,7 @@ import './src/Lightbox/Lightbox';
 //import './src/Parallax/Parallax'; // Doesn't work and not important
 import './src/Flip/Flip';
 import './src/Tilt/Tilt';
-
+import './src/Icons/Icons';
 import './src/Contents/Contents';
 import './src/Template/Template';
 

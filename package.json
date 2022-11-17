@@ -2,16 +2,10 @@
     "name": "juel",
     "version": "1.0.0",
     "description": "User Interface web components",
-    "main": "dist/juel.js",
+    "default": "dist/juel.js",
     "demo": "examples/demo.css",
-    "files": [
-        "dist/juel.js"
-    ],
     "targets": {
-        "main": {
-            "distDir": "dist",
-            "includeNodeModules": true
-        },
+        "default": {},
         "demo": {
             "distDir": "./examples",
             "sourceMap": false
@@ -19,8 +13,8 @@
     },
     "browserslist": "last 2 Chrome versions",
     "scripts": {
-        "dev": "parcel juel.ts --no-optimize --no-scope-hoist",
-        "build": "parcel build juel.ts --no-optimize --target main --no-source-maps && parcel build examples/demo.less --target demo",
+        "dev": "parcel build juel.ts --no-optimize --no-scope-hoist && parcel build examples/demo.less --target demo",
+        "build": "parcel build juel.ts --no-source-maps && parcel build examples/demo.less --target demo",
         "serve": "npm run build && npx copyfiles dist/*.* examples -f && npx serve examples",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
@@ -47,6 +41,7 @@
         "lit": "^2.4.0",
         "proton-engine": "^4.1.3",
         "raf-manager": "^0.3.0",
+        "split.js": "^1.6.5",
         "tippy.js": "^6.2.7",
         "toastr": "^2.1.4",
         "vanilla-tilt": "^1.7.0"

@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <script src="../../dist/juel.js"></script>
+        <style>
+            div {
+                width: 100px;
+            }
+        </style>
+    </head>
+    <body>
+        <juel-icons icons="smile"></juel-icons>
+        <div id="use-smile"></div>
+        <div id="another-smile"></div>
+
+        <script>
+  //          document.getElementById("use-smile").innerHTML = 
+//                juel.icon.get("smile");
+            document.getElementById("another-smile").innerHTML =
+                juel.icon.use("smile");
+        </script>
+    </body>
+</html>

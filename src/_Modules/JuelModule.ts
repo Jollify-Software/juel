@@ -1,4 +1,5 @@
 import { AudioModule } from "./AudioModule";
+import { IconsModule } from "./IconsModule";
 
 export module JuelModule {
     export const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -6,4 +7,5 @@ export module JuelModule {
       });
 
     export var audio = AudioModule;
+    export var icon = IconsModule;
 }
