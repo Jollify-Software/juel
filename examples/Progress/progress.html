@@ -10,11 +10,13 @@
 </head>
 
 <body>
-    <juel-progress id="progress" type="ring"></juel-progress>
+    <juel-progress id="progress"></juel-progress>
+    <juel-progress type="block" indeterminate="3s" alternate></juel-progress>
+    <juel-progress type="ring" label="Go" indeterminate alternate></juel-progress>
     <script>
         var pro = document.getElementById("progress");
         setInterval(() => {
-            pro.value+=10;
+            pro.value+=1;
         }, 500);
     </script>
 </body>

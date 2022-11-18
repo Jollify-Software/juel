@@ -6,5 +6,7 @@ export enum EventNames {
     Selected = "selected",
     Deselected = "deselected",
 	Disposed = "disposed",
-    ItemSelected = "item-selected"
+    ItemSelected = "item-selected",
+    Tick = "tick",
+    End = "end"
 }
