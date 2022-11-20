@@ -3,9 +3,10 @@ import { property, customElement } from "lit/decorators";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import Styles from "bundle-text:./Nav.less";
 import { GetChildren } from "../_Utils/GetChildren";
+import { JuelComponent } from "../_Base/JuelComponent";
 
 @customElement("juel-nav")
-export class JuelNav extends LitElement {
+export class JuelNav extends JuelComponent {
 
     static styles = unsafeCSS(Styles)
 
@@ -23,10 +24,7 @@ export class JuelNav extends LitElement {
     itemsHtml: TemplateResult[];
     itemsWidth: string;
 
-    firstUpdated() {
-        setTimeout(() => {
-            this.requestUpdate();
-            setTimeout(() => {
+    firstLoad() {
                 if (this.sticky == true && !(<any>window).isMobile) {
 // Get the offset position of the navbar
 let nav = this.shadowRoot.querySelector('nav') as HTMLElement;
@@ -42,22 +40,6 @@ window.addEventListener('scroll', () => {
       }
 });
                 }
-            });
-
-            /*
-            this.itemsWidth = this.style.getPropertyValue("--items-width");
-            if (!this.itemsWidth) {
-                let w: number = 0;
-                $(this.shadowRoot).find('.item').each((index, el) => {
-                    w += $(el).outerWidth();
-                })
-                this.itemsWidth = `${w}px`;
-                this.style.setProperty("--items-width", this.itemsWidth);
-            }
-            this.shadowRoot.getElementById("items").style.width = '0';
-            this.shadowRoot.getElementById("items").style.visibility = 'visible';
-            */
-        });
     }
 
     toggleClick(e: Event) {
@@ -82,17 +64,17 @@ window.addEventListener('scroll', () => {
 
     render() {
         return html`
-            <nav id="nav">
+            <nav>
             <div part="title" class="title">
                 <slot name="title">
                     <h1>${this.title}</h1>
                 </slot>
-                <div id="toggle" class="${this.toggle == true ? "shown" : ""}" @click="${this.toggleClick}">
+            </div>
+            <div id="toggle" class="${this.toggle == true ? "shown" : ""}" @click="${this.toggleClick}">
                     <span></span>
                     <span></span>
                     <span></span>
                 </div>
-            </div>
             <div id="items" part="items" class="${this.side ? `side ${this.side}` : ""}">
             ${ChildrenMap(this, (el, index) => {
                 if (el.getAttribute("slot") != "title") {
@@ -111,10 +93,7 @@ window.addEventListener('scroll', () => {
             } else {
                 return html``;
             }
-            }, '[slot="title"],[slot="addon"]')}
-            </div>
-            <div class="addon">
-            <slot name="addon"></slot>
+            }, '[slot="title"],[slot="append"]')}
             </div>
             </nav>
         `;
