@@ -44,7 +44,8 @@
         "split.js": "^1.6.5",
         "tippy.js": "^6.2.7",
         "toastr": "^2.1.4",
-        "vanilla-tilt": "^1.7.0"
+        "vanilla-tilt": "^1.7.0",
+        "vexflow": "^4.0.3"
     },
     "devDependencies": {
         "@parcel/optimizer-data-url": "^2.8.0",

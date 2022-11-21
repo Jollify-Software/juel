@@ -52,7 +52,10 @@ import './src/Spinner/Spinner';
 
 import './src/Random/Random';
 
-
+import './src/Music/Music';
+import './src/Music/Stave';
+import './src/Music/Voice';
+import './src/Music/Note';
 
 import './src/Tilt/Tilt';
 
