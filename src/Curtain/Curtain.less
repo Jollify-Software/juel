@@ -1,0 +1,58 @@
+.content {
+    position: fixed;
+    z-index: 1;
+    background-color: var(--light);
+    transition: 0.5s;
+
+    &.top {
+      height: var(--size);
+      transform: translateY(var(--translate, calc(-1 * var(--size))));
+    }
+    &.right {
+      right: 0;
+      width: var(--size);
+      transform: translateX(var(--translate, calc(var(--size))));
+    }
+    &.bottom {
+      bottom: 0;
+      height: var(--size);
+      transform: translateY(var(--translate, var(--size)));
+    }
+    &.left {
+      width: var(--size);
+      transform: translateY(var(--translate, calc(-1 * var(--size))));
+    }
+
+    &.open {
+      transform: initial !important;
+    }
+  }
+  
+  /* The navigation menu links */
+  .content a {
+    
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+  }
+  
+  /* When you mouse over the navigation links, change their color */
+  .content a:hover {
+    color: #f1f1f1;
+  }
+  
+  /* Position and style the close button (top right corner) */
+  .content .closebtn {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background-image: var(--icon-close);
+  }
+  
+  /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+  #main {
+    transition: margin-left .5s;
+    padding: 20px;
+  }

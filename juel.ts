@@ -44,7 +44,7 @@ import './src/Template/Template';
 import './src/SpeechSection/SpeechSection';
 import './src/FishEye/FishEye';
 
-import './src/BoxMenu/BoxMenu';
+import './src/Curtain/Curtain';
 
 
 

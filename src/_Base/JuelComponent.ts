@@ -1,5 +1,6 @@
 import { CSSResult, CSSResultGroup, LitElement, PropertyValueMap } from "lit";
 import { property } from "lit/decorators";
+import { FindParent } from "../_Utils/FindParent";
 
 export class JuelComponent extends LitElement {
 
@@ -20,11 +21,11 @@ export class JuelComponent extends LitElement {
 
     }
 
-    childrenRendered() {
+    childrenLoaded() {
         
     }
 
-    protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    protected updated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         setTimeout(() => {
             setTimeout(() => {
                 this.load(_changedProperties);
@@ -34,8 +35,13 @@ export class JuelComponent extends LitElement {
         super.updated(_changedProperties);
     }
 
-    load(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
-
+    load(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
+        this.childrenLoaded();
+        let juelParent = FindParent(this, (node) => node.nodeName.startsWith("JUEL"));
+        console.log(juelParent)
+        if (juelParent && 'childrenUpdated' in juelParent) {
+            (<JuelComponent>juelParent).childrenLoaded();
+        }
     }
 
     get(property) {

@@ -68,6 +68,7 @@ export class JuelTabs extends JuelComponent {
 
     load() {
         this.openTab(this.index);
+        super.load();
     }
 
     openTab(i: number) {
@@ -113,7 +114,7 @@ export class JuelTabs extends JuelComponent {
             if (hasContent) {
                 this.ids.push(id);
                 event = (e) => {
-                  e.stopPropagation();
+                  //e.stopPropagation();
                   this.displayTab(e, id);
                 };
             } else {

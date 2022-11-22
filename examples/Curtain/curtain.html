@@ -2,28 +2,21 @@
 
 <head>
     <script src="../../dist/juel.js"></script>
-
-    <style>
-        .container {
-            width: 100%;
-            height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
 </head>
 
 <body>
-    <div id="file-input-demo" class="container">
-        <juel-curtain toggle="#open">
-            <a href="#">About</a>
-            <a href="#">Services</a>
-            <a href="#">Clients</a>
-            <a href="#">Contact</a>
+        <juel-curtain toggle="#open" position="bottom" peek="25%">
+            <juel-tabs>
+                <juel-button slot="title">
+                    <div slot="content" class="icon smile"></div>
+                </juel-button>
+                <p>
+                    123 abc
+                </p>
+                <p data-title="Title">abc 123</p>
+            </juel-tabs>
         </juel-curtain>
-        <span id="open">open</span>
-    </div>
+        <button id="open">open</span>
 </body>
 
 </html>
