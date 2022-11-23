@@ -6,6 +6,13 @@ body {
     --icon-indent: url("data-url:~/icons/text/indent.svg");
     --icon-outdent: url("data-url:~/icons/text/outdent.svg");
     --icon-smile: url("data-url:~/icons/text/smile.svg");
+    --icon-bold: url("data-url:~/icons/text/bold.svg");
+    --icon-image: url("data-url:~/icons/text/image.svg");
+    --icon-italic: url("data-url:~/icons/text/italic.svg");
+    --icon-link: url("data-url:~/icons/text/link.svg");
+    --icon-list-numbered: url("data-url:~/icons/text/list-numbered.svg");
+    --icon-list: url("data-url:~/icons/text/list.svg");
+    --icon-quote: url("data-url:~/icons/text/quote.svg");
 }
 .icon {
     &.align-centre {
@@ -28,5 +35,29 @@ body {
     }
     &.outdent {
         background-image: var(--icon-smile);
+    }
+    &.smile {
+        background-image: var(--icon-smile);
+    }
+    &.bold {
+        background-image: var(--icon-bold);
+    }
+    &.image {
+        background-image: var(--icon-image);
+    }
+    &.italic {
+        background-image: var(--icon-italic);
+    }
+    &.link {
+        background-image: var(--icon-link);
+    }
+    &.list-numbered {
+        background-image: var(--icon-list-numbered);
+    }
+    &.list {
+        background-image: var(--icon-list);
+    }
+    &.quote {
+        background-image: var(--icon-quote);
     }
 }

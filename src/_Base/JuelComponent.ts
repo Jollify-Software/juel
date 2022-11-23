@@ -38,7 +38,6 @@ export class JuelComponent extends LitElement {
     load(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
         this.childrenLoaded();
         let juelParent = FindParent(this, (node) => node.nodeName.startsWith("JUEL"));
-        console.log(juelParent)
         if (juelParent && 'childrenUpdated' in juelParent) {
             (<JuelComponent>juelParent).childrenLoaded();
         }
