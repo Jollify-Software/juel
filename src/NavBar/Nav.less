@@ -3,16 +3,18 @@
 :host {
     display: block;
     width: 100%;
-    height: 100px;
     margin-bottom: 10px;
     background-color: var(--background-colour);
-
+    transition: transform .5s;
+    transform-origin: top;
+    
     &::part(title-sticky) {
-        transform: scale(.6);
+        transform: scale(.6, .8);
     }
 
     &::part(items-sticky) {
-        transform: scale(.8);
+        transform: scale(.8, 1);
+        align-self: baseline;
     }
 }
 
@@ -29,6 +31,8 @@ nav {
     padding-left: var(--padding-left);
     padding-right: var(--padding-right);
     background-color: var(--background-colour);
+    transition: transform .5s;
+    transform-origin: top;
 
     @media screen and (max-width: @widthMobile) {
         justify-content: flex-start;
@@ -41,6 +45,10 @@ nav {
         div {
             flex-grow: 0.1;
         }
+    }
+
+    &.sticky {
+        transform: scaleY(0.8);
     }
 
     &.open {
@@ -73,6 +81,14 @@ nav {
                 max-height: calc(100 * var(--vh));
             }
         }
+    }
+
+    .title-container {
+        display: flex;
+        flex-direction: row;
+        flex-grow: var(--title-grow, 1);
+        margin-left: var(--title-margin-left, 0);
+        margin-right: var(--title-margin-right, 0);
     }
 
     .title {

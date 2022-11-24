@@ -74,13 +74,14 @@ window.addEventListener('scroll', () => {
 
     render() {
       let itemsClass = `items ${this.side}`;
-        return html`
-            <nav>
+        return html`<nav>
+        <div class="title-container">
             <div part="title" class="title">
                 <slot name="title">
                     <h1>${this.title}</h1>
                 </slot>
-                <div id="toggle" class="${this.toggle == true ? "shown" : ""}" @click="${this.toggleClick}">
+            </div>
+            <div id="toggle" class="${this.toggle == true ? "shown" : ""}" @click="${this.toggleClick}">
                     <span></span>
                     <span></span>
                     <span></span>
