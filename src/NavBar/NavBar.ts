@@ -46,7 +46,7 @@ window.addEventListener('scroll', () => {
       } else {
         nav.classList.remove("sticky");
         title.setAttribute("part", "title");
-        items.setAttribute("part", "items-sticky");
+        items.setAttribute("part", "items");
       }
 });
                 }
@@ -87,24 +87,7 @@ window.addEventListener('scroll', () => {
                 </div>
             </div>
             <div part="items" class="${itemsClass}">
-            ${ChildrenMap(this, (el, index) => {
-                if (el.getAttribute("slot") != "title") {
-                let id = el.id ? el.id :  `item-${index}`;
-                el.setAttribute('slot', id);
-
-                let klass = 'item';
-                if(this.selected && this.selected == index) {
-                    klass += " selected";
-                }
-
-                return html`
-                    <div class="${klass}" data-index="${index}">
-                    <slot name="${id}"></slot>
-                    </div>`;
-            } else {
-                return html``;
-            }
-            }, '[slot="title"],[slot="append"]')}
+            <slot></slot>
             </div>
             </nav>
         `;

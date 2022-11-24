@@ -6,6 +6,14 @@
     height: 100px;
     margin-bottom: 10px;
     background-color: var(--background-colour);
+
+    &::part(title-sticky) {
+        transform: scale(.6);
+    }
+
+    &::part(items-sticky) {
+        transform: scale(.8);
+    }
 }
 
 nav {
@@ -78,6 +86,8 @@ nav {
         text-decoration: none;
         white-space: nowrap;
         background: var(--title-background, var(--light));
+        transition: transform .5s;
+        transform-origin: top;
 
         * {
             display: inline-block;
@@ -94,6 +104,9 @@ nav {
         overflow: visible;
         align-items: baseline;
         background: var(--items-background, var(--light));
+        border-radius: 10px;
+        transition: transform .5s;
+        transform-origin: top;
 
         &.left {
             order: -1;
@@ -111,15 +124,16 @@ nav {
             order: 1 !important;
             width: 100%;
         }
-    }
+    
 
-    .item {
+    ::slotted(*) {
         display: block;
         flex-basis: 0;
         flex-shrink: 1;
         padding-left: .75rem;
         padding-right: .75rem;
     }
+}
 
     .addon {
 
