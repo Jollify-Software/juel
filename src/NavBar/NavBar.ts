@@ -24,19 +24,29 @@ export class JuelNav extends JuelComponent {
     itemsHtml: TemplateResult[];
     itemsWidth: string;
 
+    constructor() {
+      super();
+      // Items to the right side of the title
+      this.side = "right";
+      this.sticky = false;
+    }
+
     firstLoad() {
                 if (this.sticky == true && !(<any>window).isMobile) {
 // Get the offset position of the navbar
 let nav = this.shadowRoot.querySelector('nav') as HTMLElement;
 let title = nav.querySelector('.title') as HTMLElement;
+let items = nav.querySelector('.items') as HTMLElement;
 var navOffset = nav.offsetTop;
 window.addEventListener('scroll', () => {
     if (window.pageYOffset >= navOffset + 10) {
         nav.classList.add("sticky");
         title.setAttribute("part", "title-sticky");
+        items.setAttribute("part", "items-sticky");
       } else {
         nav.classList.remove("sticky");
         title.setAttribute("part", "title");
+        items.setAttribute("part", "items-sticky");
       }
 });
                 }
@@ -44,7 +54,7 @@ window.addEventListener('scroll', () => {
 
     toggleClick(e: Event) {
         e.stopImmediatePropagation();
-        let el = this.shadowRoot.getElementById("nav");
+        let el = this.shadowRoot.querySelector("nav");
         el.classList.toggle("open");
         if (el.classList.contains("open")) {
             if (this.push) {
@@ -63,19 +73,20 @@ window.addEventListener('scroll', () => {
     }
 
     render() {
+      let itemsClass = `items ${this.side}`;
         return html`
             <nav>
             <div part="title" class="title">
                 <slot name="title">
                     <h1>${this.title}</h1>
                 </slot>
-            </div>
-            <div id="toggle" class="${this.toggle == true ? "shown" : ""}" @click="${this.toggleClick}">
+                <div id="toggle" class="${this.toggle == true ? "shown" : ""}" @click="${this.toggleClick}">
                     <span></span>
                     <span></span>
                     <span></span>
                 </div>
-            <div id="items" part="items" class="${this.side ? `side ${this.side}` : ""}">
+            </div>
+            <div part="items" class="${itemsClass}">
             ${ChildrenMap(this, (el, index) => {
                 if (el.getAttribute("slot") != "title") {
                 let id = el.id ? el.id :  `item-${index}`;

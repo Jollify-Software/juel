@@ -13,13 +13,13 @@ nav {
     left: 0;
     top: 0;
     right: 0;
-    display        : flex;
+    display: flex;
     flex-wrap: wrap;
-    flex-direction : row;
-    align-items    : baseline;
+    flex-direction: row;
+    align-items: center;
     justify-content: var(--justify, flex-start);
-    padding-left   : var(--padding-left);
-    padding-right  : var(--padding-right);
+    padding-left: var(--padding-left);
+    padding-right: var(--padding-right);
     background-color: var(--background-colour);
 
     @media screen and (max-width: @widthMobile) {
@@ -34,9 +34,9 @@ nav {
             flex-grow: 0.1;
         }
     }
-    
+
     &.open {
-        #items {
+        .items {
             flex: 1;
         }
     }
@@ -54,25 +54,30 @@ nav {
             transform: translateY(-5px) rotate(-45deg);
         }
 
-        #items {
-            &.side {
-                &.left, &.right {
-                    flex: 1;
-                }
-                @media screen and (max-width: @widthMobile) {
-                    max-height: calc(100 * var(--vh));
-                }
+        .items {
+
+            &.left,
+            &.right {
+                flex: 1;
+            }
+
+            @media screen and (max-width: @widthMobile) {
+                max-height: calc(100 * var(--vh));
             }
         }
     }
 
     .title {
-        padding-top    : .3125rem;
-        padding-bottom : .3125rem;
-        margin-right   : 1rem;
-        font-size      : 1.25rem;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding-top: .3125rem;
+        padding-bottom: .3125rem;
+        margin-right: 1rem;
+        font-size: 1.25rem;
         text-decoration: none;
-        white-space    : nowrap;
+        white-space: nowrap;
+        background: var(--title-background, var(--light));
 
         * {
             display: inline-block;
@@ -81,22 +86,21 @@ nav {
         @media screen and (max-width: @widthMobile) {
 
             margin-right: initial;
-            flex-direction: column;
         }
     }
 
-    #items {
+    .items {
         display: flex;
         overflow: visible;
         align-items: baseline;
+        background: var(--items-background, var(--light));
 
-        &.side {
-            &.left {
-                order: -1;    
-            }
-            &.right {
-                order: 1;
-            }
+        &.left {
+            order: -1;
+        }
+
+        &.right {
+            order: 1;
         }
 
         @media screen and (max-width: @widthMobile) {
@@ -110,12 +114,13 @@ nav {
     }
 
     .item {
-        display    : block;
-        flex-basis : 0;
+        display: block;
+        flex-basis: 0;
         flex-shrink: 1;
-        padding-left    : .75rem;
-        padding-right    : .75rem;
-    }    
+        padding-left: .75rem;
+        padding-right: .75rem;
+    }
+
     .addon {
 
         ::slotted(*) {
@@ -125,40 +130,39 @@ nav {
 }
 
 #toggle {
-    display         : none;
-    position        : relative;
+    display: none;
+    position: relative;
     width: 32px;
     height: 64px;
-    cursor:pointer;
-    color           : rgba(0, 0, 0, .55);
-    border-color    : rgba(0, 0, 0, .1);
-    padding         : .25rem .75rem;
-    font-size       : 1.25rem;
-    line-height     : 1;
+    cursor: pointer;
+    color: rgba(0, 0, 0, .55);
+    border-color: rgba(0, 0, 0, .1);
+    padding: .25rem .75rem;
+    font-size: 1.25rem;
+    line-height: 1;
     background-color: transparent;
-    border          : 1px solid transparent;
-    border-radius   : .25rem;
-    transition      : box-shadow .15s ease-in-out;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    transition: box-shadow .15s ease-in-out;
 
     @media screen and (max-width: @widthMobile) {
         display: inline-block;
-        + #items.side {
+
+        +.items {
             position: relative;
-                
-        
-        &.open {
-            + #items {
-                &.side {
-                        max-height: calc(100 * var(--vh));
-                }
+
+
+            &.open {
+                +.items {
+                    max-height: calc(100 * var(--vh));
                 }
             }
         }
     }
-    
 
-        
-    
+
+
+
 
 
     @media screen and (max-width: @widthMobile) {
@@ -167,24 +171,24 @@ nav {
 
 
     span {
-        background-color          : currentColor;
-        display                   : block;
-        height                    : 1px;
-        left                      : calc(50% - 8px);
-        position                  : absolute;
-        transform-origin          : center;
-        transition-duration       : 86ms;
-        transition-property       : background-color, opacity, transform;
+        background-color: currentColor;
+        display: block;
+        height: 2px;
+        left: calc(50% - 8px);
+        position: absolute;
+        transform-origin: center;
+        transition-duration: 86ms;
+        transition-property: background-color, opacity, transform;
         transition-timing-function: ease-out;
-        width                     : 16px;
+        width: 16px;
     }
 
     span:nth-child(1) {
-        top: calc(50% - 6px);
+        top: calc(50% - 5.5px);
     }
 
     span:nth-child(2) {
-        top: calc(50% - 1px);
+        top: calc(50% - .5px);
     }
 
     span:nth-child(3) {
