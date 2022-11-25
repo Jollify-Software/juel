@@ -6,7 +6,7 @@
   bottom: 0;
 }
 .loading {
-    background-color: #f7f7f7;
+    background: var(--background, var(--light)) #f7f7f7;
     width: 100%;
     height: 100%;
     display: flex;
@@ -15,19 +15,20 @@
     align-items: center;
     justify-content: center;
   }
-  .loading img {
-    height: 80px;
+  .loading ::slotted(*) {
+    max-height: 80px;
+    max-width: 80px;
     position: absolute;
     z-index: 101;
   }
   .loading .circle {
-    background-color: #0061f2;
+    background: var(--progess-background, transparent);
     width: 100px;
     height: 100px;
     position: relative;
     border-style: solid;
     border-width: 4px;
-    border-top-color: gold;
+    border-top-color: var(--bar-colour, var(--primary));
     border-bottom-color: transparent;
     border-left-color: transparent;
     border-right-color: transparent;

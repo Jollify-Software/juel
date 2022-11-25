@@ -1,12 +1,15 @@
-import { html, LitElement } from "lit";
+import { html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
 import icon from "data-url:~/icons/access.svg";
+import Styles from "bundle-text:./ReciteMe.less";
 
 declare var Recite: any;
 declare function _reciteLoaded();
 
 @customElement("juel-reciteme")
 export class JuelReciteme extends LitElement {
+
+    static styles = unsafeCSS(Styles);
 
     static ReciteScriptID = "juel-recite";
 
