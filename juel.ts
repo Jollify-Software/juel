@@ -1,8 +1,5 @@
 import './src/JuelGlobal';
 
-import { IsMobile } from './src/_Utils/IsMobile';
-import { Vh } from './src/_Utils/Vh';
-
 import './src/Accordion/Accordion';
 import './src/Carousel/Carousel';
 import './src/Loading/Loading';
@@ -63,8 +60,3 @@ import './src/ReciteMe/ReciteMe';
 
 //import './src/ParticleSystem/ParticleSystem';
 
-
-$(function() {
-    IsMobile();
-    Vh();
-});

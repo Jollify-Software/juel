@@ -7,9 +7,11 @@ export class JuelComponent extends LitElement {
     @property() juelParent: JuelComponent;
     loaded: boolean = false;
 
+    hasUpdated: boolean;
+
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         setTimeout(() => {
-            this.requestUpdate();
+            //this.requestUpdate();
             setTimeout(() => {
                 this.firstLoad();
             });

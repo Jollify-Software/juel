@@ -55,34 +55,8 @@ export class JuelAccordion extends NavigationBase {
     }
 
     render() {
-        return html`<div id="container" class="${this.horizontal == true ? "horizontal" : ""}">
-            ${ChildrenMap(this, (ele, index) => {                
-                    let id = ele.id ? ele.id :  `accordion-section-${index}`;
-                    ele.setAttribute('slot', id);
-
-                    let hasTitleEl = false;
-                    let titleElId = `${id}-title`;
-                    let titleEl = ele.previousElementSibling;
-                    if (titleEl && titleEl.matches('[slot*="title"')) {
-                        hasTitleEl = true;
-                        titleEl.setAttribute('slot', titleElId);
-                        if (titleEl.hasAttribute("id") && ele.hasAttribute("id") == false) {
-                          ele.id = titleEl.id;
-                          titleEl.removeAttribute("id");
-                        }
-                    }
-                    return html`<div class="title" data-index="${index}" @click="${() => this.titleClick(index)}">
-                        ${hasTitleEl ?
-                            html`<slot name="${titleElId}"></slot>` :
-                            html`<span>
-                                ${(ele.dataset.title ? ele.dataset.title : "")}
-                            </span>`
-                        }
-                        </div>
-                        <div class="panel">
-                        <slot name="${id}"></slot>
-                        </div>`;
-                }, '[slot*="title"]')}
+        return html`<div class="items ${this.horizontal == true ? "horizontal" : ""}">
+            <slot @slotchange="${(e) => this.itemsForSlot(e, 'title')}"></slot>
         </div>`;
     }
 

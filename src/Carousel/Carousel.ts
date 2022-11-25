@@ -13,7 +13,6 @@ export class JuelCarousel extends NavigationBase {
     @property() controls: string; // TODO: CControl: 5s, 500ms
     // TODO: Indicators, transition: zoom(in|out)|fade, previous/next slots
 
-    itemsCount: number;
     interval: number;
     intervalHandler: number;
     isForward: boolean; // The direction the carousel is going
@@ -25,22 +24,23 @@ export class JuelCarousel extends NavigationBase {
     }
 
     navigateTo(index: number) {
+        this.selectItem(index);
         /* Find the current card */
-        const currItm = $(this.shadowRoot.querySelector(`[data-index="${index}"]`));
-        if (currItm && currItm.length > 0) {
-            /* Set the prevCard based on its availability */
-            currItm.siblings(".item").removeClass("active");
-            currItm.addClass("active");
+        // const currItm = $(this.shadowRoot.querySelector(`[data-index="${index}"]`));
+        // if (currItm && currItm.length > 0) {
+        //     /* Set the prevCard based on its availability */
+        //     currItm.siblings(".item").removeClass("active");
+        //     currItm.addClass("active");
 
-            let w = currItm.outerWidth();
-            if (w > 0) {
-                this.style.setProperty('--item-width', w.toString());
-            }
-            let h = currItm.outerHeight();
-            if (h > 0) {
-                this.style.setProperty('--item-height', h.toString());
-            }
-        }
+        //     let w = currItm.outerWidth();
+        //     if (w > 0) {
+        //         this.style.setProperty('--item-width', w.toString());
+        //     }
+        //     let h = currItm.outerHeight();
+        //     if (h > 0) {
+        //         this.style.setProperty('--item-height', h.toString());
+        //     }
+        // }
     }
 
     navigateToSelector(selector: string): void {
@@ -56,12 +56,12 @@ export class JuelCarousel extends NavigationBase {
         }
     }
 
-    firstLoad(): void {
-        super.firstLoad()
+    firstUpdated(): void {
+        super.firstUpdated()
         if (this.controls.includes(' ')) {
             let splity = this.controls.split(' ');
             // 1st is true|false
-            this.setInterval(splity[0]);
+            this.setInterval(splity[1]);
         } else {
             this.setInterval(this.controls);
         }
@@ -95,6 +95,7 @@ export class JuelCarousel extends NavigationBase {
         if (e && this.intervalHandler) {
             clearInterval(this.intervalHandler);
         }
+        console.log("Items: " + this.itemsCount)
         if (this.position == this.itemsCount - 1) {
             this.position = 0;
         } else {
@@ -112,44 +113,8 @@ export class JuelCarousel extends NavigationBase {
 
     render() {
         let hasCtrls: boolean = this.controls.includes("true");
-        this.itemsCount = 0;
         return html`${when(hasCtrls, () => html`<div id="previous" @click="${this.prev}"><span></span></div>`)}
-        <div class="container">
-        ${ChildrenMap(this, (el, index) => {
-            this.itemsCount++;
-            let id = el.id ? el.id : `item-${index}`;
-            let klass = "item";
-            if (index == this.position) {
-                klass += " active";
-                let $el = $(el);
-                let w = $el.outerWidth();
-                if (w > 0) {
-                    this.style.setProperty('--item-width', w.toString());
-                }
-                let h = $el.outerHeight();
-                if (h > 0) {
-                    this.style.setProperty('--item-height', h.toString());
-                }
-            }
-            let hasTitleEl = false;
-            let titleElId = `${id}-caption`;
-            let titleEl = el.nextElementSibling;
-            if (titleEl && titleEl.matches('[slot*="caption"]')) {
-                hasTitleEl = true;
-                titleEl.setAttribute('slot', titleElId);
-            }
-            el.setAttribute('slot', id);
-            el.classList.add("item");
-            el.setAttribute('draggable', 'false');
-            el.setAttribute('ondragstart', "event.preventDefault();")
-            return html`
-                        <div class="${klass}" data-index="${index}" draggable="false" @click="${this.itemClick}">
-                        <slot name="${id}"></slot>
-                        ${when(hasTitleEl, () => html`<div class="caption"><slot name="${titleElId}"</div>`)}
-                        ${when(el.hasAttribute("data-caption"), () => html`<div class="caption">${el.dataset.caption}</div>`)}
-                        </div>`;
-        }, '[slot*="caption"]')}
-        </div>
+        <div class="items container"><slot @slotchange="${(e) => this.itemsForSlot(e, 'caption', true)}"></slot></div>
         ${when(hasCtrls, () => html`<div id="next" @click="${this.next}"><span></span></div>`)}`;
     }
 }

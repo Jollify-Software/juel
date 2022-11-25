@@ -14,7 +14,7 @@
     "browserslist": "last 2 Chrome versions",
     "scripts": {
         "dev": "parcel build juel.ts --no-optimize --no-scope-hoist && parcel build examples/demo.less --target demo",
-        "build": "parcel build juel.ts --no-source-maps && parcel build examples/demo.less --target demo",
+        "build": "parcel build juel.ts --no-source-maps && parcel build examples/demo.less --target demo && copyfiles dist/juel.js \"C:/Jollify/Jellyfish/_working/test/campaign/public\"",
         "serve": "npm run build && npx copyfiles dist/*.* examples -f && npx serve examples",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
