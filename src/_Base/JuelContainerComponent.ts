@@ -27,13 +27,13 @@ export class JuelContainerComponent extends JuelComponent {
         this.itemsContainerClass = "items";
         this.titlesContainerClass = "titles";
         this.titleAttrName = "title";
-        this.titleSlotSelector = `[slot="${this.titleAttrName}"]`;
-        this.titleDataSelector = `[data-${this.titleAttrName}]`;
         this.titleIsNext = false;
         this.hasAddedItems = false;
     }
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        this.titleSlotSelector = `[slot="${this.titleAttrName}"]`;
+        this.titleDataSelector = `[data-${this.titleAttrName}]`;
         this.itemsContainer = this.shadowRoot.querySelector(`.${this.itemsContainerClass}`);
         this.titlesContainer = this.shadowRoot.querySelector(`.${this.titlesContainerClass}`);
         new Promise(resolve => {
@@ -44,9 +44,7 @@ export class JuelContainerComponent extends JuelComponent {
     }
 
     selectItem(index: number) {
-        console.log("Select item" + index)
         let el = this.itemsContainer.querySelector(`[data-index="${index}"]`);
-        console.log(el)
         if (el) {
             this.position = index;
             let $el = $(el);
@@ -64,7 +62,6 @@ export class JuelContainerComponent extends JuelComponent {
         // If we have a title container, then select the title
         if (this.titlesContainer) {
             let el = this.titlesContainer.querySelector(`[data-index="${index}"]`);
-            console.log(el)
             if (el) {
                 let $el = $(el);
                 $el.siblings().removeClass("active").removeClass("open");
@@ -76,8 +73,9 @@ export class JuelContainerComponent extends JuelComponent {
         }
     }
 
-    isItem(el: HTMLElement) {
-        if (el.hasAttribute(`data-${this.titleAttrName}`)) {
+    isItem(el: HTMLElement, level: number) {
+        if (el.hasAttribute(`data-${this.titleAttrName}`) ||
+            (el.hasAttribute("slot") == false && level == 0)) {
             return true;
         } else {
             let titleEl = this.titleIsNext ?
@@ -93,7 +91,7 @@ export class JuelContainerComponent extends JuelComponent {
     itemifyChildren(children: HTMLElement[], level: number = 0, idStr: string, posStr: string, titlesContainer: HTMLElement = null) {
         let position: number = -1;
         // Only itemift the children that are items
-        children = children.filter(el => this.isItem(el));
+        children = children.filter(el => this.isItem(el, level));
         // If there are any children
         if (children && children.length > 0) {
             if (this.hasUpdated) {

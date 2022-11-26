@@ -21,6 +21,8 @@ export class JuelCarousel extends NavigationBase {
         super();
         this.position = 0;
         this.controls = "true";
+        this.titleAttrName = "caption";
+        this.titleIsNext = false;
     }
 
     navigateTo(index: number) {
