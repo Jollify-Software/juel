@@ -6,9 +6,10 @@ import { JuelComponent } from "../_Base/JuelComponent";
 import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
 import { EventNames } from "../_Core/Events/EventNames";
 import { when } from "lit/directives/when";
+import { NavigationBase } from "../_Base/NavigationBase";
 
 @customElement("juel-tabs")
-export class JuelTabs extends JuelComponent {
+export class JuelTabs extends NavigationBase {
 
     static styles = unsafeCSS(style);
     ids: string[] = [];
@@ -143,16 +144,11 @@ export class JuelTabs extends JuelComponent {
             <div id="tabs-container" class="${this.vertical ? `vertical` : ``}">
             <div id="tabs">
             <div><slot name="prepend"></slot></div>
-            ${ChildrenMap(this, this.childrenMap(0),
-                '[slot="header"], [slot="footer"], [slot="prepend"], [slot="append"], [slot$="title"]')}
+            <div class="titles"></div>
+                <slot @slotchange="${(e) => this.itemsForSlot(e, 'title')}"></slot>
                 <div><slot name="append"></slot></div>
                 </div>
-                ${this.ids.map(id => {
-                    return html`</div>
-                        <div id="${id}" class="panel">
-                        <slot name="${id}"></slot>
-                        </div>`
-                })}
+                <div class="items"></div>
         </div>
         <slot name="footer"></slot>`;
     }

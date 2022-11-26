@@ -26,7 +26,9 @@
       }
     }
   }
-  
+  .titles {
+    display: inherit;
+  }
   /* Style the buttons that are used to open the tab content */
   #tabs .title {
     background-color: inherit;
@@ -35,17 +37,6 @@
     cursor: pointer;
     padding: 14px 16px;
 
-    &.open {
-      padding-left: 0px;
-      padding-right: 0px;
-      padding-bottom: 0px;
-      span {
-        padding-left: 16px;
-      }
-      div {
-        display: inline-block;
-      }
-    }
     div {
       display: none;
     }
@@ -60,9 +51,21 @@
   #tabs .title.active {
     background-color: var(--active, #ccc);
   }
-  
+  .item {
+    &.active {
+      padding-left: 0px;
+      padding-right: 0px;
+      padding-bottom: 0px;
+      span {
+        padding-left: 16px;
+      }
+      div {
+        display: inline-block;
+      }
+    }
+  }
   /* Style the tab content */
-  .panel {
+  .item-content {
     display: none;
     flex: 1;
     padding: 6px 12px;
@@ -70,7 +73,7 @@
     border: 1px solid #ccc;
     border-top: none;
   }
-  .panel {
+  .item-content {
     animation: fadeEffect 1s; /* Fading effect takes 1 second */
   }
   

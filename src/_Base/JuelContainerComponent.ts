@@ -11,25 +11,41 @@ export class JuelContainerComponent extends JuelComponent {
 
     itemsContainerClass: string;
     itemsContainer: HTMLElement;
+    titlesContainer: HTMLElement;
+    titlesContainerClass: string;
     itemsResolver: (value: unknown) => void;
+
+    titleAttrName: string;
+    titleSlotSelector: string;
+    titleDataSelector: string;
+    titleIsNext: boolean;
+
+    hasAddedItems: boolean;
 
     constructor() {
         super();
         this.itemsContainerClass = "items";
+        this.titlesContainerClass = "titles";
+        this.titleAttrName = "title";
+        this.titleSlotSelector = `[slot="${this.titleAttrName}"]`;
+        this.titleDataSelector = `[data-${this.titleAttrName}]`;
+        this.titleIsNext = false;
+        this.hasAddedItems = false;
     }
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         this.itemsContainer = this.shadowRoot.querySelector(`.${this.itemsContainerClass}`);
+        this.titlesContainer = this.shadowRoot.querySelector(`.${this.titlesContainerClass}`);
         new Promise(resolve => {
             this.itemsResolver = resolve
         })
-        .then(() => this.selectItem(0));
+            .then(() => this.selectItem(0));
         //setTimeout(() => this.selectItem(0));
     }
 
     selectItem(index: number) {
         console.log("Select item" + index)
-        let el = this.shadowRoot.querySelector(`[data-index="${index}"]`);
+        let el = this.itemsContainer.querySelector(`[data-index="${index}"]`);
         console.log(el)
         if (el) {
             this.position = index;
@@ -45,12 +61,131 @@ export class JuelContainerComponent extends JuelComponent {
                 this.style.setProperty('--item-height', h.toString());
             }
         }
+        // If we have a title container, then select the title
+        if (this.titlesContainer) {
+            let el = this.titlesContainer.querySelector(`[data-index="${index}"]`);
+            console.log(el)
+            if (el) {
+                let $el = $(el);
+                $el.siblings().removeClass("active").removeClass("open");
+                el.classList.add("active");
+                if (el.classList.contains("group")) {
+                    el.classList.add("open");
+                }
+            }
+        }
+    }
+
+    isItem(el: HTMLElement) {
+        if (el.hasAttribute(`data-${this.titleAttrName}`)) {
+            return true;
+        } else {
+            let titleEl = this.titleIsNext ?
+                el.nextElementSibling :
+                el.previousElementSibling as HTMLElement;
+            if (titleEl && titleEl.matches(this.titleSlotSelector)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    itemifyChildren(children: HTMLElement[], level: number = 0, idStr: string, posStr: string, titlesContainer: HTMLElement = null) {
+        let position: number = -1;
+        // Only itemift the children that are items
+        children = children.filter(el => this.isItem(el));
+        // If there are any children
+        if (children && children.length > 0) {
+            if (this.hasUpdated) {
+                //$(this.itemsContainer).children().slice(1).remove();
+            }
+            // TODO: Items count for level
+            this.itemsCount = children.length;
+            children.forEach((el, index) => {
+                position++;
+                let id = idStr ? `${idStr}-${position}` : `item-${position}`;
+                let nposStr = posStr ? `${posStr}-${position}` : `${position}`;
+                let klass = "item";
+                let hasTitle = false;
+                let titleElId = `${id}-${this.titleAttrName}`;
+                let titleEl = this.titleIsNext ?
+                    el.nextElementSibling :
+                    el.previousElementSibling as HTMLElement;
+                if (titleEl && titleEl.matches(this.titleSlotSelector)) {
+                    hasTitle = true;
+                    titleEl.setAttribute('slot', titleElId);
+                }
+                el.setAttribute('slot', id);
+                el.classList.add("item");
+                el.setAttribute('draggable', 'false');
+                el.setAttribute('ondragstart', "event.preventDefault();")
+                // If element is nested then flatten the DOM tree by removing and adding to 'this' element
+                if (level > 0) {
+                    el.remove();
+                    this.append(el);
+                    if (titlesContainer) {
+                        titlesContainer.classList.add("group");
+                    }
+                }
+
+                let item = document.createElement("div");
+                item.className = klass;
+                item.setAttribute("data-index", nposStr);
+                item.draggable = false;
+                let i = position;
+                // If we have a title container then we want the event to go on the title el
+                if (!titlesContainer) {
+                    item.onclick = () => {
+                        this.selectItem(i);
+                    }
+                }
+
+                let itemTitle = document.createElement("div");
+                    itemTitle.className = this.titleAttrName;
+                if (hasTitle) {
+                    let titleSlot = document.createElement("slot");
+                    titleSlot.name = titleElId;
+                    itemTitle.append(titleSlot);
+                    if (titlesContainer) {
+                        itemTitle.setAttribute("data-index", nposStr);
+                        itemTitle.onclick = () => {
+                            this.selectItem(i);
+                        }
+                        this.titlesContainer.append(itemTitle);
+                    } else {
+                        item.append(itemTitle);
+                    }
+                } else if (el.dataset[this.titleAttrName]) {
+                    itemTitle.textContent = el.dataset[this.titleAttrName];
+                    if (titlesContainer) {
+                        itemTitle.setAttribute("data-index", nposStr);
+                        itemTitle.onclick = () => {
+                            this.selectItem(i);
+                        }
+                        titlesContainer.append(itemTitle);
+                    } else {
+                        item.append(itemTitle);
+                    }
+                }
+                let itemSlot = document.createElement("slot");
+                itemSlot.name = id;
+                let itemContent = document.createElement("div");
+                itemContent.classList.add("item-content");
+                itemContent.append(itemSlot);
+                item.append(itemContent);
+
+                this.itemifyChildren(Array.prototype.slice.call(el.children), level + 1, id, nposStr, itemTitle)
+
+                this.itemsContainer.append(item);
+            });
+        }
     }
 
     itemsForSlot(e: Event, titleSlotName: string, titleIsNext: boolean = false, ...exclude: string[]) {
         let slot = e.target as HTMLSlotElement;
         // If slot is a slot
-        if (this.itemsContainer && slot.nodeName == "SLOT") {
+        if (this.itemsContainer && slot.nodeName == "SLOT" &&
+            this.hasAddedItems == false) {
             let titleSelector: string;
             if (titleSlotName) {
                 titleSelector = `[slot="${titleSlotName}"]`;
@@ -59,65 +194,14 @@ export class JuelContainerComponent extends JuelComponent {
                 }
             }
             let position: number = -1;
-            let items = slot.assignedElements() as HTMLElement[];
-            if (exclude && exclude.length > 0) {
-                for (let selector of exclude) {
-                    items = items.filter(el => el.matches(selector) == false);
-                }
+            let children = slot.assignedElements() as HTMLElement[];
+            this.hasAddedItems = true;
+            if (this.titlesContainer) {
+                this.itemifyChildren(children, 0, null, null, this.titlesContainer);
+            } else {
+                this.itemifyChildren(children, 0, null, null);
             }
-            if (items && items.length > 0) {
-                if (this.hasUpdated) {
-                    //$(this.itemsContainer).children().slice(1).remove();
-                }
-                this.itemsCount = items.length;
-                items.forEach((el, index) => {
-                    position++;
-                    let id = `item-${index}`;
-                    let klass = "item";
-                    let hasTitle = false;
-                    let titleElId = `${id}-${titleSlotName}`;
-                    let titleEl = titleIsNext ? el.nextElementSibling : el.previousElementSibling as HTMLElement;
-                    if (titleEl && titleEl.matches(titleSelector)) {
-                        hasTitle = true;
-                        titleEl.setAttribute('slot', titleElId);
-                    }
-                    el.setAttribute('slot', id);
-                    el.classList.add("item");
-                    el.setAttribute('draggable', 'false');
-                    el.setAttribute('ondragstart', "event.preventDefault();")
-
-                    let item = document.createElement("div");
-                    item.className = klass;
-                    item.setAttribute("data-index", position.toString());
-                    item.draggable = false;
-                    let i = position;
-                    item.onclick = () => {
-                        this.selectItem(i);
-                    }
-                    if (hasTitle) {
-                        let itemTitle = document.createElement("div");
-                        itemTitle.className = titleSlotName;
-                        let titleSlot = document.createElement("slot");
-                        titleSlot.name = titleElId;
-                        itemTitle.append(titleSlot);
-                        item.append(itemTitle);
-                    } else if (el.dataset[titleSlotName]) {
-                        let itemTitle = document.createElement("div");
-                        itemTitle.className = titleSlotName;
-                        itemTitle.textContent = el.dataset[titleSlotName];
-                        item.append(itemTitle);
-                    }
-                    let itemSlot = document.createElement("slot");
-                    itemSlot.name = id;
-                    let itemContent = document.createElement("div");
-                    itemContent.classList.add("item-content");
-                    itemContent.append(itemSlot);
-                    item.append(itemContent);
-
-                    this.itemsContainer.append(item);
-                });
-                this.itemsResolver(items);
-            }
+            this.itemsResolver(children);
         }
     }
 
