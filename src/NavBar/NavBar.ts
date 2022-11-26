@@ -54,6 +54,7 @@ window.addEventListener('scroll', () => {
 
     toggleClick(e: Event) {
         e.stopImmediatePropagation();
+        (<HTMLElement>e.target).classList.toggle("open");
         let el = this.shadowRoot.querySelector("nav");
         el.classList.toggle("open");
         if (el.classList.contains("open")) {
@@ -75,22 +76,19 @@ window.addEventListener('scroll', () => {
     render() {
       let itemsClass = `items ${this.side}`;
         return html`<nav>
-        <div class="title-container">
             <div part="title" class="title">
                 <slot name="title">
                     <h1>${this.title}</h1>
                 </slot>
             </div>
-            <div id="toggle" class="${this.toggle == true ? "shown" : ""}" @click="${this.toggleClick}">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
             <div part="items" class="${itemsClass}">
             <slot></slot>
             </div>
-            </nav>
+            </nav><div id="toggle" class="${this.toggle == true ? "shown" : ""}" @click="${this.toggleClick}">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
         `;
     }
     
