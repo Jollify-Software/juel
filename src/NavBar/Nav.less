@@ -3,19 +3,21 @@
 :host {
     display: block;
     width: 100%;
-    margin-bottom: 10px;
+    height: var(--height);
     background-color: var(--background-colour);
     transition: transform .5s;
     transform-origin: top;
+    z-index: 1000;
     
     &::part(title-sticky) {
-        transform: scale(.6, .8);
+        transform: scale(.8, 1);
     }
 
+    @media only screen and (min-width: @widthMobile)  {
     &::part(items-sticky) {
         transform: scale(.8, 1);
-        align-self: baseline;
     }
+}
 }
 
 nav {
@@ -30,7 +32,7 @@ nav {
     justify-content: var(--justify, flex-start);
     padding-left: var(--padding-left);
     padding-right: var(--padding-right);
-    background-color: var(--background-colour, var(--light));
+    background: var(--background, var(--light));
     transition: transform .5s;
     transform-origin: top;
 

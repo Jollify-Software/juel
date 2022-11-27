@@ -1,4 +1,4 @@
-import { html, LitElement, TemplateResult, unsafeCSS } from "lit";
+import { html, LitElement, PropertyValueMap, TemplateResult, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import Styles from "bundle-text:./Nav.less";
@@ -31,6 +31,14 @@ export class JuelNav extends JuelComponent {
       this.sticky = false;
     }
 
+    protected updated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+      super.updated(_changedProperties);
+      setTimeout(() => {
+        let h = $(this.shadowRoot.querySelector("nav")).outerHeight();
+        this.style.setProperty("--height", `${h}px`);
+      });
+    }
+
     firstLoad() {
                 if (this.sticky == true && !(<any>window).isMobile) {
 // Get the offset position of the navbar
@@ -41,10 +49,12 @@ var navOffset = nav.offsetTop;
 window.addEventListener('scroll', () => {
     if (window.pageYOffset >= navOffset + 10) {
         nav.classList.add("sticky");
+        nav.setAttribute("part", "nav-sticky");
         title.setAttribute("part", "title-sticky");
         items.setAttribute("part", "items-sticky");
       } else {
         nav.classList.remove("sticky");
+        nav.setAttribute("part", "nav");
         title.setAttribute("part", "title");
         items.setAttribute("part", "items");
       }
@@ -75,7 +85,7 @@ window.addEventListener('scroll', () => {
 
     render() {
       let itemsClass = `items ${this.side}`;
-        return html`<nav>
+        return html`<nav part="nav">
             <div part="title" class="title">
                 <slot name="title">
                     <h1>${this.title}</h1>

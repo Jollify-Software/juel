@@ -42,16 +42,8 @@ export class JuelAccordion extends NavigationBase {
       }
     }
 
-    titleClick(index: number) {
-        let el = this.shadowRoot.querySelector(`[data-index="${index}"]`);
-        if (el) {
-        /* Toggle between adding and removing the "active" class,
-        to highlight the button that controls the panel */
-        el.classList.toggle("active");
-        if (el.classList.contains("active")) {
-          $(el).siblings(".title").removeClass("active");
-        }
-      }
+    itemsCreated(): void {
+        
     }
 
     render() {

@@ -13,7 +13,6 @@ export class JuelContainerComponent extends JuelComponent {
     itemsContainer: HTMLElement;
     titlesContainer: HTMLElement;
     titlesContainerClass: string;
-    itemsResolver: (value: unknown) => void;
 
     titleAttrName: string;
     titleSlotSelector: string;
@@ -36,11 +35,10 @@ export class JuelContainerComponent extends JuelComponent {
         this.titleDataSelector = `[data-${this.titleAttrName}]`;
         this.itemsContainer = this.shadowRoot.querySelector(`.${this.itemsContainerClass}`);
         this.titlesContainer = this.shadowRoot.querySelector(`.${this.titlesContainerClass}`);
-        new Promise(resolve => {
-            this.itemsResolver = resolve
-        })
-            .then(() => this.selectItem(0));
-        //setTimeout(() => this.selectItem(0));
+    }
+
+    itemsCreated() {
+        this.selectItem(0);
     }
 
     selectItem(index: number) {
@@ -199,7 +197,7 @@ export class JuelContainerComponent extends JuelComponent {
             } else {
                 this.itemifyChildren(children, 0, null, null);
             }
-            this.itemsResolver(children);
+            this.itemsCreated();
         }
     }
 
