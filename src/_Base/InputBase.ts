@@ -38,8 +38,6 @@ export class InputBase extends JuelComponent {
         super.firstUpdated();
         this.$this = $(this);
         this.addEventListener("keyup", e => {
-            console.log("Up");
-            console.log(e);
             if (e.key == "Enter") {
                 this.nextOrSubmit();
             }

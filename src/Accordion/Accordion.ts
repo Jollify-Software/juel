@@ -25,7 +25,6 @@ export class JuelAccordion extends NavigationBase {
       let el = this.querySelector(selector);
       if (el) {
         let index = children.index(el);
-        console.log(index)
         if (index >= 0) {
           this.navigateToIndex(index);
         }

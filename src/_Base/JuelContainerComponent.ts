@@ -137,7 +137,7 @@ export class JuelContainerComponent extends JuelComponent {
                 }
 
                 let itemTitle = document.createElement("div");
-                    itemTitle.className = this.titleAttrName;
+                itemTitle.className = this.titleAttrName;
                 if (hasTitle) {
                     let titleSlot = document.createElement("slot");
                     titleSlot.name = titleElId;
@@ -179,6 +179,7 @@ export class JuelContainerComponent extends JuelComponent {
 
     itemsForSlot(e: Event, titleSlotName: string, titleIsNext: boolean = false, ...exclude: string[]) {
         let slot = e.target as HTMLSlotElement;
+        setTimeout(() => {
         // If slot is a slot
         if (this.itemsContainer && slot.nodeName == "SLOT" &&
             this.hasAddedItems == false) {
@@ -189,7 +190,6 @@ export class JuelContainerComponent extends JuelComponent {
                     exclude = [titleSelector];
                 }
             }
-            let position: number = -1;
             let children = slot.assignedElements() as HTMLElement[];
             this.hasAddedItems = true;
             if (this.titlesContainer) {
@@ -199,6 +199,7 @@ export class JuelContainerComponent extends JuelComponent {
             }
             this.itemsCreated();
         }
+    });
     }
 
 }
