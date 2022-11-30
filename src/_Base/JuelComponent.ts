@@ -11,7 +11,7 @@ export class JuelComponent extends LitElement {
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         setTimeout(() => {
-            //this.requestUpdate();
+            this.requestUpdate();
             setTimeout(() => {
                 this.firstLoad();
             });

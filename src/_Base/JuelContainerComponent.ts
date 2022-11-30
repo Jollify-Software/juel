@@ -8,6 +8,7 @@ export class JuelContainerComponent extends JuelComponent {
     @property({ type: Number }) position;
 
     itemsCount: number;
+    itemsDraggable: boolean;
 
     itemsContainerClass: string;
     itemsContainer: HTMLElement;
@@ -28,6 +29,7 @@ export class JuelContainerComponent extends JuelComponent {
         this.titleAttrName = "title";
         this.titleIsNext = false;
         this.hasAddedItems = false;
+        this.itemsDraggable = true;
     }
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
@@ -113,8 +115,10 @@ export class JuelContainerComponent extends JuelComponent {
                 }
                 el.setAttribute('slot', id);
                 el.classList.add("item");
-                el.setAttribute('draggable', 'false');
-                el.setAttribute('ondragstart', "event.preventDefault();")
+                if (this.itemsDraggable == false) {
+                    el.setAttribute('draggable', 'false');
+                    el.setAttribute('ondragstart', "event.preventDefault();")
+                }
                 // If element is nested then flatten the DOM tree by removing and adding to 'this' element
                 if (level > 0) {
                     el.remove();

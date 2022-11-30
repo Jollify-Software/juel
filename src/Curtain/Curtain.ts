@@ -21,14 +21,15 @@ export class JuelCurtain extends JuelComponent {
         this.position = "right";
     }
 
-    open() {
+    open(e?: Event) {
+        console.log(e);
         let el = this.shadowRoot.querySelector(".content");
         if (el) {
             el.classList.add("open");
         }
     }
 
-    close() {
+    close(e: Event) {
         let el = this.shadowRoot.querySelector(".content");
         if (el) {
             el.classList.remove("open");
@@ -36,7 +37,8 @@ export class JuelCurtain extends JuelComponent {
     }
 
     @bind
-    toggleClick() {
+    toggleClick(e?: Event) {
+        e.stopPropagation();
         let el = this.shadowRoot.querySelector(".content");
         if (el) {
             el.classList.toggle("open");
@@ -52,7 +54,7 @@ export class JuelCurtain extends JuelComponent {
             super.load(_changedProperties);
             let el = document.querySelector(this.toggle);
             if (el) {
-                $(el).off("click", this.toggleClick).on("click", this.toggleClick);
+                $(el).on("click", this.toggleClick);
             }
     }
 

@@ -5,7 +5,14 @@
 </head>
 
 <body>
-        <juel-curtain toggle="#open" position="bottom" peek="25%">
+    <juel-select id="curtain-select">
+        <li>Top</li>
+        <li>Right</li>
+        <li>Bottom</li>
+        <li>Left</li>
+    </juel-select>
+
+        <juel-curtain id="curtain" toggle="#open" peek="25%">
             <juel-tabs>
                 <juel-button slot="title">
                     <div slot="content" class="icon smile"></div>
@@ -17,6 +24,11 @@
             </juel-tabs>
         </juel-curtain>
         <button id="open">open</span>
+
+        <script>
+            var select = document.getElementById("curtain-select");
+            //select.addEventListener("")
+        </script>
 </body>
 
 </html>
