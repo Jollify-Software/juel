@@ -1,4 +1,4 @@
-import { LitElement, html, unsafeCSS, nothing } from "lit";
+import { LitElement, html, unsafeCSS, nothing, PropertyValueMap } from "lit";
 import { property, customElement } from "lit/decorators";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { createPopper, Instance } from '@popperjs/core';
@@ -7,6 +7,7 @@ import { ChildrenMap } from "../_Utils/ChildrenMap";
 import { JuelComponent } from "../_Base/JuelComponent";
 import { ListBase } from "../_Base/ListBase";
 import { when } from "lit/directives/when";
+import { until } from "lit/directives/until";
 import { ListItemsTemplate } from "../_Templates/ListItemsTemplate";
 
 /**
@@ -22,7 +23,7 @@ export class Select extends ListBase {
     menu: Instance;
     menuShown: boolean = false;
 
-    items: HTMLElement;
+    //items: HTMLElement;
     trigger: HTMLElement;
 
     constructor() {
@@ -30,9 +31,10 @@ export class Select extends ListBase {
         this.menuShown = false;
     }
 
-    firstLoad() {
-        this.items = this.shadowRoot.getElementById('items');
-        this.items.style.display = "none";
+    protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        super.firstUpdated(_changedProperties);
+        this.titleSlotSelector = '[slot="title"], h1, h2, h3, h4, h5, h6';
+        this.itemsContainer.style.display = "none";
     }
 
     toggle() {
@@ -45,8 +47,8 @@ export class Select extends ListBase {
     }
 
     hide() {
-        this.items.style.display = "none";
-        this.items.style.opacity = "0";
+        this.itemsContainer.style.display = "none";
+        this.itemsContainer.style.opacity = "0";
         this.menu = null;
         this.menuShown = false;
         if (this.input) {
@@ -58,11 +60,11 @@ export class Select extends ListBase {
     }
 
     show() {
-        this.items.style.display = "inline-block";
-        this.items.style.opacity = "1";
+        this.itemsContainer.style.display = "inline-block";
+        this.itemsContainer.style.opacity = "1";
         this.menu = createPopper(
             this.trigger,
-            this.items
+            this.itemsContainer
         );
         this.menuShown = true;
     }
@@ -119,8 +121,12 @@ export class Select extends ListBase {
                     () => html`<juel-badge .label=${this.selectedIndexes.length - 1}></juel-label>`,
                     () => nothing)}
             </div>`)}
-            ${ListItemsTemplate(this)}
+            <ul class="items">
+            ${until(ListItemsTemplate(this), html`<slot @slotchange="${(e) => this.itemsForSlot(e)}"><slot>`)}
+            </ul>
+            
         </div>`;
     }
+    // ${ListItemsTemplate(this)}
 
 }

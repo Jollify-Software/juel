@@ -5,12 +5,13 @@ import { ChildrenItemsTemplate } from "./ChildrenItemsTempate";
 import { ItemTemplate } from "./ItemTemplate";
 import { TableTemplate } from "./TableTemplate";
 
-export function ListItemsTemplate(list: ListBase): TemplateResult {
+export async function ListItemsTemplate(list: ListBase): Promise<TemplateResult> {
+    await list.templatePromise
     if (list.fields && list.fields.length > 0) {
         return TableTemplate(list);
     } else {
         let position = -1;
-        return html`<ul id="items">${list.searchResult ? html`${list.searchResult.data.map((value, index) => {
+        return html`${list.searchResult ? html`${list.searchResult.data.map((value, index) => {
             let res = ItemTemplate(list, value, index, position);
             position = res.position;
             return res.template;
@@ -18,7 +19,6 @@ export function ListItemsTemplate(list: ListBase): TemplateResult {
             let res = ItemTemplate(list, value, index, position);
             position = res.position;
             return res.template;
-        })}` : ChildrenItemsTemplate(list as ListBase)
-            }</ul>`;
+        })}` : nothing}`;
     }
 }

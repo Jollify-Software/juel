@@ -36,10 +36,12 @@ export class ListBase extends JuelDataComponent {
                 } else {
                     val = this.selectItem[0];
                 }
-                if (this.textField && this.textField in val) {
+                if (typeof val == "object" && this.textField && this.textField in val) {
                     return val[this.textField];
-                } else {
+                } else if (typeof val == "object") {
                     return GetDisplayKnownProperty(val);
+                } else {
+                    return val;
                 }
             } else {
                 let el = this.getElementAtIndex(this.placeholderIndex);

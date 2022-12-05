@@ -15,11 +15,11 @@ export function ItemTemplate(component: JuelDataComponent, item: any, index: num
     if ('selectItem' in component) {
         list = component as ListBase;
     }
-    if ('nodeName' in item) {
+    if (typeof item == "object" && 'nodeName' in item) {
         el = item
     }
 
-    if (list && ((el && el.tagName.startsWith("H")) || ('heading' in item && item.heading))) {
+    if (list && ((el && el.tagName.startsWith("H")) || (typeof item == "object" && item.heading))) {
         isHeading = true;
     } else {
         position++;

@@ -1,11 +1,12 @@
-import { TemplateResult } from "lit";
+import { PropertyValueMap, TemplateResult } from "lit";
 import { property, state } from "lit/decorators";
 import { Field } from "../_Core/Data/Field";
 import { SearchResult } from "../_Core/SearchResult";
 import { FillTemplate } from "../_Utils/FillTemplate";
 import { JuelComponent } from "./JuelComponent";
+import { JuelContainerComponent } from "./JuelContainerComponent";
 
-export class JuelDataComponent extends JuelComponent {
+export class JuelDataComponent extends JuelContainerComponent {
 
     @property({ type: Array }) data: any[];
     @property() itemTemplate: (value: any) => Promise<string | TemplateResult>;
@@ -16,6 +17,7 @@ export class JuelDataComponent extends JuelComponent {
 
     retrievedDataStrings: Array<string | TemplateResult>; // Do we still need?
     template: string;
+    templatePromise: Promise<any>;
     @state()
     searchResult: SearchResult; // TODO: SearchResult[]
 
@@ -27,20 +29,35 @@ export class JuelDataComponent extends JuelComponent {
         this.fields = [];
     }
 
-    firstLoad(): void {
-        let template = this.querySelector("template");
-        if (template) {
-            this.template = template.innerHTML;
-        } else {
-            this.template = `\${this.${this.textField}}`;
-        }
-        if (template && !this.itemTemplate) {
-            this.itemTemplate = (value) => {
-                return new Promise((resolve, reject) => {
-                    resolve(FillTemplate(template.innerHTML, value));
-                });
-            };
-        }
+    protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        super.firstUpdated(_changedProperties)
+        this.templatePromise = new Promise(resolve => {
+            setTimeout(() => {
+                let template = this.querySelector("template");
+                if (template) {
+                    this.template = template.innerHTML;
+                } else {
+                    this.template = `\${this.${this.textField}}`;
+                }
+                var children = [...this.children].filter(el => el.nodeName != 'TEMPLATE');
+                if (children.length == 0) {
+                    let slot = this.shadowRoot.querySelector("slot");
+                    if (slot) {
+                        slot.style.display = "none";
+                    }
+                }
+                if (template && !this.itemTemplate) {
+                    this.itemTemplate = (value) => {
+                        return new Promise((resolve, reject) => {
+                            resolve(FillTemplate(template.innerHTML, value));
+                        });
+                    };
+                }
+                console.log(this.data);
+                console.log(this.template);
+                resolve(this.template);
+            });
+        });
     }
 
     onInput(e: Event) {
@@ -91,11 +108,11 @@ export class JuelDataComponent extends JuelComponent {
                 let obj = { ...value };
                 let regex = new RegExp(`(${term})`, "gi");
                 for (let name of fieldNames) {
-                let txt = obj[name].toString() as string;
-                if (regex.test(txt)) {
-                    txt = txt.replace(regex, "<b>$1</b>")
-                    obj[name] = txt;
-                }
+                    let txt = obj[name].toString() as string;
+                    if (regex.test(txt)) {
+                        txt = txt.replace(regex, "<b>$1</b>")
+                        obj[name] = txt;
+                    }
                 }
                 return obj;
             });

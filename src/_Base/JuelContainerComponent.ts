@@ -74,8 +74,9 @@ export class JuelContainerComponent extends JuelComponent {
     }
 
     isItem(el: HTMLElement, level: number) {
-        if (el.hasAttribute(`data-${this.titleAttrName}`) ||
-            (el.hasAttribute("slot") == false && level == 0)) {
+        if ((el.hasAttribute(`data-${this.titleAttrName}`) ||
+            (el.hasAttribute("slot") == false && level == 0)) &&
+            ([ 'TEMPLATE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].every(h => h != el.nodeName))) {
             return true;
         } else {
             let titleEl = this.titleIsNext ?
@@ -146,7 +147,9 @@ export class JuelContainerComponent extends JuelComponent {
                     let titleSlot = document.createElement("slot");
                     titleSlot.name = titleElId;
                     itemTitle.append(titleSlot);
-                    if (titlesContainer) {
+                    if (this.itemsContainer.nodeName == "UL") {
+                        this.itemsContainer.append(itemTitle);
+                    } else if (titlesContainer) {
                         itemTitle.setAttribute("data-index", nposStr);
                         itemTitle.onclick = () => {
                             this.selectItem(i);
@@ -181,19 +184,12 @@ export class JuelContainerComponent extends JuelComponent {
         }
     }
 
-    itemsForSlot(e: Event, titleSlotName: string, titleIsNext: boolean = false, ...exclude: string[]) {
+    itemsForSlot(e: Event) {
         let slot = e.target as HTMLSlotElement;
         setTimeout(() => {
         // If slot is a slot
         if (this.itemsContainer && slot.nodeName == "SLOT" &&
             this.hasAddedItems == false) {
-            let titleSelector: string;
-            if (titleSlotName) {
-                titleSelector = `[slot="${titleSlotName}"]`;
-                if (!exclude) {
-                    exclude = [titleSelector];
-                }
-            }
             let children = slot.assignedElements() as HTMLElement[];
             this.hasAddedItems = true;
             if (this.titlesContainer) {
