@@ -21,6 +21,7 @@ export class JuelTabs extends NavigationBase {
         super();
         this.index = 0;
         this.vertical = false;
+        this.shouldToggleActive = false;
     }
 
     displayTab(evt, id) {
@@ -145,7 +146,7 @@ export class JuelTabs extends NavigationBase {
             <div id="tabs">
             <div><slot name="prepend"></slot></div>
             <div class="titles"></div>
-                <slot @slotchange="${(e) => this.itemsForSlot(e, 'title')}"></slot>
+                <slot @slotchange="${(e) => this.itemsForSlot(e)}"></slot>
                 <div><slot name="append"></slot></div>
                 </div>
                 <div class="items"></div>

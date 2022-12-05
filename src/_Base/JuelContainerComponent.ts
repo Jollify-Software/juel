@@ -21,6 +21,7 @@ export class JuelContainerComponent extends JuelComponent {
     titleIsNext: boolean;
 
     hasAddedItems: boolean;
+    shouldToggleActive: boolean;
 
     constructor() {
         super();
@@ -30,6 +31,7 @@ export class JuelContainerComponent extends JuelComponent {
         this.titleIsNext = false;
         this.hasAddedItems = false;
         this.itemsDraggable = true;
+        this.shouldToggleActive = true;
     }
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
@@ -48,6 +50,9 @@ export class JuelContainerComponent extends JuelComponent {
         if (el) {
             this.position = index;
             let $el = $(el);
+            if (this.shouldToggleActive && el.classList.contains("active")) {
+                el.classList.remove("active");
+            } else {
             $el.siblings().removeClass("active");
             el.classList.add("active");
             let w = $el.outerWidth();
@@ -58,6 +63,7 @@ export class JuelContainerComponent extends JuelComponent {
             if (h > 0) {
                 this.style.setProperty('--item-height', h.toString());
             }
+        }
         }
         // If we have a title container, then select the title
         if (this.titlesContainer) {
