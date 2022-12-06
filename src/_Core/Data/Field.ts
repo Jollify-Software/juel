@@ -1,10 +1,10 @@
 export interface Field {
     name: string;
     text: string;
-    htmlFormatted: boolean;
+    htmlFormatted?: boolean;
     visible: boolean;
-    group: string;
-    type: string;
-    value: any;
-    break: boolean
+    group?: string;
+    type?: string;
+    value?: any;
+    break?: boolean
 }

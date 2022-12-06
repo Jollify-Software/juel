@@ -158,7 +158,7 @@ export class ListBase extends JuelDataComponent {
                 };
                 Dispatch(this, EventNames.Selected, args);
             }
-            this.requestUpdate();
+            //this.requestUpdate();
         }
     }
 

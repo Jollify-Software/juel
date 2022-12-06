@@ -26,7 +26,6 @@ export class JuelDataComponent extends JuelContainerComponent {
         super();
         this.data = [];
         this.textField = "text";
-        this.fields = [];
     }
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {

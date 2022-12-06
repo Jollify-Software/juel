@@ -3,9 +3,10 @@ import { map } from "lit/directives/map";
 import { ListBase } from "../_Base/ListBase";
 import { TableRowTemplate } from "./TableRowTemplate";
 
-export function TableTemplate(list: ListBase) {
+export async function TableTemplate(list: ListBase) {
+    await list.templatePromise;
     let position: number = -1;
-    return html`<table id="items">
+    return html`<table class="items">
     <colgroup>
     ${map(list.fields.filter(x => x.visible), (field, index) => {
         return html`<col class="col-${field.name}">`;
@@ -16,6 +17,7 @@ export function TableTemplate(list: ListBase) {
         return html`<th>${field.text}</th>`;
     })}
     </tr></thead>
+    <tbody>
     ${list.searchResult ?
         map(list.searchResult.data, (item, index) => {
             let res = TableRowTemplate(list, item, index, position);
@@ -27,5 +29,6 @@ export function TableTemplate(list: ListBase) {
             position = res.position;
             return res.template;
     })}
+    </tbody>
     <table>`;
 }
