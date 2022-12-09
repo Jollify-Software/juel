@@ -5,7 +5,9 @@
 </head>
 
 <body>
-  <juel-accordion vertical="false" multiple="true">
+  <button onclick="addItem()">Add Item</button>
+
+  <juel-accordion id="accordion" vertical="false" multiple="true">
     <div id="one" data-title="Section 1">
       <p>
         Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer
@@ -50,6 +52,20 @@
       </p>
     </div>
   </juel-accordion>
+
+  <script>
+    var count = 1
+    var accordion = document.getElementById("accordion");
+
+    function addItem() {
+      var itm = document.createElement("p");
+      itm.setAttribute("data-title", "TODO " + count);
+      itm.innerText = "123 abc";
+      accordion.append(itm);
+      accordion.requestUpdate();
+      count++;
+    }
+  </script>
 </body>
 
 </html>

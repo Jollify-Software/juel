@@ -12,11 +12,11 @@ export async function ListItemsTemplate(list: ListBase): Promise<TemplateResult>
     } else {
         let position = -1;
         return html`${list.searchResult ? html`${list.searchResult.data.map((value, index) => {
-            let res = ItemTemplate(list, value, index, position);
+            let res = ItemTemplate(list, value, index, position, 0, null, null);
             position = res.position;
             return res.template;
         })}` : (list.data && list.data.length > 0) ? html`${list.data.map((value, index) => {
-            let res = ItemTemplate(list, value, index, position);
+            let res = ItemTemplate(list, value, index, position, 0, null, null);
             position = res.position;
             return res.template;
         })}` : nothing}`;

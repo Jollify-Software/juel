@@ -1,8 +1,10 @@
-import { html, unsafeCSS } from "lit";
+import { html, nothing, PropertyValueMap, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import style from 'bundle-text:./Accordion.less';
 import { ChildrenMap } from "../_Utils/ChildrenMap";
 import { NavigationBase } from "../_Base/NavigationBase";
+import { until } from "lit/directives/until";
+import { ChildrenItemsTemplate } from "../_Templates/ChildrenItemsTempate";
 
 @customElement("juel-accordion")
 export class JuelAccordion extends NavigationBase {
@@ -18,6 +20,16 @@ export class JuelAccordion extends NavigationBase {
         this.size = "500px";
         this.horizontal = false;
         this.multiple = false;
+    }
+
+    protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+      super.firstUpdated(_changedProperties);
+      this.readyPromise = new Promise(resolve => {
+        setTimeout(() => {
+         this.requestUpdate();
+          resolve('');
+        });
+      });
     }
 
     navigateToSelector(selector: string): void {
@@ -47,7 +59,7 @@ export class JuelAccordion extends NavigationBase {
 
     render() {
         return html`<div class="items ${this.horizontal == true ? "horizontal" : ""}">
-            <slot @slotchange="${(e) => this.itemsForSlot(e, 'title')}"></slot>
+        ${ChildrenItemsTemplate(this, [...this.children] as HTMLElement[], 0, null, null)}
         </div>`;
     }
 
