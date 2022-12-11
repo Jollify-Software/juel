@@ -2,6 +2,9 @@ import { LitElement, PropertyValueMap, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
 import { unsafeHTML } from "lit/directives/unsafe-html";
 import Styles from 'bundle-text:./Embed.less';
+import { StringsRequired } from "../_Strings/StringsRequired";
+import { AppendScript, AppendStyle } from "../_Utils/ElementHelpers";
+import { StringsIds } from "../_Strings/StringsIds";
 
 declare var marked: any;
 declare var hljs: any;
@@ -11,11 +14,6 @@ declare var hljs: any;
 export class JuelEmbed extends LitElement {
     static styles = unsafeCSS(Styles);
 
-    static UrlMarkdown = "https://cdn.jsdelivr.net/npm/marked/marked.min.js";
-    static HlJs = "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js";
-    static HlJsStyles = "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/default.min.css";
-    static HlJsStylesRoot = "https://cdn.jsdelivr.net/npm/highlight.js/styles/"
-
     static markdownFunc = (em: JuelEmbed, content: string) => {
         if ('marked' in window) {
             em.innerHTML = marked.parse(content);
@@ -23,27 +21,13 @@ export class JuelEmbed extends LitElement {
             if ('hljs' in window) {
                 setTimeout(() => hljs.highlightAll(), 400);
             } else {
-                let styles = document.createElement("link");
-                styles.setAttribute("rel", "stylesheet");
-                styles.setAttribute("href", JuelEmbed.HlJsStyles);
-                document.head.append(styles);
-                let script = document.createElement("script");
-                script.src = JuelEmbed.HlJs;
-                document.head.append(script);
-                setTimeout(() => {
+                AppendStyle(StringsIds.HighlightStyles, StringsRequired.HighlightStyles, true);
+                AppendScript(StringsIds.HighlightScript, StringsRequired.Highlight, true).then(() => {
                     hljs.highlightAll();
-                }, 400);
+                });
             }
             if (em.theme) {
-                let id = `hljs-theme-${em.theme}`;
-                let style = document.head.querySelector(`#${id}`);
-                if (!style) {
-                    style = document.createElement("link");
-                    style.id = id;
-                    style.setAttribute("rel", "stylesheet");
-                    style.setAttribute("href", `${JuelEmbed.HlJsStylesRoot}${em.theme}.css`)
-                    document.head.append(style);
-                }
+                AppendStyle(`${StringsIds.HighlightStyles}-${em.theme}`, `${StringsRequired.HighlightStylesRoot}${em.theme}.css`, true)
             }
         }
     }
@@ -92,17 +76,9 @@ export class JuelEmbed extends LitElement {
     }
 
     processMarkdown(content: string) {
-        let script: HTMLScriptElement;
-        script = document.head.querySelector('#markdown');
-        if (!script) {
-            script = document.createElement('script');
-            script.id = "markdown";
-            script.src = JuelEmbed.UrlMarkdown;
-            document.head.append(script);
-            script.onload = () => JuelEmbed.markdownFunc(this, content);
-        } else {
-            setTimeout(() => JuelEmbed.markdownFunc(this, content), 400);
-        }
+        AppendScript(StringsIds.MarkdownScript, StringsRequired.Markdown, true).then(() => {
+            JuelEmbed.markdownFunc(this, content);
+        });
     }
 
     protected createRenderRoot(): Element | ShadowRoot {
