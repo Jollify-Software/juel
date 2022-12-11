@@ -105,7 +105,7 @@ export class JuelDataComponent extends JuelContainerComponent {
                 return match;
             }).map(value => {
                 let obj = { ...value };
-                let regex = new RegExp(`(${term})`, "gi");
+                let regex = new RegExp(`(?<!https?.+)(${term})`, "gi");
                 for (let name of fieldNames) {
                     let txt = obj[name].toString() as string;
                     if (regex.test(txt)) {

@@ -46,9 +46,15 @@ export function AppendScript(id: string, content: string, contentIsUrl: boolean 
             };
             document.body.append(el);
         } else {
-            el.addEventListener('load', () => {
+            console.log("Script exists");
+            setTimeout(() => {
+                console.log("Resolve");
                 resolve(1)
-            });
+            }, 300);
+            // setTimeout(() => {
+            //     console.log("Resolve");
+            //     resolve(1)
+            // }, 150);
         }
     });
 }
