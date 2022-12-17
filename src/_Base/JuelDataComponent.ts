@@ -3,6 +3,7 @@ import { property, state } from "lit/decorators";
 import { Field } from "../_Core/Data/Field";
 import { SearchResult } from "../_Core/SearchResult";
 import { FillTemplate } from "../_Utils/FillTemplate";
+import { upperFirst } from "lodash"
 import { JuelComponent } from "./JuelComponent";
 import { JuelContainerComponent } from "./JuelContainerComponent";
 
@@ -52,10 +53,21 @@ export class JuelDataComponent extends JuelContainerComponent {
                         });
                     };
                 }
-                console.log(this.data);
-                console.log(this.template);
+                if ((!this.fields) || this.fields.length <= 0) {
+                    this.fieldsFromData();
+                }
                 resolve(this.template);
             });
+        });
+    }
+
+    fieldsFromData() {
+        this.fields = Object.keys(this.data[0]).map(x => {
+            return {
+                name: x,
+                text: upperFirst(x), // TODO: Displayify
+                visible: true
+            };
         });
     }
 
