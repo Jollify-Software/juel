@@ -28,7 +28,7 @@ export class JuelMenu extends JuelComponent {
 
     load() {
         let items = this.shadowRoot.getElementById('items');
-        let trigger = $(this.shadowRoot.getElementById('trigger'));
+        let trigger = $(this.shadowRoot.getElementById('title'));
         
         if ((!this.trigger) || this.trigger == 'over') {
             this.trigger = 'mouseover touchstart';
@@ -68,11 +68,10 @@ export class JuelMenu extends JuelComponent {
 
     render() {
         return html`<div id="container">
-            <div id="trigger">
-                <slot name="trigger">
-                    <button>${this.title}</button>
+            <div id="title">
+                <slot name="title">
+                    <span>${this.title}</span>
                 </slot>
-                <div id="down-arrow"></div>
             </div>
             <div id="items">
             ${ChildrenMap(this, (el, index) => {
@@ -83,7 +82,7 @@ export class JuelMenu extends JuelComponent {
                         <div class="item" data-index="${index}">
                         <slot name="${id}"></slot>
                         </div>`;
-            }, '[slot="trigger"]')}
+            }, '[slot="title"]')}
             </div>
         </div>`;
     }

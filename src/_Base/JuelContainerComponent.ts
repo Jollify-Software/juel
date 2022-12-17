@@ -7,6 +7,8 @@ export class JuelContainerComponent extends JuelComponent {
 
     @property({ type: Number }) position;
 
+    selectedIndex: number;
+
     itemsCount: number;
     itemsDraggable: boolean;
 
@@ -39,6 +41,13 @@ export class JuelContainerComponent extends JuelComponent {
         this.titleDataSelector = `[data-${this.titleAttrName}]`;
         this.itemsContainer = this.shadowRoot.querySelector(`.${this.itemsContainerClass}`);
         this.titlesContainer = this.shadowRoot.querySelector(`.${this.titlesContainerClass}`);
+
+        this.readyPromise = new Promise(resolve => {
+            setTimeout(() => {
+             this.requestUpdate();
+              resolve('');
+            });
+          });
     }
 
     itemsCreated() {
@@ -48,7 +57,7 @@ export class JuelContainerComponent extends JuelComponent {
     selectItem(index: number) {
         let el = this.itemsContainer.querySelector(`[data-index="${index}"]`);
         if (el) {
-            this.position = index;
+            this.selectedIndex = index;
             let $el = $(el);
             if (this.shouldToggleActive && el.classList.contains("active")) {
                 el.classList.remove("active");

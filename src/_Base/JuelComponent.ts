@@ -12,39 +12,19 @@ export class JuelComponent extends LitElement {
 
     template: string;
 
-    protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
-        setTimeout(() => {
-            this.requestUpdate();
-            setTimeout(() => {
-                this.firstLoad();
-            });
-        });
-        super.firstUpdated(_changedProperties);
-    }
-
-    firstLoad() {
-
-    }
-
     childrenLoaded() {
-        
+
     }
 
     protected updated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
-        setTimeout(() => {
-            setTimeout(() => {
-                this.load(_changedProperties);
+        if (this.readyPromise) {
+            this.readyPromise.then(() => {
+                this.childrenLoaded();
+                let juelParent = FindParent(this, (node) => node.nodeName.startsWith("JUEL"));
+                if (juelParent && 'childrenUpdated' in juelParent) {
+                    (juelParent as unknown as JuelComponent).childrenLoaded();
+                }
             });
-        });
-        this.loaded = true;
-        super.updated(_changedProperties);
-    }
-
-    load(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>) {
-        this.childrenLoaded();
-        let juelParent = FindParent(this, (node) => node.nodeName.startsWith("JUEL"));
-        if (juelParent && 'childrenUpdated' in juelParent) {
-            (<JuelComponent>juelParent).childrenLoaded();
         }
     }
 

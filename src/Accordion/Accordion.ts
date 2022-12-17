@@ -24,12 +24,6 @@ export class JuelAccordion extends NavigationBase {
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
       super.firstUpdated(_changedProperties);
-      this.readyPromise = new Promise(resolve => {
-        setTimeout(() => {
-         this.requestUpdate();
-          resolve('');
-        });
-      });
     }
 
     navigateToSelector(selector: string): void {
@@ -58,8 +52,9 @@ export class JuelAccordion extends NavigationBase {
     }
 
     render() {
+      console.log("Render")
         return html`<div class="items ${this.horizontal == true ? "horizontal" : ""}">
-        ${ChildrenItemsTemplate(this, [...this.children] as HTMLElement[], 0, null, null)}
+        ${until(ChildrenItemsTemplate(this, [...this.children] as HTMLElement[], 0, null, null), nothing)}
         </div>`;
     }
 

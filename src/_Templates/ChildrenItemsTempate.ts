@@ -22,7 +22,8 @@ function isItem(el: HTMLElement, level: number) {
     return false;
 }
 
-export function ChildrenItemsTemplate(component: JuelContainerComponent, children: HTMLElement[], level: number = 0, idStr: string, posStr: string) {
+export async function ChildrenItemsTemplate(component: JuelContainerComponent, children: HTMLElement[], level: number = 0, idStr: string, posStr: string) {
+    await component.readyPromise;
     children = children.filter(el => isItem(el, level));
     component.itemsCount = children.length;
     console.log(children.length)
