@@ -27,11 +27,11 @@ export function ItemTemplate(component: JuelContainerComponent, item: any, index
     let id = idStr ? `${idStr}-${position}` : `item-${position}`;
     let nposStr = posStr ? `${posStr}-${position}` : `${position}`;
     let klass = "item";
-    let hasTitle = el.hasAttribute(`data-${component.titleAttrName}`);
+    let hasTitle = el && el.hasAttribute(`data-${component.titleAttrName}`);
     let itemClick = (e: Event) => component.selectItem(i);
     let containerIsList = component.itemsContainer.nodeName == "UL";
     let titleElId = `${id}-${component.titleAttrName}`;
-    let titleEl = component.titleIsNext ?
+    let titleEl = !el ? null : component.titleIsNext ?
         el.nextElementSibling :
         el.previousElementSibling as HTMLElement;
 
@@ -61,7 +61,7 @@ export function ItemTemplate(component: JuelContainerComponent, item: any, index
     }
 
     let itemTitle: TemplateResult = html``
-    if (list) {
+    if (containerIsList) {
         if (el) {
             if (isHeading) {
                 template = html`<li class="${klass}")}>

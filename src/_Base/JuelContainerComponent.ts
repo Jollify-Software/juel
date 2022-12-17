@@ -45,9 +45,14 @@ export class JuelContainerComponent extends JuelComponent {
         this.readyPromise = new Promise(resolve => {
             setTimeout(() => {
              this.requestUpdate();
+             this.ready();
               resolve('');
             });
           });
+    }
+
+    protected ready() {
+
     }
 
     itemsCreated() {
