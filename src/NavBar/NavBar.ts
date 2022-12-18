@@ -39,7 +39,7 @@ export class JuelNav extends JuelComponent {
       });
     }
 
-    firstLoad() {
+    firstUpdated() {
                 if (this.sticky == true && !(<any>window).isMobile) {
 // Get the offset position of the navbar
 let nav = this.shadowRoot.querySelector('nav') as HTMLElement;
