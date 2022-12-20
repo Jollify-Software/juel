@@ -33,12 +33,14 @@ export class JuelDataComponent extends JuelContainerComponent {
         super.firstUpdated(_changedProperties)
         this.templatePromise = new Promise(resolve => {
             setTimeout(() => {
+                console.log("This.template: " + this.template)
                 let template = this.querySelector("template");
-                if (template) {
+                if ((!this.template) && template) {
                     this.template = template.innerHTML;
-                } else {
+                } else if (!this.template) {
                     this.template = `\${this.${this.textField}}`;
                 }
+                console.log("This.template: " + this.template)
                 var children = [...this.children].filter(el => el.nodeName != 'TEMPLATE');
                 if (children.length == 0) {
                     let slot = this.shadowRoot.querySelector("slot");
