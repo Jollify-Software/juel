@@ -33,14 +33,12 @@ export class JuelDataComponent extends JuelContainerComponent {
         super.firstUpdated(_changedProperties)
         this.templatePromise = new Promise(resolve => {
             setTimeout(() => {
-                console.log("This.template: " + this.template)
                 let template = this.querySelector("template");
                 if ((!this.template) && template) {
                     this.template = template.innerHTML;
                 } else if (!this.template) {
                     this.template = `\${this.${this.textField}}`;
                 }
-                console.log("This.template: " + this.template)
                 var children = [...this.children].filter(el => el.nodeName != 'TEMPLATE');
                 if (children.length == 0) {
                     let slot = this.shadowRoot.querySelector("slot");
@@ -105,27 +103,28 @@ export class JuelDataComponent extends JuelContainerComponent {
             let suggestions = this.data.filter(x => {
                 let match = false;
                 for (let name of fieldNames) {
-                    if (name in x) {
+                    if (name in x && x[name]) {
                         let txt = x[name].toString() as string;
                         console.log(txt)
                         if (txt.toLowerCase().includes(term.toLowerCase())) {
                             matchedFields.push(name);
                             match = true;
                         }
-                    } else {
-                        match = false;
                     }
                 }
                 return match;
             }).map(value => {
+                // Highlight matches with <b>
                 let obj = { ...value };
-                let regex = new RegExp(`(?<!https?.+)(${term})`, "gi");
+                let regex = new RegExp(`(?<!https?.+)(${term})`, "gi"); // !Important: Don't highlight img URLs
                 for (let name of fieldNames) {
+                    if (obj[name] && (!name.toLowerCase().includes("image"))) {
                     let txt = obj[name].toString() as string;
                     if (regex.test(txt)) {
                         txt = txt.replace(regex, "<b>$1</b>")
                         obj[name] = txt;
                     }
+                }
                 }
                 return obj;
             });

@@ -7,7 +7,7 @@
     overflow: visible;
     border: 1px solid #ccc;
     background-color: var(--light, #f1f1f1);
-    height: 80px;
+    min-height: 80px;
   }
 
   #tabs-container {
@@ -17,6 +17,9 @@
     &.vertical {
       flex-direction: row;
 
+      .titles {
+        flex-direction: column;
+      }
       #tabs {
         flex-direction: column;
         .group {
