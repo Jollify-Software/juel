@@ -53,7 +53,7 @@ export class JuelDataComponent extends JuelContainerComponent {
                         });
                     };
                 }
-                if ((!this.fields) || this.fields.length <= 0) {
+                if (this.data && (!this.fields) || this.fields.length <= 0) {
                     this.fieldsFromData();
                 }
                 resolve(this.template);
@@ -62,17 +62,18 @@ export class JuelDataComponent extends JuelContainerComponent {
     }
 
     fieldsFromData() {
-        this.fields = Object.keys(this.data[0]).map(x => {
-            return {
-                name: x,
-                text: upperFirst(x), // TODO: Displayify
-                visible: true
-            };
-        });
+        if (this.data && this.data[0]) {
+            this.fields = Object.keys(this.data[0]).map(x => {
+                return {
+                    name: x,
+                    text: upperFirst(x), // TODO: Displayify
+                    visible: true
+                };
+            });
+        }
     }
 
     onInput(e: Event) {
-        console.log("OnInput");
         let target: HTMLElement = null;
         if (e.composed) {
             target = e.composedPath()[0] as HTMLElement;
@@ -82,7 +83,6 @@ export class JuelDataComponent extends JuelContainerComponent {
         if (target && 'value' in target) {
             let el = e.target as HTMLInputElement;
             if (el.value) {
-                console.log("search")
                 this.search(el.value);
             } else {
                 this.searchResult = null;
@@ -105,7 +105,6 @@ export class JuelDataComponent extends JuelContainerComponent {
                 for (let name of fieldNames) {
                     if (name in x && x[name]) {
                         let txt = x[name].toString() as string;
-                        console.log(txt)
                         if (txt.toLowerCase().includes(term.toLowerCase())) {
                             matchedFields.push(name);
                             match = true;
@@ -118,13 +117,15 @@ export class JuelDataComponent extends JuelContainerComponent {
                 let obj = { ...value };
                 let regex = new RegExp(`(?<!https?.+)(${term})`, "gi"); // !Important: Don't highlight img URLs
                 for (let name of fieldNames) {
-                    if (obj[name] && (!name.toLowerCase().includes("image"))) {
-                    let txt = obj[name].toString() as string;
-                    if (regex.test(txt)) {
-                        txt = txt.replace(regex, "<b>$1</b>")
-                        obj[name] = txt;
+                    let n = name.toLowerCase();
+                    if (obj[name] &&
+                        ((!n.includes("image"))) && (!n.includes("route")) && (!n.includes("link"))) {
+                        let txt = obj[name].toString() as string;
+                        if (regex.test(txt)) {
+                            txt = txt.replace(regex, "<b>$1</b>")
+                            obj[name] = txt;
+                        }
                     }
-                }
                 }
                 return obj;
             });
@@ -145,7 +146,6 @@ export class JuelDataComponent extends JuelContainerComponent {
             }).map(el => {
                 let obj = {};
                 let regex = new RegExp(`(?<!<[\\w="\\s]*)(${term})(?![\\w\\s]*>)`, "gi");
-                console.log(el.innerHTML)
                 obj[this.textField] = el.innerHTML.replace(regex, "<b>$1</b>");
                 return obj;
             });
@@ -155,7 +155,6 @@ export class JuelDataComponent extends JuelContainerComponent {
                 term: term
             }
         }
-        console.log(this.searchResult)
     }
 
     retrieveDataStrings() {

@@ -79,7 +79,6 @@ export class JuelScrollPane extends NavigationBase {
         let el = $(this.container.querySelectorAll(`[data-index="${index}"]`));
         let margin: number = 0;
         let prev = el.prevAll();
-		console.log(prev)
         if (prev.length > 0) {
 			prev.each((i, sib) => {	
 				margin+= (!this.width) ? $(sib).outerWidth() : this.width;
@@ -95,7 +94,6 @@ export class JuelScrollPane extends NavigationBase {
 				this.style.setProperty('--item-height', h.toString());
 			}
 		}
-		console.log(`-${margin}px`);
 		this.container.style.setProperty('--scroll-margin', margin.toString());
 	
 		this.position = index;

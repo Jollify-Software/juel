@@ -32,12 +32,14 @@ export async function ChildrenItemsTemplate(component: JuelContainerComponent, c
     }
     children = children.filter(el => isItem(el, level));
     component.itemsCount = children.length;
-    console.log(children.length)
+    component.style.setProperty("--items-count", children.length.toString());
+    setTimeout(() => {
+        component.itemsCreated();   
+    });
     let position = -1;
     return html`${map(children, (ele, i) => {
         position++;
         let res = ItemTemplate(component, ele, i, position, 0, null, null);
-        console.log(res);
         position = res.position;
         return res.template;
     })}`

@@ -97,7 +97,6 @@ export class JuelCarousel extends NavigationBase {
         if (e && this.intervalHandler) {
             clearInterval(this.intervalHandler);
         }
-        console.log("Items: " + this.itemsCount)
         if (this.position == this.itemsCount - 1) {
             this.position = 0;
         } else {

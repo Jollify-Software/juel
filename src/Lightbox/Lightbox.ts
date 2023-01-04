@@ -54,7 +54,6 @@ export class JuelLightbox extends JuelComponent {
 
     load() {
         $(this.sp).off("scroll").on("scroll", (e: CustomEvent) => {
-            console.log(e.detail)
             this.position = e.detail.index
             this.requestUpdate()
         });

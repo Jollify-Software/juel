@@ -73,13 +73,13 @@ export class JuelMenu extends JuelComponent {
                     <span>${this.title}</span>
                 </slot>
             </div>
-            <div id="items">
+            <div id="items" part="items">
             ${ChildrenMap(this, (el, index) => {
                     let id = el.id ? el.id :  `item-${index}`;
                     el.setAttribute('slot', id);
 
                     return html`
-                        <div class="item" data-index="${index}">
+                        <div class="item" part="item" data-index="${index}">
                         <slot name="${id}"></slot>
                         </div>`;
             }, '[slot="title"]')}

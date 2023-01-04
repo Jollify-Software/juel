@@ -24,7 +24,6 @@ export class JuelButton extends InputBase {
     updated() {
         setTimeout(() => {
             this.isRipple = getComputedStyle(this).getPropertyValue('--ripple');
-            console.log(this.isRipple)
             if (this.isRipple) {
                 let btn = this.shadowRoot.firstElementChild as HTMLElement;
                 this.r = new RippleInitialiser(btn);
@@ -50,7 +49,7 @@ export class JuelButton extends InputBase {
                 if ("requestSubmit" in frm) {
                     frm.requestSubmit();
                 } else {
-                    frm.submit();
+                    (frm as HTMLFormElement).submit();
                 }
             }
         }

@@ -5,6 +5,8 @@ import { JuelComponent } from "../_Base/JuelComponent";
 import { JuelContainerComponent } from "../_Base/JuelContainerComponent";
 import { JuelDataComponent } from "../_Base/JuelDataComponent";
 import { ListBase } from "../_Base/ListBase";
+import { Dispatch } from "../_Core/DispatchFunction";
+import { EventNames } from "../_Core/Events/EventNames";
 import { PositionedTemplateResult } from "../_Core/PositionedTemplateResult";
 import { data } from "../_Directives/DataDirective";
 import { FillTemplate, FillTemplateUnsafe } from "../_Utils/FillTemplate";
@@ -28,7 +30,6 @@ export function ItemTemplate(component: JuelContainerComponent, item: any, index
     let nposStr = posStr ? `${posStr}-${position}` : `${position}`;
     let klass = "item";
     let hasTitle = el && el.hasAttribute(`data-${component.titleAttrName}`);
-    let itemClick = (e: Event) => component.selectItem(i);
     let containerIsList = component.itemsContainer.nodeName == "UL";
     let titleElId = `${id}-${component.titleAttrName}`;
     let titleEl = !el ? null : component.titleIsNext ?
@@ -43,6 +44,26 @@ export function ItemTemplate(component: JuelContainerComponent, item: any, index
         hasTitle = true;
         titleEl.setAttribute('slot', titleElId);
     }
+
+    // Item and title events
+    let itemClick: (e: Event) => void;
+    let titleClick: (e: Event) => void;
+    // Only use titleClick if have title
+    if (hasTitle) {
+        titleClick = (e: Event) => {
+            Dispatch(component, EventNames.TitleClick, null);
+            component.selectItem(i);
+        };
+        itemClick = (e: Event) => {
+            Dispatch(component, EventNames.ItemClick, null);
+        };
+    } else {
+        itemClick = (e: Event) => {
+            Dispatch(component, EventNames.ItemClick, null);
+            component.selectItem(i);
+        };
+    }
+
     if (el) {
         el.setAttribute('slot', id);
         el.classList.add("item");
@@ -64,11 +85,11 @@ export function ItemTemplate(component: JuelContainerComponent, item: any, index
     if (containerIsList) {
         if (el) {
             if (isHeading) {
-                template = html`<li class="${klass}")}>
+                template = html`<li class="${klass}" part="item">
                 <slot name="${id}"></slot>
                 </li>`;
             } else {
-                template = html`<li @click="${() => list.selectItem(i)}" class="${klass}" data-index="${position}">
+                template = html`<li @click="${() => list.selectItem(i)}" class="${klass}" data-index="${position}" part="item">
                 <slot name="${id}"></slot>
                 </li>`;
             }
@@ -76,7 +97,7 @@ export function ItemTemplate(component: JuelContainerComponent, item: any, index
             if (list.fields && list.fields.length > 0) {
                 template = html`<tr class="${klass}"><tr>`;
             } else {
-                template = html`<li @click="${() => list.selectItem(i)}" class="${klass}" ${data(ListBase.ValueKey, item)} data-index="${index}">
+                template = html`<li @click="${() => list.selectItem(i)}" class="${klass}" ${data(ListBase.ValueKey, item)} data-index="${index}" part="item">
             ${list.searchResult ? component.template ? FillTemplateUnsafe(component.template, item) : unsafeHTML(item[list.textField]) : FillTemplate(component.template, item)}
             </li>`;
             }
@@ -90,13 +111,11 @@ export function ItemTemplate(component: JuelContainerComponent, item: any, index
                 titleSlot.name = titleElId;
                 itemTitle.append(titleSlot);
                 itemTitle.setAttribute("data-index", nposStr);
-                itemTitle.onclick = () => {
-                    component.selectItem(i);
-                }
+                itemTitle.onclick = titleClick;
                 //itemClick = () => void
                 component.titlesContainer.append(itemTitle);
             } else {
-            itemTitle = html`<div class="${component.titleAttrName}">
+            itemTitle = html`<div class="${component.titleAttrName}" @click=${titleClick}>
                 ${when(el.dataset[component.titleAttrName],
                     () => html`${el.dataset[component.titleAttrName]}`,
                     () => html`<slot name="${titleElId}"></slot>`
@@ -110,12 +129,12 @@ export function ItemTemplate(component: JuelContainerComponent, item: any, index
         }
         if (el) {
             template = html`${when(containerIsList, () => itemTitle)}
-            <div @click="${itemClick}" class="${klass}" data-index="${nposStr}">
+            <div @click="${itemClick}" class="${klass}" data-index="${nposStr}" part="item">
                 ${when(containerIsList == false && (!component.titlesContainer), () => itemTitle)}
                 <div class="item-content"><slot name="${id}"></slot></div>
                 </div>`;
         } else {
-            template = html`<div class="${klass}" ${data("data", item)} data-index="${index}">
+            template = html`<div class="${klass}" ${data("data", item)} data-index="${index}" part="item">
             ${FillTemplate(component.template, item)}
             </div>`;
         }

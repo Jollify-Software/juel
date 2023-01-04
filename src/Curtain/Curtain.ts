@@ -22,7 +22,6 @@ export class JuelCurtain extends JuelComponent {
     }
 
     open(e?: Event) {
-        console.log(e);
         let el = this.shadowRoot.querySelector(".content");
         if (el) {
             el.classList.add("open");
@@ -68,7 +67,6 @@ export class JuelCurtain extends JuelComponent {
                 break;
             case "left":
             case "right":
-                console.log(this.position)
                 size = $(this.container).outerWidth();
                 break;
             default:
@@ -87,7 +85,7 @@ export class JuelCurtain extends JuelComponent {
         let size: number = this.peek.endsWith('%') ?
         (parseFloat(this.peek.replace('%', '')) / 100) * clientSize :
          parseFloat(this.peek.replace('px', ''));
-        if ((!size) || size == NaN) {
+        if ((!size) || Number.isNaN(size)) {
         switch (this.position) {
             case "top":
             case "bottom":

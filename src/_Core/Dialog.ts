@@ -1,7 +1,5 @@
 import { DragMoveListener } from "../_Utils/DragMoveListener";
-import { DialogManagerService } from "../DialogManager/DialogManagerService";
 import { IsMobile } from "../_Utils/IsMobile";
-import { JuelDialogManager } from "../DialogManager/DialogManager";
 
 declare var interact: any;
 
@@ -9,7 +7,7 @@ export class Dialog {
 
     title: string;
     element: HTMLElement;
-    dialogManager: JuelDialogManager;
+    dialogManager: any;
     group: string[];
     modal: boolean;
     location: string;
@@ -19,7 +17,7 @@ export class Dialog {
 
     private closeHandler: (this: HTMLElement, event: any) => any;
 
-    constructor(private service: DialogManagerService, public id: string, dataset: DOMStringMap) {
+    constructor(private service: any, public id: string, dataset: DOMStringMap) {
         
         this.title = dataset.title;
         this.location = dataset.location;
@@ -29,14 +27,13 @@ export class Dialog {
         this.modal = dataset.modal ? dataset.modal.toLowerCase() == "true" : undefined;
     }
 
-    init(element: HTMLElement, dialogManager: JuelDialogManager) {
+    init(element: HTMLElement, dialogManager: any) {
         this.dialogManager = dialogManager;
         this.element = element;
         this.element.style.display = "none";
 
         let closeBtnClick = () => {
             let closeEvt = new CustomEvent('close', { detail: this.element.id }); // TODO: DialogCloseArgs
-            console.log("Close Click!!");
             this.element.dispatchEvent(closeEvt);
             dialogManager.dispatchEvent(closeEvt);
         };
@@ -101,7 +98,6 @@ export class Dialog {
     }
 
     show(resolve: (value?: unknown) => void) {
-        console.log("Show")
         this.element.style.display = "flex";
         this.isOpen = true;
         if (IsMobile()) {
@@ -125,7 +121,6 @@ export class Dialog {
         }
 
         this.closeHandler = (event: CustomEvent) => {
-            console.log(this.element)
             if (IsMobile()) {
                 if (this.location && this.size) {
                     switch (this.location) {
@@ -159,7 +154,6 @@ export class Dialog {
             let evt = new CustomEvent('closed', {
                 detail: this.id
             });
-            console.log("Clsoe!!!")
             this.dialogManager.dispatchEvent(evt);
         };
         $(this.element).off('close')

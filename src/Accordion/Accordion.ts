@@ -52,7 +52,6 @@ export class JuelAccordion extends NavigationBase {
     }
 
     render() {
-      console.log("Render")
         return html`<div class="items ${this.horizontal == true ? "horizontal" : ""}">
         ${until(ChildrenItemsTemplate(this, [...this.children] as HTMLElement[], 0, null, null), nothing)}
         </div>`;
