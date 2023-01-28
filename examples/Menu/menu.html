@@ -6,19 +6,24 @@
 
 <body>
     <div class="container">
-        <juel-menu title="Menu">
+        <juel-menu title="Menu" disable-mobile>
                 <a href="https://en.wikipedia.org/wiki/Prudence" target="_blank">🤔</a>
                 <a href="https://en.wikipedia.org/wiki/Courage" target="_blank">💪</a>
                 <a href="https://en.wikipedia.org/wiki/Temperance_(virtue)" target="_blank">🚫</a>
                 <a href="https://en.wikipedia.org/wiki/Justice_(virtue)" target="_blank">⚖️</a>
         </juel-menu>
-        <juel-menu trigger="click">
-            <juel-button slot="trigger">
+        <juel-menu>
+            <juel-button slot="title">
                 <div slot="content" style="width: 32px;height: 32px;background-image: url(../_Assets/lightning.png);"></div>
             </juel-button>
-            <div style="width: 300px;height: 150px;background-color: blueviolet;">
-
-            </div>
+            <juel-card>
+                <img slot="image" src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg">
+            <h5 slot="title">Card title</h5>
+            <p>
+                Some quick example text to build on the card title and make up the bulk of the card's content.
+            </p>
+            <juel-button label="Hello there"></juel-button>
+        </juel-card>
     </juel-menu>
     </div>
 </body>

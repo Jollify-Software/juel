@@ -24,6 +24,8 @@ export class JuelNav extends JuelComponent {
     itemsHtml: TemplateResult[];
     itemsWidth: string;
 
+    oh: number;
+
     constructor() {
       super();
       // Items to the right side of the title
@@ -35,6 +37,7 @@ export class JuelNav extends JuelComponent {
       super.updated(_changedProperties);
       setTimeout(() => {
         let h = $(this.shadowRoot.querySelector("nav")).outerHeight();
+        this.oh = h;
         this.style.setProperty("--height", `${h}px`);
       });
     }
@@ -48,11 +51,16 @@ let items = nav.querySelector('.items') as HTMLElement;
 var navOffset = nav.offsetTop;
 window.addEventListener('scroll', () => {
     if (window.pageYOffset >= navOffset + 10) {
+      let h = this.shadowRoot.querySelector("nav").firstElementChild.getBoundingClientRect().height;
+        this.style.setProperty("--height", `${h}px`);
+      this.classList.add("sticky");
         nav.classList.add("sticky");
         nav.setAttribute("part", "nav-sticky");
         title.setAttribute("part", "title-sticky");
         items.setAttribute("part", "items-sticky");
       } else {
+        this.style.setProperty("--height", `${this.oh}px`);
+        this.classList.remove("sticky");
         nav.classList.remove("sticky");
         nav.setAttribute("part", "nav");
         title.setAttribute("part", "title");

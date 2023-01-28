@@ -1,6 +1,7 @@
 import './src/JuelGlobal';
 
 import './src/Accordion/Accordion';
+import './src/Card/Card';
 import './src/Carousel/Carousel';
 import './src/Loading/Loading';
 import './src/Tooltip/Tooltip';

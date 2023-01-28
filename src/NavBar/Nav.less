@@ -10,19 +10,21 @@
     z-index: 1000;
     
     &::part(title-sticky) {
-        transform: scale(.8, 1);
+        transform: scale(.8);
     }
 
     @media only screen and (min-width: @widthMobile)  {
     &::part(items-sticky) {
-        transform: scale(.8, 1);
+        //transform: scale(.8, 1);
     }
 }
 }
 
 nav {
     position: fixed;
-    width: 100vw;;
+    width: 100vw;
+    // TODO: How to get menu to shrink?
+    //height: var(--height);
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
@@ -39,6 +41,7 @@ nav {
         padding-left: initial;
         padding-right: initial;
         flex-direction: column;
+        overflow-y: auto;
 
         div {
             flex-grow: 0.1;
@@ -46,10 +49,11 @@ nav {
     }
 
     &.sticky {
-        transform: scaleY(0.8);
+        //transform: scaleY(0.8);
     }
 
     &.open {
+        overflow: visible;
         .items {
             max-height: 100vh;
         }
@@ -118,7 +122,7 @@ nav {
             max-height: 0;
             transition: max-height 1.5s;
             flex-direction: column;
-            overflow-y: auto;
+            overflow-y: visible;
             order: 1 !important;
             width: 100%;
         }

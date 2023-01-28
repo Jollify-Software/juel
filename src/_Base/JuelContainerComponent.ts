@@ -43,16 +43,20 @@ export class JuelContainerComponent extends JuelComponent {
         this.titlesContainer = this.shadowRoot.querySelector(`.${this.titlesContainerClass}`);
 
         this.readyPromise = new Promise(resolve => {
-            setTimeout(() => {
-             this.requestUpdate();
-             this.ready();
-              resolve('');
-            });
+            this.readyResolve = resolve;
           });
+          super.firstUpdated(_changedProperties);
+    }
+
+    firstLoad(): void {
+        setTimeout(() => {
+            this.requestUpdate();
+            this.ready();
+             this.readyResolve('');
+           });
     }
 
     protected ready() {
-
     }
 
     itemsCreated() {

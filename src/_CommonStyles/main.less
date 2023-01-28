@@ -28,6 +28,18 @@ juel-dialog-manager > * {
         flex-direction: column;
     }
 }
+// TODO: How to get menu to shrink?
+juel-nav {
+    ul, h1, h2, h3, h4, h5, h6 {
+        //transition: margin .5s;
+    }
+    &.sticky {
+        ul, h1, h2, h3, h4, h5, h6 {
+            //margin-top: 0;
+            //margin-bottom: 0;
+        }
+    }
+}
 // Why?
 // .item {
 //     p {

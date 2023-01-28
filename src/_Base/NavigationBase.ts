@@ -5,6 +5,7 @@ import { JuelContainerComponent } from "./JuelContainerComponent";
 export class NavigationBase extends JuelContainerComponent {
     
     firstLoad(): void {
+        super.firstLoad();
         if (window.location.hash) {
             this.navigateToSelector(window.location.hash);
         }

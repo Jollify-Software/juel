@@ -8,6 +8,7 @@ export class JuelComponent extends LitElement {
     loaded: boolean = false;
 
     readyPromise: Promise<any>;
+    readyResolve: (value: any) => void;
     hasUpdated: boolean;
 
     template: string;
