@@ -6,6 +6,7 @@ import { JuelComponent } from "./JuelComponent";
 export class JuelContainerComponent extends JuelComponent {
 
     @property({ type: Number }) position;
+    @property() selectable: string;
 
     selectedIndex: number;
 
@@ -27,6 +28,7 @@ export class JuelContainerComponent extends JuelComponent {
 
     constructor() {
         super();
+        this.selectable = 'true';
         this.itemsContainerClass = "items";
         this.titlesContainerClass = "titles";
         this.titleAttrName = "title";
@@ -44,16 +46,16 @@ export class JuelContainerComponent extends JuelComponent {
 
         this.readyPromise = new Promise(resolve => {
             this.readyResolve = resolve;
-          });
-          super.firstUpdated(_changedProperties);
+        });
+        super.firstUpdated(_changedProperties);
     }
 
     firstLoad(): void {
         setTimeout(() => {
             this.requestUpdate();
             this.ready();
-             this.readyResolve('');
-           });
+            this.readyResolve('');
+        });
     }
 
     protected ready() {
@@ -64,43 +66,44 @@ export class JuelContainerComponent extends JuelComponent {
     }
 
     selectItem(index: number) {
-        let el = this.itemsContainer.querySelector(`[data-index="${index}"]`);
-        if (el) {
-            this.selectedIndex = index;
-            let $el = $(el);
-            if (this.shouldToggleActive && el.classList.contains("active")) {
-                el.classList.remove("active");
-            } else {
-            $el.siblings().removeClass("active");
-            el.classList.add("active");
-            let w = $el.outerWidth();
-            if (w > 0) {
-                this.style.setProperty('--item-width', w.toString());
-            }
-            let h = $el.outerHeight();
-            if (h > 0) {
-                this.style.setProperty('--item-height', h.toString());
-            }
-        }
-        }
-        // If we have a title container, then select the title
-        if (this.titlesContainer) {
-            let el = this.titlesContainer.querySelector(`[data-index="${index}"]`);
+            let el = this.itemsContainer.querySelector(`[data-index="${index}"]`);
             if (el) {
+                this.selectedIndex = index;
                 let $el = $(el);
-                $el.siblings().removeClass("active").removeClass("open");
-                el.classList.add("active");
-                if (el.classList.contains("group")) {
-                    el.classList.add("open");
+                if (this.shouldToggleActive && el.classList.contains("active")) {
+                    el.classList.remove("active");
+                } else {
+                    $el.siblings().removeClass("active");
+                    el.classList.add("active");
+                    let w = $el.outerWidth();
+                    if (w > 0) {
+                        this.style.setProperty('--item-width', w.toString());
+                    }
+                    let h = $el.outerHeight();
+                    if (h > 0) {
+                        this.style.setProperty('--item-height', h.toString());
+                    }
                 }
             }
-        }
+            // If we have a title container, then select the title
+            if (this.titlesContainer) {
+                let el = this.titlesContainer.querySelector(`[data-index="${index}"]`);
+                if (el) {
+                    let $el = $(el);
+                    $el.siblings().removeClass("active").removeClass("open");
+                    el.classList.add("active");
+                    if (el.classList.contains("group")) {
+                        el.classList.add("open");
+                    }
+                }
+            }
+        
     }
 
     isItem(el: HTMLElement, level: number) {
         if ((el.hasAttribute(`data-${this.titleAttrName}`) ||
             (el.hasAttribute("slot") == false && level == 0)) &&
-            ([ 'TEMPLATE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].every(h => h != el.nodeName))) {
+            (['TEMPLATE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].every(h => h != el.nodeName))) {
             return true;
         } else {
             let titleEl = this.titleIsNext ?
@@ -159,7 +162,7 @@ export class JuelContainerComponent extends JuelComponent {
                 item.draggable = false;
                 let i = position;
                 // If we have a title container then we want the event to go on the title el
-                if (!titlesContainer) {
+                if ((!titlesContainer) && this.selectable == 'true') {
                     item.onclick = () => {
                         this.selectItem(i);
                     }
@@ -184,7 +187,7 @@ export class JuelContainerComponent extends JuelComponent {
                     }
                 } else if (el.dataset[this.titleAttrName]) {
                     itemTitle.textContent = el.dataset[this.titleAttrName];
-                    if (titlesContainer) {
+                    if (titlesContainer && this.selectable == 'true') {
                         itemTitle.setAttribute("data-index", nposStr);
                         itemTitle.onclick = () => {
                             this.selectItem(i);
@@ -211,19 +214,19 @@ export class JuelContainerComponent extends JuelComponent {
     itemsForSlot(e: Event) {
         let slot = e.target as HTMLSlotElement;
         setTimeout(() => {
-        // If slot is a slot
-        if (this.itemsContainer && slot.nodeName == "SLOT" &&
-            this.hasAddedItems == false) {
-            let children = slot.assignedElements() as HTMLElement[];
-            this.hasAddedItems = true;
-            if (this.titlesContainer) {
-                this.itemifyChildren(children, 0, null, null, this.titlesContainer);
-            } else {
-                this.itemifyChildren(children, 0, null, null);
+            // If slot is a slot
+            if (this.itemsContainer && slot.nodeName == "SLOT" &&
+                this.hasAddedItems == false) {
+                let children = slot.assignedElements() as HTMLElement[];
+                this.hasAddedItems = true;
+                if (this.titlesContainer) {
+                    this.itemifyChildren(children, 0, null, null, this.titlesContainer);
+                } else {
+                    this.itemifyChildren(children, 0, null, null);
+                }
+                this.itemsCreated();
             }
-            this.itemsCreated();
-        }
-    });
+        });
     }
 
 }

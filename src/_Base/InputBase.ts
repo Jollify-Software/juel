@@ -42,9 +42,9 @@ export class InputBase extends JuelComponent {
                 this.nextOrSubmit();
             }
         });
-        if (this.input.value) {
+        /*if (this.input.value) {
             this.input.value.focus();
-        }
+        }*/
     }
 
     @bind

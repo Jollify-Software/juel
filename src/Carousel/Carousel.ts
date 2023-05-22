@@ -19,6 +19,7 @@ export class JuelCarousel extends NavigationBase {
 
     constructor() {
         super();
+        this.selectable = 'false';
         this.position = 0;
         this.controls = "true";
         this.titleAttrName = "caption";
@@ -115,7 +116,7 @@ export class JuelCarousel extends NavigationBase {
     render() {
         let hasCtrls: boolean = this.controls.includes("true");
         return html`${when(hasCtrls, () => html`<div id="previous" @click="${this.prev}"><span></span></div>`)}
-        <div class="items container"><slot @slotchange="${(e) => this.itemsForSlot(e, 'caption', true)}"></slot></div>
+        <div class="items container"><slot @slotchange="${(e) => this.itemsForSlot(e)}"></slot></div>
         ${when(hasCtrls, () => html`<div id="next" @click="${this.next}"><span></span></div>`)}`;
     }
 }
