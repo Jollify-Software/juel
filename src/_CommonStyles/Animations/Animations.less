@@ -1,0 +1,12 @@
+
+.animations() {
+    --animation-reveal: 0;
+    --animation-reveal-end: 0.5;
+}
+
+.reveal {
+    opacity: var(--animation-reveal);
+    &:hover {
+        opacity: var(--animation-reveal-end);
+    }
+}

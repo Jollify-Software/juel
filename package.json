@@ -31,6 +31,7 @@
     "dependencies": {
         "@interactjs/interactjs": "^1.10.11",
         "@popperjs/core": "^2.10.1",
+        "@svgdotjs/svg.js": "^3.2.4",
         "@swc/helpers": "^0.4.12",
         "@types/toastr": "^2.1.38",
         "bind-decorator": "^1.0.11",

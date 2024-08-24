@@ -1,0 +1,7 @@
+dist
+src
+  | _Common
+    | Varibles.less // Common CSS variables
+    | Events
+      | EventNames.ts // Common EventNames
+      | ***EventArgs

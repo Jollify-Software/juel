@@ -9,6 +9,15 @@
     warning: #ffc107;
     danger: #dc3545;
 }
+.colours() {
+    each(@colours, {
+        @var: ~'--@{key}';
+        @lightened: if(luma(@value) < 50%, lighten(@value, 10%), darken(@value, 10%));
+
+        @{var}: @value;
+        @{var}-background: @lightened;
+    })
+}
 each(@colours, {
     @var: ~'var(--@{key})';
     @lightened: if(luma(@value) < 50%, lighten(@value, 10%), darken(@value, 10%));

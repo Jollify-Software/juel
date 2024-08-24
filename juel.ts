@@ -14,7 +14,6 @@ import './src/Menu/Menu';
 import './src/Modal/Modal';
 import './src/Toggle/Toggle';
 import './src/Button/Button';
-import './src/Text/Text';
 import './src/Memo/Memo';
 import './src/Range/Range';
 import './src/Tickbox/Tickbox';
@@ -26,6 +25,8 @@ import './src/Chart/Chart';
 import './src/Chart/ChartDataSet';
 import './src/DraggableContainer/DraggableContainer';
 import './src/ImagePreload/ImagePreload';
+import './src/ImageMap/ImageMap';
+import './src/ImageMap/Area';
 
 import './src/Page/Page';
 import './src/Toolbar/Toolbar';

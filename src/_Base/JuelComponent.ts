@@ -14,6 +14,9 @@ export class JuelComponent extends LitElement {
     template: string;
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        if (this.parentElement && 'childFirstUpdated' in this.parentElement) {
+            (<JuelComponent>this.parentElement).childFirstUpdated(this);
+        }
         setTimeout(() => {
             this.requestUpdate();
             setTimeout(() => {
@@ -21,6 +24,22 @@ export class JuelComponent extends LitElement {
             });
         });
         super.firstUpdated(_changedProperties);
+    }
+
+    updateChildren() {
+        for (let child of this.children) {
+            if ('requestUpdate' in child) {
+                (<LitElement>child).requestUpdate();
+            }
+        }
+    }
+
+    childFirstUpdated(element: JuelComponent) {
+
+    }
+
+    childUpdated(element: JuelComponent) {
+
     }
 
     firstLoad() {
@@ -32,6 +51,9 @@ export class JuelComponent extends LitElement {
     }
 
     protected updated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        if (this.parentElement && 'childUpdated' in this.parentElement) {
+            (<JuelComponent>this.parentElement).childUpdated(this);
+        }
         setTimeout(() => {
             setTimeout(() => {
                 this.load(_changedProperties);
@@ -47,6 +69,10 @@ export class JuelComponent extends LitElement {
         if (juelParent && 'childrenUpdated' in juelParent) {
             (juelParent as unknown as JuelComponent).childrenLoaded();
         }
+    }
+
+    getChildren() {
+        return Array.prototype.slice.call(this.children) as HTMLElement[];
     }
 
     get(property) {

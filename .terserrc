@@ -1,5 +1,6 @@
 {
     "mangle" : {
-        "reserved" : [ "$" ]
+        "reserved" : [ "$" ],
+        "keep_fnames": "requestUpdate|(get)\\w+|(set)\\w+|(child)\\w+"
     }
 }

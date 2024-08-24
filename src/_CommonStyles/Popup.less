@@ -1,0 +1,52 @@
+.popupVars() {
+    --popup-background: #fff;
+    --popup-border-radius: 0.5rem;
+    --popup-border-width: 1px;
+    --popup-border-color: rgb(0, 0, 0, 0.175);
+    --popup-inner-border-radius: calc(var(--border-radius-lg) - var(--border-width));
+    --popup-box-shadow: var(--box-shadow);
+    --popup-header-padding-x: 1rem;
+    --popup-header-padding-y: 0.5rem;
+    --popup-header-font-size: 1rem;
+    --popup-header-color: inherit;
+    --popup-header-background: var(--secondary-background);
+    --popup-body-padding-x: 1rem;
+    --popup-body-padding-y: 1rem;
+    --popup-body-color: var(--body-color);
+    --popup-arrow-width: 1rem;
+    --popup-arrow-height: 0.5rem;
+    --popup-arrow-border: var(--popup-border-color);
+}
+
+.popup {
+    background: var(--popup-background);
+    border: var(--popup-border-width) solid var(--popup-border-color);
+    border-radius: var(--popup-border-radius);
+}
+.popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--popup-header-padding-y) var(--popup-header-padding-x);
+    font-size: var(--popup-header-font-size);
+    color: var(--popup-header-color);
+    background-color: var(--popup-header-bg);
+    border-bottom: var(--popup-border-width) solid var(--popup-border-color);
+    border-top-left-radius: var(--popup-inner-border-radius);
+    border-top-right-radius: var(--popover-inner-border-radius);
+
+    h1, h2, h3, h4, h5, h6 {
+        margin: 0;
+    }
+}
+.tooltip .close, .popup .close {
+    position: relative;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: var(--icon-close);
+}
+.popup-body {
+    padding: var(--popup-body-padding-y) var(--popup-body-padding-x);
+    color: var(--popup-body-color);
+}

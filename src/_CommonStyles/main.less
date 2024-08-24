@@ -1,3 +1,5 @@
+@import './Popup.less';
+
 body {
     margin: 0;
     font-family: var(--body-font-family);
@@ -11,6 +13,9 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 juel-dialog-manager > * {
+    display: none;
+}
+juel-image-map > *:not(img, svg) {
     display: none;
 }
 .hide, .hidden {display: none;}
