@@ -16,6 +16,12 @@
     --popup-arrow-width: 1rem;
     --popup-arrow-height: 0.5rem;
     --popup-arrow-border: var(--popup-border-color);
+
+    --tooltip-background: #222;
+    --tooltip-color: white;
+    --tooltip-padding: 5px;
+    --tooltip-border-radius: 4px;
+    --tooltip-font-size: 90%;
 }
 
 .popup {
@@ -49,4 +55,15 @@
 .popup-body {
     padding: var(--popup-body-padding-y) var(--popup-body-padding-x);
     color: var(--popup-body-color);
+}
+
+.tooltip {
+    display: inline-block;
+  position: absolute;
+  background: var(--tooltip-background);
+  color: var(--tooltip-color);
+  font-weight: bold;
+  padding: var(--tooltip-padding);
+  border-radius: var(--tooltip-border-radius);
+  font-size: var(--tooltip-font-size);
 }

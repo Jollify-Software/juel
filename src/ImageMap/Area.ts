@@ -19,6 +19,8 @@ export class JuelArea extends JuelComponent {
     rel; // TODO: export type
     @property({ type: String })
     href: string;
+    @property()
+    target: string;
     @property({ type: String })
     coords: string;
 
@@ -59,6 +61,8 @@ export class JuelArea extends JuelComponent {
                     coords[2]
                 );
                 break;
+            case "poly":
+                shape = this.drawPoly(draw, coords);
             default:
                 break;
         }
@@ -70,6 +74,14 @@ export class JuelArea extends JuelComponent {
                 let cp = { x: bounds.width / 2, y: bounds.height / 2 };
                 shape.click(e => {
                     this.popupService.popup(children, cp);
+                });
+            } else if (this.href) {
+                shape.click(e => {
+                    if (this.target == "_blank") {
+                        window.open(this.href);
+                    } else {
+                        location.href = this.href;
+                    }
                 });
             }
 /*
@@ -122,6 +134,10 @@ export class JuelArea extends JuelComponent {
 
     drawCircle(draw: Svg, p: Point, r: number): Circle {
         return draw.circle(r * 2).move(p.x - r, p.y - r).addClass("reveal").fill("lightblue");
+    }
+
+    drawPoly(draw: Svg, coords: number[]) {
+        return draw.polygon(coords).addClass("reveal").fill("lightblue")
     }
 
     setupAlt(shape: Shape) {

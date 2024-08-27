@@ -6,7 +6,7 @@ export class TooltipService extends PopupServiceBase {
 
     tooltip(text: string, target: HTMLElement | string | MouseEvent) {
         if (!this.element) {
-            let tip = $('<div class="tooltip">').append(`<h4>${text}</h4>`);
+            let tip = $('<div class="tooltip">').append(text);
             this.element = tip[0];
             document.body.append(this.element);
         }
