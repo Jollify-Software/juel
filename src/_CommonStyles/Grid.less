@@ -1,0 +1,27 @@
+.grid() {
+    --block-spacing: 1.5rem;
+    --column-gap: 0.5rem;
+    --column-gap: 0.5rem;
+}
+
+.columns, .rows {
+    display: flex;
+    flex-wrap: wrap;
+    margin-inline-end: calc(var(--column-gap)* -1);
+    margin-inline-start: calc(var(--column-gap)* -1);
+    margin-top: calc(var(--column-gap)* -1);
+
+    &:not(:last-child) {
+        margin-bottom: calc(var(--block-spacing) - var(--column-gap));
+    }
+}
+.rows {
+    flex-direction: row;
+}
+.column, .row {
+    display: block;
+    flex-basis: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+    padding: var(--column-gap);
+}

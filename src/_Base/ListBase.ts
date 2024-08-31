@@ -4,6 +4,7 @@ import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
 import { EventNames } from "../_Core/Events/EventNames";
 import { GetDisplayKnownProperty } from "../_Core/KnownProperties";
 import { JuelDataComponent } from "./JuelDataComponent";
+import { ItemBase } from "./ItemBase";
 
 export class ListBase extends JuelDataComponent {
 
@@ -19,12 +20,24 @@ export class ListBase extends JuelDataComponent {
     selectedIndexes: number[];
     selectedData: any[];
 
+    items: ItemBase[] = [];
+
     constructor() {
         super();
         this.multiselect = false;
         this.placeholderIndex = null;
         this.selectedIndexes = [];
         this.selectedData = [];
+    }
+
+    addItem(item: ItemBase) {
+        if (this.items.includes(item) == false) {
+            this.items.push(item);
+        }
+    }
+
+    getItems() {
+        return this.items;
     }
 
     getPlaceholder() {

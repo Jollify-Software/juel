@@ -20,6 +20,7 @@ import './src/Tickbox/Tickbox';
 import './src/Progress/Progress';
 import './src/Embed/Embed';
 import './src/Random/Random';
+import './src/Media/Media';
 import './src/NavBar/NavBar';
 import './src/Chart/Chart';
 import './src/Chart/ChartDataSet';
@@ -27,6 +28,9 @@ import './src/DraggableContainer/DraggableContainer';
 import './src/ImagePreload/ImagePreload';
 import './src/ImageMap/ImageMap';
 import './src/ImageMap/Area';
+
+import './src/Grid/Grid';
+import './src/Grid/GridItem';
 
 import './src/Page/Page';
 import './src/Toolbar/Toolbar';

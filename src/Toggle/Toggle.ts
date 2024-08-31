@@ -6,9 +6,11 @@ import { Dispatch } from "../_Core/DispatchFunction";
 import { EventNames } from "../_Core/Events/EventNames";
 import { JuelComponent } from "../_Base/JuelComponent";
 import { ToggleEvents } from "./ToggleEvents";
+import { InputBase } from "../_Base/InputBase";
+import { when } from "lit/directives/when";
 
 @customElement("juel-toggle")
-export class JuelToggle extends JuelComponent {
+export class JuelToggle extends InputBase {
 
     static styles = unsafeCSS(style);
 
@@ -23,8 +25,6 @@ export class JuelToggle extends JuelComponent {
     contained: boolean = false;
     @property({ type: String })
     container: string = ".container";
-    @property({ type: String })
-    type: string = null;
 
     @property({ type: String })
     content: string = null;
@@ -37,7 +37,17 @@ export class JuelToggle extends JuelComponent {
     height: number = null;
 
     @property({ type: Boolean })
-    checked: boolean = false;
+    checked: boolean;
+
+    state: number;
+
+    /**
+     *
+     */
+    constructor() {
+      super();
+      this.checked = false;
+    }
 
     firstUpdated() {
       let trigger = this.shadowRoot.getElementById('trigger') as HTMLDivElement;
@@ -140,20 +150,26 @@ export class JuelToggle extends JuelComponent {
     }
   }
 
+  renderChecked(label: string) {
+    return html`<slot name="${this.checked ? 'checked' : 'unchecked'}">${when(label,
+      () => html`<button id="trigger">${label}</button`,
+      () => html`<span class="${this.rounded  ? 'slider rounded' : 'slider'}"></span>`)}</slot>`;
+  }
+
     render() {
-      let contentStrs: string[] = null;
-      if (this.content && this.content.includes(',')) {
-        contentStrs = this.content.split(',');
+      let labelChecked = this.label;
+      let labelUnchecked = this.label;
+      if (this.label && this.label.includes(',')) {
+        let splity = this.label.split(',');
+        labelChecked = splity[0];
+        labelUnchecked = splity[1];
       }
 
-      
         return html`<label class="${this.custom ? 'custom' : 'switch'}" @click="${this.toggleClicked}">
-        <input type="checkbox" id="checkbox" @change="${this.checkChange}">
-        ${
-          (this.custom) ?  html`<slot name="${this.checked ? "checked" : "unchecked"}"></slot>`:
-          (this.content) ? html`<button id="trigger">${contentStrs ? contentStrs[this.checked ? 1 : 0] : this.content}</button>` :
-            html`<span class="${this.rounded == false ? 'slider' : 'slider rounded'}"></span>`
-        }
+        <input type="checkbox" id="checkbox" .checked=${this.checked} @change="${this.checkChange}">
+        ${when(this.checked,
+          () => this.renderChecked(labelChecked),
+          () => this.renderChecked(labelUnchecked))}
       </label>`;
     }
 }

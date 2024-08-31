@@ -1,0 +1,44 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="../../dist/juel.js"></script>
+</head>
+
+<body>
+    <juel-grid id="grid" page-size="6">
+        <div slot="new">
+            <button>New</button>
+        </div>
+        <template>
+            <h1>${this}</h1>
+        </template>
+    </juel-grid>
+
+    <script>
+        var data = [...Array(70).keys()];
+        var grid = document.getElementById("grid");
+        grid.retrieve = (info) => {
+            return new Promise(resolve => {
+                let start = (info.currentPage - 1) * info.pageSize;
+                let end = start + info.pageSize;
+                resolve({
+                data: data.slice(start, end),
+                count: data.length
+            });
+        });
+        }
+        /*
+        grid.itemTemplate = (obj) => new Promise((resolve) => {
+            resolve(`<h1>${obj}</h1>`);
+        });*/
+    </script>
+
+    <juel-accordion>
+        <div data-title="YouTube provider">
+            <juel-embed url="Grid/grid-youtube.html"></juel-embed>
+        </div>
+    </juel-accordion>
+</body>
+
+</html>

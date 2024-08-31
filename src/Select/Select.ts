@@ -122,7 +122,7 @@ export class Select extends ListBase {
                     () => nothing)}
             </div>`)}
             <ul class="items">
-            ${until(ListItemsTemplate(this), html`<slot @slotchange="${(e) => this.itemsForSlot(e)}"><slot>`)}
+            <slot></slot>
             </ul>
             
         </div>`;

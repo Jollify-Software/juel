@@ -1,0 +1,17 @@
+<html>
+    <head>
+        <script src="../../dist/juel.js"></script>
+    </head>
+    <body>
+    <juel-grid provider="youtube" method="playlist" key="AIzaSyDakXJXKLRN2yov5jeOCgG5-bG5jKMSt9U"
+        query="part=snippet,contentDetails;channelId=UC_x5XG1OV2P6uZZ5FSM9Ttw">
+        <template>
+            <!-- TODO: juel-youtube-playlistitem -->
+            <a href="https://www.youtube.com/playlist?list=${this.id}" target="_blank"><div>
+                <img src="${this.snippet.thumbnails.default.url}"/>
+                <h4>${this.snippet.title}</h4>
+            </div></a>
+        </template>
+    </juel-grid>
+    </body>
+</html>

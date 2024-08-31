@@ -1,0 +1,48 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="../../dist/juel.js"></script>
+</head>
+
+<body>
+    <juel-grid id="grid-data" input="true" page-size="6">
+    </juel-grid>
+
+    <script>
+        var data = [
+            {
+                title: "United Kingdom",
+                image: "https://upload.wikimedia.org/wikipedia/en/thumb/a/ae/Flag_of_the_United_Kingdom.svg/180px-Flag_of_the_United_Kingdom.svg.png",
+                description: "ABC 123"
+            },
+            {
+                title: "Netherland",
+                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_the_Netherlands.svg/180px-Flag_of_the_Netherlands.svg.png",
+                description: "ABC 123"
+            },
+            {
+                title: "Germany",
+                image: "https://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Flag_of_Germany.svg/180px-Flag_of_Germany.svg.png",
+                description: "ABC 123"
+            },
+            {
+                title: "Australia",
+                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Flag_of_Australia_%28converted%29.svg/180px-Flag_of_Australia_%28converted%29.svg.png",
+                description: "ABC 123"
+            }
+        ];
+        var grid = document.getElementById("grid-data");
+        grid.data = data;
+        grid.template = `<img src="\${this.image}"/>
+        <h5>\${this.title}</h5>
+        <p>\${this.description}</p>`;
+        //grid.requestUpdate();
+        /*
+        grid.itemTemplate = (obj) => new Promise((resolve) => {
+            resolve(`<h1>${obj}</h1>`);
+        });*/
+    </script>
+</body>
+
+</html>
