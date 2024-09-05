@@ -11,26 +11,27 @@ input.text {
 }
 
 .input-group {
-    display         : inline-flex;
-    flex-direction  : var(--direction, row);
-    padding         : .375rem;
-    border-radius   : .25rem;
+    display: inline-flex;
+    flex-direction: var(--direction, row);
+    padding: .375rem;
+    margin: var(--margin);
+    border-radius: .25rem;
     background-color: #e9ecef;
-    border          : 1px solid #ced4da;
+    border: 1px solid #ced4da;
 }
 
 .rounded {
-    border-radius      : .25rem;
+    border-radius: var(--border-radius, .25rem);
 }
 
 .right-rounded {
-    border-top-right-radius: .25rem;
-    border-bottom-right-radius: .25rem;
+    border-top-right-radius: var(--border-top-right-radius, .25rem);
+    border-bottom-right-radius: var(--border-bottom-right-radius, .25rem);
 }
 
 .left-rounded {
-    border-top-left-radius: .25rem;
-    border-bottom-left-radius: .25rem;
+    border-top-left-radius: var(--border-top-left-radius, .25rem);
+    border-bottom-left-radius: var(--border-bottom-left-radius, .25rem);
 }
 
 .no-rounded {
@@ -48,9 +49,10 @@ input.text {
     text-align: left;
     background-color: #fff;
     background-clip: padding-box;
-    border: 1px solid rgba(0,0,0,.15);
+    border: 1px solid rgba(0, 0, 0, .15);
     border-radius: .25rem;
 }
+
 ::slotted(ul) {
     list-style: none;
     padding: .5rem 1rem;
@@ -58,6 +60,7 @@ input.text {
     display: flex;
     flex-direction: column;
 }
+
 ::slotted(ol) {
     list-style: none;
     padding: .5rem 0;

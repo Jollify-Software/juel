@@ -6,6 +6,7 @@
 
 .columns, .rows {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
     margin-inline-end: calc(var(--column-gap)* -1);
     margin-inline-start: calc(var(--column-gap)* -1);
@@ -19,7 +20,6 @@
     flex-direction: row;
 }
 .column, .row {
-    display: block;
     flex-basis: 0;
     flex-grow: 1;
     flex-shrink: 1;

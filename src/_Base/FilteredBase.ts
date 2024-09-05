@@ -67,14 +67,16 @@ export class FilteredBase extends ListBase {
     }
 
     renderStringFiltersAsButtons(key: string, values: string[]) {
+        let part = `filter-${key}-button`;
         return html`${when(this.all && this.all != "false",
-            () => html`<juel-button label="${this.all == "true" ? "All" : this.all}" @button-clicked=${() => this.filterItems(key, '*')}></juel-button>`)}
+            () => html`<juel-button part="${part}" label="${this.all == "true" ? "All" : this.all}" @button-clicked=${() => this.filterItems(key, '*')}></juel-button>`)}
             ${map(values,
-            value => html`<juel-button label="${toTitle(value)}" @button-clicked=${() => this.filterItems(key, value)}></juel-button>`)}`;
+            value => html`<juel-button part="${part}" label="${toTitle(value)}" @button-clicked=${() => this.filterItems(key, value)}></juel-button>`)}`;
     }
 
     renderStringFiltersAsSelect(key: string, values: string[]) {
-        return html`<juel-select>${map(values,
+        let part = `filter-${key}-select`;
+        return html`<juel-select part="${part}">${map(values,
             value => html`<juel-item @click=${() => this.filterItems(key, value)}>${toTitle(value)}</juel-item>`)}
             </juel-select>`;
     }
@@ -84,13 +86,13 @@ export class FilteredBase extends ListBase {
         if (filters) {
             let keys = Object.keys(filters);
             let types = keys.map(x => typeof filters[x][0])
-            return html`<ul id-"filters">${map(keys, (key, i) => {
+            return html`<ul id="filters" part="filters">${map(keys, (key, i) => {
                 let values = filters[key];
                 let type = types[i];
-                return html`<li>${toTitle(key)}<span class="filter-options">${choose(type, [
+                return html`<li><span part="filter-text filter-${key}-text">${toTitle(key)}</span><span class="filter-options">${choose(type, [
                     [ 'string', () => html`${when(types.filter(x => x == type).length >= 2, () => this.renderStringFiltersAsSelect(key, values), () => this.renderStringFiltersAsButtons(key, values))}` ],
                     [ 'number', () => html`` ],
-                    [ 'boolean', () => html`<juel-toggle @toggled=${e => this.filterItems(key, e.detail.value)}></juel-toggle>` ]
+                    [ 'boolean', () => html`<juel-toggle part="filter-${key}-toggle" @toggled=${e => this.filterItems(key, e.detail.value)}></juel-toggle>` ]
                 ])}</span></li>`;
             })}</ul>`;
         }

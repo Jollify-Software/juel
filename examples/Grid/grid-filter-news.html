@@ -5,25 +5,38 @@
 </head>
 
 <body>
+    <style>
+        juel-grid::part(filter-text) {
+            display: none;
+        }
+        juel-grid::part(filter-category-button) {
+            --background-color: blueviolet;
+            --hover-background-color: goldenrod;
+            --border-top-left-radius: 50px;
+            --border-top-right-radius: 50px;
+            --border-bottom-left-radius: 50px;
+            --border-bottom-right-radius: 50px;
+        }
+    </style>
     <juel-grid filters="true">
-        <juel-grid-item filter="category: statements">
+        <juel-item filter="category: statements">
             <juel-card>
                 <img slot="image" src="../_Assets/cry.jpg">
                 <h5 slot="title">Immigration Riots</h5>
             </juel-card>
-        </juel-grid-item>
-        <juel-grid-item filter="category: research">
+        </juel-item>
+        <juel-item filter="category: research">
             <juel-card>
                 <img slot="image" src="../_Assets/education.jpg">
                 <h5 slot="title">Education</h5>
             </juel-card>
-        </juel-grid-item>
-        <juel-grid-item filter="category: statements">
+        </juel-item>
+        <juel-item filter="category: statements">
             <juel-card>
                 <img slot="image" src="../_Assets/war.jpg">
                 <h5 slot="title">War</h5>
             </juel-card>
-        </juel-grid-item>
+        </juel-item>
     </juel-grid>
 </body>
 

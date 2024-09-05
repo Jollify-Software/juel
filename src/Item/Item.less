@@ -1,0 +1,48 @@
+:host {
+    background-color: var(--background-color, var(--light));
+}
+
+.content {
+    max-height: var(--max-height);
+    padding: var(--padding);
+    overflow: var(--overflow, auto);
+    transition: var(--transition);
+    border-top-left-radius: var(--border-top-left-radius);
+    border-top-right-radius: var(--border-top-right-radius);
+}
+
+.title {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: var(--title-padding);
+    font-size: 1rem;
+    text-align: left;
+    border: 0;
+    border-radius: 0;
+    border-top-left-radius: var(--title-border-top-left-radius);
+    border-top-right-radius: var(--title-border-top-right-radius);
+    overflow-anchor: none;
+    transition: color .15s;
+    background-color: var(--title-background-color, var(--light, #fff));
+    color: var(--title-color, var(--dark-text, #212529));
+    cursor: pointer;
+
+    &:hover {
+        background-color: var(--active);
+        color: var(--active-text);
+    }
+
+    &::after {
+        flex-shrink: 0;
+        width: var(--title-after-width);
+        height: var(--title-after-width);
+        margin-left: auto;
+        content: var(--title-after-content);
+        background-image: var(--title-after-background-image);
+        background-repeat: no-repeat;
+        background-size: var(--title-after-width);
+        transition: var(--title-after-transition);
+        transform: var(--title-after-transform);
+    }
+}

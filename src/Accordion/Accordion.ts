@@ -53,7 +53,7 @@ export class JuelAccordion extends NavigationBase {
 
     render() {
         return html`<div class="items ${this.horizontal == true ? "horizontal" : ""}">
-        ${until(ChildrenItemsTemplate(this, [...this.children] as HTMLElement[], 0, null, null), nothing)}
+        <slot @slotchange=${this.slotChange} ></slot>        
         </div>`;
     }
 

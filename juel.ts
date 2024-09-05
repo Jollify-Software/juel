@@ -30,7 +30,7 @@ import './src/ImageMap/ImageMap';
 import './src/ImageMap/Area';
 
 import './src/Grid/Grid';
-import './src/Grid/GridItem';
+import './src/Item/Item';
 
 import './src/Page/Page';
 import './src/Toolbar/Toolbar';

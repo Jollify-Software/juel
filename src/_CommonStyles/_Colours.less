@@ -22,30 +22,31 @@ each(@colours, {
     @var: ~'var(--@{key})';
     @lightened: if(luma(@value) < 50%, lighten(@value, 10%), darken(@value, 10%));
     .@{key} {
-        background-color: @var;
-        color: if(luma(@value) > 50%, black, white);
-        border: 1px solid @var;
+        background-color: var(--background-color, @var);
+        color: var(--color, if(luma(@value) > 50%, black, white));
+        border: 1px solid var(--background-color, @var);
         &:hover {
-            background-color: @lightened;
-            border-color: @lightened;
+            background-color: var(--hover-background-color, var(--color, @lightened));
+            color: var(--hover-color, var(---background-color, @var));
+            border-color: var(--hover-border-color, @lightened);
         }
         &:active {
-            box-shadow: 0 0 10px @var;
+            box-shadow: 0 0 10px var(--background-color, @var);
         }
         &.outline {
             background-color: initial;
-            color: @var;
-            border-color: @var;
+            color: var(--background-color, @var);
+            border-color: var(--background-color, @var);
             &:hover {
-                background-color: @var;
-                color: if(luma(@value) > 50%, black, white);
+                background-color: var(--background-color, @var);
+                color: var(--color, if(luma(@value) > 50%, black, white));
             }
         }
         &.right-rounded {
-            border-right: 1px solid @var;
+            border-right: 1px solid var(--background-color, @var);
         }
         &.left-rounded {
-            border-left: 1px solid @var;
+            border-left: 1px solid var(--background-color, @var);
         }
     }
 })

@@ -1,3 +1,5 @@
+@import "../_CommonStyles/FilteredBase.less";
+
 :host {
     display: inline-flex;
     flex-direction: column;
@@ -6,4 +8,12 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+}
+::slotted(juel-item) {
+    width: var(--item-width);
+    height: var(--item-height);
+    padding: 1rem 1rem;
+    margin: 1rem;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
 }

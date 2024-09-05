@@ -33,6 +33,14 @@ export class ListBase extends JuelDataComponent {
     addItem(item: ItemBase) {
         if (this.items.includes(item) == false) {
             this.items.push(item);
+            let index = this.items.indexOf(item);
+            item.setAttribute("data-index", index.toString());
+            if (item.title) {
+                let title = item.shadowRoot.querySelector(".title") as HTMLElement;
+                title.onclick = () => this.selectItem(index);
+            } else {
+                item.onclick = () => this.selectItem(index);
+            }
         }
     }
 
@@ -119,7 +127,8 @@ export class ListBase extends JuelDataComponent {
     }
 
     selectItem(index: number) {
-        let el = this.shadowRoot.querySelector(`[data-index="${index}"]`);
+        let items = this.getItems();
+        let el = items.find(x => x.matches(`[data-index="${index}"]`));
         if (el) {
             let $el = $(el);
             let value = $el.data(ListBase.ValueKey);
@@ -181,5 +190,8 @@ export class ListBase extends JuelDataComponent {
 
     onItemDeselected(index: number, el: HTMLElement) {
 
+    }
+
+    slotChange(e: Event) {
     }
 }
