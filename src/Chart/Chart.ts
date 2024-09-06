@@ -67,27 +67,13 @@ export class JuelChart extends JuelComponent {
 
             this.g = (<HTMLCanvasElement>this.shadowRoot.getElementById("canvas"))
                 .getContext("2d");
-            this.scriptElement();
+            this.chartScriptLoaded = this.scriptElement();
     }
 
-    scriptElement(): void {
+    async scriptElement() {
         let script = document.querySelector(`#${JuelChart.ChartScriptId}`) as HTMLScriptElement;
-        if ('Chart' in window || script) {
-            this.chartScriptLoaded = new Promise(resolve => {
-                script.addEventListener("load", () => {
-                    resolve(1);
-                });
-            });
-        } else {
-            script = document.createElement("script");
-            script.id = JuelChart.ChartScriptId;
-            this.chartScriptLoaded = new Promise(resolve => {
-                script.addEventListener("load", () => {
-                    resolve(1);
-                });
-            });
-            script.src = JuelChart.ChartScriptUrl;
-            document.head.append(script);
+        if (!('Chart' in window)) {
+            await import(JuelChart.ChartScriptUrl);
         }
     }
 

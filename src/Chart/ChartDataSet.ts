@@ -6,6 +6,7 @@ import { JuelChart } from "./Chart";
 
 @customElement("juel-chart-dataset")
 export class JuelChartDataSet extends CommandBase {
+    
     @property() label: string;
     @property({ converter: ArrayConverter() }) data: any[];
     @property() type: string;
