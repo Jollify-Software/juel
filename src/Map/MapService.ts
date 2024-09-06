@@ -1,17 +1,49 @@
 import { JuelMap } from "./Map";
+import { GoogleMapProvider } from "./Providers/GoogleMapProvider";
+import { IMapProvider } from "./Providers/IMapProvider";
+import { LeafletProvider } from "./Providers/LeafletProvider";
 
 export class MapService {
 
-    searchManager: Microsoft.Maps.Search.SearchManager;
+    mapElement: JuelMap;
+    provider: IMapProvider;
 
-    init(mapEl: JuelMap) {
-        window['InitMap'] = () => {
-            if(mapEl.provider && mapEl.provider === "bing") {
-                    this.initBingMap(mapEl);
-            }
-        };
+    /**
+     *
+     */
+    constructor(mapElement: JuelMap) {
+        this.mapElement = mapElement;
+        this.init();
     }
 
+    searchManager: Microsoft.Maps.Search.SearchManager;
+
+    init() {
+        switch (this.mapElement.provider) {
+            case "google":
+                this.provider = new GoogleMapProvider();
+                break;
+            case "leaflet":
+                this.provider = new LeafletProvider();
+        }
+
+        if (this.provider) {
+            // TODO: Check if token on window object and decrypt
+            //this.provider.setApiKey(this.mapElement.token);
+            //this.provider.setMode(this.mapElement.mode);
+            //this.provider.setParameters(this.mapElement.parameters);
+
+            this.provider.init(this.mapElement);
+        }
+    }
+
+    getMap() {
+        if (this.provider) {
+            return this.provider.getMap();
+        }
+        return "";
+    }
+/*
     initBingMap(el: JuelMap) {
         let searchTerms: string[] = [];
         for (let child of el.children) {
@@ -62,5 +94,5 @@ export class MapService {
             //Make the geocode request.
             this.searchManager.geocode(searchRequest);
         }
-    }
+    }*/
 }

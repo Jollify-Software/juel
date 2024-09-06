@@ -1,6 +1,12 @@
 {
+    "compress": {
+        "hoist_props": false
+    },
     "mangle" : {
-        "reserved" : [ "$" ],
-        "keep_fnames": "requestUpdate|(get)\\w+|(set)\\w+|(child)\\w+"
+        "reserved" : [ "$", "L" ],
+        "keep_fnames": true
+    },
+    "format": {
+        "ascii_only": true
     }
 }

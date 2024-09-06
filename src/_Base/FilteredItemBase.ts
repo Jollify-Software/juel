@@ -5,7 +5,7 @@ import bind from "bind-decorator";
 
 export class FilteredItemBase extends ItemBase {
 
-    @property({ converter: DOMStringMapConverter("filter") })
+    @property({ converter: DOMStringMapConverter })
     filter: object;
     @property()
     effect: string;

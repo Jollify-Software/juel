@@ -148,7 +148,7 @@ export class JuelArea extends JuelComponent {
         }
     }
 
-    protected createRenderRoot(): Element | ShadowRoot {
+    protected createRenderRoot(): HTMLElement | ShadowRoot {
         return this;
     }
 }

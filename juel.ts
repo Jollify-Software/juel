@@ -32,7 +32,11 @@ import './src/ImageMap/Area';
 import './src/Grid/Grid';
 import './src/Item/Item';
 
-import './src/Page/Page';
+import './src/Map/Map';
+import './src/Map/MapMarker';
+import './src/Map/MapCircle';
+import './src/Map/MapPolygon';
+
 import './src/Toolbar/Toolbar';
 import './src/Toolbar/ToolbarItem';
 
@@ -55,10 +59,12 @@ import './src/Spinner/Spinner';
 
 import './src/Random/Random';
 
+/*
 import './src/Music/Music';
 import './src/Music/Stave';
 import './src/Music/Voice';
 import './src/Music/Note';
+*/
 
 import './src/Tilt/Tilt';
 

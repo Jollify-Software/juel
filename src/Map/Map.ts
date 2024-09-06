@@ -1,38 +1,36 @@
-import { LitElement } from "lit";
+import { CSSResultGroup, html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
 import { MapService } from "./MapService";
+import { JuelComponent } from "../_Base/JuelComponent";
+import { MapModeType } from "./MapModeType";
+import { DOMStringMapConverter } from "../_Converters/DOMStringMapConvertor";
+import Styles from "bundle-text:./Map.less";
+import { ArrayConverter } from "../_Converters/ArrayConverter";
+import { JuelAsyncComponent } from "../_Base/JuelAsyncComponent";
 
 @customElement("juel-map")
-export class JuelMap extends LitElement {
+export class JuelMap extends JuelAsyncComponent {
+
+    static styles?: CSSResultGroup = unsafeCSS(Styles);
 
     service: MapService;
 
-    @property() provider;
-    @property() key;
+    @property() provider: string = "leaflet";
+    @property() token: string;
+    @property() mode: MapModeType; 
+    @property({ converter: DOMStringMapConverter }) parameters: object;
+    @property({ converter: ArrayConverter(';') }) places: string[];
     
-    constructor() {
-        super();
-        this.service = new MapService();
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.service = new MapService(this);
     }
 
-    protected firstUpdated(_changedProperties: Map<string | number | symbol, unknown>): void {
-        if (this.key) {
-            var script = document.head.querySelector('#bing-maps') as HTMLScriptElement;
-            if (!script) {
-                document.createElement("script")
-                script.async = true;
-                script.defer = true;
-                if (this.provider && this.provider == "bing") {
-                    script.id = "bing-maps";
-                    script.src = `https://www.bing.com/api/maps/mapcontrol?callback=InitMap&key=${this.key}`;
-                }
-                document.head.append(script);
-                this.service.init(this);
-            }
-        }
+    getMap() {
+        return this.service.getMap();
     }
 
-    protected createRenderRoot(): Element | ShadowRoot {
+    protected createRenderRoot(): HTMLElement | DocumentFragment {
         return this;
     }
 }
