@@ -1,7 +1,7 @@
 <html>
 
 <head>
-  <script src="../../dist/juel.js"></script>
+  <script src="../juel.js"></script>
 </head>
 
 <body>
@@ -12,9 +12,11 @@
     <juel-map-circle points="51.508 -0.11">
       <p>I am a circle.</p>
     </juel-map-circle>
-    <juel-map-polygon points="51.509 -0.08,51.503 -0.06,51.51 -0.047">
+    <juel-map-polygon points="51.509 -0.08,51.503 -0.06,51.51 -0.047" styles="fillColor: red;fillOpacity: 0.85">
       <p>I am a Polygon.</p>
     </juel-map-polygon>
+    <juel-map-json src="../_Assets/feature.json"></juel-map-json>
+    <juel-map-json src="../_Assets/states.json"></juel-map-json>
     </juel-map>
 </body>
 

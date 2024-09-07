@@ -1,8 +1,12 @@
 import { PropertyValueMap } from "lit";
 import { JuelComponent } from "../_Base/JuelComponent";
 import { JuelMap } from "./Map";
+import { property } from "lit/decorators";
+import { DOMStringMapConverter } from "../_Converters/DOMStringMapConvertor";
 
 export class JuelMapObject extends JuelComponent {
+
+    @property({ converter: DOMStringMapConverter }) styles: object;
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
         if ('getMap' in this.parentElement) {
@@ -15,6 +19,10 @@ export class JuelMapObject extends JuelComponent {
 
     ready(map: L.Map) {
 
+    }
+
+    extendStyles(options: any) {
+        $.extend(options, this.styles);
     }
 
     bindPopup(obj: any) {

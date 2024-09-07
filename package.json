@@ -11,9 +11,9 @@
         }
     },
     "scripts": {
-        "dev": "del .parcel-cache && parcel build juel.ts --no-optimize --no-scope-hoist",
+        "dev": "del .parcel-cache && parcel build juel.ts --no-optimize --no-scope-hoist && npx copyfiles dist/*.* examples -f",
         "build": "del .parcel-cache && parcel build juel.ts",
-        "serve": "npm run build && npx copyfiles dist/*.* examples -f && npx serve examples",
+        "serve": "npm run dev && live-server --open=examples",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {

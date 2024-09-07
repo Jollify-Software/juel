@@ -12,8 +12,9 @@ export class JuelMapPolygon extends JuelMapObject {
     @property({ converter: MultiArrayConvertor() }) points: number[][];
 
     ready(map: L.Map): void {
-        let options: L.MarkerOptions = {};
-        var polygon = L.polygon(this.points as any).addTo(map);
+        let options: L.PolylineOptions = {};
+        this.extendStyles(options);
+        var polygon = L.polygon(this.points as any, options).addTo(map);
         this.bindPopup(polygon);
     }
 
