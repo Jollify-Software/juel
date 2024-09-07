@@ -53,6 +53,8 @@ import './src/FishEye/FishEye';
 
 import './src/Curtain/Curtain';
 
+import './src/CodeHighlight/CodeHighlight';
+
 
 
 import './src/Spinner/Spinner';
