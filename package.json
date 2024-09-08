@@ -27,7 +27,7 @@
     },
     "homepage": "https://github.com/Jollify-Software/juel#readme",
     "dependencies": {
-        "@interactjs/interactjs": "^1.10.11",
+        "@interactjs/interactjs": "^1.10.27",
         "@popperjs/core": "^2.10.1",
         "@svgdotjs/svg.js": "^3.2.4",
         "@swc/helpers": "^0.4.12",

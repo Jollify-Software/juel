@@ -1,5 +1,7 @@
-import { DragMoveListener } from "../_Utils/DragMoveListener";
+import { DragMoveListener, DragMoveListener2 } from "../_Utils/DragMoveListener";
 import { IsMobile } from "../_Utils/IsMobile";
+import { DialogManagerService } from "../DialogManager/DialogManagerService";
+import { DialogOptions } from "./DialogOptions";
 
 declare var interact: any;
 
@@ -17,83 +19,33 @@ export class Dialog {
 
     private closeHandler: (this: HTMLElement, event: any) => any;
 
-    constructor(private service: any, public id: string, dataset: DOMStringMap) {
+    constructor(private service: DialogManagerService, public id: string, options: DialogOptions) {
         
-        this.title = dataset.title;
-        this.location = dataset.location;
-        this.size = dataset.size;
-        this.trigger = dataset.trigger;
-        this.group = dataset.group ? dataset.group.split(' ') : undefined;
-        this.modal = dataset.modal ? dataset.modal.toLowerCase() == "true" : undefined;
+        this.title = options.title;
+        this.location = options.location;
+        this.size = options.size;
+        this.trigger = options.trigger;
+        this.group = options.group;
+        this.modal = options.modal;
     }
 
     init(element: HTMLElement, dialogManager: any) {
         this.dialogManager = dialogManager;
         this.element = element;
-        this.element.style.display = "none";
 
         let closeBtnClick = () => {
             let closeEvt = new CustomEvent('close', { detail: this.element.id }); // TODO: DialogCloseArgs
             this.element.dispatchEvent(closeEvt);
             dialogManager.dispatchEvent(closeEvt);
+
+            this.close();
         };
-        let closeBtn = this.element.querySelector(".close");
-        $(closeBtn).off('click');
-        closeBtn.addEventListener('click', closeBtnClick);
 
+        console.log("Is Mobile + " + IsMobile());
 
-        if (!IsMobile()) {
+        
 
-            // target elements with the "draggable" class
-            interact(this.element)
-                .draggable({
-                    // enable inertial throwing
-                    inertia: true,
-                    allowFrom: ".titlebar",
-                    
-                    modifiers: [
-                        interact.modifiers.restrict({
-                          restriction: 'parent',
-                        })
-                    ],
-
-                    listeners: {
-                        // call this function on every dragmove event
-                        move: DragMoveListener,
-
-                        // call this function on every dragend event
-                        end(event) {
-                            /* TODO:
-                        if (storageKeyX) {
-                            localStorage.setItem(storageKeyX, e.clientX.toString());
-                        }
-                        if (storageKeyY) {
-                            localStorage.setItem(storageKeyY, e.clientY.toString());
-                        }
-                        */
-                        }
-                    }
-                })
-        } else { // Is mobile
-            if (this.location && this.size) {
-                switch (this.location) {
-                    case 'top':
-                        this.element.style.top = `calc(var(--vh) * -${this.size})`;
-                        this.element.style.height = `calc(var(--vh) * ${this.size})`;
-                        break;
-                }
-            }
-        }
-
-
-        if (this.trigger) {
-            let trigger = this.dialogManager.parentElement.querySelector(this.trigger);
-            if (trigger) {
-                trigger.addEventListener('click', () => {
-                    this.service.showDialog(this.id);
-                })
-            }
-        }
+        
         (<any>this.element).isInitialised = true;
     }
 
@@ -156,8 +108,8 @@ export class Dialog {
             });
             this.dialogManager.dispatchEvent(evt);
         };
-        $(this.element).off('close')
-            .on('close', this.closeHandler);
+        //$(this.element).off('close')
+        //    .on('close', this.closeHandler);
 
     }
 
@@ -218,6 +170,8 @@ export class Dialog {
                             }
                             break;
                     }
+                } else {
+                    this.element.style.display = "none";
                 }
             }
 

@@ -20,6 +20,8 @@ export class ListBase extends JuelDataComponent {
     selectedIndexes: number[];
     selectedData: any[];
 
+    IdPrefix = "item";
+
     items: ItemBase[] = [];
 
     constructor() {
@@ -34,10 +36,13 @@ export class ListBase extends JuelDataComponent {
         if (this.items.includes(item) == false) {
             this.items.push(item);
             let index = this.items.indexOf(item);
+            if (!item.id) {
+                item.id = `${this.IdPrefix}-${index}`;
+            }
             item.setAttribute("data-index", index.toString());
             if (item.title) {
                 let title = item.shadowRoot.querySelector(".title") as HTMLElement;
-                title.onclick = () => this.selectItem(index);
+                if (title) title.onclick = () => this.selectItem(index);
             } else {
                 item.onclick = () => this.selectItem(index);
             }

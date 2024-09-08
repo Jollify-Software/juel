@@ -1,0 +1,15 @@
+.circle-button(@size: 25px) {
+    width: @size;
+    height: @size;
+    border-radius: 50%;
+    color: white;
+    border: none;
+    text-align: center;
+    line-height: 50px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: lighten(dimgray, 40%);
+        box-shadow: 0 0 0 6px lighten(dimgray, 40%);
+    }
+  }

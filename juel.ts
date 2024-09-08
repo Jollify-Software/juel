@@ -38,6 +38,9 @@ import './src/Map/MapCircle';
 import './src/Map/MapPolygon';
 import './src/Map/MapJson';
 
+import './src/DialogManager/DialogManager';
+import './src/DialogManager/Dialog';
+
 import './src/Toolbar/Toolbar';
 import './src/Toolbar/ToolbarItem';
 

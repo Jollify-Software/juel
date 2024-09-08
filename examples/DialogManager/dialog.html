@@ -1,0 +1,42 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+
+    <style>
+        #dialog-manager,
+        juel-accordion {
+            width: 100vw;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+
+            <button id="dialog-1-btn">Show dialog 1</button>
+            <button id="dialog-2-btn">Show dialog 2</button>
+
+            <juel-dialog-manager>
+                <juel-dialog id="dialog-1" data-class="dialog1" title="First dialog" group="a"
+                    trigger="#dialog-1-btn">
+                    This is my first dialog<br>
+                    <button onclick="document.querySelector('juel-dialog-manager').show('dialog-1-sub');">Show sub
+                        dialog </button>
+                </juel-dialog>
+                <juel-dialog id="dialog-2" title="Second dialog" modal="true"
+                    trigger="#dialog-2-btn">
+                    This is my second dialog
+                </juel-dialgo>
+                <juel-dialog id="dialog-1-sub" title="Sub dialog" group="a" location="top" size="20">
+                    This is a sub dialog
+                </div>
+            </juel-dialog-manager>
+        
+
+</body>
+
+</html>
