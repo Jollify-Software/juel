@@ -1,7 +1,6 @@
+import L from "leaflet";
 import { JuelMap } from "../Map";
 import { IMapProvider } from "./IMapProvider";
-
-declare var L: any;
 
 export class LeafletProvider implements IMapProvider {
     
@@ -28,7 +27,7 @@ export class LeafletProvider implements IMapProvider {
             element.resolveReady(1);
         }
 
-        this.map = L.map(element).setView([51.505, -0.09], 13);
+        this.map = L.map(element).setView([51.505, -0.09], element.zoom);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'

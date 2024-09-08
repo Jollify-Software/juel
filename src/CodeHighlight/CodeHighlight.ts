@@ -8,7 +8,7 @@ export class JuelCodeHighlight extends JuelComponent {
 
     static ScriptUrl = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js";
     static StyleUrl = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/";
-    static StyleId = "highlight-styles";
+    static StyleId = "code-highlight-styles";
 
     @property() theme: string;
 
@@ -17,7 +17,7 @@ export class JuelCodeHighlight extends JuelComponent {
      */
     constructor() {
         super();
-        this.theme = "lightfair";
+        this.theme = "feilpec";
     }
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {

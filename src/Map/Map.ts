@@ -16,7 +16,7 @@ export class JuelMap extends JuelAsyncComponent {
     service: MapService;
 
     @property() provider: string = "leaflet";
-    @property() token: string;
+    @property() zoom: number = 13;
     @property() mode: MapModeType; 
     @property({ converter: DOMStringMapConverter }) parameters: object;
     @property({ converter: ArrayConverter(';') }) places: string[];

@@ -23,7 +23,9 @@ export class JuelMapJson extends JuelMapObject {
     createJson(data: any) {
         let options: L.GeoJSONOptions = { style: {} };
         this.extendStyles(options.style);
-        L.geoJSON(data as any, options).addTo(this.map)
+        let json = L.geoJSON(data as any, options).addTo(this.map)
+        let center = json.getBounds().getCenter();
+        this.map.setView(center);
     }
 
 }

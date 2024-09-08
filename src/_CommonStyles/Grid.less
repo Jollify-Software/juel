@@ -16,6 +16,21 @@
         margin-bottom: calc(var(--block-spacing) - var(--column-gap));
     }
 }
+.columns {
+    display: flex;
+    flex-flow: row wrap;
+    flex-direction: row;
+  width: 100%;
+    align-items: center;
+      justify-content: center;
+
+      > div {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        flex-grow: 1;
+      }
+}
 .rows {
     flex-direction: row;
 }
@@ -24,4 +39,7 @@
     flex-grow: 1;
     flex-shrink: 1;
     padding: var(--column-gap);
+}
+.column {
+    flex-direction: column;
 }
