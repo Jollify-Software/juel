@@ -17,7 +17,7 @@ export class JuelCodeHighlight extends JuelComponent {
      */
     constructor() {
         super();
-        this.theme = "feilpec";
+        this.theme = "felipec";
     }
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {

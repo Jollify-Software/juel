@@ -27,7 +27,8 @@ export class LeafletProvider implements IMapProvider {
             element.resolveReady(1);
         }
 
-        this.map = L.map(element).setView([51.505, -0.09], element.zoom);
+        this.map = L.map(element, { attributionControl: false }).setView([51.505, -0.09], element.zoom);
+        L.control.attribution({prefix: ''}).addTo(this.map);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
