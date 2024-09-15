@@ -1,13 +1,12 @@
 :host {
-  width: 100%;
+  position: relative;
+  width: var(--width, 100%);
+  height: var(--height);
 }
 #tabs {
     display: flex;
     flex-direction: row;
     overflow: visible;
-    border: 1px solid #ccc;
-    background-color: var(--light, #f1f1f1);
-    min-height: 80px;
   }
 
   #tabs-container {
@@ -31,45 +30,52 @@
   }
   .titles {
     display: inherit;
+    margin: 0;
   }
   /* Style the buttons that are used to open the tab content */
-  #tabs .title {
-    background-color: inherit;
-    border: none;
-    outline: none;
+  .titles > li {
+    position: relative;
+    list-style: none;
+    display: inline-block;
+    padding: 15px 15px 25px;
+    border: 1px solid transparent;
+    border-bottom: var(--border-bottom);
     cursor: pointer;
-    padding: 14px 16px;
-
-    div {
-      display: none;
+    font-weight: 600;
+    border-top-left-radius: 1.25rem;
+      border-top-right-radius: 1.25rem;
+    &:hover {
+      border-bottom: var(--hover-border-bottom, var(--active-border-bottom));
+      color: var(--hover-color, var(--active-color));
+      background: var(--hover-background, var(--active-background, #ddd));
     }
-  }
-  
-  /* Change background color of buttons on hover */
-  #tabs .title:hover {
-    background-color: var(--active, #ddd);
-  }
-  
-  /* Create an active/current tablink class */
-  #tabs .title.active {
-    background-color: var(--active, #ccc);
-  }
-  .item {
     &.active {
-      padding-left: 0px;
-      padding-right: 0px;
-      padding-bottom: 0px;
-      span {
-        padding-left: 16px;
-      }
-      div {
-        display: inline-block;
-      }
+      border-top: 1px solid #ccc;
+      border-left: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+      border-bottom: var(--active-border-bottom);
+      color: var(--active-color);
+      background: var(--active-background, #ccc);
     }
+}
+  .items {
+    padding-top: 1.25rem;
+    border-top: 1px solid #ccc;
+  }
+  
+  
+  ::slotted(juel-item) {
+    display: none;
+  }
+  ::slotted(juel-item.active) {
+    display: block;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-bottom: 0px;
   }
   /* Style the tab content */
   .item-content {
-    display: none;
+    
     flex: 1;
     padding: 6px 12px;
     background-color: var(--light);

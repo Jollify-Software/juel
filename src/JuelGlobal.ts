@@ -22,9 +22,18 @@ import { ReverseString } from "./_Utils/ReverseStringFunction";
     // TODO Loop around all icon-XX variables and append to hidden SVG
 })();
 $(function() {
-    let emails = document.querySelectorAll("[data-email]") as NodeListOf<HTMLElement>;
-    for (let a of emails) {
-        let address = a.classList.contains('reverse') ? ReverseString(a.dataset.email) : a.dataset.email;
-        a.setAttribute('href', `mailto:${address}`);
+    let elements = document.querySelectorAll(".reverse") as NodeListOf<HTMLElement>;
+    for (let a of elements) {
+        let text = ReverseString(a.textContent);
+        a.textContent = text;
+        if (a.hasAttribute("href")) {
+            let href = a.getAttribute("href");
+            if (href.startsWith("mailto")) {
+                let splity = href.split(':');
+                a.setAttribute('href', `mailto:${ReverseString(splity[1])}`);
+            } else {
+                a.setAttribute('href', ReverseString(href));
+            }
+        }
     }
 });

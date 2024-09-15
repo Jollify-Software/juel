@@ -15,8 +15,12 @@ export class JuelItem extends FilteredItemBase {
         this.title = "true";
     }
 
+    titleSlotChange(e) {
+
+    }
+
     protected render(): unknown {
-        return html`<span part="title" class="title"><slot name="title">${this.title}</slot></span>
+        return html`<span part="title" class="title"><slot @slotchange name="title">${this.title}</slot></span>
         <div part="content" class="content"><slot></slot></div>`;
     }
 }
