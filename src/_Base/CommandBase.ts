@@ -6,14 +6,14 @@ export class CommandBase extends LitElement {
     getParentComponent(): JuelComponent {
         if (this.parentElement) {
             if ('getParentComponent' in this.parentElement) {
-                return this.parentElement['getParentComponent']();
+                return (<any>this.parentElement)['getParentComponent']() as JuelComponent;
             } else {
                 return this.parentElement as JuelComponent;
             }
         }
     }
 
-    protected createRenderRoot(): Element | ShadowRoot {
+    protected createRenderRoot(): HTMLElement | DocumentFragment {
         return this;
     }
 }

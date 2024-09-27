@@ -1,26 +1,13 @@
-import { html, nothing, PropertyValueMap, unsafeCSS } from "lit";
+import { html, PropertyValueMap, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import style from 'bundle-text:./Accordion.less';
-import { ChildrenMap } from "../_Utils/ChildrenMap";
-import { NavigationBase } from "../_Base/NavigationBase";
-import { until } from "lit/directives/until";
-import { ChildrenItemsTemplate } from "../_Templates/ChildrenItemsTempate";
+import { JuelComponent } from "../_Base/JuelComponent";
+import { ListBase } from "../_Base/ListBase";
 
 @customElement("juel-accordion")
-export class JuelAccordion extends NavigationBase {
+export class JuelAccordion extends ListBase {
 
     static styles = unsafeCSS(style);
-
-    @property({ type: String }) size: string;
-    @property({ type: Boolean }) horizontal: boolean;
-    @property({ type: Boolean }) multiple: boolean;
-
-    constructor() {
-        super();
-        this.size = "500px";
-        this.horizontal = false;
-        this.multiple = false;
-    }
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
       super.firstUpdated(_changedProperties);
@@ -52,8 +39,8 @@ export class JuelAccordion extends NavigationBase {
     }
 
     render() {
-        return html`<div class="items ${this.horizontal == true ? "horizontal" : ""}">
-        <slot @slotchange=${this.slotChange} ></slot>        
+        return html`<div class="items">
+        <slot></slot>        
         </div>`;
     }
 

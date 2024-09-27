@@ -12,8 +12,8 @@ export class JuelChart extends JuelComponent {
 
     chartScriptLoaded: Promise<any>;
 
-    @property({ type: Number}) width: number;
-    @property({ type: Number}) height: number;
+    @property({ type: Number}) width: number = 400;
+    @property({ type: Number}) height: number = 400;
     @property() type: string;
     @property({ converter: ArrayConverter(',') }) labels: string[];
     @property({ type: Boolean}) responsive: boolean;
@@ -29,6 +29,7 @@ export class JuelChart extends JuelComponent {
     constructor() {
         super();
 
+        this.responsive = false;
         this.width = 400;
         this.height = 400;
         this.type = "bar";
@@ -73,28 +74,42 @@ export class JuelChart extends JuelComponent {
     async scriptElement() {
         let script = document.querySelector(`#${JuelChart.ChartScriptId}`) as HTMLScriptElement;
         if (!('Chart' in window)) {
+            console.log("Loading ChartJS")
             await import(JuelChart.ChartScriptUrl);
         }
     }
 
     renderChart() {
         this.chartScriptLoaded.then(() => {
+            try
+            {
+            console.log("Render chart")
             let ChartFunc = window['Chart'] as any;
         let config: any = {
             type: this.type,
             data: this.data,
             options: this.options
         };
+        console.log(config)
         if (!this.chart) {
         this.chart = new ChartFunc(this.g, config)
+        console.log(ChartFunc)
+        console.log("Chart created")
         } else {
+
             this.chart.data = this.data;
             this.chart.update();
+            console.log("Chart updated")
         }
+    }
+    catch (ex)
+    {
+        console.log(ex)
+    }
         });
     }
 
     render() {
-        return html`<canvas id="canvas" width="${this.width}" height="${this.height}""></canvas>`;
+        return html`<canvas id="canvas" width="${this.width}" height="${this.height}"></canvas>`;
     }
 }

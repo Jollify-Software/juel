@@ -36,7 +36,7 @@ export class JuelImagePreload extends LitElement {
         }
     }
 
-    protected createRenderRoot(): Element | ShadowRoot {
+    protected createRenderRoot(): HTMLElement | ShadowRoot {
         return this;
     }
 }

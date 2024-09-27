@@ -5,6 +5,7 @@
     flex-direction: column;
     position: absolute;
     left: 50%;
+    top: 50%;
     width: fit-content;
     z-index: 101;
     overflow: hidden;
@@ -19,7 +20,7 @@
     }
 
     &.initial {
-        transform: translateX(-50%);
+        transform: translateX(-50%) translateY(-50%);
     }
 }
 

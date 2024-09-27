@@ -34,6 +34,8 @@ export class JuelDialog extends ItemBase {
 //    dialog: Dialog;
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        this.ondragstart = e => e.preventDefault();
+
         if ('addItem' in this.parentElement) {
             let parent = this.parentElement as JuelDialogManager;
             parent.addItem(this);
@@ -90,7 +92,7 @@ export class JuelDialog extends ItemBase {
             "shown": this.shown,
             "initial": this.initial
         };
-        return html`<div part="dialog" class="${classMap(klass)}"  ${ref(this.dialog)}>
+        return html`<div part="dialog" class="${classMap(klass)}" ondragstart="event.preventDefault()" ${ref(this.dialog)}>
                         <div part="dialog-title" class="titlebar">
                             <slot name="title"><span>${this.title}</span></slot>
                             <div class="close" @click="${this.close}"></div>

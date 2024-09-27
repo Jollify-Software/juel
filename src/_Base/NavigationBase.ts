@@ -1,6 +1,3 @@
-import { property } from "lit/decorators";
-import { JuelComponent } from "./JuelComponent";
-import { JuelContainerComponent } from "./JuelContainerComponent";
 import { ListBase } from "./ListBase";
 
 export class NavigationBase extends ListBase {

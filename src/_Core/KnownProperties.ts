@@ -8,13 +8,13 @@ export enum KnownProperties {
 
 export function GetDisplayKnownProperty(obj: object): string {
     if (KnownProperties.description in obj) {
-        return obj[KnownProperties.description];
+        return obj[KnownProperties.description] as string;
     } else if (KnownProperties.name in obj) {
-        return obj[KnownProperties.name];
+        return obj[KnownProperties.name] as string;
     } else if (KnownProperties.text in obj) {
-        return obj[KnownProperties.text];
+        return obj[KnownProperties.text] as string;
     } else if (KnownProperties.label in obj) {
-        return obj[KnownProperties.label];
+        return obj[KnownProperties.label] as string;
     }
     return "";
 }
