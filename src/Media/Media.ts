@@ -15,6 +15,13 @@ export class JuelMedia extends JuelComponent {
     @property({ type: Boolean })
     background: boolean;
 
+    protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        if (this.src) {
+            let img = new Image();
+            img.src = img.src;
+        }
+    }
+
     protected render(): unknown {
         let classes = { background: this.background};
         return html`<div id="container" class="${classMap(classes)}">
