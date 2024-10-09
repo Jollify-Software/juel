@@ -29,6 +29,7 @@ import './src/DraggableContainer/DraggableContainer';
 import './src/Preload/Preload';
 import './src/ImageMap/ImageMap';
 import './src/ImageMap/Area';
+import './src/Shape/Shape';
 
 import './src/Grid/Grid';
 import './src/Item/Item';
