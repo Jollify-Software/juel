@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <script src="../../dist/juel.js"></script>
+    </head>
+    <body>
+        <juel-trigger selector="button" event="click">
+            <juel-trigger-action selector="#animate-square" action="play"></juel-trigger-action>
+        </juel-trigger>
+        <juel-trigger selector="#animate-square" event="animation-end">
+            <juel-trigger-action selector="#animate-square2" action="play"></juel-trigger-action>
+        </juel-trigger>
+        <juel-trigger selector="#animate-square2" event="animation-end">
+            <juel-trigger-action selector="#animate-square" action="play"></juel-trigger-action>
+        </juel-trigger>
+
+        <juel-animate id="animate-square" selector="#square">
+            <juel-animate-frame duration="1s" properties="translateX: -=300px;translateY: +=0"></juel-animate-frame>
+            <juel-animate-frame duration="1s" properties="translateX: +=300px;translateY: 0"></juel-animate-frame>
+        </juel-animate>
+        <juel-animate id="animate-square2" selector="#square2">
+            <juel-animate-frame duration="1s" properties="translateX: +=300px;translateY: +=0"></juel-animate-frame>
+            <juel-animate-frame duration="1s" properties="translateX: -=300px;translateY: 0"></juel-animate-frame>
+        </juel-animate>
+
+        <button>Animate</button>
+        <div style="width:100%;display:flex;justify-content: center;border:5px solid black">
+            <div id="square" style="width:100px;height:100px;background:red;"></div>
+            <div id="square2" style="width:100px;height:100px;background:blue;"></div>
+        </div>
+    </body>
+</html>
