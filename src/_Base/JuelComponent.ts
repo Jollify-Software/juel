@@ -17,11 +17,8 @@ export class JuelComponent extends LitElement {
         if (this.parentElement && 'childFirstUpdated' in this.parentElement) {
             (<JuelComponent>this.parentElement).childFirstUpdated(this);
         }
-        setTimeout(() => {
-            this.requestUpdate();
-            setTimeout(() => {
-                this.firstLoad();
-            });
+        $.when($.ready).then(() => {
+            this.firstLoad();
         });
         super.firstUpdated(_changedProperties);
     }
@@ -54,10 +51,8 @@ export class JuelComponent extends LitElement {
         if (this.parentElement && 'childUpdated' in this.parentElement) {
             (<JuelComponent>this.parentElement).childUpdated(this);
         }
-        setTimeout(() => {
-            setTimeout(() => {
-                this.load(_changedProperties);
-            });
+        $.when($.ready).then(() => {
+            this.load(_changedProperties);
         });
         this.loaded = true;
         super.updated(_changedProperties);
@@ -72,7 +67,16 @@ export class JuelComponent extends LitElement {
     }
 
     getChildren() {
-        return Array.prototype.slice.call(this.children) as HTMLElement[];
+        return Array.from(this.children) as HTMLElement[];
+    }
+
+    /**
+     * All event names begin with 'on', so this function lists all the Object.Keys that start with 'on'
+     */
+    listEventNames() {
+        let names = Object.keys(this)
+            .filter(key => key.startsWith("on") && typeof this[key] == 'function');
+        return names;
     }
 
     get(property) {

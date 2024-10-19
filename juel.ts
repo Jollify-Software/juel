@@ -43,6 +43,8 @@ import './src/Map/MapJson';
 import './src/DialogManager/DialogManager';
 import './src/DialogManager/Dialog';
 
+import './src/Countdown/Countdown';
+
 import './src/Toolbar/Toolbar';
 import './src/Toolbar/ToolbarItem';
 

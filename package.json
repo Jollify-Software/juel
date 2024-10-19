@@ -33,6 +33,7 @@
         "@swc/helpers": "^0.4.12",
         "@types/toastr": "^2.1.38",
         "bind-decorator": "^1.0.11",
+        "date-fns": "^4.1.0",
         "hammerjs": "^2.0.8",
         "highlight.js": "^11.10.0",
         "jquery": "^3.5.1",
