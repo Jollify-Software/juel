@@ -44,6 +44,8 @@ import './src/DialogManager/DialogManager';
 import './src/DialogManager/Dialog';
 
 import './src/Countdown/Countdown';
+import './src/Animate/Animate';
+import './src/Animate/AnimateFrame';
 
 import './src/Toolbar/Toolbar';
 import './src/Toolbar/ToolbarItem';
