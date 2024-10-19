@@ -15,7 +15,6 @@ export class JuelAnimateFrame extends CommandBase {
     @property() easing: string;
     
     protected updated(_changedProperties: PropertyValues): void {
-        console.log(this.properties)
         if (this.properties) {
             let frame: AnimationFrame = {
                 properties: {}

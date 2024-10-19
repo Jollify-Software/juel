@@ -46,7 +46,6 @@ export class JuelAnimate extends CommandComponent {
             args.easing = this.easing;
         }
         if (this.frames) {
-            //args = Object.assign({}, args, this.frames);
             args.keyframes = this.frames.map(f => {
                 let obj = Object.assign({}, f.properties);
                 if (f.delay) obj.delay = f.delay;
@@ -55,7 +54,6 @@ export class JuelAnimate extends CommandComponent {
                 return obj;
             });
         }
-        console.log(args);
         this.compiledAnimation = anime(args);
 
         this.compiledAnimation.complete = this.onFinished;
