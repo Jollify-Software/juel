@@ -3,11 +3,11 @@
         <script src="../../dist/juel.js"></script>
     </head>
     <body>
-        <juel-animate id="animate-square" selector="#square">
-            <juel-animate-frame duration="1s" properties="translateX: +=300px;translateY: +=0"></juel-animate-frame>
-            <juel-animate-frame duration="1s" properties="translateX: +=0;translateY: +=300px"></juel-animate-frame>
-            <juel-animate-frame duration="1s" properties="translateX: -=300px;translateY: +=0"></juel-animate-frame>
-            <juel-animate-frame duration="1s" properties="translateX: +=0;translateY: -=300px"></juel-animate-frame>
+        <juel-animate id="animate-square" selector="#square" loop="true">
+            <juel-animate-frame properties="translateX: +=300px;translateY: +=0"></juel-animate-frame>
+            <juel-animate-frame properties="translateX: +=0;translateY: +=300px"></juel-animate-frame>
+            <juel-animate-frame properties="translateX: -=300px;translateY: +=0"></juel-animate-frame>
+            <juel-animate-frame properties="translateX: +=0;translateY: -=300px"></juel-animate-frame>
         </juel-animate>
 
         <button onclick="go()">Animate</button>

@@ -13,6 +13,14 @@ export class JuelAnimateFrame extends CommandBase {
     @property({ converter: MillisecondConverter(1000), type: Number }) duration: number;
     @property({ converter: MillisecondConverter(undefined), type: Number }) delay: number;
     @property() easing: string;
+
+    /**
+     *
+     */
+    constructor() {
+        super();
+        this.duration = 1000;
+    }
     
     protected updated(_changedProperties: PropertyValues): void {
         if (this.properties) {

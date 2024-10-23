@@ -1,7 +1,7 @@
 export function DOMStringMapConverter(value: string) {
-    let toReturn = value.split(';')
+    let toReturn = value.trim().split(';')
         .map(str => {
-            let ray = str.split(':');
+            let ray = str.trim().split(':');
             let name = ray[0];
             let val = ray[1].trim();
             let obj = {};

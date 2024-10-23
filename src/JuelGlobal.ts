@@ -6,6 +6,7 @@ import Styles from "bundle-text:./_CommonStyles/juel.less";
 import { IsMobile } from './_Utils/IsMobile';
 import { Vh } from './_Utils/Vh';
 import { ReverseString } from "./_Utils/ReverseStringFunction";
+import { TransitionModule } from "./_Modules/TransistionModule";
 
 (<any>window).juel = JuelModule;
 (<any>window).$ = $;
@@ -36,4 +37,6 @@ $(function() {
             }
         }
     }
+
+    TransitionModule.initTransitions();
 });
