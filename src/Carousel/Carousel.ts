@@ -24,6 +24,7 @@ export class JuelCarousel extends NavigationBase {
         this.controls = "true";
         this.titleAttrName = "caption";
         this.titleIsNext = false;
+        this.itemsClickEvent = false;
     }
 
     navigateTo(index: number) {
@@ -86,7 +87,7 @@ export class JuelCarousel extends NavigationBase {
     prev(e) {
         this.isForward = false;
         if (this.position == 0) {
-            this.position = this.itemsCount - 1;
+            this.position = this.items.length - 1;
         } else {
             this.position--;
         }
@@ -98,7 +99,7 @@ export class JuelCarousel extends NavigationBase {
         if (e && this.intervalHandler) {
             clearInterval(this.intervalHandler);
         }
-        if (this.position == this.itemsCount - 1) {
+        if (this.position == this.items.length - 1) {
             this.position = 0;
         } else {
             this.position++;
@@ -116,7 +117,7 @@ export class JuelCarousel extends NavigationBase {
     render() {
         let hasCtrls: boolean = this.controls.includes("true");
         return html`${when(hasCtrls, () => html`<div id="previous" @click="${this.prev}"><span></span></div>`)}
-        <div class="items container"><slot @slotchange="${(e) => this.itemsForSlot(e)}"></slot></div>
+        <div class="items"><slot></slot></div>
         ${when(hasCtrls, () => html`<div id="next" @click="${this.next}"><span></span></div>`)}`;
     }
 }

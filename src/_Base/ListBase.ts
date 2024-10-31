@@ -18,6 +18,7 @@ export class ListBase extends JuelDataComponent {
     @state()
     protected placeholderIndex: number;
     selectedIndexes: number[];
+    itemsClickEvent: boolean;
     selectedData: any[];
 
     IdPrefix = "item";
@@ -30,6 +31,7 @@ export class ListBase extends JuelDataComponent {
         this.placeholderIndex = null;
         this.selectedIndexes = [];
         this.selectedData = [];
+        this.itemsClickEvent = true;
     }
 
     addItem(item: ItemBase) {
@@ -40,11 +42,13 @@ export class ListBase extends JuelDataComponent {
                 item.id = `${this.IdPrefix}-${index}`;
             }
             item.setAttribute("data-index", index.toString());
-            if (item.title) {
-                let title = item.shadowRoot.querySelector(".title") as HTMLElement;
-                if (title) title.onclick = () => this.selectItem(index);
-            } else {
-                item.onclick = () => this.selectItem(index);
+            if (this.itemsClickEvent) {
+                if (item.title) {
+                    let title = item.shadowRoot.querySelector(".title") as HTMLElement;
+                    if (title) title.onclick = () => this.selectItem(index);
+                } else {
+                    item.onclick = () => this.selectItem(index);
+                }
             }
         }
     }
@@ -75,7 +79,7 @@ export class ListBase extends JuelDataComponent {
                     let slotted = this.getSlottedItem(el);
                     if (slotted) {
                         return slotted.textContent;
-                    }   
+                    }
                 }
             }
         }

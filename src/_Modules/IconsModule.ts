@@ -8,12 +8,12 @@ export module IconsModule {
             if (splitty.length > 1) {
                 let decoded = (<any>decodeURIComponent(splitty[1]))
                     .replaceAll('\\', '');
-                return $(decoded)[0];
+                return decoded;
             }
         }
         return '';
     }
     export var use = (name: string) => {
-        return $(`<svg><use href="#icon-${name}"></svg>`)[0];
+        return `<svg><use href="#icon-${name}"></svg>`;
     }
 }

@@ -42,9 +42,6 @@ export class JuelDataComponent extends JuelContainerComponent {
                 var children = [...this.children].filter(el => el.nodeName != 'TEMPLATE');
                 if (children.length == 0) {
                     let slot = this.shadowRoot.querySelector("slot");
-                    if (slot) {
-                        slot.style.display = "none";
-                    }
                 }
                 if (template && !this.itemTemplate) {
                     this.itemTemplate = (value) => {

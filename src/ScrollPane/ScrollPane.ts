@@ -49,7 +49,7 @@ export class JuelScrollPane extends NavigationBase {
         this.controls = false;
 
         if (!('Hammer' in window)) {
-            window['Hammer'] = Hammer;
+            (<any>window['Hammer']) = Hammer;
         }
     }
 

@@ -14,12 +14,12 @@
 <body>
 
     <juel-tabs>
-        <div data-title="Result">
+        <juel-item title="Result">
             <juel-button label="Hello"></juel-button>
             <juel-button><b slot="content">Hello</b></juel-button>
             <juel-button><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-button>
-        </div>
-        <div data-title="HTML">
+        </juel-item>
+        <juel-item title="HTML">
             <juel-embed type="markdown">
 ```HTML
 <juel-button label="Hello"></juel-button>
@@ -27,11 +27,11 @@
 <juel-button><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-button>
 ```
             </juel-embed>
-        </div>
+        </juel-item>
     </juel-tabs>
 
     <juel-accordion>
-        <div data-title="Types">
+        <juel-item title="Types">
             <juel-button type="primary" label="Primary"></juel-button>
             <juel-button type="Secondary" label="Secondary"></juel-button>
             <juel-button type="tertiary" label="Tertiary"></juel-button>
@@ -41,14 +41,14 @@
             <juel-button type="Warning" label="Warning"></juel-button>
             <juel-button type="light" label="Light"></juel-button>
             <juel-button type="dark" label="Dark"></juel-button>
-        </div>
+        </juel-item>
 
-        <div data-title="Render styles">
+        <juel-item title="Render styles">
             <juel-button render-style="default" label="Default"></juel-button>
             <juel-button render-style="outline" label="Outline"></juel-button>
-        </div>
+        </juel-item>
 
-        <div data-title="Groups">
+        <juel-item title="Groups">
             <juel-button label="Left">
                 <juel-button slot="append" label="Middle"></juel-button>
                 <juel-button slot="append" label="Right"></juel-button>
@@ -87,7 +87,7 @@
                     <img slot="checked" src="../_Assets/stop.png" />
                 </juel-toggle>
             </juel-button>
-        </div>
+        </juel-item>
     </juel-accordion>
 
     <script>

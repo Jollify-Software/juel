@@ -59,6 +59,7 @@ export class JuelContainerComponent extends JuelComponent {
     }
 
     protected ready() {
+        this.selectItem(0);
     }
 
     itemsCreated() {
