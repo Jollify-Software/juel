@@ -1,10 +1,10 @@
 import { customElement, property } from "lit/decorators";
-import { InputBase } from "../_Base/InputBase";
-import { Dispatch } from "../_Core/DispatchFunction";
-import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
-import { EventNames } from "../_Core/Events/EventNames";
-import { InputGroupTemplate } from "../_Templates/InputGroupTemplate";
-import { InputTypes } from "../_Templates/InputTypes";
+import { InputBase } from "../../_Base/InputBase";
+import { Dispatch } from "../../_Core/DispatchFunction";
+import { ChangedEventArgs } from "../../_Core/Events/ChangedEventArgs";
+import { EventNames } from "../../_Core/Events/EventNames";
+import { InputGroupTemplate } from "../../_Templates/InputGroupTemplate";
+import { InputTypes } from "../../_Templates/InputTypes";
 import Styles from "bundle-text:./Memo.less";
 import { unsafeCSS } from "lit";
 

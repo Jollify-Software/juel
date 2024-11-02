@@ -1,5 +1,7 @@
 import './src/JuelGlobal';
 
+import "./src/Input/inputs";
+
 import './src/Accordion/Accordion';
 import './src/Card/Card';
 import './src/Carousel/Carousel';
@@ -15,9 +17,7 @@ import './src/Menu/Menu';
 import './src/Modal/Modal';
 import './src/Toggle/Toggle';
 import './src/Button/Button';
-import './src/Memo/Memo';
 import './src/Range/Range';
-import './src/Tickbox/Tickbox';
 import './src/Progress/Progress';
 import './src/Embed/Embed';
 import './src/Random/Random';
