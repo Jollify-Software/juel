@@ -1,5 +1,6 @@
 import { AudioModule } from "./AudioModule";
 import { IconsModule } from "./IconsModule";
+import { MessageBoxModule } from "./MessageBox/MessageBoxModule";
 
 export module JuelModule {
     export const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -8,4 +9,5 @@ export module JuelModule {
 
     export var audio = AudioModule;
     export var icon = IconsModule;
+    export var messageBox = MessageBoxModule
 }

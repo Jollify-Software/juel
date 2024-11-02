@@ -1,0 +1,86 @@
+<html>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Icons</h1>
+        <button id="asterisk">Asterisk</button><button id="error">Error</button><button id="ex">Exclamation</button><button id="hand">Hand</button><button id="info">Information</button><button id="question">Question</button><button id="stop">Stop</button><button id="success">Success</button><button id="warning">Warning</button>
+        <h1>Prompt</h1>
+        <button id="text">Text</button><button id="markdown">Markdown</button>
+    </div>
+
+    <script>
+        document.getElementById("asterisk").addEventListener("click", () => {
+            juel.messageBox.show({
+                title: "Hello there",
+                text: "This is an asterisk",
+                icon: 0
+            });
+        });
+        document.getElementById("error").addEventListener("click", () => {
+            juel.messageBox.error("This is an error");
+        });
+        document.getElementById("ex").addEventListener("click", () => {
+            juel.messageBox.show({
+                title: "Hello there",
+                text: "This is an exclamation",
+                icon: 2
+            });
+        });
+        document.getElementById("hand").addEventListener("click", () => {
+            juel.messageBox.show({
+                title: "Hello there",
+                text: "This is a hand",
+                icon: 3
+            });
+        });
+        document.getElementById("info").addEventListener("click", () => {
+            juel.messageBox.show({
+                title: "Hello there",
+                text: "This is information",
+                icon: 4
+            });
+        });
+        document.getElementById("question").addEventListener("click", () => {
+            juel.messageBox.question("This is an question");
+        });
+        document.getElementById("stop").addEventListener("click", () => {
+            juel.messageBox.show({
+                title: "Hello there",
+                text: "This is stop",
+                icon: 6
+            });
+        });
+        document.getElementById("success").addEventListener("click", () => {
+            juel.messageBox.success("This is success");
+        });
+        document.getElementById("warning").addEventListener("click", () => {
+            juel.messageBox.warning("This is a warning");
+        });
+
+        document.getElementById("text").addEventListener("click", () => {
+            juel.messageBox.show({
+                title: "What is your name?",
+                text: "Please enter your name.",
+                prompt: "text",
+                icon: 5
+            });
+        });
+        document.getElementById("markdown").addEventListener("click", () => {
+            juel.messageBox.show({
+                title: "Hello there",
+                prompt: "markdown",
+                value: `# Prompt for some Markdown  
+😉`,
+                attr: {
+                    "font-awesome": ""
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
