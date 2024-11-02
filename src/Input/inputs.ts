@@ -1,3 +1,3 @@
-import "./Memo/Memo";
+//import "./Memo/Memo";
 import "./Text/Text";
-import "./Tickbox/Tickbox";
+//import "./Tickbox/Tickbox";

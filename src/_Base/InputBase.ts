@@ -15,6 +15,10 @@ import { TextTemplate } from '../_Templates/TextTemplate';
 import { JuelText } from '../Input/Text/Text';
 import { JuelButton } from '../Button/Button';
 import Styles from "../_CommonStyles/InputGroup.less";
+//import { Direction } from '../_Core/Direction';
+import { classMap } from 'lit/directives/class-map';
+import { ifDefined } from 'lit/directives/if-defined';
+//import { JuelLayout } from '../Layout/Layout';
 
 export class InputBase extends JuelComponent {
     static InputElementNames: string = "juel-text, juel-memo, juel-range, juel-tickbox, juel-radio";
@@ -28,6 +32,7 @@ export class InputBase extends JuelComponent {
     @property() label: string;
     @property() name: string;
     @property({ type: Boolean }) active: boolean;
+    @property({ attribute: "label-position" }) labelPosition: string;
 
     inputType: InputTypes;
 
@@ -123,14 +128,34 @@ export class InputBase extends JuelComponent {
     //#endregion
 
     protected render(): unknown {
-        return html`<div part="input-group" class="input-group">
-            <slot name="prepend"></slot>
+        let klass = {
+            "input-group": true
+        }
+        
+        if (this.labelPosition) {
+            if (this.labelPosition == 'vertical') {
+                klass["labels-vertical"] = true;
+            } else if (this.labelPosition == 'horizontal') {
+                klass["labels-horizontal"] = true;
+            }
+        } else if ('labelPosition' in this.parentElement) {
+            let layout = this.parentElement as any;
+            if (layout.labelPosition == 'vertical') {
+                klass["labels-vertical"] = true;
+            } else if (layout.labelPosition == 'horizontal') {
+                klass["labels-horizontal"] = true;
+            }
+        }
+
+        return html`<div part="input-group" class="${classMap(klass)}">
+            <label name="${ifDefined(this.name)}" part="label" for="text"><slot name="content">${this.label}</slot></label>
+            <div><slot name="prepend"></slot>
             ${choose(this.inputType, [
                 [ InputTypes.Button, () => ButtonTemplate(this as unknown as JuelButton, "") ],
                 [ InputTypes.Text, () => TextTemplate(this as unknown as JuelText, "") ]
             ])}
             <slot @slotchange="${this.dropdownSlotChange}" name="dropdown" style="display: none"></slot>
-            <slot name="append"></slot>
+            <slot name="append"></slot></div>
         </div>`;
     }
 }

@@ -13,11 +13,22 @@ input.text {
 .input-group {
     display: inline-flex;
     flex-direction: var(--direction, row);
+    flex-wrap: wrap;
     padding: .375rem;
     margin: var(--margin);
     border-radius: .25rem;
     background-color: #e9ecef;
     border: 1px solid #ced4da;
+
+    div {
+        display: inline-flex;
+    }
+
+    &.labels-vertical {
+        label {
+            flex-basis: 100%;
+        }
+    }
 }
 
 .rounded {

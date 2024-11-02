@@ -2,8 +2,13 @@
     <script src="../../../dist/juel.js"></script>
     <body>
         <form>
-            <juel-text label="Name"></juel-text>
+            <juel-layout label-position="vertical">
+            <juel-text label="Name" value="Name">
+                <span slot="prepend">My</span>
+                <span slot="append">Is</span>
+            </juel-text>
             <juel-text label="Message"></juel-text>
+        </juel-layout>
             <juel-button label="Submit" submit="true"></juel-button>
         </form>
         <script>

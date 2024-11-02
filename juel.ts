@@ -1,6 +1,7 @@
 import './src/JuelGlobal';
 
 import "./src/Input/inputs";
+import "./src/Layout/ImportLayouts"
 
 import './src/Accordion/Accordion';
 import './src/Card/Card';
