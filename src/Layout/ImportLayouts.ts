@@ -1,1 +1,1 @@
-import "./Layout.ts"
+import "~/src/Layout/Layout";

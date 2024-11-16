@@ -1,11 +1,9 @@
-import '../jquery-tabbable';
 import { createPopper, Instance } from "@popperjs/core";
 import { property } from "lit/decorators";
 import { RippleInitialiser } from "../_Utils/RippleModule";
 import { JuelComponent } from "./JuelComponent";
 import { createRef } from 'lit/directives/ref'
-import { CSSResultGroup, html, PropertyValueMap, unsafeCSS } from "lit";
-import bind from "bind-decorator";
+import { CSSResultGroup, html, unsafeCSS } from "lit";
 import { RenderStyles } from '../_Core/RenderStyles';
 import { AlertTypes } from '../_Core/AlertTypes';
 import { InputTypes } from '../_Templates/InputTypes';
@@ -15,10 +13,7 @@ import { TextTemplate } from '../_Templates/TextTemplate';
 import { JuelText } from '../Input/Text/Text';
 import { JuelButton } from '../Button/Button';
 import Styles from "../_CommonStyles/InputGroup.less";
-//import { Direction } from '../_Core/Direction';
-import { classMap } from 'lit/directives/class-map';
-import { ifDefined } from 'lit/directives/if-defined';
-//import { JuelLayout } from '../Layout/Layout';
+import { bind } from "../_Utils/Bind";
 
 export class InputBase extends JuelComponent {
     static InputElementNames: string = "juel-text, juel-memo, juel-range, juel-tickbox, juel-radio";
@@ -130,8 +125,8 @@ export class InputBase extends JuelComponent {
     protected render(): unknown {
         let klass = {
             "input-group": true
-        }
-        
+        };
+        /*
         if (this.labelPosition) {
             if (this.labelPosition == 'vertical') {
                 klass["labels-vertical"] = true;
@@ -146,9 +141,9 @@ export class InputBase extends JuelComponent {
                 klass["labels-horizontal"] = true;
             }
         }
-
-        return html`<div part="input-group" class="${classMap(klass)}">
-            <label name="${ifDefined(this.name)}" part="label" for="text"><slot name="content">${this.label}</slot></label>
+*/
+        return html`<div part="input-group">
+            <label part="label" for="text"><slot name="content">${this.label}</slot></label>
             <div><slot name="prepend"></slot>
             ${choose(this.inputType, [
                 [ InputTypes.Button, () => ButtonTemplate(this as unknown as JuelButton, "") ],

@@ -1,0 +1,63 @@
+@import "../../_CommonStyles/DropDown.less";
+
+/* The container must be positioned relative: */
+:host {
+    position: relative;
+    font-family: Arial;
+    display: inline-block;
+  }
+  
+  select {
+    visibility: hidden; /*hide original SELECT element: */
+  }
+
+  .select-selected {
+    width: var(--width, 200px);
+    min-height: var(--height, 1.5em);
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .selected {
+    background-color: DodgerBlue;
+  }
+  
+  /* Style the arrow inside the select element: */
+  .selected:after {
+    position: absolute;
+    content: "";
+    top: 14px;
+    right: 10px;
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+    border-color: #fff transparent transparent transparent;
+  }
+  
+  /* Point the arrow upwards when the select box is open (active): */
+  .select-selected.select-arrow-active:after {
+    border-color: transparent transparent #fff transparent;
+    top: 7px;
+  }
+  
+  /* Style items (options): */
+  .items {
+    position: absolute;
+    visibility: hidden;
+    background-color: DodgerBlue;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 99;
+
+    &.open {
+      visibility: visible;
+    }
+  }
+  
+  /* Hide the items when the select box is closed: */
+  .select-hide {
+    display: none;
+  }
+  

@@ -7,6 +7,7 @@ import { IsMobile } from './_Utils/IsMobile';
 import { Vh } from './_Utils/Vh';
 import { ReverseString } from "./_Utils/ReverseStringFunction";
 import { TransitionModule } from "./_Modules/TransistionModule";
+import { WindowModule } from "./_Modules/WindowModule";
 
 (<any>window).juel = JuelModule;
 (<any>window).$ = $;
@@ -38,5 +39,6 @@ $(function() {
         }
     }
 
+    WindowModule.documentClick();
     TransitionModule.initTransitions();
 });

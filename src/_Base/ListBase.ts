@@ -17,6 +17,7 @@ export class ListBase extends JuelDataComponent {
 
     @state()
     protected placeholderIndex: number;
+    
     selectedIndexes: number[];
     itemsClickEvent: boolean;
     selectedData: any[];
@@ -156,24 +157,19 @@ export class ListBase extends JuelDataComponent {
                 this.selectedData = [];
             }
             if ($el.hasClass(ListBase.selectedClass)) {
-                $el.removeClass(ListBase.selectedClass);
-                let slotted = this.getSlottedItem(el as HTMLElement);
-                if (slotted) {
-                    $(slotted).find(`.${ListBase.appearClass}`).hide("slow");
-                }
-                this.selectedIndexes = this.selectedIndexes.filter(i => i != index);
-                if (value) {
-                    this.selectedData = this.selectedData.filter(val => val != value);
-                }
                 this.onItemDeselected(index, el as HTMLElement);
-                let args: ChangedEventArgs = {
-                    index: index,
-                    value: value ? value : slotted ? slotted.textContent : el.textContent
-                };
-                Dispatch(this, EventNames.Deselected, args);
             }
             else {
-                $el.addClass(ListBase.selectedClass);
+                this.onItemSelected(index, el as HTMLElement);
+            }
+            //this.requestUpdate();
+        }
+    }
+
+    onItemSelected(index: number, el: HTMLElement) {
+        let $el = $(el);
+            let value = $el.data(ListBase.ValueKey);
+        $el.addClass(ListBase.selectedClass);
                 let slotted = this.getSlottedItem(el as HTMLElement);
                 if (slotted) {
                     $(slotted).find(`.${ListBase.appearClass}`).show("slow");
@@ -182,23 +178,30 @@ export class ListBase extends JuelDataComponent {
                 if (value) {
                     this.selectedData.push(value);
                 }
-                this.onItemSelected(index, el as HTMLElement);
-                let args: ChangedEventArgs = {
-                    index: index,
-                    value: value ? value : slotted ? slotted.textContent : el.textContent
-                };
-                Dispatch(this, EventNames.Selected, args);
-            }
-            //this.requestUpdate();
-        }
-    }
-
-    onItemSelected(index: number, el: HTMLElement) {
-
+        let args: ChangedEventArgs = {
+            index: index,
+            value: value ? value : slotted ? slotted.textContent : el.textContent
+        };
+        Dispatch(this, EventNames.Selected, args);
     }
 
     onItemDeselected(index: number, el: HTMLElement) {
-
+        let $el = $(el);
+            let value = $el.data(ListBase.ValueKey);
+        $el.removeClass(ListBase.selectedClass);
+                let slotted = this.getSlottedItem(el as HTMLElement);
+                if (slotted) {
+                    $(slotted).find(`.${ListBase.appearClass}`).hide("slow");
+                }
+                this.selectedIndexes = this.selectedIndexes.filter(i => i != index);
+                if (value) {
+                    this.selectedData = this.selectedData.filter(val => val != value);
+                }
+        let args: ChangedEventArgs = {
+            index: index,
+            value: value ? value : slotted ? slotted.textContent : el.textContent
+        };
+        Dispatch(this, EventNames.Deselected, args);
     }
 
     slotChange(e: Event) {

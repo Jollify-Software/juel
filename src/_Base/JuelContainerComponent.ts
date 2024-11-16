@@ -1,6 +1,6 @@
 import bind from "bind-decorator";
 import { PropertyValueMap } from "lit";
-import { property } from "lit/decorators";
+import { property, state } from "lit/decorators";
 import { JuelComponent } from "./JuelComponent";
 
 export class JuelContainerComponent extends JuelComponent {
@@ -8,7 +8,7 @@ export class JuelContainerComponent extends JuelComponent {
     @property({ type: Number }) position;
     @property() selectable: string;
 
-    selectedIndex: number;
+    @state() selectedIndex: number;
 
     itemsCount: number;
     itemsDraggable: boolean;

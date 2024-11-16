@@ -1,9 +1,8 @@
-import { html, LitElement, unsafeCSS } from "lit";
+import { unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
-import { createPopper, Instance } from '@popperjs/core';
+import { Instance } from '@popperjs/core';
 import Styles from 'bundle-text:./text.less';
 import { InputBase } from "../../_Base/InputBase";
-import { InputGroupTemplate } from "../../_Templates/InputGroupTemplate";
 import { InputTypes } from "../../_Templates/InputTypes";
 import { ChangedEventArgs } from "../../_Core/Events/ChangedEventArgs";
 import { Dispatch } from "../../_Core/DispatchFunction";

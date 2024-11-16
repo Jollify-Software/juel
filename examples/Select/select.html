@@ -6,43 +6,31 @@
 
 <body>
     <juel-select>
-        <li>One</li>
-        <li>Two</li>
-        <li>Three</li>
+            <juel-item value="0">Select car:</juel-item>
+            <juel-item value="1">Audi</juel-item>
+            <juel-item value="2">BMW</juel-item>
+            <juel-item value="3">Citroen</juel-item>
+            <juel-item value="4">Ford</juel-item>
+            <juel-item value="5">Honda</juel-item>
+            <juel-item value="6">Jaguar</juel-item>
+            <juel-item value="7">Land Rover</juel-item>
+            <juel-item value="8">Mercedes</juel-item>
+            <juel-item value="9">Mini</juel-item>
+            <juel-item value="10">Nissan</juel-item>
+            <juel-item value="11">Toyota</juel-item>
+            <juel-item value="12">Volvo</juel-item>
     </juel-select>
 
+    <juel-template>
+        Selected: ${this.car}
+    </juel-template>
 
-        <juel-select multiselect="true" input="true">
-            <h3>Sea Animals</h3>
-            <div>
-                <span class="caption">Dolphin</span> 🐬
-            </div>
-            <div>
-                <span class="caption">Whale</span> 🐋
-            </div>
-            <div>
-                <span class="caption">Squid</span> 🦑
-            </div>
-            <div>
-                <span class="caption">Snail</span> 🐌
-            </div>
-            <h3>Reptiles</h3>
-            <div>
-                <span class="caption">Crocodile</span> 🐊
-            </div>
-            <div>
-                <span class="caption">Sauropod</span> 🦕
-            </div>
-            <div>
-                <span class="caption">T-Rex</span> 🦖
-            </div>
-        </juel-select>
-
-    <juel-select data='[ "One", "Two", "Three"]'>
-        <template>
-            ${this}
-        </template>
-    </juel-select>
+    <script>
+        var select = document.getElementsByName("juel-select");
+        select.addListener("selected", (e) => {
+            console.log(e);
+        })
+    </script>
 </body>
 
 </html>
