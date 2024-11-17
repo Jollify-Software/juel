@@ -5,11 +5,9 @@
     "targets": {
         "default": {
             "distDir": "./dist",
-            "sourceMap": false,
             "context": "browser"
         }
     },
-    "browserslist": "> 0.5%, last 2 versions, not dead",
     "scripts": {
         "dev": "parcel build juel.ts --no-optimize --no-scope-hoist && npx copyfiles dist/*.* examples -f",
         "build": "del .parcel-cache && parcel build juel.ts",
