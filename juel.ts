@@ -8,6 +8,8 @@ import './src/JuelGlobal';
 //import "./src/List/List"
 //import "./src/Select/Select";
 import './src/Navigation/ImportNavigation';
+
+import './src/Utilities/ImportUtilities';
 /*
 import './src/Accordion/Accordion';
 import './src/Card/Card';
