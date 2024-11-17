@@ -1,0 +1,76 @@
+:host {
+    display: block;
+    font-family: Arial, sans-serif;
+    --nav-height: 50px;
+  }
+
+  nav {
+    background-color: var(--background, var(--primary));
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    position: relative;
+    height: var(--nav-height);
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  ::slotted(juel-item) {
+    margin-right: 20px;
+    --background-color: var(--background, var(--primary));
+    --color: var(--light);
+    --padding: 0.5rem;
+  }
+
+  .menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 25px;
+    cursor: pointer;
+  }
+
+  .menu-toggle div {
+    background-color: white;
+    height: 3px;
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .menu {
+      display: none;
+      width: 100%;
+      flex-direction: column;
+      background-color: var(--background, var(--primary));
+      position: absolute;
+      top: var(--nav-height);
+      left: 0;
+      padding: 10px 0;
+    }
+
+    .menu.open {
+      display: flex;
+    }
+
+    ::slotted(juel-item) {
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    .menu-toggle {
+      display: flex;
+    }
+  }

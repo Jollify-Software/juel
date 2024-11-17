@@ -1,13 +1,14 @@
 import './src/JuelGlobal';
 
-import "./src/Input/ImportInputs";
-import "./src/Layout/ImportLayouts";
+//import "./src/Input/ImportInputs";
+//import "./src/Layout/ImportLayouts";
 
 /* Lists */
-import "./src/List/ImportLists";
+//import "./src/List/ImportLists";
 //import "./src/List/List"
 //import "./src/Select/Select";
-
+import './src/Navigation/ImportNavigation';
+/*
 import './src/Accordion/Accordion';
 import './src/Card/Card';
 import './src/Carousel/Carousel';
@@ -26,7 +27,6 @@ import './src/Progress/Progress';
 import './src/Embed/Embed';
 import './src/Random/Random';
 import './src/Media/Media';
-import './src/NavBar/NavBar';
 import './src/Chart/Chart';
 import './src/Chart/ChartDataSet';
 import './src/DraggableContainer/DraggableContainer';
@@ -34,7 +34,7 @@ import './src/Preload/Preload';
 //import './src/ImageMap/ImageMap';
 //import './src/ImageMap/Area';
 //import './src/Shape/Shape';
-
+*/
 import './src/Grid/Grid';
 import './src/Item/Item';
 /*

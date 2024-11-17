@@ -3,9 +3,9 @@ import { property, state } from "lit/decorators";
 import { Field } from "../_Core/Data/Field";
 import { SearchResult } from "../_Core/SearchResult";
 import { FillTemplate } from "../_Utils/FillTemplate";
-import { upperFirst } from "lodash"
 import { JuelComponent } from "./JuelComponent";
 import { JuelContainerComponent } from "./JuelContainerComponent";
+import { upperFirst } from "../_Utils/String/upperFirst";
 
 export class JuelDataComponent extends JuelContainerComponent {
 

@@ -1,6 +1,6 @@
 @colours: {
     primary: #007bff;
-    secondary: #6c757d;
+    secondary: #6C757D;
     tertiary: salmon;
     light: #f8f9fa;
     dark: #343a40;
@@ -15,7 +15,7 @@
         @lightened: if(luma(@value) < 50%, lighten(@value, 10%), darken(@value, 10%));
 
         @{var}: @value;
-        @{var}-background: @lightened;
+        @{var}-text: @lightened;
     })
 }
 each(@colours, {
