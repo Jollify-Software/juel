@@ -50,7 +50,7 @@ export class RippleInitialiser {
     });
   }
 
-  removeRipples = (el: HTMLElement) => {
-    el.removeEventListener('click', this.createRipple);
+  removeRipples = () => {
+    this.element.removeEventListener('click', this.createRipple);
   }
 }

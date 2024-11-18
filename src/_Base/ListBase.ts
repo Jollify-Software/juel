@@ -5,6 +5,7 @@ import { EventNames } from "../_Core/Events/EventNames";
 import { GetDisplayKnownProperty } from "../_Core/KnownProperties";
 import { JuelDataComponent } from "./JuelDataComponent";
 import { ItemBase } from "./ItemBase";
+import { RippleInitialiser } from "../_Utils/RippleModule";
 
 export class ListBase extends JuelDataComponent {
 
@@ -25,6 +26,7 @@ export class ListBase extends JuelDataComponent {
     IdPrefix = "item";
 
     items: ItemBase[] = [];
+    rippleEffect: RippleInitialiser;
 
     constructor() {
         super();
@@ -44,12 +46,16 @@ export class ListBase extends JuelDataComponent {
             }
             item.setAttribute("data-index", index.toString());
             if (this.itemsClickEvent) {
+                let elForRipple: HTMLElement;
                 if (item.title) {
                     let title = item.shadowRoot.querySelector(".title") as HTMLElement;
+                    elForRipple = title;
                     if (title) title.onclick = () => this.selectItem(index);
                 } else {
                     item.onclick = () => this.selectItem(index);
+                    elForRipple = item;
                 }
+                this.rippleEffect = new RippleInitialiser(elForRipple, item.shadowRoot);
             }
         }
     }
@@ -205,5 +211,9 @@ export class ListBase extends JuelDataComponent {
     }
 
     slotChange(e: Event) {
+    }
+
+    disconnectedCallback(): void {
+        this.rippleEffect.removeRipples();
     }
 }

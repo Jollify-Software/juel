@@ -1,10 +1,10 @@
 import './src/JuelGlobal';
 
 //import "./src/Input/ImportInputs";
-//import "./src/Layout/ImportLayouts";
+import "./src/Layout/ImportLayouts";
 
 /* Lists */
-//import "./src/List/ImportLists";
+import "./src/List/ImportLists";
 //import "./src/List/List"
 //import "./src/Select/Select";
 import './src/Navigation/ImportNavigation';

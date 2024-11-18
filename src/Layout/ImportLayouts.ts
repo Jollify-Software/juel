@@ -1,1 +1,2 @@
-import "~/src/Layout/Layout";
+import "./Layout";
+import './Accordion/Accordion';

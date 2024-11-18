@@ -24,7 +24,7 @@ export class JuelRange extends InputBase {
             console.log(this.isRipple)
             if (this.isRipple) {
                 let btn = this.shadowRoot.firstElementChild as HTMLElement;
-                this.r = new RippleInitialiser(btn);
+                this.r = new RippleInitialiser(btn, this.shadowRoot);
             }
         });
     }
@@ -32,7 +32,7 @@ export class JuelRange extends InputBase {
     disconnectedCallback() {
         if (this.isRipple) {
             let btn = this.shadowRoot.firstElementChild as HTMLElement;
-            this.r.removeRipples(btn);
+            this.r.removeRipples();
         }
     }
 

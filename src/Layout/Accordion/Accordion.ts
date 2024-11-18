@@ -1,8 +1,8 @@
 import { html, PropertyValueMap, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import style from 'bundle-text:./Accordion.less';
-import { JuelComponent } from "../_Base/JuelComponent";
-import { ListBase } from "../_Base/ListBase";
+import { JuelComponent } from "../../_Base/JuelComponent";
+import { ListBase } from "../../_Base/ListBase";
 
 @customElement("juel-accordion")
 export class JuelAccordion extends ListBase {

@@ -30,7 +30,7 @@ export class JuelScrollTop extends LitElement {
   // Clean up event listeners when the component is disconnected
   disconnectedCallback() {
     window.removeEventListener('scroll', this.handleScroll);
-    this.ripple.removeRipples(this.buttonRef.value as HTMLElement);
+    this.ripple.removeRipples();
     super.disconnectedCallback();
   }
 
