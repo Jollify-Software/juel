@@ -91,4 +91,11 @@ export class JuelComponent extends LitElement {
             this[property] = value;
         }
     }
+
+    fire(name: string, args: object) {
+        let evt = new CustomEvent(name, {
+            detail: args
+        });
+        this.dispatchEvent(evt);
+    }
 }

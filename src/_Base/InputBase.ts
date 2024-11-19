@@ -38,7 +38,6 @@ export class InputBase extends JuelComponent {
     dropdown: Instance;
 
     isRipple: string;
-    r: RippleEffect;
 
     constructor() {
         super();

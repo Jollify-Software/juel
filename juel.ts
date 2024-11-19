@@ -3,6 +3,8 @@ import './src/JuelGlobal';
 //import "./src/Input/ImportInputs";
 import "./src/Layout/ImportLayouts";
 
+import './src/Editors/Import';
+
 /* Lists */
 import "./src/List/ImportLists";
 //import "./src/List/List"

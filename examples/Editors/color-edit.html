@@ -1,0 +1,15 @@
+<html>
+  <head>
+    <script src="../../dist/juel.js"></script>
+  </head>
+  <body>
+    <juel-color-edit></juel-color-edit>
+
+    <script>
+      const colorPicker = document.querySelector('juel-color-edit');
+      colorPicker.addEventListener('changed', (event) => {
+        console.log('Selected Color:', event.detail.value);
+      });
+    </script>
+  </body>
+</html>
