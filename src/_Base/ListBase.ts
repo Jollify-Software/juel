@@ -5,7 +5,8 @@ import { EventNames } from "../_Core/Events/EventNames";
 import { GetDisplayKnownProperty } from "../_Core/KnownProperties";
 import { JuelDataComponent } from "./JuelDataComponent";
 import { ItemBase } from "./ItemBase";
-import { RippleInitialiser } from "../_Utils/RippleModule";
+import { RippleEffect } from "../_Utils/RippleEffect";
+import { PropertyValueMap } from "lit";
 
 export class ListBase extends JuelDataComponent {
 
@@ -26,7 +27,6 @@ export class ListBase extends JuelDataComponent {
     IdPrefix = "item";
 
     items: ItemBase[] = [];
-    rippleEffect: RippleInitialiser;
 
     constructor() {
         super();
@@ -35,6 +35,10 @@ export class ListBase extends JuelDataComponent {
         this.selectedIndexes = [];
         this.selectedData = [];
         this.itemsClickEvent = true;
+    }
+
+    protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        super.firstUpdated(_changedProperties);
     }
 
     addItem(item: ItemBase) {
@@ -50,15 +54,28 @@ export class ListBase extends JuelDataComponent {
                 if (item.title) {
                     let title = item.shadowRoot.querySelector(".title") as HTMLElement;
                     elForRipple = title;
-                    if (title) title.onclick = () => this.selectItem(index);
+                    if (title) title.onclick = (e: MouseEvent) => {
+                        this.handleClick(e);
+                        this.selectItem(index);
+                    }
                 } else {
-                    item.onclick = () => this.selectItem(index);
+                    item.onclick = (e: MouseEvent) => {
+                        this.handleClick(e);
+                        this.selectItem(index);
+                    }
                     elForRipple = item;
                 }
-                this.rippleEffect = new RippleInitialiser(elForRipple, item.shadowRoot);
             }
         }
     }
+
+    //#region " Listeners "
+
+    handleClick(e: MouseEvent) {
+        RippleEffect.createRipple(e);
+    }
+
+    //#endregion
 
     getItems() {
         return this.items;
@@ -211,9 +228,5 @@ export class ListBase extends JuelDataComponent {
     }
 
     slotChange(e: Event) {
-    }
-
-    disconnectedCallback(): void {
-        this.rippleEffect.removeRipples();
     }
 }

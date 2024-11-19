@@ -2,12 +2,14 @@ import { PropertyValueMap } from "lit";
 import { JuelComponent } from "./JuelComponent";
 import { ListBase } from "./ListBase";
 import { property } from "lit/decorators";
+import { RippleEffect } from "../_Utils/RippleEffect";
 
 export class ItemBase extends JuelComponent {
 
     @property() value: any;
     
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        RippleEffect.init(this.shadowRoot)
         if ('addItem' in this.parentElement) {
             let list = this.parentElement as ListBase;
             list.addItem(this);

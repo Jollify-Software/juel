@@ -1,24 +1,21 @@
 import st from "bundle-text:../_CommonStyles/RippleAnimation.less";
-import { bind } from "./Bind";
 
-export class RippleInitialiser {
+export class RippleEffect {
 
-  constructor(private element: HTMLElement, parent: HTMLElement | ShadowRoot) {
-    this.element.style.position = 'relative';
-    this.element.style.overflow = 'hidden';
-    element.addEventListener('click', this.createRipple);
+  static init(parent: HTMLElement | ShadowRoot) {
     let style = parent.querySelector('#juel-ripple-styles');
     if (!style) {
       style = document.createElement("style");
       style.textContent = st;
-      parent.append(style);
+      parent.prepend(style);
     }
   }
 
-  @bind
-  createRipple(event) {
-    console.log("Ripple")
-    const rect = this.element.getBoundingClientRect();
+  static createRipple(event: MouseEvent) {
+    let element = event.target as HTMLElement;
+    element.style.position = 'relative';
+    element.style.overflow = 'hidden';
+    const rect = element.getBoundingClientRect();
     const ripple = document.createElement('span');
     ripple.setAttribute('part', 'ripple');
     ripple.classList.add("ripple");
@@ -42,15 +39,11 @@ export class RippleInitialiser {
     ripple.style.pointerEvents = 'none';
 
     // Append the ripple element
-    this.element.appendChild(ripple);
+    element.appendChild(ripple);
 
     // Remove the ripple after animation
     ripple.addEventListener('animationend', () => {
       ripple.remove();
     });
-  }
-
-  removeRipples = () => {
-    this.element.removeEventListener('click', this.createRipple);
   }
 }

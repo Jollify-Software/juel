@@ -4,7 +4,7 @@ import { InputGroupTemplate } from "../_Templates/InputGroupTemplate";
 import { InputTypes } from "../_Templates/InputTypes";
 import Styles from 'bundle-text:./Range.less';
 import { unsafeCSS } from "lit";
-import { RippleInitialiser } from "../_Utils/RippleModule";
+import { RippleEffect } from "../_Utils/RippleEffect";
 import { EventNames } from "../_Core/Events/EventNames";
 import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
 import { Dispatch } from "../_Core/DispatchFunction";
@@ -24,7 +24,6 @@ export class JuelRange extends InputBase {
             console.log(this.isRipple)
             if (this.isRipple) {
                 let btn = this.shadowRoot.firstElementChild as HTMLElement;
-                this.r = new RippleInitialiser(btn, this.shadowRoot);
             }
         });
     }
@@ -32,7 +31,6 @@ export class JuelRange extends InputBase {
     disconnectedCallback() {
         if (this.isRipple) {
             let btn = this.shadowRoot.firstElementChild as HTMLElement;
-            this.r.removeRipples();
         }
     }
 

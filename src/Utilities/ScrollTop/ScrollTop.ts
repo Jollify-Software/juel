@@ -1,7 +1,7 @@
 import { CSSResultGroup, html, LitElement, PropertyValues, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
 import Styles from 'bundle-text:./ScrollTop.less';
-import { RippleInitialiser } from "../../_Utils/RippleModule";
+import { RippleEffect } from "../../_Utils/RippleEffect";
 import { createRef, ref } from "lit/directives/ref";
 
 @customElement('juel-scroll-top')
@@ -13,10 +13,6 @@ export class JuelScrollTop extends LitElement {
   @property({ type: Boolean })
   visible: boolean = false;
 
-  ripple: RippleInitialiser
-
-  buttonRef = createRef();
-
   // Listen for scroll events when the component is connected to the DOM
   connectedCallback() {
     super.connectedCallback();
@@ -24,13 +20,12 @@ export class JuelScrollTop extends LitElement {
   }
 
   protected firstUpdated(_changedProperties: PropertyValues): void {
-    this.ripple = new RippleInitialiser(this.buttonRef.value as HTMLElement, this.shadowRoot);
+    RippleEffect.init(this.shadowRoot);
   }
 
   // Clean up event listeners when the component is disconnected
   disconnectedCallback() {
     window.removeEventListener('scroll', this.handleScroll);
-    this.ripple.removeRipples();
     super.disconnectedCallback();
   }
 
@@ -41,7 +36,8 @@ export class JuelScrollTop extends LitElement {
   };
 
   // Scroll to the top of the page smoothly
-  private scrollToTop() {
+  private handleClick(e: MouseEvent) {
+    RippleEffect.createRipple(e);
     window.scrollTo({
       top: 0,
       behavior: 'smooth',
@@ -51,9 +47,9 @@ export class JuelScrollTop extends LitElement {
   // Render the component
   render() {
     return html`
-      <button ${ref(this.buttonRef)}
+      <button
         class="${this.visible ? 'visible' : ''}"
-        @click="${this.scrollToTop}"
+        @click="${this.handleClick}"
         title="Scroll to top"
       >
         ↑

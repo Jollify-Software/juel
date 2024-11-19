@@ -1,10 +1,10 @@
 import { html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
 import style from 'bundle-text:./Tabs.less';
-import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
-import { EventNames } from "../_Core/Events/EventNames";
-import { NavigationBase } from "../_Base/NavigationBase";
-import { ItemBase } from "../_Base/ItemBase";
+import { ChangedEventArgs } from "../../_Core/Events/ChangedEventArgs";
+import { EventNames } from "../../_Core/Events/EventNames";
+import { NavigationBase } from "../../_Base/NavigationBase";
+import { ItemBase } from "../../_Base/ItemBase";
 import { map } from "jquery";
 import { unsafeHTML } from "lit/directives/unsafe-html";
 

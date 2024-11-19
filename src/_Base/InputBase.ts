@@ -1,6 +1,6 @@
 import { createPopper, Instance } from "@popperjs/core";
 import { property } from "lit/decorators";
-import { RippleInitialiser } from "../_Utils/RippleModule";
+import { RippleEffect } from "../_Utils/RippleEffect";
 import { JuelComponent } from "./JuelComponent";
 import { createRef } from 'lit/directives/ref'
 import { CSSResultGroup, html, unsafeCSS } from "lit";
@@ -38,7 +38,7 @@ export class InputBase extends JuelComponent {
     dropdown: Instance;
 
     isRipple: string;
-    r: RippleInitialiser;
+    r: RippleEffect;
 
     constructor() {
         super();
