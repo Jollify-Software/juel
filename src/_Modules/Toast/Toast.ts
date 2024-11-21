@@ -1,7 +1,7 @@
 import { ToastOptions } from "./ToastOptions";
 import Styles from 'bundle-text:./Toast.less';
 
-class Toast {
+export class Toast {
     private container: HTMLElement | null;
   
     constructor() {
@@ -74,5 +74,3 @@ class Toast {
       }, duration);
     }
   }
-
-  export default new Toast();
