@@ -1,4 +1,8 @@
 import { AudioModule } from "./AudioModule";
+import { VisualGuide } from "./Guide/Guide";
+import { GuideModule } from "./Guide/GuideModule";
+import { Options } from "./Guide/Options";
+import { Step } from "./Guide/Step";
 import { IconsModule } from "./IconsModule";
 import { MessageBoxModule } from "./MessageBox/MessageBoxModule";
 import { ToastModule } from "./Toast/ToastModule";
@@ -12,4 +16,6 @@ export module JuelModule {
     export var icon = IconsModule;
     export var messageBox = MessageBoxModule;
     export var toast = ToastModule;
+
+    export var guide = GuideModule;
 }
