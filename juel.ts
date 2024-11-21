@@ -12,7 +12,7 @@ import "./src/List/ImportLists";
 import './src/Navigation/ImportNavigation';
 import './src/Gallery/ImportGallery';
 
-import './src/Utilities/ImportUtilities';
+import './src/Utilities/Import';
 /*
 import './src/Accordion/Accordion';
 import './src/Card/Card';
