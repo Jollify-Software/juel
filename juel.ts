@@ -15,6 +15,8 @@ import './src/Gallery/ImportGallery';
 import './src/Utilities/Import';
 
 import './src/Media/Media';
+
+import './src/Visualization/Import';
 /*
 import './src/Accordion/Accordion';
 import './src/Card/Card';

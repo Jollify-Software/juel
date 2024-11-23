@@ -1,0 +1,48 @@
+:host {
+    display: block;
+    font-family: Arial, sans-serif;
+  }
+  .timeline {
+    position: relative;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 20px;
+    width: 2px;
+    background: #ccc;
+  }
+  .timeline-item {
+    position: relative;
+    margin: 10px 0 20px;
+    padding-left: 40px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15px;
+    width: 10px;
+    height: 10px;
+    background: #0078d4;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
+  .date {
+    font-size: 0.9rem;
+    color: #666;
+  }
+  .title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 5px 0;
+  }
+  .description {
+    font-size: 1rem;
+    color: #333;
+  }
