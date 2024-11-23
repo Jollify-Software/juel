@@ -13,6 +13,8 @@ import './src/Navigation/ImportNavigation';
 import './src/Gallery/ImportGallery';
 
 import './src/Utilities/Import';
+
+import './src/Media/Media';
 /*
 import './src/Accordion/Accordion';
 import './src/Card/Card';

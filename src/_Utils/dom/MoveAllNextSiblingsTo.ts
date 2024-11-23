@@ -6,5 +6,5 @@ export function moveAllNextSiblingsTo(element: HTMLElement, moveTo: HTMLElement,
         return;
     }
 
-    AllNextSiblings(element, excludeSelector, (e, i) => moveTo.prepend(e));
+    AllNextSiblings(element, excludeSelector, (e, i) => moveTo.append(e));
 }

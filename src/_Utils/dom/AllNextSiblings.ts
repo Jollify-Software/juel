@@ -1,4 +1,5 @@
-export function AllNextSiblings(element: HTMLElement, excludeSelector: string = null, action: (element: HTMLElement, index: number) => void) {
+export function AllNextSiblings(element: HTMLElement, excludeSelector: string = null,
+    action: (element: HTMLElement, index: number) => void, parentUntilSelector: string = null) {
     let siblings: HTMLElement[] = [];
     let index = 0;
     let currentElement = element.nextElementSibling;
@@ -11,10 +12,16 @@ export function AllNextSiblings(element: HTMLElement, excludeSelector: string = 
         siblings.push(currentElement as HTMLElement);
         
         if (action) {
+            console.log("Push element")
             action(currentElement as HTMLElement, index);
         }
 
         currentElement = nextSibling; // Proceed to the next sibling
+    }
+
+    if (parentUntilSelector && element.parentElement && (element.parentElement.matches(parentUntilSelector) == false) &&
+        element.parentElement.tagName != "BODY") {
+        AllNextSiblings(element.parentElement, excludeSelector, action);
     }
     return siblings;
 }
