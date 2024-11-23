@@ -1,7 +1,7 @@
 import './src/JuelGlobal';
 
 //import "./src/Input/ImportInputs";
-import "./src/Layout/ImportLayouts";
+import "./src/Layout/Import";
 
 import './src/Editors/Import';
 
