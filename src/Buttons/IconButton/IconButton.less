@@ -1,0 +1,29 @@
+:host {
+    display: inline-block;
+  }
+  button {
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background-color: var(--circle-icon-bg, #0078d4);
+    color: var(--circle-icon-color, white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: var(--circle-icon-hover-bg, #005a9e);
+  }
+  button:active {
+    background-color: var(--circle-icon-active-bg, #003a75);
+  }
+  button:focus {
+    box-shadow: 0 0 0 3px var(--circle-icon-focus-outline, rgba(0, 120, 212, 0.5));
+  }
+  .icon {
+    font-size: var(--circle-icon-size, 24px);
+  }

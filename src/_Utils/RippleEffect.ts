@@ -12,7 +12,7 @@ export class RippleEffect {
   }
 
   static createRipple(event: MouseEvent) {
-    let element = event.target as HTMLElement;
+    let element = event.currentTarget as HTMLElement;
     element.style.position = 'relative';
     element.style.overflow = 'hidden';
     const rect = element.getBoundingClientRect();

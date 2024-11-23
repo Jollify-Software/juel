@@ -1,5 +1,6 @@
 import './src/JuelGlobal';
 
+import './src/Buttons/Import';
 //import "./src/Input/ImportInputs";
 import "./src/Layout/Import";
 

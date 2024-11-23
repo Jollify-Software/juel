@@ -1,14 +1,11 @@
-import { html, LitElement, unsafeCSS } from "lit";
+import { unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
-import { createPopper, Instance } from '@popperjs/core';
 import Styles from 'bundle-text:./Button.less';
-import { RippleEffect } from "../_Utils/RippleEffect";
-import { InputBase } from "../_Base/InputBase";
-import { InputGroupTemplate } from "../_Templates/InputGroupTemplate";
-import { InputTypes } from "../_Templates/InputTypes";
+import { RippleEffect } from "../../_Utils/RippleEffect";
+import { InputBase } from "../../_Base/InputBase";
+import { InputGroupTemplate } from "../../_Templates/InputGroupTemplate";
+import { InputTypes } from "../../_Templates/InputTypes";
 import { ButtonEvents } from "./ButtonEvents";
-import { AlertTypes } from "../_Core/AlertTypes";
-import { RenderStyles } from "../_Core/RenderStyles";
 
 @customElement("juel-button")
 export class JuelButton extends InputBase {
@@ -21,13 +18,8 @@ export class JuelButton extends InputBase {
         this.submit = false;
     }
 
-    updated() {
-        setTimeout(() => {
-            this.isRipple = getComputedStyle(this).getPropertyValue('--ripple');
-            if (this.isRipple) {
-                let btn = this.shadowRoot.firstElementChild as HTMLElement;
-            }
-        });
+    firstUpdated(): void {
+        RippleEffect.init(this.shadowRoot);
     }
 
     disconnectedCallback() {
@@ -37,6 +29,7 @@ export class JuelButton extends InputBase {
     }
 
     onClick(e: Event) {
+        RippleEffect.createRipple(e as MouseEvent);
         var event = new CustomEvent(ButtonEvents.ButtonClicked, {
             detail: e
         });
