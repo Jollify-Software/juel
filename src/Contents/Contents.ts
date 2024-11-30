@@ -11,8 +11,6 @@ import Style from 'bundle-text:./Contents.less';
 @customElement("juel-contents")
 export class JuelContents extends LitElement {
 
-    static styles = unsafeCSS(Style);
-
     @property() link: string;
 
     constructor() {
@@ -21,6 +19,10 @@ export class JuelContents extends LitElement {
     }
     @state()
     contents: ContentsItem[];
+
+    protected createRenderRoot(): HTMLElement | DocumentFragment {
+        return this;
+    }
 
     populateContents() {
         this.contents = [];
@@ -136,6 +138,7 @@ export class JuelContents extends LitElement {
 
     render() {
         return html`
+            <style>${Style}</style>
             <ul id="toc">
                 ${this.contents ? this.contents.map(this.renderContentsItem) : ''}
             </ul>

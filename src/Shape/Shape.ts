@@ -4,9 +4,14 @@ import { DOMStringMapConverter } from "../_Converters/DOMStringMapConvertor";
 import { Container, Shape, Svg, SVG, Text } from "@svgdotjs/svg.js";
 import bind from "bind-decorator";
 import { ShapeTemplateService } from "./Services/ShapeTemplateService";
+import { ShapeStrategies, ShapeStrategy } from "./ShapeStrategies/ShapeStrategy";
+import { getSlottedElements } from "../_Utils/dom/GetSlottedElements";
+import Styles from 'bundle-text:./Shape.less';
 
 @customElement("juel-shape")
 export class JuelShape extends LitElement {
+
+    static styles?: CSSResultGroup = unsafeCSS(Styles);
 
     @property() type: string;
     @property() src: string;
@@ -18,6 +23,7 @@ export class JuelShape extends LitElement {
     container: Container;
     textEl: Text;
     shape: Shape;
+    svgContainerRef: HTMLDivElement;
 
     sts: ShapeTemplateService;
 
@@ -35,9 +41,10 @@ export class JuelShape extends LitElement {
         }
     }
 
-    protected createRenderRoot(): HTMLElement | DocumentFragment {
-        return this;
-    }
+
+  protected render(): unknown {
+      return html`<span class="content"><slot></slot></span><div class="svg-container"></dov>`;
+  }
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         $.when($.ready).then(this.ready)
@@ -45,22 +52,18 @@ export class JuelShape extends LitElement {
 
     @bind
     ready() {
-        $(this).contents().wrapAll("<span />");
-        let templates = this.querySelectorAll("template");
-        if (templates) {
+        this.svgContainerRef = this.shadowRoot.querySelector("div.svg-container");
+        let slot = this.shadowRoot.querySelector("slot") as HTMLSlotElement;
+        let slottedElements = getSlottedElements(slot);
+        let templates = slottedElements.filter(x => x.nodeName.toLowerCase() == "template") as HTMLTemplateElement[];
+        if (templates.length > 0) {
             // We do have templates
-            this.sts = new ShapeTemplateService(this, Array.from(templates));
+            this.sts = new ShapeTemplateService(this, templates);
         } else if ((!this.shape) && (!this.src)) {
             if (!this.draw) {
-                this.draw = SVG().addTo(this).size(this.clientWidth, this.clientHeight)
+                this.draw = SVG().addTo(this.svgContainerRef).viewbox(0, 0, this.clientWidth, this.clientHeight);
             }
-            switch (this.type) {
-                case 'rect':
-                    this.shape = this.draw.rect(this.clientWidth, this.clientHeight);
-                    break;
-                case 'circle':
-                    this.shape = this.draw.circle(this.clientWidth);
-            }
+            this.drawShape();
             
         if (this.shape && this.args) {
             this.shape.attr(this.args);
@@ -80,4 +83,20 @@ export class JuelShape extends LitElement {
             this.textEl.attr(this.textArgs);
         }
     }
+
+    private drawShape() {
+        if (this.draw && this.type && this.type in ShapeStrategies) {
+            let strategy = ShapeStrategies[this.type] as ShapeStrategy;
+            this.shape = strategy.draw(this.draw, this.clientWidth, this.clientHeight);
+        }
+    }
+
+    addCenteredText() {
+        let size = Math.max(this.clientWidth, this.clientHeight);
+        const center = size / 2;
+        this.draw
+          .text(this.text)
+          .font({ size: 16, anchor: 'middle', fill: '#ffffff' })
+          .center(center, center);
+      }
 }

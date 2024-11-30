@@ -1,16 +1,24 @@
-juel-shape {
+:host {
     position: relative;
     display: inline-flex;
-    width: 300px;
-    height: 300px;
+    width: var(--width, 300px);
+    height: var(--height, 300px);
+    text-align: center;
     justify-content: center;
+    align-items: center;
     font-size: large;
-
-    > span {
-        z-index: 1;
-    }
-    svg, img {
-        position: absolute;
-        height: 100%;
-    }
+}
+span.content, div.svg-container {
+    position: absolute;
+}
+div.svg-container {
+    width: 100%;
+    height: 100%;
+}
+span.content {
+    z-index: 1;
+}
+svg {
+    width: 100%;
+    height: 100%;
 }

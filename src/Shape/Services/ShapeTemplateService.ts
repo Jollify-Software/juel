@@ -1,3 +1,5 @@
+import { getSingleTextContent } from "../../_Utils/dom/GetSingleTextContent";
+import { getSlottedTextNodes } from "../../_Utils/dom/GetSlottedTexNodes";
 import { JuelShape } from "../Shape";
 
 export class ShapeTemplateService {
@@ -40,11 +42,6 @@ export class ShapeTemplateService {
                         let hScale = h / newBbox.height;
                         let scale = Math.min(wScale, hScale);
 
-                        console.log("New width " + (bbox.width * scale))
-                        console.log(bbox);
-                        console.log(newBbox);
-                        console.log(newClientBbox);
-
                         let svgBB = svg.getBBox();
 
                         var x = ((svgBB.width / 2) - ((bbox.width) /2));
@@ -61,32 +58,31 @@ export class ShapeTemplateService {
                 let node = template.content.cloneNode(true);
             let $node = $(node);
             let textEl = $node.find('.text');
+
+            let slot = this.element.shadowRoot.querySelector("slot");
+            let textNodes = getSlottedTextNodes(slot);
+            let textContent = getSingleTextContent(textNodes);
             // If the element has textContent and the main template has a text placeholder
-            if ((this.element.textContent.trim()) && textEl.length > 0) {
+            if (textContent && textEl.length > 0) {
                 let parts = textEl.children();
                 let partCount = parts.length;
-                console.log(this.element.textContent.trim())
-                let splity = this.element.textContent.trim().split(' ');
-                console.log(splity)
+                let splity = textContent.trim().split(' ');
                 for (let part of parts) {
                     let textSplity = part.textContent.split(' ');
-                    console.log(textSplity)
                     // Text splitty length is the required number of words.
                     // If we have enough words available in splitty
                     if (textSplity.length <= splity.length) {
                         let words = splity.splice(0, textSplity.length);
-                        console.log("Putting down the word: " + words.join(' '))
                         part.textContent = words.join(' ');
                     } else { // Not enough words available
                         // Put down all the remaining word
-                        console.log("Putting down the word: " + splity.join(' '))
                         part.textContent = splity.join(' ');
                     }
                 }
-                    this.element.textContent = '';
+                slot.parentElement.style.display = "none";
             }
-            this.element.prepend(node);
-            this.mainTemplateResolver(this.element.querySelector("svg"));
+            this.element.shadowRoot.querySelector(".svg-container").prepend(node);
+            this.mainTemplateResolver(this.element.shadowRoot.querySelector("svg"));
             }
         }
     }
