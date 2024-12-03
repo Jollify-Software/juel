@@ -11,22 +11,28 @@ export class TimelineComponent extends LitElement {
     // Define a property for timeline items
   @property({ type: Array })
   items: TimelineItem[] = [];
+  @property({ type: String })
+  direction: 'vertical' | 'horizontal' = 'vertical';
 
   // Render the timeline items
   render() {
     return html`
-      <ul class="timeline">
-        ${this.items.map(
-          (item) => html`
-            <li class="timeline-item">
-              <div class="date">${item.date}</div>
-              <div class="title">${item.title}</div>
-              <div class="description">${item.description}</div>
-            </li>
-          `
-        )}
-      </ul>
-    `;
+    <div class="timeline ${this.direction}">
+      ${this.items.map(
+        (item, index) => html`
+          <div class="timeline-item ${this.direction}">
+            ${index > 0
+              ? html`<div class="connector ${this.direction}"></div>`
+              : null}
+            <div class="content">
+              <h4>${item.title}</h4>
+              <p>${item.content}</p>
+            </div>
+          </div>
+        `
+      )}
+    </div>
+  `;
   }
 
 }
