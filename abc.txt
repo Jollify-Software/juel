@@ -10,3 +10,4 @@
         "ascii_only": true
     }
 }
+.terserrc123

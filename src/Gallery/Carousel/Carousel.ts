@@ -1,10 +1,10 @@
 import { html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
 import { when } from "lit/directives/when";
-import { JuelComponent } from "../_Base/JuelComponent";
-import { ChildrenMap } from "../_Utils/ChildrenMap";
+import { JuelComponent } from "../../_Base/JuelComponent";
+import { ChildrenMap } from "../../_Utils/ChildrenMap";
 import Styles from 'bundle-text:./Carousel.less';
-import { NavigationBase } from "../_Base/NavigationBase";
+import { NavigationBase } from "../../_Base/NavigationBase";
 
 @customElement("juel-carousel")
 export class JuelCarousel extends NavigationBase {

@@ -12,13 +12,13 @@ import { ButtonTemplate } from '../_Templates/ButtonTemplate';
 import { TextTemplate } from '../_Templates/TextTemplate';
 import { JuelText } from '../Input/Text/Text';
 import { JuelButton } from '../Buttons/Button/Button';
-import Styles from "../_CommonStyles/InputGroup.less";
+//import Styles from "../_CommonStyles/InputGroup.less";
 import { bind } from "../_Utils/Bind";
 
 export class InputBase extends JuelComponent {
     static InputElementNames: string = "juel-text, juel-memo, juel-range, juel-tickbox, juel-radio";
 
-    static styles?: CSSResultGroup = unsafeCSS(Styles);
+    ///static styles?: CSSResultGroup = unsafeCSS(Styles);
 
     @property() value: any;
     @property() type: AlertTypes;

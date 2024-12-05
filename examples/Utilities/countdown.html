@@ -1,0 +1,23 @@
+<html>
+<head>
+    <script src="../../dist/juel.js"></script>
+  <style>
+    countdown-timer {
+      color: red;
+    }
+    .animated {
+      animation: flash 0.5s infinite;
+    }
+  </style>
+</head>
+<body>
+  <juel-countdown id="timer" start="15" interval="1000"></juel-countdown>
+
+  <script>
+    const timer = document.getElementById('timer');
+    timer.addEventListener('countdown-tick', (e) => {
+      console.log(`Countdown value: ${e.detail.value}`);
+    });
+  </script>
+</body>
+</html>
