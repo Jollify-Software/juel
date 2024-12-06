@@ -10,7 +10,7 @@
     },
     "browserslist": [
         "Chrome > 50"
-      ],
+    ],
     "scripts": {
         "dev": "parcel build juel.ts --no-optimize --no-scope-hoist && npx copyfiles dist/*.* examples -f",
         "build": "del .parcel-cache && parcel build juel.ts",
@@ -31,6 +31,7 @@
     },
     "homepage": "https://github.com/Jollify-Software/juel#readme",
     "dependencies": {
+        "@floating-ui/dom": "^1.6.12",
         "@interactjs/interactjs": "^1.10.27",
         "@popperjs/core": "^2.11.8",
         "@svgdotjs/svg.js": "^3.2.4",

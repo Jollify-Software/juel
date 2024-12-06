@@ -1,7 +1,7 @@
 import { customElement, property } from "lit/decorators";
-import { JuelComponent } from "../_Base/JuelComponent";
-import { AlertTypes } from "../_Core/AlertTypes";
-import { RenderStyles } from "../_Core/RenderStyles";
+import { JuelComponent } from "../../_Base/JuelComponent";
+import { AlertTypes } from "../../_Core/AlertTypes";
+import { RenderStyles } from "../../_Core/RenderStyles";
 import Styles from 'bundle-text:./Badge.less';
 import { html, unsafeCSS } from "lit";
 

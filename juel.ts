@@ -1,7 +1,8 @@
 import './src/JuelGlobal';
 
 import './src/Buttons/Import';
-import "./src/Input/Import";
+import './src/Information/Import';
+//import "./src/Input/Import";
 import "./src/Layout/Import";
 
 import './src/Editors/Import';
@@ -10,7 +11,7 @@ import './src/Editors/Import';
 // import "./src/List/ImportLists";
 // //import "./src/List/List"
 // //import "./src/Select/Select";
-// import './src/Navigation/ImportNavigation';
+import './src/Navigation/Import';
 // import './src/Gallery/ImportGallery';
 
 import './src/Utilities/Import';
@@ -19,7 +20,7 @@ import './src/Utilities/Import';
 
 // import './src/Visualization/Import';
 
-//import './src/Shape/Shape';
+import './src/Shape/Shape';
 /*
 import './src/Accordion/Accordion';
 import './src/Card/Card';

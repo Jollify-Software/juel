@@ -61,7 +61,9 @@ export class ShapeTemplateService {
 
             let slot = this.element.shadowRoot.querySelector("slot");
             let textNodes = getSlottedTextNodes(slot);
+            console.log("Num text nodes: " + textNodes.length)
             let textContent = getSingleTextContent(textNodes);
+            console.log(textContent);
             // If the element has textContent and the main template has a text placeholder
             if (textContent && textEl.length > 0) {
                 let parts = textEl.children();

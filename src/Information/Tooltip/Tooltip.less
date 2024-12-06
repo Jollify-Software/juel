@@ -1,0 +1,20 @@
+:host {
+  display: inline-block;
+  position: relative;
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  background: black;
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 1000;
+  white-space: nowrap;
+}
+
+.tooltip[visible] {
+  display: block;
+}
