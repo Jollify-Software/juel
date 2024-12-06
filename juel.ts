@@ -18,7 +18,7 @@ import './src/Utilities/Import';
 
 // import './src/Media/Media';
 
-// import './src/Visualization/Import';
+import './src/Visualization/Import';
 
 import './src/Shape/Shape';
 /*
