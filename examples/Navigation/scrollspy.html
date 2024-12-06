@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../dist/juel.js"></script>
+  <style>
+    .content {
+      height: 500px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+    }
+    .section {
+      height: 100vh;
+      padding: 20px;
+      border-bottom: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <juel-scrollspy
+    target=".content"
+    .sections=${JSON.stringify(['section-1', 'section-2', 'section-3'])}
+    activeClass="active"
+  ></juel-scrollspy>
+
+  <div class="content">
+    <div id="section-1" class="section">Section 1</div>
+    <div id="section-2" class="section">Section 2</div>
+    <div id="section-3" class="section">Section 3</div>
+  </div>
+</body>
+</html>
