@@ -2,8 +2,8 @@ import { CSSResultGroup, html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
 import Styles from 'bundle-text:./Scrollspy.less';
 
-@customElement('juel-scroll')
-export class ScrollSpy extends LitElement {
+@customElement('juel-scrollspy')
+export class JuelScrollSpy extends LitElement {
 
     static styles?: CSSResultGroup = unsafeCSS(Styles);
 

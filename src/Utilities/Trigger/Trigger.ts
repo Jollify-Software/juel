@@ -1,9 +1,9 @@
 import { customElement, property } from "lit/decorators";
-import { CommandComponent } from "../_Base/CommandComponent";
+import { CommandComponent } from "../../_Base/CommandComponent";
 import { TriggerAction } from "./TriggerAction";
 import bind from "bind-decorator";
-import { TransitionModule } from "../_Modules/TransistionModule";
-import { Evaluate } from "../_Utils/Evaluate";
+import { TransitionModule } from "../../_Modules/TransistionModule";
+import { Evaluate } from "../../_Utils/Evaluate";
 
 @customElement("juel-trigger")
 export class JuelTrigger extends CommandComponent {

@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <script src="../../../dist/juel.js"></script>
+    </head>
+    <body>
+        <style>
+            .animate.slide-in {
+              transform: translateX(0);
+              opacity: 1;
+              transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+            }
+          </style>
+          <juel-scroll triggerClass="animate" animationClass="slide-in">
+            <div class="section animate" style="transform: translateX(-100px); opacity: 0;">
+              Sliding in from the left!
+            </div>
+          </juel-scroll>
+    </body>
+</html>

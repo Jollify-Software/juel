@@ -1,5 +1,5 @@
 import { customElement, property } from "lit/decorators";
-import { CommandBase } from "../_Base/CommandBase";
+import { CommandBase } from "../../_Base/CommandBase";
 import { PropertyValues } from "lit";
 import { JuelTrigger } from "./Trigger";
 
