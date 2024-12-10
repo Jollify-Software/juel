@@ -1,52 +1,16 @@
 :host {
-    display: inline-block;
-    overflow: hidden;
-    position: relative;
-  }
+  display: block;
+  position: relative;
+}
 
-  .container {
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s ease;
-    transform-origin: top left;
-    overflow: hidden;
-  }
+.header {
+  background-color: var(--header-bg, #ddd);
+  cursor: pointer;
+  padding: 10px;
+}
 
-  :host([direction="right"]) .container {
-    flex-direction: row;
-  }
-  :host([direction="left"]) .container {
-    flex-direction: row-reverse;
-  }
-  :host([direction="up"]) .container {
-    flex-direction: column-reverse;
-  }
-
-  .header {
-    background-color: var(--header-bg, #ddd);
-    cursor: pointer;
-    padding: 10px;
-  }
-
-  .content {
-    padding: 10px;
-    background: var(--content-bg,#FFF);
-   }
-
-  .content {
-    padding: 10px;
-    background: var(--content-bg, #f9f9f9);
-  }
-
-  :host(:not([expanded])[direction="right"]) .container {
-    transform: translateX(-100%);
-  }
-  :host(:not([expanded])[direction="left"]) .container {
-    transform: translateX(100%);
-  }
-  :host(:not([expanded])[direction="up"]) .container {
-    transform: translateY(100%);
-  }
-  :host(:not([expanded])[direction="down"]) .container {
-    transform: translateY(-100%);
-  }
+.content {
+  display: none;
+  background-color: var(--content-bg, #f9f9f9);
+  padding: 10px;
+}
