@@ -1,5 +1,5 @@
 export module IconsModule {
-    export var get = (name: string) => {
+    export var get = (name: string, svg = true): string => {
         let style = getComputedStyle(document.body);
         let icon = style.getPropertyValue(`--icon-${name}`);
         if (icon) {
@@ -8,12 +8,38 @@ export module IconsModule {
             if (splitty.length > 1) {
                 let decoded = (<any>decodeURIComponent(splitty[1]))
                     .replaceAll('\\', '');
-                return decoded;
+                if (svg) {
+                    return decoded;
+                } else {
+                    let iconSvg = $(decoded as string);
+                    return iconSvg[0].innerHTML;
+                }
             }
         }
         return '';
     }
-    export var use = (name: string) => {
-        return `<svg><use href="#icon-${name}"></svg>`;
+    export var use = (name: string, svg = true) => {
+        let iconsSection = $("#juel-icons");
+        if (iconsSection.length <= 0) {
+            iconsSection = $('<section id="juel-icons" />');
+            iconsSection.css("display", "none");
+            iconsSection.prependTo(document.body);
+        }
+        if (iconsSection.children(`#icon-${name}-container`).length <= 0) {
+            let icon = get(name);
+            if (icon) {
+                let iconSvg = $(icon);
+                if (iconSvg.children(`#icon-${name}`).length <= 0) {
+                    iconSvg.children().wrapAll(`<g id="icon-${name}" />`);
+                }
+                iconSvg.appendTo(iconsSection);
+                console.log(iconSvg.html());
+            }
+        }
+        if (svg) {
+            return `<svg><use href="#icon-${name}"></svg>`;
+        } else {
+            return `<use href="#icon-${name}">`;
+        }
     }
 }

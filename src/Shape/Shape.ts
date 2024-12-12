@@ -7,6 +7,7 @@ import { ShapeTemplateService } from "./Services/ShapeTemplateService";
 import { ShapeStrategies, ShapeStrategy } from "./ShapeStrategies/ShapeStrategy";
 import { getSlottedElements } from "../_Utils/dom/GetSlottedElements";
 import Styles from 'bundle-text:./Shape.less';
+import { IconsModule } from "../_Modules/IconsModule";
 
 @customElement("juel-shape")
 export class JuelShape extends LitElement {
@@ -60,6 +61,8 @@ export class JuelShape extends LitElement {
             // We do have templates
             this.sts = new ShapeTemplateService(this, templates);
         } else if ((!this.shape) && (!this.src)) {
+            this.setDefaultStyles();
+
             if (!this.draw) {
                 this.draw = SVG().addTo(this.svgContainerRef).viewbox(0, 0, this.clientWidth, this.clientHeight);
             }
@@ -84,10 +87,26 @@ export class JuelShape extends LitElement {
         }
     }
 
+    private setDefaultStyles() {
+        let fill = this.style.getPropertyValue("--fill");
+        if (!fill) {
+            this.style.setProperty("--fill", "#E6904B");
+        }
+        let stroke = this.style.getPropertyValue("--stroke");
+        if (!stroke) {
+            this.style.setProperty("--stroke", "black");
+        }
+    }
+
     private drawShape() {
         if (this.draw && this.type && this.type in ShapeStrategies) {
             let strategy = ShapeStrategies[this.type] as ShapeStrategy;
             this.shape = strategy.draw(this.draw, this.clientWidth, this.clientHeight);
+        } else if (this.draw && this.type) { // Type not in shapeStrategies
+            let svg = IconsModule.get(this.type);
+            if (svg) {
+                this.shape = this.draw.svg(svg);
+            }
         }
     }
 
