@@ -1,37 +1,47 @@
+@miscIcons: previous,next,indicator,crosshair,close,tick,access;
+
 @import "~/icons/text/text-icons.less";
 @import "~/icons/geo/geo-icons.less";
 @import "~/icons/arrows/arrows-icons.less";
 @import "~/icons/message/message-icons.less";
 
 .icons() {
-    --icon-previous: url("data-url:~/icons/previous.svg");
-    --icon-next: url("data-url:~/icons/next.svg");
-    --icon-indicator: url("data-url:~/icons/indicator.svg");
-    --icon-crosshair: url("data-url:~/icons/crosshair.svg");
-    --icon-close: url("data-url:~/icons/close.svg");
-    --icon-tick: url("data-url:~/icons/tick.svg");
-	--icon-access: url("data-url:~/icons/access.svg");
+    .text-icons();
+    .geo-icons();
+    .arrow-icons();
+    .message-icons();
+
+    each(@miscIcons, {
+        --icon-@{value}: url("data-url:~/icons/@{value}.svg");
+    });
 }
+
 .icn() {
     background-position: center;
     background-repeat: no-repeat;
 }
+
 .icon-lg {
     .icn();
     width: 48px;
     height: 48px;
 }
+
 .icon-sm {
     .icn();
     width: 16px;
     height: 16px;
 }
+
 .icon {
     .icn();
     width: 32px;
     height: 32px;
-	
-	&.access {
-        background-image: var(--icon-access);
-    }
+}
+.icon {
+    each(@miscIcons, {
+        &.@{value} {
+            background-image: ~'var(--icon-@{value})';
+        }
+    });
 }

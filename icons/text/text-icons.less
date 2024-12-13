@@ -1,63 +1,15 @@
-body {
-    --icon-align-centre: url("data-url:~/icons/text/align-centre.svg");
-    --icon-align-justify: url("data-url:~/icons/text/align-justify.svg");
-    --icon-align-left: url("data-url:~/icons/text/align-left.svg");
-    --icon-align-right: url("data-url:~/icons/text/align-right.svg");
-    --icon-indent: url("data-url:~/icons/text/indent.svg");
-    --icon-outdent: url("data-url:~/icons/text/outdent.svg");
-    --icon-smile: url("data-url:~/icons/text/smile.svg");
-    --icon-bold: url("data-url:~/icons/text/bold.svg");
-    --icon-image: url("data-url:~/icons/text/image.svg");
-    --icon-italic: url("data-url:~/icons/text/italic.svg");
-    --icon-link: url("data-url:~/icons/text/link.svg");
-    --icon-list-numbered: url("data-url:~/icons/text/list-numbered.svg");
-    --icon-list: url("data-url:~/icons/text/list.svg");
-    --icon-quote: url("data-url:~/icons/text/quote.svg");
+@textIcons: align-centre, align-justify, align-left, align-right, indent, outdent, smile, bold, image, italic, link,
+    list-numbered, list,quote;
+
+.text-icons() {
+    each(@textIcons, {
+        --icon-@{value}: url("data-url:~/icons/text/@{value}.svg");
+    });
 }
 .icon {
-    &.align-centre {
-        background-image: var(--icon-align-centre);
-    }
-    &.align-justify {
-        background-image: var(--icon-align-justify);
-    }
-    &.align-left {
-        background-image: var(--icon-align-left);
-    }
-    &.align-right {
-        background-image: var(--icon-align-right);
-    }
-    &.indent {
-        background-image: var(--icon-indent);
-    }
-    &.outdent {
-        background-image: var(--icon-outdent);
-    }
-    &.outdent {
-        background-image: var(--icon-smile);
-    }
-    &.smile {
-        background-image: var(--icon-smile);
-    }
-    &.bold {
-        background-image: var(--icon-bold);
-    }
-    &.image {
-        background-image: var(--icon-image);
-    }
-    &.italic {
-        background-image: var(--icon-italic);
-    }
-    &.link {
-        background-image: var(--icon-link);
-    }
-    &.list-numbered {
-        background-image: var(--icon-list-numbered);
-    }
-    &.list {
-        background-image: var(--icon-list);
-    }
-    &.quote {
-        background-image: var(--icon-quote);
-    }
+    each(@textIcons, {
+        &.@{value} {
+            background-image: ~'var(--icon-@{value})';
+        }
+    });
 }

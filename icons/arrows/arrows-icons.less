@@ -1,8 +1,14 @@
-body {
-    --icon-chevron-down: url("data-url:~/icons/arrows/chevron-down.svg");
+@arrowIcons: chevron-down;
+
+.arrow-icons() {
+    each(@arrowIcons, {
+        --icon-@{value}: url("data-url:~/icons/arrows/@{value}.svg");
+    });
 }
 .icon {
-    &.chevron-down {
-        background-image: var(--icon-chevron-down);
-    }
+    each(@arrowIcons, {
+        &.@{value} {
+            background-image: ~'var(--icon-@{value})';
+        }
+    });
 }
