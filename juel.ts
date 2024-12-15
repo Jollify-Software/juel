@@ -12,7 +12,7 @@ import './src/Editors/Import';
 // //import "./src/List/List"
 // //import "./src/Select/Select";
 import './src/Navigation/Import';
-// import './src/Gallery/ImportGallery';
+import './src/Gallery/Import';
 
 import './src/Utilities/Import';
 
@@ -49,7 +49,7 @@ import './src/Preload/Preload';
 //import './src/Shape/Shape';
 */
 //import './src/Grid/Grid';
-//import './src/Item/Item';
+import './src/Item/Item';
 /*
 import './src/Map/Map';
 import './src/Map/MapMarker';

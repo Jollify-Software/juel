@@ -1,0 +1,100 @@
+:host {
+    position: relative;
+    display: inline-flex;
+    width: var(--item-width, 400px);
+    height: var(--item-height, 400px);
+}
+
+::slotted(juel-item) {
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 100%;
+    visibility: hidden;
+}
+::slotted(juel-item.selected) {
+    visibility: visible;
+}
+
+.item {
+    display: none;
+    pointer-events: none;
+
+    &.active {
+        /* When the item is in view */
+        display: block;
+        pointer-events: all;
+    }
+}
+.caption {
+    position: absolute;
+    right: 15%;
+    bottom: 1.25rem;
+    left: 15%;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+    color: #fff;
+    text-align: center;
+}
+::slotted(.item) {
+    width: 100%;
+    height: 100%;
+}
+::slotted(div[slot*="caption"]) {
+    display: inline;
+}
+#previous {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 10%;
+    padding: 0;
+    text-align: center;
+    opacity: .25;
+    transition: opacity .15s ease;
+    cursor: pointer;
+
+    &:hover {
+        opacity: .45;
+    }
+
+    span {
+        width: 2rem;
+        height: 2rem;
+        background-image: var(--icon-previous);
+        filter: invert(1);
+    }
+}
+
+#next {
+    right: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 10%;
+    padding: 0;
+    text-align: center;
+    opacity: .25;
+    transition: opacity .15s ease;
+    cursor: pointer;
+
+    &:hover {
+        opacity: .45;
+    }
+
+    span {
+        width: 2rem;
+        height: 2rem;
+        background-image: var(--icon-next);
+        filter: invert(1);
+    }
+}

@@ -1,8 +1,12 @@
-import { html, LitElement } from "lit";
+import { CSSResultGroup, html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
+import Styles from 'bundle-text:./Steps.less';
 
 @customElement('juel-steps')
 export class JuelSteps extends LitElement {
+
+    static styles?: CSSResultGroup = unsafeCSS(Styles);
+
   // The total number of steps
   @property({ type: Number }) totalSteps: number = 0;
 

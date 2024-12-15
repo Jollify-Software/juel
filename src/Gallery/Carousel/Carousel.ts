@@ -1,123 +1,90 @@
-import { html, unsafeCSS } from "lit";
+import { CSSResultGroup, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
-import { when } from "lit/directives/when";
-import { JuelComponent } from "../../_Base/JuelComponent";
-import { ChildrenMap } from "../../_Utils/ChildrenMap";
 import Styles from 'bundle-text:./Carousel.less';
 import { NavigationBase } from "../../_Base/NavigationBase";
 
 @customElement("juel-carousel")
 export class JuelCarousel extends NavigationBase {
-    static styles = unsafeCSS(Styles);
 
-    @property() controls: string; // TODO: CControl: 5s, 500ms
-    // TODO: Indicators, transition: zoom(in|out)|fade, previous/next slots
+    static styles?: CSSResultGroup = unsafeCSS(Styles);
 
-    interval: number;
-    intervalHandler: number;
-    isForward: boolean; // The direction the carousel is going
+    @property({ type: Boolean }) showControls = true;
+    @property({ type: Number }) autoRotateInterval = 3000; // Interval in milliseconds
 
-    constructor() {
-        super();
-        this.selectable = 'false';
-        this.position = 0;
-        this.controls = "true";
-        this.titleAttrName = "caption";
-        this.titleIsNext = false;
-        this.itemsClickEvent = false;
-    }
-
-    navigateTo(index: number) {
-        this.selectItem(index);
-        /* Find the current card */
-        // const currItm = $(this.shadowRoot.querySelector(`[data-index="${index}"]`));
-        // if (currItm && currItm.length > 0) {
-        //     /* Set the prevCard based on its availability */
-        //     currItm.siblings(".item").removeClass("active");
-        //     currItm.addClass("active");
-
-        //     let w = currItm.outerWidth();
-        //     if (w > 0) {
-        //         this.style.setProperty('--item-width', w.toString());
-        //     }
-        //     let h = currItm.outerHeight();
-        //     if (h > 0) {
-        //         this.style.setProperty('--item-height', h.toString());
-        //     }
-        // }
-    }
-
-    navigateToSelector(selector: string): void {
-        let el = this.querySelector(selector);
-        if (el) {
-            let children = $(this).children().not('[slot*="caption"]');
-            let index = children.index(el);
-            if (index >= 0) {
-                this.position = index;
-                this.navigateTo(index);
-            }
-            //let index = Array.prototype.indexOf.call(this.children, el);
-        }
-    }
-
-    firstUpdated(): void {
-        super.firstUpdated()
-        if (this.controls.includes(' ')) {
-            let splity = this.controls.split(' ');
-            // 1st is true|false
-            this.setInterval(splity[1]);
-        } else {
-            this.setInterval(this.controls);
-        }
-        if (this.interval) {
-            this.intervalHandler = setInterval(() => {
-                this.next(null);
-            }, this.interval);
-        }
-    }
-
-    setInterval(str: string) {
-        if (str.endsWith('ms')) {
-            this.interval = parseInt(str.replace('ms', ''));
-        } else if (str.endsWith('s')) {
-            this.interval = parseInt(str.replace('s', '')) * 1000;
-        }
-    }
-
-    prev(e) {
-        this.isForward = false;
-        if (this.position == 0) {
-            this.position = this.items.length - 1;
-        } else {
-            this.position--;
-        }
-        this.navigateTo(this.position);
-    }
-
-    next(e) {
-        this.isForward = true;
-        if (e && this.intervalHandler) {
-            clearInterval(this.intervalHandler);
-        }
-        if (this.position == this.items.length - 1) {
-            this.position = 0;
-        } else {
-            this.position++;
-        }
-        this.navigateTo(this.position);
-    }
-
-    itemClick(e: Event) {
-        if (e) {
-            e.stopPropagation();
-        }
-        // TODO Despatch custom event
-    }
+    private currentIndex = 0;
+    private autoRotateTimer: number | null = null;
+    private hammer: HammerManager | null = null;
 
     render() {
-        let hasCtrls: boolean = this.controls.includes("true");
-        return html`${when(hasCtrls, () => html`<div id="previous" @click="${this.prev}"><span></span></div>`)}
-        <div class="items"><slot></slot></div>
-        ${when(hasCtrls, () => html`<div id="next" @click="${this.next}"><span></span></div>`)}`;
+        return html`
+          <div
+            class="carousel"
+            style="transform: translateX(-${this.currentIndex * 100}%);">
+            <slot></slot>
+          </div>
+    
+          ${this.showControls
+                ? html`
+                <div class="controls">
+                  <button class="control prev" @click="${this.prev}">&#9664;</button>
+                  <button class="control next" @click="${this.next}">&#9654;</button>
+                </div>
+              `
+                : ''}
+        `;
     }
-}
+
+    connectedCallback() {
+        super.connectedCallback();
+        this.startAutoRotate();
+        this.initializeHammer();
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        this.stopAutoRotate();
+        this.destroyHammer();
+    }
+
+    private initializeHammer() {
+        this.hammer = new Hammer(this);
+        this.hammer.on('swipeleft', () => this.next());
+        this.hammer.on('swiperight', () => this.prev());
+        this.hammer.on('panstart panend', () => this.pauseAutoRotate());
+    }
+
+    private destroyHammer() {
+        this.hammer?.destroy();
+        this.hammer = null;
+    }
+
+    private next() {
+        this.pauseAutoRotate();
+        this.currentIndex = (this.currentIndex + 1) % this.items.length;
+        this.requestUpdate();
+    }
+
+    private prev() {
+        this.pauseAutoRotate();
+        this.currentIndex =
+            (this.currentIndex - 1 + this.items.length) % this.items.length;
+        this.requestUpdate();
+    }
+
+    private startAutoRotate() {
+        this.autoRotateTimer = window.setInterval(() => {
+            this.next();
+        }, this.autoRotateInterval);
+    }
+
+    private pauseAutoRotate() {
+        if (this.autoRotateTimer !== null) {
+            window.clearInterval(this.autoRotateTimer);
+            this.autoRotateTimer = null;
+        }
+    }
+
+    private stopAutoRotate() {
+        this.pauseAutoRotate();
+    }
+}      
