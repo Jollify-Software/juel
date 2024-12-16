@@ -3,6 +3,10 @@ import { customElement, property } from "lit/decorators";
 import Styles from 'bundle-text:./Lightbox.less';
 import { ArrayConverter } from "../../_Converters/ArrayConverter";
 import { JuelComponent } from "../../_Base/JuelComponent";
+import { isMediaSource } from "../../_Utils/String/isMediaSource";
+import { IconsModule } from "../../_Modules/IconsModule";
+import { LightboxItem } from "./LightboxItem";
+import { lightboxItemTemplate } from "./Templates/LightboxItemTemplate";
 
 @customElement('juel-lightbox')
 export class JuelLightbox extends JuelComponent {
@@ -21,7 +25,7 @@ export class JuelLightbox extends JuelComponent {
   @property({ type: Boolean })
   isOpen: boolean = false;
 
-    images: string[] = [];
+    items: LightboxItem[] = [];
 
     firstLoad(): void {
         let i = 0;
@@ -32,11 +36,8 @@ export class JuelLightbox extends JuelComponent {
             if (elements) {
                 console.log("Found")
                 for (let ele of Array.from(elements)) {
-                    let src = ele.src;
-                    console.log(src)
-                    this.images.push(src);
                     let index = i;
-                    ele.addEventListener("click", () => this.openLightbox(index));
+                    this.processElement(ele, index);
                     i++  
                 }
             }
@@ -44,14 +45,35 @@ export class JuelLightbox extends JuelComponent {
         for (let selector of this.selectors) {
             let ele = document.querySelector(selector) as HTMLImageElement;
             if (ele) {
-                let src = ele.src;
-                this.images.push(src);
                 let index = i;
-                ele.addEventListener("click", () => this.openLightbox(index));
+                this.processElement(ele, index);
             }
             i++
         }
     }   
+    }
+
+    processElement(element: HTMLImageElement, index: number) {
+      let src = element.dataset.src ?? element.src;
+      console.log(src)
+      let type = isMediaSource(src);
+      let item: LightboxItem = {
+        src: src,
+        type: type.type,
+        platform: type.platform
+      };
+      this.items.push(item);
+      // If src is video
+      if (type.type == "video" || type.type == "audio") {
+        let playBtn = $('<div class="play-btn" />')
+        let svg = IconsModule.get("play");
+        playBtn.append(svg);
+        $(element).wrap($('<div class="play-container" />'))
+          .after(playBtn);
+          playBtn.on("click", () => this.openLightbox(index));
+      } else {
+        element.addEventListener("click", () => this.openLightbox(index));
+      }
     }
 
   // Method to open the lightbox
@@ -67,15 +89,15 @@ export class JuelLightbox extends JuelComponent {
 
   // Navigate to the previous image
   prevImage() {
-    if (this.images.length > 0) {
-      this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+    if (this.items.length > 0) {
+      this.currentIndex = (this.currentIndex - 1 + this.items.length) % this.items.length;
     }
   }
 
   // Navigate to the next image
   nextImage() {
-    if (this.images.length > 0) {
-      this.currentIndex = (this.currentIndex + 1) % this.images.length;
+    if (this.items.length > 0) {
+      this.currentIndex = (this.currentIndex + 1) % this.items.length;
     }
   }
 
@@ -84,13 +106,13 @@ export class JuelLightbox extends JuelComponent {
     return html`
       <div class="overlay ${this.isOpen ? 'open' : ''}">
         <div class="lightbox-content">
-          <button class="close-btn" @click="${this.closeLightbox}">×</button>
-          ${this.images.length > 0
-            ? html`<img src="${this.images[this.currentIndex]}" alt="Lightbox Image" />`
+          <div class="close-btn" @click="${this.closeLightbox}"></div>
+          ${this.items.length > 0 && this.isOpen
+            ? lightboxItemTemplate(this.items[this.currentIndex])
             : html`<p>No images available</p>`}
           <div class="controls">
-            <button @click="${this.prevImage}" ?disabled="${this.images.length <= 1}">Previous</button>
-            <button @click="${this.nextImage}" ?disabled="${this.images.length <= 1}">Next</button>
+            <button @click="${this.prevImage}" ?disabled="${this.items.length <= 1}">Previous</button>
+            <button @click="${this.nextImage}" ?disabled="${this.items.length <= 1}">Next</button>
           </div>
         </div>
       </div>

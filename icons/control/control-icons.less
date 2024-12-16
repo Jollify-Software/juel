@@ -1,0 +1,14 @@
+@controlIcons: play;
+
+.control-icons() {
+    each(@controlIcons, {
+        --icon-@{value}: url("data-url:~/icons/control/@{value}.svg");
+    });
+}
+.icon {
+    each(@controlIcons, {
+        &.@{value} {
+            background-image: ~'var(--icon-@{value})';
+        }
+    });
+}

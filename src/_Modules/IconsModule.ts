@@ -22,16 +22,19 @@ export module IconsModule {
         let iconsSection = $("#juel-icons");
         if (iconsSection.length <= 0) {
             iconsSection = $('<section id="juel-icons" />');
-            iconsSection.css("display", "none");
+            iconsSection.css("visible", "hidden");
             iconsSection.prependTo(document.body);
         }
         if (iconsSection.children(`#icon-${name}-container`).length <= 0) {
             let icon = get(name);
             if (icon) {
                 let iconSvg = $(icon);
+                let viewBox = iconSvg.attr("viewBox");
                 if (iconSvg.children(`#icon-${name}`).length <= 0) {
-                    iconSvg.children().wrapAll(`<g id="icon-${name}" />`);
+                        iconSvg.children().wrapAll($(`<symbol id="icon-${name}" />`)
+                            .attr("viewBox", viewBox));
                 }
+                iconSvg.attr("id", `icon-${name}-container`);
                 iconSvg.appendTo(iconsSection);
                 console.log(iconSvg.html());
             }

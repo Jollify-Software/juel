@@ -4,12 +4,14 @@
 @import "~/icons/geo/geo-icons.less";
 @import "~/icons/arrows/arrows-icons.less";
 @import "~/icons/message/message-icons.less";
+@import "~/icons/control/control-icons.less";
 
 .icons() {
     .text-icons();
     .geo-icons();
     .arrow-icons();
     .message-icons();
+    .control-icons();
 
     each(@miscIcons, {
         --icon-@{value}: url("data-url:~/icons/@{value}.svg");

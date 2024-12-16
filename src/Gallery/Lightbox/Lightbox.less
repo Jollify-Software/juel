@@ -21,17 +21,16 @@
   }
 
   .lightbox-content {
-    position: relative;
-    max-width: 90%;
-    max-height: 80%;
+    width: 90%;
+    height: 80%;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
 
   .lightbox-content img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 90%;
+    max-height: 90%;
     border-radius: 5px;
   }
 
@@ -58,11 +57,13 @@
 
   .close-btn {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: red;
-    color: white;
-    border: none;
+    background-color: white;
+    background-image: var(--icon-close);
+    background-position: center;
+    background-repeat: no-repeat;
+    top: 15px;
+    right: 15px;
+    padding: 4px;
     border-radius: 50%;
     width: 30px;
     height: 30px;
@@ -70,5 +71,5 @@
   }
 
   .close-btn:hover {
-    background: darkred;
+    background-color: darkgray;
   }

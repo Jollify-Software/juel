@@ -1,0 +1,34 @@
+.play-container {
+    display: inline-block;
+    position: relative;
+
+    .play-btn {
+        position: absolute;
+        top: calc(50% - 40px);
+        left: calc(50% - 40px);
+        width: 40px;
+        height: 40px;
+        --fill: var(--danger);
+        background: white;
+        padding: 20px;
+        border-radius: 50%;
+        animation: btn-ripple 3s infinite;
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+    }
+}
+
+@keyframes btn-ripple {
+    70% {
+        -webkit-box-shadow: 0 0 0 var(--glow-size, 15px) white;
+        box-shadow: 0 0 0 var(--glow-size, 15px) white;
+    }
+    
+    100% {
+        -webkit-box-shadow: 0 0 0 0 white;
+        box-shadow: 0 0 0 0 white;
+    }
+}
