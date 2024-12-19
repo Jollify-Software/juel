@@ -1,105 +1,111 @@
 <html>
 
 <head>
-    <script src="../../dist/juel.js"></script>
-    <style>
-      body {
-        display: flex;
-        flex-wrap: wrap;
-      }
-      juel-chart {
-        display: inline-block;
-        width: 400px;
-        height: 400px;
-      }
-    </style>
+  <script src="../../dist/juel.js"></script>
+  <style>
+    body {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    juel-chart {
+      display: inline-block;
+      width: 400px;
+      height: 400px;
+    }
+  </style>
 </head>
 
 <body>
-  <juel-chart type="bar" legend="top" title="Chart.js Bar Chart" labels="Africa,Asia,Europe,Latin America,North America"><juel-chart-dataset label="Population (millions)" background-colour="#3e95cd #8e5ea2 #3cba9f #e8c3b9 #c45850" data="2478 5267 734 784 433"><!----></juel-chart-dataset></juel-chart>
+  <juel-chart type="bar" legend="top" title="Chart.js Bar Chart"
+    labels="Africa,Asia,Europe,Latin America,North America"><juel-chart-dataset label="Population (millions)"
+      background-colour="#3e95cd #8e5ea2 #3cba9f #e8c3b9 #c45850"
+      data="2478 5267 734 784 433"><!----></juel-chart-dataset></juel-chart>
 
+  <juel-chart type="bar" responsive legend="top" title="Chart.js Bar Chart"
+    labels="Africa Asia, Europe, Latin America, North America">
+    <juel-chart-dataset label="Population (millions)" background-colour="#3e95cd #8e5ea2 #3cba9f #e8c3b9 #c45850"
+      data="2478 5267 734 784 433"></juel-chart-dataset>
+  </juel-chart>
 
-    <juel-chart type="bar" responsive legend="top" title="Chart.js Bar Chart"
-      labels="Africa Asia, Europe, Latin America, North America">
-      <juel-chart-dataset label="Population (millions)"
-        background-colour="#3e95cd #8e5ea2 #3cba9f #e8c3b9 #c45850"
-        data="2478 5267 734 784 433"></juel-chart-dataset>
-    </juel-chart>
+  <juel-chart type="line" title="World population per region (in millions)"
+    labels="1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050">
+    <juel-chart-dataset label="Africa" data="86 114 106 106 107 111 133 221 783 2478" border-colour="#3e95cd"
+      fill="false">
+    </juel-chart-dataset>
+    <juel-chart-dataset label="Asia" data="282 350 411 502 635 809 947 1402 3700 5267" border-colour="#8e5ea2"
+      fill="false">
+    </juel-chart-dataset>
+    <juel-chart-dataset label="Europe" data="168 170 178 190 203 276 408 547 675 734" border-colour="#3cba9f"
+      fill="false">
+    </juel-chart-dataset>
+    <juel-chart-dataset label="Latin America" data="40 20 10 16 24 38 74 167 508 784" border-colour="#e8c3b9"
+      fill="false">
+    </juel-chart-dataset>
+    <juel-chart-dataset label="North America" data="6 3 2 2 7 26 82 172 312 433" border-colour="#c45850" fill="false">
+    </juel-chart-dataset>
+  </juel-chart>
 
-    <juel-chart type="line" title="World population per region (in millions)"
-      labels="1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050">
-      <juel-chart-dataset label="Africa" data="86 114 106 106 107 111 133 221 783 2478"
-        border-colour="#3e95cd" fill="false">
-      </juel-chart-dataset>
-      <juel-chart-dataset label="Asia" data="282 350 411 502 635 809 947 1402 3700 5267"
-        border-colour="#8e5ea2" fill="false">
-      </juel-chart-dataset>
-      <juel-chart-dataset label="Europe" data="168 170 178 190 203 276 408 547 675 734"
-        border-colour="#3cba9f" fill="false">
-      </juel-chart-dataset>
-      <juel-chart-dataset label="Latin America" data="40 20 10 16 24 38 74 167 508 784"
-        border-colour="#e8c3b9" fill="false">
-      </juel-chart-dataset>
-      <juel-chart-dataset label="North America" data="6 3 2 2 7 26 82 172 312 433"
-        border-colour="#c45850" fill="false">
-      </juel-chart-dataset>
-    </juel-chart>
+  <juel-chart type="pie" title="Predicted world population (millions) in 2050"
+    labels="Africa, Asia, Europe, Latin America, North America">
+    <juel-chart-dataset label="Population (millions)" data="2478 5267 734 784 433"
+      background-colour="#3e95cd #8e5ea2 #3cba9f #e8c3b9 #c45850"></juel-chart-dataset>
+  </juel-chart>
 
-    <juel-chart type="pie" title="Predicted world population (millions) in 2050"
-      labels="Africa, Asia, Europe, Latin America, North America">
-      <juel-chart-dataset label="Population (millions)" data="2478 5267 734 784 433"
-        background-colour="#3e95cd #8e5ea2 #3cba9f #e8c3b9 #c45850"></juel-chart-dataset>
-    </juel-chart>
+  <juel-chart type="radar" title="Distribution in % of world population"
+    labels="Africa, Asia, Europe, Latin America, North America">
+    <juel-chart-dataset label="1950" fill="true" background-colour="rgba(179,181,198,0.2)"
+      border-colour="rgba(179,181,198,1)" point-border-colour="#fff" point-background-colour="rgba(179,181,198,1)"
+      data="8.77 55.61 21.69 6.62 6.82"></juel-chart-dataset>
+    <juel-chart-dataset label="2050" fill="true" background-colour="rgba(255,99,132,0.2)"
+      border-colour="rgba(255,99,132,1)" point-border-colour="#fff" point-background-colour="rgba(255,99,132,1)"
+      data="25.48 54.16 7.61 8.06 4.45"></juel-chart-dataset>
+  </juel-chart>
 
-    <juel-chart type="radar" title="Distribution in % of world population"
-      labels="Africa, Asia, Europe, Latin America, North America">
-      <juel-chart-dataset label="1950" fill="true" background-colour="rgba(179,181,198,0.2)" border-colour="rgba(179,181,198,1)"
-        point-border-colour="#fff" point-background-colour="rgba(179,181,198,1)" data="8.77 55.61 21.69 6.62 6.82"></juel-chart-dataset>
-        <juel-chart-dataset label="2050" fill="true" background-colour="rgba(255,99,132,0.2)" border-colour="rgba(255,99,132,1)"
-        point-border-colour="#fff" point-background-colour="rgba(255,99,132,1)" data="25.48 54.16 7.61 8.06 4.45"></juel-chart-dataset>
-    </juel-chart>
+  <juel-chart type="polarArea" title="Predicted world population (millions) in 2050"
+    labels="Africa, Asia, Europe, Latin America, North America">
+    <juel-chart-dataset label="Population (millions)" data="2478 5267 734 784 433"
+      background-colour="#3e95cd #8e5ea2 #3cba9f #e8c3b9 #c45850"></juel-chart-dataset>
+  </juel-chart>
 
-    <juel-chart type="polarArea" title="Predicted world population (millions) in 2050"
-      labels="Africa, Asia, Europe, Latin America, North America">
-        <juel-chart-dataset label="Population (millions)" data="2478 5267 734 784 433"
-          background-colour="#3e95cd #8e5ea2 #3cba9f #e8c3b9 #c45850"></juel-chart-dataset>
-    </juel-chart>
+  <juel-chart type="doughnut" type="Predicted world population (millions) in 2050"
+    labels="Africa, Asia, Europe, Latin America, North America">
+    <juel-chart-dataset label="Population (millions)" data="2478 5267 734 784 433"
+      background-colour="#3e95cd #8e5ea2 #3cba9f #e8c3b9 #c45850"></juel-chart-dataset>
+  </juel-chart>
 
-    <juel-chart type="doughnut" type="Predicted world population (millions) in 2050"
-      labels="Africa, Asia, Europe, Latin America, North America">
-        <juel-chart-dataset label="Population (millions)" data="2478 5267 734 784 433"
-          background-colour="#3e95cd #8e5ea2 #3cba9f #e8c3b9 #c45850"></juel-chart-dataset>
-    </juel-chart>
+  <juel-chart indexAxis="y" title="Predicted world population (millions) in 2050" legend="false"
+    labels="Africa, Asia, Europe, Latin America, North America">
+    <juel-chart-dataset label="Population (millions)" data="2478 5267 734 784 433"
+      background-colour="#3e95cd #8e5ea2 #3cba9f #e8c3b9 #c45850"></juel-cart-dataset>
+  </juel-chart>
 
-    <juel-chart indexAxis="y" title="Predicted world population (millions) in 2050" legend="false"
-      labels="Africa, Asia, Europe, Latin America, North America">
-      <juel-chart-dataset label="Population (millions)" data="2478 5267 734 784 433"
-        background-colour="#3e95cd #8e5ea2 #3cba9f #e8c3b9 #c45850"></juel-cart-dataset>
-    </juel-chart>
+  <juel-chart title="Population growth (millions)" labels="1900, 1950, 1999, 2050">
+    <juel-chart-dataset label="Africa" background-colour="#3e95cd" data="133 221 783 2478"></juel-chart-dataset>
+    <juel-chart-dataset label="Europe" background-colour="#8e5ea2" data="408 547 675 734"></juel-chart-dataset>
+  </juel-chart>
 
-    <juel-chart title="Population growth (millions)" labels="1900, 1950, 1999, 2050">
-      <juel-chart-dataset label="Africa" background-colour="#3e95cd" data="133 221 783 2478"></juel-chart-dataset>
-      <juel-chart-dataset label="Europe" background-colour="#8e5ea2" data="408 547 675 734"></juel-chart-dataset>
-    </juel-chart>
+  <juel-chart title="Population growth (millions): Europe & Africa" labels="1900, 1950, 1999, 2050">
+    <juel-chart-dataset label="Europe" fill="false" type="line" border-colour="#8e5ea2"
+      data="408 547 675 734"></juel-chart-dataset>
+    <juel-chart-dataset label="Africa" fill="false" type="line" border-colour="#3e95cd"
+      data="133 221 783 2478"></juel-chart-dataset>
+    <juel-chart-dataset label="Europe" type="bar" background-colour="rgba(0,0,0,0.2)"
+      data="408 547 675 734"></juel-chart-dataset>
+    <juel-chart-dataset label="Africa" type="bar" background-colour="rgba(0,0,0,0.2)" background-colour-hover="#3e95cd"
+      data="133 221 783 2478"></juel-chart-dataset>
+  </juel-chart>
 
-    <juel-chart title="Population growth (millions): Europe & Africa" labels="1900, 1950, 1999, 2050">
-      <juel-chart-dataset label="Europe" fill="false" type="line" border-colour="#8e5ea2" data="408 547 675 734"></juel-chart-dataset>
-      <juel-chart-dataset label="Africa" fill="false" type="line" border-colour="#3e95cd" data="133 221 783 2478"></juel-chart-dataset>
-      <juel-chart-dataset label="Europe" type="bar" background-colour="rgba(0,0,0,0.2)" data="408 547 675 734"></juel-chart-dataset>
-      <juel-chart-dataset label="Africa" type="bar" background-colour="rgba(0,0,0,0.2)" background-colour-hover="#3e95cd"
-        data="133 221 783 2478"></juel-chart-dataset>
-    </juel-chart>
-
-    <juel-chart type="bubble" title="Predicted world population (millions) in 2050" labels="Africa">
-      <juel-chart-dataset label="China" background-colour="rgba(255,221,50,0.2)" border-colour="rgba(255,221,50,1)"
-        data="x:21269017;y:5.245;r:15"></juel-chart-dataset>
-        <juel-chart-dataset label="Denmark" background-colour="rgba(60,186,159,0.2)" border-colour="rgba(60,186,159,1)"
-          data="x:258702;y:7.526;r:10"></juel-chart-dataset>
-          <juel-chart-dataset label="Germany" background-colour="rgba(0,0,0,0.2)" border-colour="#000"
-          data="x:3979083;y:6.994;r:15"></juel-chart-dataset>
-          <juel-chart-dataset label="Japan" background-colour="rgba(193,46,12,0.2)" border-colour="rgba(193,46,12,1)"
-          data="x:4931877;y:5.921;r:15"></juel-chart-dataset>
-    </juel-chart>
+  <juel-chart type="bubble" title="Predicted world population (millions) in 2050" labels="Africa">
+    <juel-chart-dataset label="China" background-colour="rgba(255,221,50,0.2)" border-colour="rgba(255,221,50,1)"
+      data="x:21269017;y:5.245;r:15"></juel-chart-dataset>
+    <juel-chart-dataset label="Denmark" background-colour="rgba(60,186,159,0.2)" border-colour="rgba(60,186,159,1)"
+      data="x:258702;y:7.526;r:10"></juel-chart-dataset>
+    <juel-chart-dataset label="Germany" background-colour="rgba(0,0,0,0.2)" border-colour="#000"
+      data="x:3979083;y:6.994;r:15"></juel-chart-dataset>
+    <juel-chart-dataset label="Japan" background-colour="rgba(193,46,12,0.2)" border-colour="rgba(193,46,12,1)"
+      data="x:4931877;y:5.921;r:15"></juel-chart-dataset>
+  </juel-chart>
 </body>
 
 </html>
