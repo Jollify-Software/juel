@@ -1,0 +1,60 @@
+@import '../../_CommonStyles/CircleButton.less';
+
+.dialog {
+    max-height: 100%;
+    flex-direction: column;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: fit-content;
+    z-index: 101;
+    overflow: hidden;
+    background-color: #ffffff;
+    box-shadow: 0 22px 64px 0 rgba(0, 0, 0, 0.22);
+    border-radius: 4px;
+    display: none;
+    position: absolute;
+
+    &.shown {
+        display: flex;
+    }
+
+    &.initial {
+        transform: translateX(-50%) translateY(-50%);
+    }
+}
+
+::slotted(:not(juel-dialog)) {
+    display: block !important;
+}
+
+@media (max-device-width: 600px) {
+    .dialog-body {
+        width: 100%;
+        height: 100%;
+        box-shadow: initial;
+    }
+}
+
+.dialog-body {
+    padding: 1.25rem;
+}
+
+.titlebar {
+    background-color: rgba(243, 245, 247, 0.56);
+    padding: 0.6875rem 1.25rem;
+    font-size: 1.25rem;
+    line-height: 1.875rem;
+    border-bottom: none;
+
+    .close {
+        float: right;
+        background-image: var(--icon-close);
+        width: 26px;
+        height: 26px;
+        margin-top: 3%;
+        background-repeat: no-repeat;
+        background-position: center;
+        .circle-button();
+    }
+}

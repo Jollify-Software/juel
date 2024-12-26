@@ -1,58 +1,111 @@
-import { CSSResultGroup, html, LitElement, unsafeCSS } from "lit";
-import { customElement, property } from "lit/decorators";
-import Styles from 'bundle-text:./Countdown.less';
+import { LitElement, html, css } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 
-@customElement('juel-countdown')
+@customElement('countdown-timer')
 export class CountdownTimer extends LitElement {
+  @property({ type: Number })
+  start: number = 10; // Starting value for the countdown
 
-    static styles?: CSSResultGroup = unsafeCSS(Styles);
+  @property({ type: Number })
+  end: number = 0; // End value for the countdown
 
+  @property({ type: Number })
+  time: number = 1000; // Time in milliseconds for the countdown
 
-  @property({ type: Number }) start = 10; // Start value for countdown
-  @property({ type: Number }) current = this.start; // Current countdown value
-  @property({ type: Number }) interval = 1000; // Interval in milliseconds
+  @property({ type: Number })
+  threshold: number = 10; // Threshold value to apply animation
+
+  @property({ type: String })
+  animation: string = 'pulse'; // CSS class name for animation
+
+  @property({ type: Number })
+  interval: number = 1000; // Calculated interval between ticks
+
+  private currentValue: number = this.start;
   private timerId: number | undefined;
+  private step: number = 1; // Amount to subtract or add per interval
 
-  firstUpdated() {
-    this.startCountdown();
+  static styles = css`
+    .animated {
+      animation: var(--animation-duration, 0.5s) ease-in-out;
+    }
+
+    .pulse {
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      animation-name: pulse;
+    }
+  `;
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.initializeTimer();
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.clearCountdown();
+    this.clearTimer();
   }
 
-  private startCountdown() {
-    this.current = this.start;
-    this.clearCountdown(); // Clear any existing timer
-    this.timerId = window.setInterval(() => {
-      this.current -= 1;
-      this.dispatchEvent(
-        new CustomEvent('countdown-tick', {
-          detail: { value: this.current },
-          bubbles: true,
-          composed: true,
-        })
-      );
+  initializeTimer() {
+    const range = Math.abs(this.start - this.end);
+    this.interval = this.time / range;
+    this.step = range / (this.time / this.interval);
+    this.currentValue = this.start;
 
-      if (this.current <= 0) {
-        this.clearCountdown();
+    console.log('Interval:', this.interval);
+    console.log('Step:', this.step);
+
+    this.timerId = window.setInterval(() => {
+      if (
+        (this.start > this.end && this.currentValue <= this.end) ||
+        (this.start < this.end && this.currentValue >= this.end)
+      ) {
+        this.clearTimer();
+        return;
       }
+
+      this.currentValue += this.start > this.end ? -this.step : this.step;
+      this.currentValue = Math.round(this.currentValue); // Ensure integer 
+      console.log('Current Value:', this.currentValue);
+      this.dispatchEvent(new CustomEvent('tick', {
+        detail: { value: this.currentValue },
+      }));
+
+      this.requestUpdate();
     }, this.interval);
   }
 
-  private clearCountdown() {
-    if (this.timerId !== undefined) {
+  clearTimer() {
+    if (this.timerId) {
       clearInterval(this.timerId);
       this.timerId = undefined;
     }
   }
 
-  private getClass() {
-    return this.current <= 10 ? 'countdown pulsate' : 'countdown';
-  }
-
   render() {
-    return html`<div class=${this.getClass()}>${this.current}</div>`;
+    const isThreshold =
+      this.start > this.end
+        ? this.currentValue <= this.threshold
+        : this.currentValue >= this.threshold;
+
+    return html`
+      <div
+        class=${isThreshold ? `animated ${this.animation}` : ''}
+        style="--animation-duration: ${this.interval / 1000}s"
+      >
+        ${this.currentValue}
+      </div>
+    `;
   }
 }

@@ -13,6 +13,64 @@
 <body>
   <juel-countdown id="timer" start="15" interval="1000"></juel-countdown>
 
+  <countdown-timer
+   start="100000"
+   end="0"
+   time="1000"
+   threshold="10"
+   animation="pulse"
+ ></countdown-timer>
+
+ <h2>Example 1: Count Up from 0 to 500 in 5 seconds</h2>
+
+ <countdown-timer
+  start="0"
+  end="500"
+  time="5000"
+  threshold="450"
+  animation="pulse"
+></countdown-timer>
+
+<h2>Example 2: Count Down from 100 to 0 in 2 seconds with a Threshold of 20</h2>
+
+<countdown-timer
+  start="100"
+  end="0"
+  time="2000"
+  threshold="20"
+  animation="pulse"
+></countdown-timer>
+
+<h2>Example 3: Count Down from 1,000,000 to 0 in 1 second</h2>
+
+<countdown-timer
+  start="1000000"
+  end="0"
+  time="1000"
+  threshold="500000"
+  animation="pulse"
+></countdown-timer>
+
+<h2>Example 4: Count Up from 10 to 100 in 3 seconds</h2>
+
+<countdown-timer
+  start="10"
+  end="100"
+  time="3000"
+  threshold="90"
+  animation="pulse"
+></countdown-timer>
+
+<h2>Example 5: Count Down from 5000 to 1000 in 10 seconds with a Slow Animation</h2>
+
+<countdown-timer
+  start="5000"
+  end="1000"
+  time="10000"
+  threshold="2000"
+  animation="pulse"
+></countdown-timer>
+
   <script>
     const timer = document.getElementById('timer');
     timer.addEventListener('countdown-tick', (e) => {

@@ -1,0 +1,16 @@
+:host {
+    display: block;
+  }
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  ::slotted(breadcrumb-item:not(:last-child))::after {
+    content: var(--breadcrumb-separator, "/");
+    margin: 0 0.5em;
+    color: var(--breadcrumb-separator-color, #6c757d);
+  }

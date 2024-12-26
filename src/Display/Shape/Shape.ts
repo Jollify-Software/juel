@@ -1,0 +1,121 @@
+import { CSSResultGroup, html, LitElement, PropertyValues, unsafeCSS } from "lit";
+import { customElement, property } from "lit/decorators";
+import { DOMStringMapConverter } from "../../_Converters/DOMStringMapConvertor";
+import { Container, Shape, Svg, SVG, Text } from "@svgdotjs/svg.js";
+import bind from "bind-decorator";
+import { ShapeTemplateService } from "./Services/ShapeTemplateService";
+import { ShapeStrategies, ShapeStrategy } from "./ShapeStrategies/ShapeStrategy";
+import { getSlottedElements } from "../../_Utils/dom/GetSlottedElements";
+import Styles from 'bundle-text:./Shape.less';
+import { IconsModule } from "../../_Modules/IconsModule";
+
+@customElement("juel-shape")
+export class JuelShape extends LitElement {
+
+    static styles?: CSSResultGroup = unsafeCSS(Styles);
+
+    @property() type: string;
+    @property() src: string;
+    @property({ converter: DOMStringMapConverter }) args: object;
+    @property({ attribute: "text-attr", converter: DOMStringMapConverter }) textArgs: object;
+    @property() text: string;
+
+    draw: Svg;
+    container: Container;
+    textEl: Text;
+    shape: Shape;
+    svgContainerRef: HTMLDivElement;
+
+    sts: ShapeTemplateService;
+
+    constructor() {
+        super();
+        this.type = "circle";
+        this.args = {
+            'fill': 'var(--fill, #E6904B)'
+        };
+        this.textArgs = {
+            'x': '50%',
+            'y': '50%',
+             'dominant-baseline': "middle",
+             'text-anchor': "middle"
+        }
+    }
+
+
+  protected render(): unknown {
+      return html`<span class="content"><slot></slot></span><div class="svg-container"></dov>`;
+  }
+
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        $.when($.ready).then(this.ready)
+    }
+
+    @bind
+    ready() {
+        this.svgContainerRef = this.shadowRoot.querySelector("div.svg-container");
+        let slot = this.shadowRoot.querySelector("slot") as HTMLSlotElement;
+        let slottedElements = getSlottedElements(slot);
+        let templates = slottedElements.filter(x => x.nodeName.toLowerCase() == "template") as HTMLTemplateElement[];
+        if (templates.length > 0) {
+            // We do have templates
+            this.sts = new ShapeTemplateService(this, templates);
+        } else if ((!this.shape) && (!this.src)) {
+            this.setDefaultStyles();
+
+            if (!this.draw) {
+                this.draw = SVG().addTo(this.svgContainerRef).viewbox(0, 0, this.clientWidth, this.clientHeight);
+            }
+            this.drawShape();
+            
+        if (this.shape && this.args) {
+            this.shape.attr(this.args);
+        }
+        } else if (this.src && (!this.shape)) {
+            let img = new Image();
+            img.src = this.src;
+            this.prepend(img);
+        }
+        if (this.text) {
+            if (!this.container) {
+                this.container = this.draw.group();
+            }
+            if (!this.textEl) {
+                this.textEl = this.container.add(this.shape).text(this.text);
+            }
+            this.textEl.attr(this.textArgs);
+        }
+    }
+
+    private setDefaultStyles() {
+        let fill = this.style.getPropertyValue("--fill");
+        if (!fill) {
+            this.style.setProperty("--fill", "#E6904B");
+        }
+        let stroke = this.style.getPropertyValue("--stroke");
+        if (!stroke) {
+            this.style.setProperty("--stroke", "black");
+        }
+    }
+
+    private drawShape() {
+        if (this.draw && this.type && this.type in ShapeStrategies) {
+            let strategy = ShapeStrategies[this.type] as ShapeStrategy;
+            this.shape = strategy.draw(this.draw, this.clientWidth, this.clientHeight);
+        } else if (this.draw && this.type) { // Type not in shapeStrategies
+            let svg = IconsModule.get(this.type);
+            if (svg) {
+                this.shape = this.draw.svg(svg);
+            }
+        }
+    }
+
+    addCenteredText() {
+        let size = Math.max(this.clientWidth, this.clientHeight);
+        const center = size / 2;
+        this.draw
+          .text(this.text)
+          .font({ size: 16, anchor: 'middle', fill: '#ffffff' })
+          .center(center, center);
+      }
+}

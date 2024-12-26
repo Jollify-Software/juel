@@ -1,1 +1,0 @@
-export type AreaShape = 'rect' | 'circle' | 'poly';

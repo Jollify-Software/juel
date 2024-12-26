@@ -1,0 +1,66 @@
+/* Compass Point Rotation Classes */
+.position {
+  position: absolute;
+  &.outside {
+    z-index: 1000;
+  }
+  &.n {
+    top: 0; /* North */
+    &.outside {
+      transform: translateY(-50%);
+    }
+  }
+  
+  &.ne {
+    top: 0; /* Northeast */
+    right: 0;
+    &.outside {
+      transform: translate(50%, -50%);
+    }
+  }
+  
+  &.e {
+    right: 0; /* East */
+    &.outside {
+      transform: translateX(50%);
+    }
+  }
+  
+  &.se {
+    bottom: 0; /* Southeast */
+    right: 0;
+    &.outside {
+      transform: translate(50%, 50%);
+    }
+  }
+  
+  &.s {
+    bottom: 0; /* South */
+    &.outside {
+      transform: translateY(50%);
+    }
+  }
+  
+  &.sw {
+    bottom: 0; /* Southwest */
+    left: 0;
+    &.outside {
+      transform: translate(-50%, 50%);
+    }
+  }
+  
+  &.w {
+    left: 0; /* West */
+    &.outside {
+      transform: translateX(-50%);
+    }
+  }
+  
+  &.nw {
+    top: 0; /* Northwest */
+    left: 0;
+    &.outside {
+      transform: translate(-50%, -50%);
+    }
+  }
+}
