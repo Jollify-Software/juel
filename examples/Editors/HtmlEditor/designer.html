@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="../../../dist/juel.js"></script>
+    </head>
+    <body>
+        <button onclick="setSlide1()">Slide 1</button><button onclick="setSlide2()">Slide 2</button>
+        <button onclick="setTheme1()">Theme 1</button><button onclick="setTheme2()">Theme 2</button>
+        <html-editor rootId="slides-container" value="<section><h1>Welcome</h1><p>My first presentation</p><p>With Jollify!</p></section>">
+            
+        </html-editor>
+
+        <script>
+            var ele = document.getElementsByTagName("html-editor")[0];
+
+            window.setSlide1 = () => {
+                ele.setValue(`<section>
+                <h1>Welcome</h1>
+                <p>My first presentation</p>
+                <p>With Jollify!</p>
+            </section>`);
+            }
+
+            window.setSlide2 = () => {
+                console.log("Setting slide 2");
+                ele.setValue(`<section>
+                    <h1><span>S</span><span>l</span><span>i</span><span>d</span><span>e</span> <span>2</span></h1>
+                    <p>Isn't it a lovely day?</p>
+                    </section>`);
+            }
+
+            window.setTheme1 = () => {
+                ele.setTheme(`#slides-container {background-color:#f7f3de;font-family:sans-serif;font-size:40px;font-weight:normal;color:#333}::selection {color:#fff;background:rgba(79, 64, 28, 0.99);text-shadow:none}section, section > section {justify-content:center;line-height:1.3;font-weight:inherit}h1, h2, h3, h4, h5, h6 {margin:0 0 20px 0;color:#333;font-family:Impact, sans-serif;font-weight:normal;line-height:1.2;letter-spacing:normal;text-transform:uppercase;text-shadow:none;word-wrap:break-word}h1 {font-size:2em}h2 {font-size:2em}h3 {font-size:1.55em}h4 {font-size:1em}h1 {text-shadow:0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0, 0, 0, 0.1), 0 0 5px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.25), 0 20px 20px rgba(0, 0, 0, 0.15)}p {margin:20px 0;line-height:1.3}img, video, iframe {max-width:95%;max-height:95%}strong, b {font-weight:bold}em {font-style:italic}ol, dl, ul {display:inline-block;text-align:left;margin:0 0 0 1em}ol {list-style-type:decimal}ul {list-style-type:disc}ul ul {list-style-type:square}ul ul ul {list-style-type:circle}ul ul, ul ol, ol ol, ol ul {display:block;margin-left:40px}dt {font-weight:bold}dd {margin-left:40px}`)
+            }
+
+            window.setTheme2 = () => {
+                ele.setTheme(`#slides-container {background-color:pink;font-family:sans-serif;font-size:40px;font-weight:normal;color:#333}::selection {color:#fff;background:rgba(79, 64, 28, 0.99);text-shadow:none}section, section > section {justify-content:center;line-height:1.3;font-weight:inherit}h1, h2, h3, h4, h5, h6 {margin:0 0 20px 0;color:#333;font-family:Impact, sans-serif;font-weight:normal;line-height:1.2;letter-spacing:normal;text-transform:uppercase;text-shadow:none;word-wrap:break-word}h1 {font-size:2em}h2 {font-size:2em}h3 {font-size:1.55em}h4 {font-size:1em}h1 {text-shadow:0 1px 0 #ccc, 0 2px 0 #c9c9c9, 0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0, 0, 0, 0.1), 0 0 5px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2), 0 5px 10px rgba(0, 0, 0, 0.25), 0 20px 20px rgba(0, 0, 0, 0.15)}p {margin:20px 0;line-height:1.3}img, video, iframe {max-width:95%;max-height:95%}strong, b {font-weight:bold}em {font-style:italic}ol, dl, ul {display:inline-block;text-align:left;margin:0 0 0 1em}ol {list-style-type:decimal}ul {list-style-type:disc}ul ul {list-style-type:square}ul ul ul {list-style-type:circle}ul ul, ul ol, ol ol, ol ul {display:block;margin-left:40px}dt {font-weight:bold}dd {margin-left:40px}`)
+            }
+        </script>
+    </body>
+</html>
