@@ -8,6 +8,8 @@ import Styles from 'bundle-text:./MessageBoxStyles.less'
 
 export module MessageBoxModule {
 
+    let shown: boolean = false;
+
     export var error = (text: string, title = null) => {
         let args: MessageBoxArgs = {
             title: title ?? "Error",
@@ -47,7 +49,16 @@ export module MessageBoxModule {
     }
 
     export var show = (args: MessageBoxArgs) => { // TODO: Return Promise of MessageBox result
+        if (shown) {
+            return;
+        }
+        shown = true;
         return new Promise((resolve, reject) => {
+            const resolvePromise = (value: unknown) => {
+                shown = false;
+                resolve(value);
+            };
+
             let msgBox = $(`<style>${Styles}</style><div id="overlay">
         <div id="dialog">
         <div id="dialog-title">
@@ -68,11 +79,11 @@ export module MessageBoxModule {
             }
             if ('prompt' in args) {
                 prompt = true;
-                if (args.prompt == "color") {
-                    args.prompt = "colour";
+                if (args.prompt.prompt == "color") {
+                    args.prompt.prompt = "colour";
                 }
-                if (args.prompt in MessageBoxInputStrategies) {
-                    MessageBoxInputStrategies[args.prompt](args, msgBox);
+                if (args.prompt.prompt in MessageBoxInputStrategies) {
+                    MessageBoxInputStrategies[args.prompt.prompt](args, msgBox);
                 }
             } else {
                 prompt = false;
@@ -80,10 +91,10 @@ export module MessageBoxModule {
             if ('buttons' in args) {
                 // TODO: If object
                 if (args.buttons in MessageBoxButtonStrategies) {
-                    MessageBoxButtonStrategies[args.buttons](args, msgBox, resolve, reject);
+                    MessageBoxButtonStrategies[args.buttons](args, msgBox, resolvePromise, reject);
                 }
             } else {
-                MessageBoxButtonStrategies[MessageBoxButtons.OK](args, msgBox, resolve, reject);
+                MessageBoxButtonStrategies[MessageBoxButtons.OK](args, msgBox, resolvePromise, reject);
             }
             if (prompt == false) {
                 msgBox.find("juel-button").trigger('focus');
@@ -92,7 +103,7 @@ export module MessageBoxModule {
                 let closeBtn = $(`<div class="close"></div>`);
                 closeBtn.on("click", () => {
                     msgBox.remove();
-                    resolve(0);
+                    resolvePromise(0);
                 });
                 msgBox.find("#dialog-title").append(closeBtn);
             }
