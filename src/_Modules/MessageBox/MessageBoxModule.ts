@@ -82,7 +82,12 @@ export module MessageBoxModule {
                 if (args.prompt.prompt == "color") {
                     args.prompt.prompt = "colour";
                 }
-                if (args.prompt.prompt in MessageBoxInputStrategies) {
+                if (args.prompt.fields && args.prompt.fields.length > 0) {
+                    args.prompt.fields.forEach(field => {
+                        MessageBoxInputStrategies[field.type](args, msgBox, field);
+                    });
+
+                } else if (args.prompt.prompt in MessageBoxInputStrategies) {
                     MessageBoxInputStrategies[args.prompt.prompt](args, msgBox);
                 }
             } else {
@@ -105,7 +110,7 @@ export module MessageBoxModule {
                     msgBox.remove();
                     resolvePromise(0);
                 });
-                msgBox.find("#dialog-title").append(closeBtn);
+                    msgBox.find("#dialog-title").append(closeBtn);
             }
             $(document.body).append(msgBox);
         });

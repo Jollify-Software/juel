@@ -7,7 +7,7 @@ export enum EventNames {
     PreviousClick = "previous-click",
     NextClick = "next-click",
     Changed = "changed",
-    ValueChanged = "valueChanged",
+    ValueChanged = "value-changed",
     Selected = "selected",
     Deselected = "deselected",
 	Disposed = "disposed",

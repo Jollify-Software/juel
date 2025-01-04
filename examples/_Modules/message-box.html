@@ -9,7 +9,7 @@
         <h1>Icons</h1>
         <button id="asterisk">Asterisk</button><button id="error">Error</button><button id="ex">Exclamation</button><button id="hand">Hand</button><button id="info">Information</button><button id="question">Question</button><button id="stop">Stop</button><button id="success">Success</button><button id="warning">Warning</button>
         <h1>Prompt</h1>
-        <button id="text">Text</button><button id="markdown">Markdown</button>
+        <button id="text">Text</button><button id="name-description">Name Description</button><button id="markdown">Markdown</button>
     </div>
 
     <script>
@@ -67,8 +67,23 @@
                 text: "Please enter your name.",
                 prompt: { prompt: "text" },
                 icon: 5
+            }).then(args => {
+                alert(args.value);
             });
         });
+
+        document.getElementById("name-description").addEventListener("click", () => {
+            juel.messageBox.show({
+                title: "What is your name?",
+                text: "Please enter your name.",
+                prompt: { fields: [ { name: "name", type: "text" }, { name: "description", type: "text" } ] },
+                icon: 5
+            }).then(args => {
+                console.log(args.value);
+            });
+        });
+
+
         document.getElementById("markdown").addEventListener("click", () => {
             juel.messageBox.show({
                 title: "Hello there",
