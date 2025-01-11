@@ -50,7 +50,7 @@ export class JuelContainerComponent extends JuelComponent {
         super.firstUpdated(_changedProperties);
     }
 
-    firstLoad(): void {
+    ready(): void {
         setTimeout(() => {
             this.requestUpdate();
             this.ready();

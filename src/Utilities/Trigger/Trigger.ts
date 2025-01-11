@@ -17,7 +17,7 @@ export class JuelTrigger extends CommandComponent {
 
     element: HTMLElement;
 
-    firstLoad(): void {
+    ready(): void {
         if (this.selector) {
             this.element = document.querySelector(this.selector);
         } else {

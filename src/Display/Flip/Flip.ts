@@ -41,7 +41,7 @@ export class JuelFlip extends JuelComponent {
             })
     }
 
-    firstLoad() {
+    ready() {
         this.init();
     }
 

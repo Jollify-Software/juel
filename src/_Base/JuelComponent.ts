@@ -18,7 +18,7 @@ export class JuelComponent extends LitElement {
             (<JuelComponent>this.parentElement).childFirstUpdated(this);
         }
         $.when($.ready).then(() => {
-            this.firstLoad();
+            this.ready();
         });
         super.firstUpdated(_changedProperties);
     }
@@ -39,7 +39,7 @@ export class JuelComponent extends LitElement {
 
     }
 
-    firstLoad() {
+    ready() {
 
     }
 

@@ -27,7 +27,7 @@ export class JuelLightbox extends JuelComponent {
 
     items: LightboxItem[] = [];
 
-    firstLoad(): void {
+    ready(): void {
         let i = 0;
         console.log(this.selector)
         if (this.selector) {

@@ -2,8 +2,8 @@ import { ListBase } from "./ListBase";
 
 export class NavigationBase extends ListBase {
     
-    firstLoad(): void {
-        super.firstLoad();
+    ready(): void {
+        super.ready();
         if (window.location.hash) {
             this.navigateToSelector(window.location.hash);
         }

@@ -25,7 +25,7 @@ export class JuelAnimate extends CommandComponent {
         this.loop = false;
     }
 
-    firstLoad(): void {
+    ready(): void {
         this.compile();
     }
 
