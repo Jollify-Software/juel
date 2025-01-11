@@ -8,7 +8,7 @@
 .icon {
     each(@messageIcons, {
         &.@{value} {
-            background-image: ~'var(--icon-@{value})';
+            mask-image: ~'var(--icon-@{value})';
         }
     });
 }

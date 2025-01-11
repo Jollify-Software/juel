@@ -19,8 +19,7 @@
 }
 
 .icn() {
-    background-position: center;
-    background-repeat: no-repeat;
+    background: black;
     mask-repeat: no-repeat;
 }
 
@@ -44,7 +43,7 @@
 .icon {
     each(@miscIcons, {
         &.@{value} {
-            background-image: ~'var(--icon-@{value})';
+            mask-image: ~'var(--icon-@{value})';
         }
     });
 }

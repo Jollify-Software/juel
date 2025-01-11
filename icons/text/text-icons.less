@@ -1,5 +1,5 @@
 @textIcons: align-centre, align-justify, align-left, align-right, indent, outdent, smile, bold, image, italic, link,
-    list-numbered, list,quote;
+    list-numbered, list, quote;
 
 .text-icons() {
     each(@textIcons, {
@@ -9,7 +9,7 @@
 .icon {
     each(@textIcons, {
         &.@{value} {
-            background-image: ~'var(--icon-@{value})';
+            mask-image: ~'var(--icon-@{value})';
         }
     });
 }

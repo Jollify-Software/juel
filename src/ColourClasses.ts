@@ -18,27 +18,52 @@ export function ColourClasses() {
     }
 }
 
+/**
+ * Sets the color of a given HTML element based on the provided class string.
+ * The class string is expected to be in the format 'property-value' or 'property-var-value'.
+ * 
+ * @param element - The HTML element whose color will be set.
+ * @param klass - A string representing the color class, formatted as 'property-value' or 'property-var-value'.
+ */
 function setColor(element: HTMLElement, klass: string) {
+    // Split the class string into parts using '-' as the delimiter
     let splitty = klass.split('-');
-    let name = splitty[0];
-    let color = splitty[1];
-    if (splitty.length == 3 && color == "var") {
-        if (element.nodeName.toLowerCase().startsWith("juel-")) {
-            element.style.setProperty(`--${name}`, `var(--${splitty[2]})`);
+    
+    let sliceIndex = 1;
+    // Extract the name and color from the split parts
+    let name = splitty[0]; // The first part is the property name
+    let color = splitty[1]; // The second part is the color value
+    if (color == "var") {
+        sliceIndex = 2;
+        color = `var(--${splitty[2]}`;
+    }
+    const colors = splitty.slice(sliceIndex).map((str) => {
+        if (Object.values(AlertTypes).includes(str as AlertTypes)) {
+            return `var(--${str})`;
         } else {
-            element.style[name] = `var(--${splitty[2]})`;
+            return str;
         }
-    } else if (Object.values(AlertTypes).includes(color as AlertTypes)) {
+    });
+    
+
+    // If only one color
+    if (colors.length == 1) {
+        // If the element's node name starts with 'juel-', set a CSS variable
         if (element.nodeName.toLowerCase().startsWith("juel-")) {
-            element.style.setProperty(`--${name}`, `var(--${color})`);
+            element.style.setProperty(`--${name}`, colors[0]); // Set CSS variable
         } else {
-            element.style[name] = `var(--${color})`;
+            // Otherwise, set the style property directly
+            element.style[name] = colors[0]; // Set style property
         }
-    } else {
-        if (element.nodeName.toLowerCase().startsWith("juel-") && colourProperties.some(x => x == name)) {
-            element.style.setProperty(`--${name}`, `var(--${color})`);
+    } else { // More colors = gradient
+        const value = `linear-gradient(${colors.join(', ')})`;
+        console.log(value);
+        // If the element's node name starts with 'juel-' and the name is a valid color property
+        if (element.nodeName.toLowerCase().startsWith("juel-")) {
+            element.style.setProperty(`--${name}`, value); // Set CSS variable
         } else {
-            element.style[name] = color;
+            // Otherwise, set the style property directly
+            element.style[name] = value; // Set style property
         }
     }
 }
