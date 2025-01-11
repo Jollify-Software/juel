@@ -1,3 +1,5 @@
+export type MediaSourceType = { type: 'video' | 'audio' | 'image'; platform?: string };
+
 // Function to check if a source string is a video or audio source
 export function isMediaSource(source: string): { type: 'video' | 'audio' | 'image'; platform?: string } {
     // Define video file extensions and platforms

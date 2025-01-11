@@ -4,7 +4,7 @@ import cloud from 'd3-cloud';
 import { customElement, property } from 'lit/decorators';
 import { ArrayConverter } from '../../_Converters/ArrayConverter';
 
-@customElement('Juel-word-cloud')
+@customElement('juel-word-cloud')
 export class JuelWordCloud extends LitElement {
   // Styles for the component
   static styles = css`

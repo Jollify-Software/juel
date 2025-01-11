@@ -1,0 +1,48 @@
+.sheet {
+    margin: 0;
+    overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
+    page-break-after: always;
+    .landscape {
+        page: landscape;
+    }
+  }
+  
+  /** Paper sizes **/
+  .page.A3               .sheet { width: 297mm; height: 420mm }
+  .page.A3.landscape     .sheet { width: 420mm; height: 297mm }
+  .page.A4               .sheet { width: 210mm; height: 297mm }
+  .page.A4.landscape     .sheet { width: 297mm; height: 210mm }
+  .page.A5               .sheet { width: 148mm; height: 210mm }
+  .page.A5.landscape     .sheet { width: 210mm; height: 148mm }
+  .page.letter           .sheet { width: 216mm; height: 279mm }
+  .page.letter.landscape .sheet { width: 280mm; height: 215mm }
+  .page.legal            .sheet { width: 216mm; height: 356mm }
+  .page.legal.landscape  .sheet { width: 357mm; height: 215mm }
+  
+  /** Padding area **/
+  .sheet.padding-10mm { padding: 10mm }
+  .sheet.padding-15mm { padding: 15mm }
+  .sheet.padding-20mm { padding: 20mm }
+  .sheet.padding-25mm { padding: 25mm }
+  
+  @page {
+    size: A4 portrait;
+  }
+  
+  @page landscape {
+    size: A4 landscape;
+  }
+  
+  /** For screen preview **/
+  /*
+  @media screen {
+    jollify-report { background: #e0e0e0 }
+    .sheet {
+      background: white;
+      box-shadow: 0 .5mm 2mm rgba(0,0,0,.3);
+      margin: 5mm auto;
+    }
+  }
+    */
