@@ -9,6 +9,7 @@ import { ReverseString } from "./_Utils/ReverseStringFunction";
 import { TransitionModule } from "./_Modules/TransistionModule";
 import { WindowModule } from "./_Modules/WindowModule";
 import { ColourClasses } from "./ColourClasses";
+import { Iconify } from "./_Modules/Icons/IconifyFunction";
 
 (<any>window).juel = JuelModule;
 (<any>window).$ = $;
@@ -40,7 +41,9 @@ $(function() {
         }
     }
 
+    Iconify();
     ColourClasses();
+    
     WindowModule.documentClick();
     TransitionModule.initTransitions();
 });

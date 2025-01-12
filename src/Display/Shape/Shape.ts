@@ -7,7 +7,7 @@ import { ShapeTemplateService } from "./Services/ShapeTemplateService";
 import { ShapeStrategies, ShapeStrategy } from "./ShapeStrategies/ShapeStrategy";
 import { getSlottedElements } from "../../_Utils/dom/GetSlottedElements";
 import Styles from 'bundle-text:./Shape.less';
-import { IconsModule } from "../../_Modules/IconsModule";
+import { IconsModule } from "../../_Modules/Icons/IconsModule";
 
 @customElement("juel-shape")
 export class JuelShape extends LitElement {

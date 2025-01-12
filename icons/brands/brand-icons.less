@@ -1,0 +1,14 @@
+@brandIcons: facebook, instagram, tiktok, whatsapp, youtube, x;
+
+.brand-icons() {
+    each(@brandIcons, {
+        --icon-@{value}: url("data-url:~/icons/brands/@{value}.svg");
+    });
+}
+.icon {
+    each(@brandIcons, {
+        &.@{value} {
+            mask-image: ~'var(--icon-@{value})';
+        }
+    });
+}

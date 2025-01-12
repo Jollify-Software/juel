@@ -4,7 +4,7 @@ import Styles from 'bundle-text:./Lightbox.less';
 import { ArrayConverter } from "../../_Converters/ArrayConverter";
 import { JuelComponent } from "../../_Base/JuelComponent";
 import { isMediaSource } from "../../_Utils/String/isMediaSource";
-import { IconsModule } from "../../_Modules/IconsModule";
+import { IconsModule } from "../../_Modules/Icons/IconsModule";
 import { LightboxItem } from "./LightboxItem";
 import { lightboxItemTemplate } from "./Templates/LightboxItemTemplate";
 

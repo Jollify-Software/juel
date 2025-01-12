@@ -3,7 +3,7 @@ import { html, LitElement, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators";
 import { NextUntil } from "../../_Utils/NextUntil";
 import { ContentsItem } from "./ContentsItem";
-import { IconsModule } from '../../_Modules/IconsModule';
+import { IconsModule } from '../../_Modules/Icons/IconsModule';
 import { FindNextUntil, FindUntil } from "../../_Utils/FindUntil";
 import { when } from "lit/directives/when";
 import Style from 'bundle-text:./Contents.less';

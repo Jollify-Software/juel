@@ -1,6 +1,6 @@
 import { MessageBoxArgs } from "./MessageBoxArgs";
 import { MessageBoxIcon } from "./MessageBoxIcon";
-import { IconsModule } from '../IconsModule'
+import { IconsModule } from '../Icons/IconsModule'
 
 var MessageBoxIconStrategies: { [id: number ]: (args: MessageBoxArgs, msgBox: JQuery<HTMLElement>) => void } = {};
 

@@ -1,0 +1,14 @@
+@communicationIcons: envelope, globe, phone, mobile, phone-volume;
+
+.communication-icons() {
+    each(@communicationIcons, {
+        --icon-@{value}: url("data-url:~/icons/communication/@{value}.svg");
+    });
+}
+.icon {
+    each(@communicationIcons, {
+        &.@{value} {
+            mask-image: ~'var(--icon-@{value})';
+        }
+    });
+}

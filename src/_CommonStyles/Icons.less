@@ -5,6 +5,8 @@
 @import "~/icons/arrows/arrows-icons.less";
 @import "~/icons/message/message-icons.less";
 @import "~/icons/control/control-icons.less";
+@import "~/icons/communication/communication-icons.less";
+@import "~/icons/brands/brand-icons.less";
 
 .icons() {
     .text-icons();
@@ -12,6 +14,8 @@
     .arrow-icons();
     .message-icons();
     .control-icons();
+    .communication-icons();
+    .brand-icons();
 
     each(@miscIcons, {
         --icon-@{value}: url("data-url:~/icons/@{value}.svg");
@@ -22,25 +26,21 @@
     background: black;
     mask-repeat: no-repeat;
 }
-
-.icon-lg {
-    .icn();
-    width: 48px;
-    height: 48px;
-}
-
-.icon-sm {
-    .icn();
-    width: 16px;
-    height: 16px;
-}
-
 .icon {
     .icn();
+    display: inline-block;
     width: 32px;
     height: 32px;
-}
-.icon {
+    &.lg {
+        .icn();
+        width: 48px;
+        height: 48px;
+    }
+    &.sm {
+        .icn();
+        width: 16px;
+        height: 16px;
+    }
     each(@miscIcons, {
         &.@{value} {
             mask-image: ~'var(--icon-@{value})';
