@@ -1,9 +1,22 @@
-export var IconifyMap = [
-    { pattern: /^tt.*:/, icon: 'tiktok' }, // tt: = TickTock
-    { pattern: /^yt.*:/, icon: 'youtube', color: 'red' }, // yt: = YouTube
-    { pattern: /^e.*:/, icon: 'envelope' }, // e: = Email
-    { pattern: /^t.*:/, icon: 'phone' }, // t: = Telephone
-    { pattern: /^w.*:/, icon: 'globe' }, // w: = Website
-    { pattern: /^x.*:/, icon: 'x' }, // x: = X
-    { pattern: /^fb.*:/, icon: 'facebook', color: 'blue' }, // fb: = Facebook
+const iconifyCodes = [
+    { code: 'tt', icon: 'tikTok' },
+    { code: 'yt', icon: 'youtube', color: 'red' },
+    { code: 'e', icon: 'envelope' },
+    { code: 't', icon: 'phone' },
+    { code: 'w', icon: 'globe' },
+    { code: 'x', icon: 'x' },
+    { code: 'fb', icon: 'facebook', color: 'blue' },
+    { code: 'bs', icon: 'bluesky', color: 'blue' },
+    { code: 'wa', icon: 'whatsapp', color: 'green' }
 ];
+
+export function IconifyMap() {
+    let pattern = '^(CODE) ?([\\w-]*)?: ?(\\(.*\\))?';
+    return iconifyCodes.map(icon => {
+        return {
+            pattern: new RegExp(pattern.replace('CODE', icon.code)),
+            icon: icon.icon,
+            color: icon.color
+        };
+    });
+}

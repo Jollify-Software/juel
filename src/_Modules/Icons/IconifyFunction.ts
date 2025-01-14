@@ -10,19 +10,27 @@ export function Iconify(element: HTMLUListElement = null) {
     for (let ul of uls) {
         let lis = Array.from(ul.querySelectorAll('li'));
         for (let li of lis) {
-            for (let icon of IconifyMap) {
+            for (let icon of IconifyMap()) {
+                console.log(icon);
                 if (li.innerHTML.match(icon.pattern)) {
                     let value: string = `<span class="icon sm ${icon.icon}"></span>`;
                     if (icon.color) {
                         value = `<span class="icon sm ${icon.icon} background-${icon.color}"></span>`;
                     }
-                    li.innerHTML = li.innerHTML.replace(icon.pattern, match => {
-                        if (match.includes('-')) {
-                            let splity = match.replace(':', '').split('-');
-                            let colors = splity.slice(1).join('-');
-                            return `<span class="icon sm ${icon.icon} background-${colors}"></span>`;
+                    li.innerHTML = li.innerHTML.replace(icon.pattern, (match, code, klass, href) => {
+                        let str = value;
+                        //klass = klass.replace('-', ' ');
+                        if (!klass) {
+                            
+                        } else if (klass.includes('background')) {
+                            str = `<span class="icon sm ${icon.icon} ${klass}"></span>`;
+                        } else {
+                            str = `<span class="icon sm ${icon.icon} background-${klass}"></span>`;
                         }
-                        return value;    
+                        if (href) {
+                            str = `<a href="${href}">${str}</a>`;
+                        }
+                        return str;    
                     });
                 }
             }
