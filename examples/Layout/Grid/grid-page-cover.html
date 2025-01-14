@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <script src="../../../dist/juel.js"></script>
+    </head>
+    <style>
+        div {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .overlay img {
+            padding: 10mm;
+            background: rgba(255, 255, 255, 0.6);
+            margin-bottom: 40mm;
+        }
+        juel-grid div:nth-child(1) {
+            background-image: url(../../_Assets/St-Andrews-Church-Great-Saxham.jpg);
+        }
+        juel-grid div:nth-child(2) {
+            background-image: url(../../_Assets/St-Marys-Church-Denham.jpg);
+        }
+        juel-grid div:nth-child(3) {
+            background-image: url(../../_Assets/All-Saints-Barrow-church-by-Paul-Wright.jpg);
+        }
+        juel-grid div:nth-child(4) {
+            background-image: url(../../_Assets/St-Giles-Church-Risby.jpg);
+        }
+        juel-grid div:nth-child(5) {
+            background-image: url(../../_Assets/St-Nicholas-Church-Little-Saxham.jpg);
+        }
+    </style>
+    <body class="page a4">
+        <section class="sheet">
+        <section class="cover">
+            <juel-grid layout="2 1 2">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </juel-grid>
+            <div class="overlay">
+                <img src="../../_Assets/logo-text.png"/>
+            </div>
+        </section>
+    </body>
+</html>
