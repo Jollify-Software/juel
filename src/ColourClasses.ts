@@ -33,15 +33,43 @@ function setColor(element: HTMLElement, klass: string) {
     // Extract the name and color from the split parts
     let name = splitty[0]; // The first part is the property name
     let color = splitty[1]; // The second part is the color value
-    if (color == "var") {
+    if (color == "var" || color.startsWith("bs-")) {
         sliceIndex = 2;
         color = `var(--${splitty[2]}`;
+    } else if (color == "radial" || color == "conic") {
+        sliceIndex = 2;
     }
+
     const colors = splitty.slice(sliceIndex).map((str) => {
         if (Object.values(AlertTypes).includes(str as AlertTypes)) {
             return `var(--${str})`;
         } else {
-            return str;
+            switch (str) {
+                case "n":
+                    return "to top";
+                case "ne":
+                    return "to top right";
+                case "e":
+                    return "to right";
+                case "se":
+                    return "to bottom right";
+                case "s":
+                    return "to bottom";
+                case "sw":
+                    return "to bottom left";
+                case "w":
+                    return "to left";
+                case "nw":
+                    return "to top left";
+                default:
+                    if (!str.startsWith("#")) {
+                        str = str.replace(/([a-zA-Z])(\d+)/g, '$1 $2');
+                    }
+                    str = str.replace(/_/g, ' ')
+                            .replace(/:/g, "-")
+                            .replace(/pc/g, "%");
+                    return str;
+            }
         }
     });
     
@@ -56,7 +84,9 @@ function setColor(element: HTMLElement, klass: string) {
             element.style[name] = colors[0]; // Set style property
         }
     } else { // More colors = gradient
-        const value = `linear-gradient(${colors.join(', ')})`;
+        const value = color == "radial" ? `radial-gradient(${colors.join(', ')})`
+                    : color == "conic" ? `conic-gradient(${colors.join(', ')})`
+                    : `linear-gradient(${colors.join(', ')})`;
         console.log(value);
         // If the element's node name starts with 'juel-' and the name is a valid color property
         if (element.nodeName.toLowerCase().startsWith("juel-")) {
