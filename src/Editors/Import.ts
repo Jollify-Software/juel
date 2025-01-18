@@ -4,4 +4,6 @@ import './Number/Number';
 import './Check/Check';
 import './DateTime/DateTime';
 
+import './Select/Select';
+
 import "./HtmlEditor/HtmlEditor";

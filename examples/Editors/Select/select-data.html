@@ -1,0 +1,22 @@
+<html>
+    <script src="../../../dist/juel.js"></script>
+    <body onload="load()">
+        <script>
+            function load() {
+                var select = document.getElementsByTagName("juel-select")[0];
+                select.data = [
+          { text: 'Citrus', children: [{ text: 'Orange', value: '1' }, { text: 'Lemon', value: '2' }] },
+          { text: 'Berries', children: [{ text: 'Strawberry', value: '3' }, { text: 'Blueberry', value: '4' }] },
+          { text: 'Tropical', children: [{ text: 'Mango', value: '5' }, { text: 'Pineapple', value: '6' }] },
+        ];
+            }
+        </script>
+        <juel-select
+        label="Select a Fruit"
+        value="2"
+        text-field="text"
+        value-field="value"
+        children-field="children"
+      ></juel-select>
+    </body>
+</html>
