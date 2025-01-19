@@ -6,12 +6,13 @@ import { debounceTime } from 'rxjs/operators';
 @customElement('juel-select')
 export class JuelSelect extends LitElement {
   @property({ type: String }) label: string = '';
-  @property({ type: String }) value: string = '';
+  @property({ type: String }) value: string | null = null;
   @property({ type: Array }) data: Array<any> = [];
   @property({ type: Boolean, attribute: "enable-search" }) enableSearch: boolean = false;
   @property({ type: String, attribute: "text-field" }) textField: string = 'text';
   @property({ type: String, attribute: "value-field" }) valueField: string = 'value';
   @property({ type: String, attribute: "children-field" }) childrenField: string = 'children';
+  @property({ type: String }) placeholder: string = '-- Select an option --';
 
   @state() private searchTerm: string = '';
   @state() private filteredData: Array<any> = [];
@@ -32,7 +33,7 @@ export class JuelSelect extends LitElement {
     }
 
     input {
-      width: 100%;
+      width: calc(100% - 2em);
       padding: 0.5em;
       margin-bottom: 0.5em;
       font-size: 1em;
@@ -42,7 +43,7 @@ export class JuelSelect extends LitElement {
     }
 
     select {
-      width: 100%;
+      width: calc(100% - 2em);
       padding: 0.5em;
       font-size: 1em;
       border: 1px solid #ccc;
@@ -54,6 +55,20 @@ export class JuelSelect extends LitElement {
       outline: none;
       border-color: #0078d4;
       box-shadow: 0 0 3px rgba(0, 120, 212, 0.5);
+    }
+
+    .clear-button {
+      margin-left: 0.5em;
+      padding: 0.5em;
+      font-size: 1em;
+      background-color: #f5f5f5;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .clear-button:hover {
+      background-color: #e0e0e0;
     }
   `;
 
@@ -79,7 +94,17 @@ export class JuelSelect extends LitElement {
   }
 
   private handleChange() {
-    this.value = this.selectElement.value;
+    this.value = this.selectElement.value || null;
+    this.dispatchEvent(new CustomEvent('value-changed', {
+      detail: { value: this.value },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  private handleClear() {
+    this.value = null;
+    this.selectElement.value = '';
     this.dispatchEvent(new CustomEvent('value-changed', {
       detail: { value: this.value },
       bubbles: true,
@@ -133,15 +158,19 @@ export class JuelSelect extends LitElement {
             @input="${this.handleInputChange}"
           />`
         : ''}
-      <select
-        id="select-element"
-        @change="${this.handleChange}"
-        .value="${this.value}"
-      >
-        ${data.length > 0
-          ? this.renderOptionsList(data)
-          : html`<option disabled>No matches found</option>`}
-      </select>
+      <div style="display: flex; align-items: center;">
+        <select
+          id="select-element"
+          @change="${this.handleChange}"
+          .value="${this.value || ''}"
+        >
+          <option value="" ?selected="${!this.value}">${this.placeholder}</option>
+          ${data.length > 0
+            ? this.renderOptionsList(data)
+            : html`<option disabled>No matches found</option>`}
+        </select>
+        <button class="clear-button" @click="${this.handleClear}">Clear</button>
+      </div>
     `;
   }
 }
