@@ -31,6 +31,7 @@
     },
     "homepage": "https://github.com/Jollify-Software/juel#readme",
     "dependencies": {
+        "@codemirror/lang-markdown": "^6.3.2",
         "@floating-ui/dom": "^1.6.12",
         "@interactjs/interactjs": "^1.10.27",
         "@popperjs/core": "^2.11.8",
@@ -39,6 +40,7 @@
         "@types/toastr": "^2.1.43",
         "animejs": "^3.2.2",
         "bind-decorator": "^1.0.11",
+        "codemirror": "^6.0.1",
         "d3": "^7.9.0",
         "d3-cloud": "^1.2.7",
         "date-fns": "^4.1.0",
@@ -76,6 +78,7 @@
         "less": "^4.2.0",
         "parcel": "^2.13.2",
         "postcss": "^8.4.49",
+        "process": "^0.11.10",
         "serve": "^14.2.4",
         "svgo": "^3.3.2",
         "typescript": "^5.6.3",
