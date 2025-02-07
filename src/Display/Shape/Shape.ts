@@ -8,6 +8,9 @@ import { ShapeStrategies, ShapeStrategy } from "./ShapeStrategies/ShapeStrategy"
 import { getSlottedElements } from "../../_Utils/dom/GetSlottedElements";
 import Styles from 'bundle-text:./Shape.less';
 import { IconsModule } from "../../_Modules/Icons/IconsModule";
+import { svgToClipPath } from "../../_Utils/draw/svgToClipPath";
+import { extractPoints } from "../../_Utils/draw/extractPoint";
+import { normalizePoints } from "../../_Utils/draw/normalizePoints";
 
 @customElement("juel-shape")
 export class JuelShape extends LitElement {
@@ -19,11 +22,14 @@ export class JuelShape extends LitElement {
     @property({ converter: DOMStringMapConverter }) args: object;
     @property({ attribute: "text-attr", converter: DOMStringMapConverter }) textArgs: object;
     @property() text: string;
+    @property() hover: string;
 
     draw: Svg;
     container: Container;
     textEl: Text;
     shape: Shape;
+    initialShape: Shape;
+    initialShapeCopy: Shape;
     svgContainerRef: HTMLDivElement;
 
     sts: ShapeTemplateService;
@@ -37,15 +43,15 @@ export class JuelShape extends LitElement {
         this.textArgs = {
             'x': '50%',
             'y': '50%',
-             'dominant-baseline': "middle",
-             'text-anchor': "middle"
+            'dominant-baseline': "middle",
+            'text-anchor': "middle"
         }
     }
 
 
-  protected render(): unknown {
-      return html`<span class="content"><slot></slot></span><div class="svg-container"></dov>`;
-  }
+    protected render(): unknown {
+        return html`<span class="content"><slot></slot></span><div class="svg-container"></dov>`;
+    }
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         $.when($.ready).then(this.ready)
@@ -64,17 +70,40 @@ export class JuelShape extends LitElement {
             this.setDefaultStyles();
 
             if (!this.draw) {
-                this.draw = SVG().addTo(this.svgContainerRef).viewbox(0, 0, this.clientWidth, this.clientHeight);
+                this.draw = SVG();
+                this.draw.addTo(this.svgContainerRef).viewbox(0, 0, this.clientWidth, this.clientHeight);
             }
             this.drawShape();
-            
-        if (this.shape && this.args) {
-            this.shape.attr(this.args);
+
+            if (this.shape && this.args) {
+                this.shape.attr(this.args);
+            }
+            if (this.hover) {
+                const [normalizedInitial, normalizedTarget] = normalizePoints(this.initialShape, this.shape);
+                console.log(normalizedInitial, normalizedTarget);
+                this.initialShape = normalizedInitial;
+                this.shape = normalizedTarget;
+                    this.addEventListener("mouseenter", () => {
+                        if (!this.initialShapeCopy) {
+                            this.initialShapeCopy = this.initialShape.clone();
+                        }
+                        const targetPoints = extractPoints(this.shape);
+                        this.initialShape.animate(1000).plot(targetPoints);
+                    });
+                    this.addEventListener("mouseleave", () => {
+                        const targetPoints = extractPoints(this.initialShapeCopy);
+                        this.initialShape.animate(1000).plot(targetPoints);
+                    });
+            }
         }
-        } else if (this.src && (!this.shape)) {
-            let img = new Image();
-            img.src = this.src;
-            this.prepend(img);
+        if (this.src) {
+            if (this.draw) {
+                this.draw.image(this.src);
+            } else {
+                let img = new Image();
+                img.src = this.src;
+                this.shadowRoot.prepend(img);
+            }
         }
         if (this.text) {
             if (!this.container) {
@@ -102,6 +131,12 @@ export class JuelShape extends LitElement {
         if (this.draw && this.type && this.type in ShapeStrategies) {
             let strategy = ShapeStrategies[this.type] as ShapeStrategy;
             this.shape = strategy.draw(this.draw, this.clientWidth, this.clientHeight);
+            if (this.hover) {
+                this.shape.remove();
+                // Initial shape: A rectangle covering the full SVG area
+                const initialShape = `${this.clientWidth},0 ${this.clientWidth},${this.clientHeight} 0,${this.clientHeight} 0,0`;
+                this.initialShape = this.draw.polygon(initialShape).fill('#ffcc00');
+            }
         } else if (this.draw && this.type) { // Type not in shapeStrategies
             let svg = IconsModule.get(this.type);
             if (svg) {
@@ -114,8 +149,8 @@ export class JuelShape extends LitElement {
         let size = Math.max(this.clientWidth, this.clientHeight);
         const center = size / 2;
         this.draw
-          .text(this.text)
-          .font({ size: 16, anchor: 'middle', fill: '#ffffff' })
-          .center(center, center);
-      }
+            .text(this.text)
+            .font({ size: 16, anchor: 'middle', fill: '#ffffff' })
+            .center(center, center);
+    }
 }
