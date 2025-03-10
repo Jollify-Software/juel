@@ -3,6 +3,9 @@ import { customElement, property } from "lit/decorators";
 import Styles from 'bundle-text:./CookieConsent.less';
 import { DOMStringMapConverter } from "../../_Converters/DOMStringMapConvertor";
 import { CookiePreferences } from "./CookiePrefrences";
+import { when } from "lit/directives/when";
+
+const cookieName = "cookie-consent";
 
 @customElement("juel-cookie-consent")
 export class JuelCookieConsent extends LitElement {
@@ -10,6 +13,8 @@ export class JuelCookieConsent extends LitElement {
     static styles?: CSSResultGroup = unsafeCSS(Styles);
 
     @property({ type: Boolean }) showConsent: boolean = true;
+
+    @property({ type: Boolean }) full: boolean = false;
 
     @property({ type: Object, converter: DOMStringMapConverter })
     cookiePreferences: CookiePreferences = {
@@ -35,21 +40,17 @@ export class JuelCookieConsent extends LitElement {
       marketing: true,
     };
     this.savePreferences();
+    this.appendTemplates();
   }
 
   // Handle "Reject All"
   private handleRejectAll(): void {
-    this.cookiePreferences = {
-      essential: true,
-      analytics: false,
-      marketing: false,
-    };
-    this.savePreferences();
+    this.showConsent = false;
   }
 
   // Save preferences to localStorage and hide the consent component
   private savePreferences(): void {
-    localStorage.setItem("cookiePreferences", JSON.stringify(this.cookiePreferences));
+    localStorage.setItem(cookieName, JSON.stringify(this.cookiePreferences));
     this.showConsent = false;
   }
 
@@ -59,7 +60,9 @@ export class JuelCookieConsent extends LitElement {
 
     return html`
       <div class="cookie-consent-overlay">
-        <div class="cookie-consent-header">We use cookies</div>
+        <div class="cookie-consent-header"><slot name="title">We use cookies</slot></div>
+        <slot name="content">
+        ${when(this.full == true, () => html`
         <p>We use cookies to enhance your experience. You can manage your preferences below:</p>
         <div class="cookie-options">
           ${Object.entries(this.cookiePreferences).map(
@@ -75,10 +78,12 @@ export class JuelCookieConsent extends LitElement {
               </div>
             `
           )}
-        </div>
+        </div>`, () => html`<p>We use cookies to enhance your experience, analyse site traffic, and personalise content.`)
+    }
+        </slot>
         <div class="cookie-buttons">
-          <button class="btn-reject" @click=${this.handleRejectAll}>Reject All</button>
-          <button class="btn-accept" @click=${this.handleAcceptAll}>Accept All</button>
+          <juel-button type="danger" @button-clicked=${this.handleRejectAll}>Reject</juel-button>
+          <juel-button type="success" @button-clicked=${this.handleAcceptAll}>Accept</juel-button>
         </div>
       </div>
     `;
@@ -92,11 +97,24 @@ export class JuelCookieConsent extends LitElement {
   // Lifecycle: Load preferences from localStorage if available
   connectedCallback() {
     super.connectedCallback();
-    const storedPreferences = localStorage.getItem("cookiePreferences");
+    const storedPreferences = localStorage.getItem(cookieName);
     if (storedPreferences) {
       this.cookiePreferences = JSON.parse(storedPreferences);
       this.showConsent = false; // Hide if preferences already exist
+      $.ready.then(() => this.appendTemplates());
     }
+  }
+
+  appendTemplates() {
+    const templates = this.querySelectorAll("template");
+    templates.forEach((template) => {
+      const clone = document.importNode(template.content, true);
+      if (template.hasAttribute("slot")) {
+        const slot = template.getAttribute("slot");
+        document.querySelector(slot)?.append(clone);
+      }
+      document.head.append(clone);
+    });
   }
   
 }

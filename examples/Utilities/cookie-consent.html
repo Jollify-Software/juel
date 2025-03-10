@@ -1,8 +1,23 @@
 <html>
-    <head>
-        <script src="../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-cookie-consent></juel-cookie-consent>
-    </body>
+
+<head>
+    <script src="../../dist/juel.js"></script>
+</head>
+
+<body>
+    <juel-cookie-consent>
+        <template>
+            <!-- Google tag (gtag.js) -->
+            <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6DT8QHGR7"></script>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag() { dataLayer.push(arguments); }
+                gtag('js', new Date());
+
+                gtag('config', 'G-Z6DT8QHGR7');
+            </script>
+        </template>
+    </juel-cookie-consent>
+</body>
+
 </html>
