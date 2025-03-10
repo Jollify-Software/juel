@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <script src="../../../dist/juel.js"></script>
+    </head>
+    <body>
+        <juel-form id="form"></juel-form>
+
+        <script>
+          const formElement = document.getElementById('form');
+          formElement.formDefinition = {
+            fields: [
+              { name: 'username', type: 'text', defaultValue: 'JohnDoe' },
+              { name: 'email', type: 'email' },
+              { name: 'age', type: 'number', defaultValue: 25 },
+              { name: 'password', type: 'password' },
+              { name: 'gender', type: 'select', options: ['Male', 'Female', 'Other'] }
+            ]
+          };
+      
+          formElement.addEventListener('form-submit', (event) => {
+            console.log('Form submitted with:', event.detail);
+          });
+        </script>
+    </body>
+</html>

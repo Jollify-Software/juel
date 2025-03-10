@@ -1,5 +1,4 @@
 import { JuelMap } from "./Map";
-import { GoogleMapProvider } from "./Providers/GoogleMapProvider";
 import { IMapProvider } from "./Providers/IMapProvider";
 import { LeafletProvider } from "./Providers/LeafletProvider";
 
@@ -20,9 +19,9 @@ export class MapService {
 
     init() {
         switch (this.mapElement.provider) {
-            case "google":
+            /*case "google":
                 this.provider = new GoogleMapProvider();
-                break;
+                break;*/
             case "leaflet":
                 this.provider = new LeafletProvider();
         }

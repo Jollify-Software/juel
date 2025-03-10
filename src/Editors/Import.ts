@@ -6,6 +6,8 @@ import './DateTime/DateTime';
 
 import './Select/Select';
 
+import './Form/Form';
+
 import "./HtmlEditor/HtmlEditor";
 
 import "./MarkdownEditor/MarkdownEditor";

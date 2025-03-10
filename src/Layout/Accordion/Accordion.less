@@ -1,7 +1,9 @@
 .items {
 	display       : flex;
 	flex-direction: column;
-
+	slot {
+		display: block !important;
+	}
 	&.horizontal {
 		flex-direction: row;
 		.item {

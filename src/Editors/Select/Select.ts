@@ -6,7 +6,7 @@ import { debounceTime } from 'rxjs/operators';
 @customElement('juel-select')
 export class JuelSelect extends LitElement {
   @property({ type: String }) label: string = '';
-  @property({ type: String }) value: string | null = null;
+  @property({ type: Object }) value: any = null;
   @property({ type: Array }) data: Array<any> = [];
   @property({ type: Boolean, attribute: "enable-search" }) enableSearch: boolean = false;
   @property({ type: String, attribute: "text-field" }) textField: string = 'text';
@@ -94,7 +94,8 @@ export class JuelSelect extends LitElement {
   }
 
   private handleChange() {
-    this.value = this.selectElement.value || null;
+    const selectedOption = this.selectElement.selectedOptions[0];
+    this.value = selectedOption ? JSON.parse(selectedOption.value) : null;
     this.dispatchEvent(new CustomEvent('value-changed', {
       detail: { value: this.value },
       bubbles: true,
@@ -136,7 +137,7 @@ export class JuelSelect extends LitElement {
         `;
       } else {
         return html`
-          <option value="${item[this.valueField]}" ?selected="${this.value === item[this.valueField]}">
+          <option value='${JSON.stringify(item[this.valueField])}' ?selected="${JSON.stringify(this.value) === JSON.stringify(item[this.valueField])}">
             ${item[this.textField]}
           </option>
         `;
@@ -162,7 +163,7 @@ export class JuelSelect extends LitElement {
         <select
           id="select-element"
           @change="${this.handleChange}"
-          .value="${this.value || ''}"
+          .value="${JSON.stringify(this.value) || ''}"
         >
           <option value="" ?selected="${!this.value}">${this.placeholder}</option>
           ${data.length > 0
@@ -172,23 +173,5 @@ export class JuelSelect extends LitElement {
         <button class="clear-button" @click="${this.handleClear}">Clear</button>
       </div>
     `;
-  }
-}
-
-@customElement('juel-select-option')
-export class JuelSelectOption extends LitElement {
-  @property({ type: String }) value: string = '';
-
-  render() {
-    return html`<option value="${this.value}"><slot></slot></option>`;
-  }
-}
-
-@customElement('juel-select-group')
-export class JuelSelectGroup extends LitElement {
-  @property({ type: String }) label: string = '';
-
-  render() {
-    return html`<optgroup label="${this.label}"><slot></slot></optgroup>`;
   }
 }

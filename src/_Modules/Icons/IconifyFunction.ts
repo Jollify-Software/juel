@@ -11,7 +11,6 @@ export function Iconify(element: HTMLUListElement = null) {
         let lis = Array.from(ul.querySelectorAll('li'));
         for (let li of lis) {
             for (let icon of IconifyMap()) {
-                console.log(icon);
                 if (li.innerHTML.match(icon.pattern)) {
                     let value: string = `<span class="icon sm ${icon.icon}"></span>`;
                     if (icon.color) {

@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <script src="../../../dist/juel.js"></script>
+    </head>
+    <body onload="load()">
+        <script>
+            function load() {
+                var select = document.getElementsByTagName("juel-select")[0];
+                let form1  = {
+                        fields: [
+                        { name: 'username', type: 'text', defaultValue: 'JohnDoe' },
+                        ]
+                    };
+                    let form2  = {
+                        fields: [
+                        { name: 'email', type: 'email' }
+                        ]
+                    };
+                    let form3  = {
+                        fields: [
+                        { name: 'age', type: 'number', defaultValue: 25 }
+                        ]
+                    };
+                    let form4  = {
+                        fields: [
+                        { name: 'password', type: 'password' }
+                        ]
+                    };
+                    let form5  = {
+                        fields: [
+                        { name: 'gender', type: 'select', options: ['Male', 'Female', 'Other'] }
+                        ]
+                    };
+                select.data = [
+                    { text: 'Citrus', children: [{ text: 'Orange', value: form1 }, { text: 'Lemon', value: form2 }] },
+                    { text: 'Berries', children: [{ text: 'Strawberry', value: form3 }, { text: 'Blueberry', value: form4 }] },
+                    { text: 'Tropical', children: [{ text: 'Mango', value: form5 }, { text: 'Pineapple', value: '6' }] },
+                ];
+                select.addEventListener('value-changed', (event) => {
+                    console.log('Selected value:', event.detail);
+                    const formElement = document.getElementById('form');
+                    formElement.formDefinition = event.detail.value;
+                });
+            }
+        </script>
+        <juel-select
+        label="Select a Fruit"
+        text-field="text"
+        value-field="value"
+        children-field="children"
+      ></juel-select>
+        <juel-form id="form"></juel-form>
+    </body>
+</html>
