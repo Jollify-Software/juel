@@ -5,6 +5,7 @@ import "./src/_Shared/Import";
 import "./src/Buttons/Import";
 import "./src/Display/Import";
 import "./src/Editors/Import";
+import "./src/Gallery/Import";
 import "./src/Layout/Import";
 import "./src/Menus/Import";
 import "./src/Navigation/Import";
