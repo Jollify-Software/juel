@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <script src="../../../dist/juel.js"></script>
+        <script>
+            // Example usage with a large dataset
+document.addEventListener('DOMContentLoaded', () => {
+  const largeDataset = Array.from({ length: 100 }, (_, i) => ({
+    label: `Item ${i + 1}`,
+    items: Array.from({ length: 10 }, (_, j) => ({
+      label: `Subitem ${i + 1}.${j + 1}`,
+      items: Array.from({ length: 5 }, (_, k) => ({
+        label: `Sub-subitem ${i + 1}.${j + 1}.${k + 1}`
+      }))
+    }))
+  }));
+
+  const listElement = document.createElement('juel-list');
+  listElement.items = largeDataset;
+  listElement.enableSearch = true;
+  document.body.appendChild(listElement);
+});
+
+        </script>
+    </head>
+    <body>
+        <juel-list title="List Title">
+            <juel-list-item label="Item 1"></juel-list-item>
+            <juel-list-item label="Item 2">
+              <juel-list-item label="Subitem 2.1"></juel-list-item>
+              <juel-list-item label="Subitem 2.2"></juel-list-item>
+            </juel-list-item>
+            <juel-list-item label="Item 3"></juel-list-item>
+        </juel-list>          
+    </body>
+</html>

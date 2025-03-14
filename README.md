@@ -3,6 +3,14 @@
 This is a Web Component library written in TypeScript and built with [Lit](https://lit.dev/).  
 I think that [Bootstap](https://getbootstrap.com/) is too verbose, my component encapsulate all the markup and styles needed in one JavaScript file download.
 
+## CDN
+
+The Juel library can be used via CDN, just add the following script tag to your `HTML`:
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/Jollify-Software/juel/dist/juel.js"></script>
+```
+
 ## Purpose
 
 These Web Components have been created for the [Jollify app](https://jollify.app) and website.  
