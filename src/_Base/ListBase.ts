@@ -26,6 +26,8 @@ export class ListBase extends JuelDataComponent {
 
     IdPrefix = "item";
 
+    // TODO: Use @queryAssignedElements({ selector: 'juel-item' }) items!: NodeListOf<ItemBase>;
+    // https://lit.dev/docs/components/shadow-dom/#query-assigned-nodes
     items: ItemBase[] = [];
 
     constructor() {
