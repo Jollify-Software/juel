@@ -1,4 +1,4 @@
-import { unsafeCSS } from "lit";
+import { html, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import Styles from 'bundle-text:./Button.less';
 import { RippleEffect } from "../../_Utils/RippleEffect";
@@ -16,10 +16,7 @@ export class JuelButton extends InputBase {
     constructor() {
         super();
         this.submit = false;
-    }
-
-    firstUpdated(): void {
-        RippleEffect.init(this.shadowRoot);
+        this.hideLabel = true;
     }
 
     disconnectedCallback() {
@@ -29,11 +26,8 @@ export class JuelButton extends InputBase {
     }
 
     onClick(e: Event) {
-        RippleEffect.createRipple(e as MouseEvent);
-        var event = new CustomEvent(ButtonEvents.ButtonClicked, {
-            detail: e
-        });
-        this.dispatchEvent(event);
+        super.onClick(e);
+        this.fire(ButtonEvents.ButtonClicked, e);
         if (this.submit == true) {
             let frm = this.closest("form") as HTMLFormElement;
             if (frm) {
@@ -46,7 +40,9 @@ export class JuelButton extends InputBase {
         }
     }
 
-    render() {
-        return InputGroupTemplate(this, InputTypes.Button);
+    protected renderInput(): unknown {
+        let klass = this.getInputClass();
+        return html`<button type="${this.submit ? "submit" : "button"}" part="button" class="${klass}"
+                part="button" @click="${this.onClick}"><slot>${this.label}</slot></button>`;
     }
 }

@@ -7,15 +7,12 @@ import { CSSResultGroup, html, unsafeCSS } from "lit";
 import { RenderStyles } from '../_Core/RenderStyles';
 import { AlertTypes } from '../_Core/AlertTypes';
 import { InputTypes } from '../_Templates/InputTypes';
-import { choose } from 'lit/directives/choose';
-import { ButtonTemplate } from '../_Templates/ButtonTemplate';
-import { TextTemplate } from '../_Templates/TextTemplate';
-import { JuelText } from '../Input/Text/Text';
-import { JuelButton } from '../Buttons/Button/Button';
-//import Styles from "../_CommonStyles/InputGroup.less";
 import { bind } from "../_Utils/Bind";
+import { when } from "lit/directives/when";
+import { classMap } from "lit/directives/class-map";
 
 export class InputBase extends JuelComponent {
+
     static InputElementNames: string = "juel-text, juel-memo, juel-range, juel-tickbox, juel-radio";
 
     ///static styles?: CSSResultGroup = unsafeCSS(Styles);
@@ -25,6 +22,8 @@ export class InputBase extends JuelComponent {
     @property({ attribute: "render-style" }) renderStyle: RenderStyles;
     @property({ type: Boolean }) addonActive: boolean;
     @property() label: string;
+    @property({ type: Boolean, attribute: "hide-label" })
+    hideLabel: boolean;
     @property() name: string;
     @property({ type: Boolean }) active: boolean;
     @property({ attribute: "label-position" }) labelPosition: string;
@@ -37,6 +36,10 @@ export class InputBase extends JuelComponent {
     dropdownShown: boolean = false;
     dropdown: Instance;
 
+    hasPrepend: boolean;
+    hasAppend: boolean;
+    hasDropdown: boolean;
+
     isRipple: string;
 
     constructor() {
@@ -47,6 +50,7 @@ export class InputBase extends JuelComponent {
 
     firstUpdated() {
         super.firstUpdated();
+        RippleEffect.init(this.shadowRoot);
         this.$this = $(this);
         this.addEventListener("keyup", e => {
             if (e.key == "Enter") {
@@ -88,15 +92,36 @@ export class InputBase extends JuelComponent {
     }
 
     onClick(e: Event) {
+        RippleEffect.createRipple(e as MouseEvent);
     }
 
     //#region " Dropdown "
 
+    prependSlotChange(e: Event) {
+        let slot = e.target as HTMLSlotElement;
+        let assigned = slot.assignedNodes();
+        if (assigned.length > 0 && (!this.hasPrepend)) {
+            this.hasPrepend = true;
+            this.requestUpdate();
+        }
+    }
+
+    appendSlotChange(e: Event) {
+        let slot = e.target as HTMLSlotElement;
+        let assigned = slot.assignedNodes();
+        if (assigned.length > 0 && (!this.hasAppend)) {
+            this.hasAppend = true;
+            this.requestUpdate();
+        }
+    }
+
     dropdownSlotChange(e: Event) {
         let slot = e.target as HTMLSlotElement;
-        $(slot).before(
-                $('<button id="dropdown-toggle" />').on("click", this.toggleDropdown)
-            );
+        let assigned = slot.assignedNodes();
+        if (assigned.length > 0 && (!this.hasDropdown)) {
+            this.hasDropdown = true;
+            this.requestUpdate();
+        }
     }
 
     @bind
@@ -121,10 +146,25 @@ export class InputBase extends JuelComponent {
 
     //#endregion
 
+    protected getInputClass() {
+        let klass: string = this.type;
+        if (this.renderStyle) {
+            klass += ` ${this.renderStyle}`;
+        }
+        return klass;
+    }
+
+    protected renderInput(): unknown {
+        return;
+    }
+
     protected render(): unknown {
-        let klass = {
-            "input-group": true
+        let klass: any = {
+            "input-group": true,
         };
+        if (!("renderStyle" in this.parentElement)) {
+            klass[`${this.type}-border`] = true;
+        }
         /*
         if (this.labelPosition) {
             if (this.labelPosition == 'vertical') {
@@ -141,13 +181,11 @@ export class InputBase extends JuelComponent {
             }
         }
 */
-        return html`<div part="input-group">
-            <label part="label" for="text"><slot name="content">${this.label}</slot></label>
+        return html`${when(!this.hideLabel, () => html`<label part="label" for="text"><slot>${this.label}</slot></label>`)}
+        <div part="input-group" class="${classMap(klass)}"> 
             <div><slot name="prepend"></slot>
-            ${choose(this.inputType, [
-                [ InputTypes.Button, () => ButtonTemplate(this as unknown as JuelButton, "") ],
-                [ InputTypes.Text, () => TextTemplate(this as unknown as JuelText, "") ]
-            ])}
+                ${this.renderInput()}
+            ${when(this.hasDropdown, () => html`<button id="dropdown-toggle" @click="${this.toggleDropdown}"></button>`)}
             <slot @slotchange="${this.dropdownSlotChange}" name="dropdown" style="display: none"></slot>
             <slot name="append"></slot></div>
         </div>`;

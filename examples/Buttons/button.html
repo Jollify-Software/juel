@@ -2,7 +2,7 @@
 
 <head>
     <script src="../../dist/juel.js"></script>
-    <link rel="stylesheet" href="../demo.css"/>
+    <link rel="stylesheet" href="../demo.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
         integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -12,23 +12,10 @@
 </head>
 
 <body>
-
-    <juel-tabs>
-        <juel-item title="Result">
             <juel-button label="Hello"></juel-button>
-            <juel-button><b slot="content">Hello</b></juel-button>
-            <juel-button><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-button>
-        </juel-item>
-        <juel-item title="HTML">
-            <juel-embed type="markdown">
-```HTML
-<juel-button label="Hello"></juel-button>
-<juel-button><b slot="content">Hello</b></juel-button>
-<juel-button><strong slot="content">Launch app <i class="fas fa-rocket"></i></strong></juel-button>
-```
-            </juel-embed>
-        </juel-item>
-    </juel-tabs>
+            <juel-button><b>Hello</b></juel-button>
+            <juel-button><strong>Launch app <i class="fas fa-rocket"></i></strong></juel-button>
+      
 
     <juel-accordion>
         <juel-item title="Types">
@@ -49,17 +36,18 @@
         </juel-item>
 
         <juel-item title="Groups">
-            <juel-button label="Left">
-                <juel-button slot="append" label="Middle"></juel-button>
-                <juel-button slot="append" label="Right"></juel-button>
+            <juel-button>
+                <juel-button slot="prepend">Left</juel-button>
+                Middle
+                <juel-button slot="append">Right</juel-button>
             </juel-button>
             <juel-button>
-                <div slot="content" class="icon align-centre"></div>
+                <div class="icon align-centre"></div>
                 <juel-button slot="prepend">
-                    <div slot="content" class="icon align-right"></div>
+                    <div class="icon align-right"></div>
                 </juel-button>
                 <juel-button slot="append">
-                    <div slot="content" class="icon align-left"></div>
+                    <div class="icon align-left"></div>
                 </juel-button>
             </juel-button>
 
@@ -70,7 +58,7 @@
                     <li>Three</li>
                 </ul>
             </juel-button>
-            
+
             <juel-button>
                 <strong slot="content">Launch app <i class="fas fa-rocket"></i></strong>
                 <ul slot="dropdown">

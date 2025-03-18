@@ -49,4 +49,7 @@ each(@colours, {
             border-left: 1px solid var(--background-color, @var);
         }
     }
+    .@{key}-border {
+        border: 1px solid var(--background-color, darken(@value, 20%));
+    }
 })
