@@ -4,6 +4,9 @@ import Styles from 'bundle-text:./CookieConsent.less';
 import { DOMStringMapConverter } from "../../_Converters/DOMStringMapConvertor";
 import { CookiePreferences } from "./CookiePrefrences";
 import { when } from "lit/directives/when";
+import { GoogleAnalyticsConsentProvider } from "./Providers/GoogleAnalyticsConsentProvider";
+import { IConsentProvider } from "./Providers/IConsentProvider";
+import { MetricoolConsentProvider } from "./Providers/MetricoolConsentProvider";
 
 const cookieName = "cookie-consent";
 
@@ -15,13 +18,18 @@ export class JuelCookieConsent extends LitElement {
     @property({ type: Boolean }) showConsent: boolean = true;
 
     @property({ type: Boolean }) full: boolean = false;
-
+    @property({ type: Object, converter: DOMStringMapConverter }) keys: CookiePreferences;
     @property({ type: Object, converter: DOMStringMapConverter })
     cookiePreferences: CookiePreferences = {
       essential: true, // Always true; cannot be turned off
       analytics: false,
       marketing: false,
     };
+
+    providers: { [key: string]: IConsentProvider } = {
+        "gtag": new GoogleAnalyticsConsentProvider(),
+        "metricool": new MetricoolConsentProvider()
+    }
 
     // Handle toggling cookie categories
   private handleToggle(category: keyof typeof this.cookiePreferences): void {
@@ -106,11 +114,19 @@ export class JuelCookieConsent extends LitElement {
   }
 
   appendTemplates() {
+    if (this.keys) {
+      for (const key in this.keys) {
+        if (key in this.providers) {
+          this.providers[key].loadScript(this.keys[key]);
+        }
+      }
+    }
+
     const templates = this.querySelectorAll("template");
     templates.forEach((template) => {
       const clone = document.importNode(template.content, true);
-      if (template.hasAttribute("slot")) {
-        const slot = template.getAttribute("slot");
+      if (template.hasAttribute("role")) {
+        const slot = template.getAttribute("role");
         document.querySelector(slot)?.append(clone);
       }
       document.head.append(clone);
