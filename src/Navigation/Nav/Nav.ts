@@ -48,7 +48,7 @@ export class JuelNav extends LitElement {
 
     return html`
       <nav ${ref(this.nav)}>
-        <div class="logo"><slot name="logo"></slot></div>
+        <div class="logo"><slot name="title"></slot></div>
         <div class="menu-toggle ${classMap(menuClass)}" @click="${this.toggleMenu}">
           <div></div>
           <div></div>

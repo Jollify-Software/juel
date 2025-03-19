@@ -1,4 +1,5 @@
 import { computePosition, autoUpdate } from '@floating-ui/dom';
+import { FloatingInstance } from './floatingInstance';
 
 /**
  * A reusable function similar to `createPopper` that encapsulates FloatingUI functionality.
@@ -9,7 +10,7 @@ import { computePosition, autoUpdate } from '@floating-ui/dom';
  * @param {Object} options - Optional configuration for FloatingUI.
  * @returns {Object} - An object with `update`, `destroy`, and current state.
  */
-export function createFloating(reference, floating, options = {}) {
+export function createFloating(reference, floating, options = {}) : FloatingInstance {
   let cleanupAutoUpdate;
 
   // Function to apply computed styles to the floating element

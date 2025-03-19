@@ -9,7 +9,10 @@ import { createRef, ref, Ref } from "lit/directives/ref";
 import { createFloating } from "../../_Utils/dom/createFloating";
 import { WindowModule } from "../../_Modules/WindowModule";
 import { debounceTime, fromEvent, Subscription } from "rxjs";
-import { offset } from "@floating-ui/dom";
+import { flip, offset } from "@floating-ui/dom";
+import { bind } from "../../_Utils/Bind";
+import { FloatingInstance } from "../../_Utils/dom/floatingInstance";
+import { on } from "hammerjs";
 
 @customElement("juel-item")
 export class JuelItem extends FilteredItemBase {
@@ -22,47 +25,108 @@ export class JuelItem extends FilteredItemBase {
     itemsRef: Ref<HTMLInputElement> = createRef();
     itemsOpen: boolean = false;
 
+    floatingInstance: FloatingInstance;
+    mouseLeaveSubscription: Subscription | null = null;
+
     slotChangeTitle(e: Event) {
         this.title = "true";
     }
 
     ready(): void {
-        let mouseLeaveSubscription: Subscription | null = null;
-        if (this.items.length > 0) {
-            console.log(this.items);
-            const { update, destroy } = createFloating(this, this.itemsRef.value, {
-                placement: 'bottom-start', // Default placement
-                middleware: [offset({
-                    crossAxis: 12,
-                  })], // Add middleware if needed, e.g., offset or flip
-            });
+        let floatingDestroy: (() => void) | null = null;
+    
+        const handleResize = () => {
+            const isSmallScreen = window.matchMedia('(max-width: 768px)').matches;
+    
+            // Destroy floating UI if it exists
+            if (floatingDestroy) {
+                floatingDestroy();
+                floatingDestroy = null;
+            }
+            // Remove mouse event handlers
+            this.removeEventListener('mouseenter', this.handleMouseEnter);
+            this.removeEventListener('click', this.onClickSmallScreen);
+            // Clear any existing mouseleave subscription
+            if (this.mouseLeaveSubscription) {
+                this.mouseLeaveSubscription.unsubscribe();
+                this.mouseLeaveSubscription = null;
+            }
 
-            // Optional: Manually trigger updates
-            this.addEventListener('mouseenter', () => {
-                if (this.itemsOpen == false) {
-                    this.toggleOpen();
-                    update();
+            if (isSmallScreen) {
+                               // Handle mouseenter
+                               this.addEventListener('click', this.onClickSmallScreen);
+            } else {
+                // Recreate floating UI if not already created
+                if (!floatingDestroy) {
+                    this.floatingInstance = createFloating(this, this.itemsRef.value, {
+                        placement: 'bottom-start',
+                        strategy: 'fixed',
+                        middleware: [offset({ crossAxis: 12 }), flip()],
+                    });
+    
+                    floatingDestroy = this.floatingInstance.destroy;
+    
+                    // Add mouse event handlers
+                    this.addEventListener('mouseenter', this.handleMouseEnter);
                 }
-                // Clear any existing mouseleave subscription
-                if (mouseLeaveSubscription) {
-                    mouseLeaveSubscription.unsubscribe();
-                    mouseLeaveSubscription = null;
+    
+                // Ensure items are hidden initially
+                if (!this.itemsOpen) {
+                    this.itemsRef.value.style.display = 'none';
                 }
-                // Handle mouseleave with debounce
-                const mouseLeave$ = fromEvent(this, 'mouseleave')
-                    .pipe(debounceTime(800));
-                mouseLeaveSubscription = mouseLeave$.subscribe(() => {
-                    if (this.itemsOpen) {
-                        this.toggleOpen();
-                    }
-                });
-            });
+            }
+        };
+    
+        // Initial check on load
+        handleResize();
+    
+        // Listen for resize events
+        window.addEventListener('resize', handleResize);
+    
+        // Cleanup on unload
+        window.addEventListener('unload', () => {
+            if (floatingDestroy) {
+                floatingDestroy();
+            }
+            if (this.mouseLeaveSubscription) {
+                this.mouseLeaveSubscription.unsubscribe();
+            }
+            window.removeEventListener('resize', handleResize);
+        });
+    }
 
-
-
-            // Optional: Clean up on destroy
-            window.addEventListener('unload', destroy);
+    @bind
+    handleMouseEnter() {
+        if (!this.itemsOpen) {
+            this.toggleOpen();
         }
+        this.floatingInstance.update();
+
+        // Clear any existing mouseleave subscription
+        if (this.mouseLeaveSubscription) {
+            this.mouseLeaveSubscription.unsubscribe();
+            this.mouseLeaveSubscription = null;
+        }
+        this.handleMouseLeave();
+    }
+
+    @bind
+    handleMouseLeave() {
+        console.log("Mouse leave");
+        const mouseLeave$ = fromEvent(this, 'mouseleave').pipe(debounceTime(800));
+        this.mouseLeaveSubscription = mouseLeave$.subscribe(() => {
+            if (this.itemsOpen) {
+                this.toggleOpen();
+            }
+        });
+    }
+
+    @bind
+    onClickSmallScreen() {
+        this.itemsRef.value.style.position = "relative";
+        this.itemsRef.value.style.top = "initial";
+        this.itemsRef.value.style.left = "initial";
+        this.toggleOpen();
     }
 
     toggleOpen() {
