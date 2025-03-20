@@ -24,7 +24,6 @@ export class CircleIconButton extends InputBase {
   connectedCallback(): void {
     super.connectedCallback();
     this.exists = IconExists(this.icon);
-    console.log(this.exists) 
   }
 
   // Render the button
