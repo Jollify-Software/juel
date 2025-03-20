@@ -1,6 +1,6 @@
 import { html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
-import { JuelComponent } from "../_Base/JuelComponent";
+import { JuelComponent } from "../../_Base/JuelComponent";
 import Styles from "bundle-text:./Modal.less";
 
 @customElement("juel-modal")
