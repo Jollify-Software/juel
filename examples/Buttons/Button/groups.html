@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <script src="../../../dist/juel.js"></script>
+    </head>
+    <body>
+        <juel-button>
+            <juel-button slot="prepend">Left</juel-button>
+            Middle
+            <juel-button slot="append">Right</juel-button>
+        </juel-button>
+        <juel-button>
+            <div class="icon align-centre"></div>
+            <juel-button slot="prepend">
+                <div class="icon align-right"></div>
+            </juel-button>
+            <juel-button slot="append">
+                <div class="icon align-left"></div>
+            </juel-button>
+        </juel-button>
+
+        <juel-button label="Button">
+            ABC
+            <ul slot="dropdown">
+                <li>One</li>
+                <li>Two</li>
+                <li>Three</li>
+            </ul>
+        </juel-button>
+    </body>
+</html>
