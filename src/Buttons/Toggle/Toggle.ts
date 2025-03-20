@@ -1,12 +1,11 @@
-import { html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement, PropertyValues, unsafeCSS } from "lit";
 import { property, customElement } from "lit/decorators";
 import style from 'bundle-text:./Toggle.less';
-import { ChangedEventArgs } from "../_Core/Events/ChangedEventArgs";
-import { Dispatch } from "../_Core/DispatchFunction";
-import { EventNames } from "../_Core/Events/EventNames";
-import { JuelComponent } from "../_Base/JuelComponent";
+import { ChangedEventArgs } from "../../_Core/Events/ChangedEventArgs";
+import { Dispatch } from "../../_Core/DispatchFunction";
+import { EventNames } from "../../_Core/Events/EventNames";
 import { ToggleEvents } from "./ToggleEvents";
-import { InputBase } from "../_Base/InputBase";
+import { InputBase } from "../../_Base/InputBase";
 import { when } from "lit/directives/when";
 
 @customElement("juel-toggle")
@@ -49,7 +48,8 @@ export class JuelToggle extends InputBase {
       this.checked = false;
     }
 
-    firstUpdated() {
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+      super.firstUpdated(_changedProperties);
       let trigger = this.shadowRoot.getElementById('trigger') as HTMLDivElement;
 
       if (!this.width) {
@@ -145,6 +145,7 @@ export class JuelToggle extends InputBase {
   }
 
   toggleClicked(e: Event) {
+    super.onClick(e);
     if (this.singular == true) {
       this.singularCheck();
     }
