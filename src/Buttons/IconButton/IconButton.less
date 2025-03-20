@@ -1,3 +1,5 @@
+@import "../../_CommonStyles/_Colours.less";
+
 :host {
     display: inline-block;
   }
@@ -6,8 +8,6 @@
     height: 48px;
     border: none;
     border-radius: 50%;
-    background-color: var(--circle-icon-bg, #0078d4);
-    color: var(--circle-icon-color, white);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -16,14 +16,14 @@
     transition: background-color 0.3s ease;
   }
   button:hover {
-    background-color: var(--circle-icon-hover-bg, #005a9e);
+    background-color: var(--hover-background-color, #005a9e);
   }
   button:active {
-    background-color: var(--circle-icon-active-bg, #003a75);
+    background-color: var(--active-background-color, #003a75);
   }
   button:focus {
-    box-shadow: 0 0 0 3px var(--circle-icon-focus-outline, rgba(0, 120, 212, 0.5));
+    box-shadow: 0 0 0 3px var(--focus-shadow-color, rgba(0, 120, 212, 0.5));
   }
   .icon {
-    font-size: var(--circle-icon-size, 24px);
+    font-size: var(--font-size, 24px);
   }

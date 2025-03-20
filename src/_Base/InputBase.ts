@@ -3,7 +3,7 @@ import { property } from "lit/decorators";
 import { RippleEffect } from "../_Utils/RippleEffect";
 import { JuelComponent } from "./JuelComponent";
 import { createRef } from 'lit/directives/ref'
-import { CSSResultGroup, html, unsafeCSS } from "lit";
+import { CSSResultGroup, html, PropertyValues, unsafeCSS } from "lit";
 import { RenderStyles } from '../_Core/RenderStyles';
 import { AlertTypes } from '../_Core/AlertTypes';
 import { InputTypes } from '../_Templates/InputTypes';
@@ -48,7 +48,7 @@ export class InputBase extends JuelComponent {
         this.renderStyle = RenderStyles.Default;
     }
 
-    firstUpdated() {
+    protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated();
         RippleEffect.init(this.shadowRoot);
         this.$this = $(this);
