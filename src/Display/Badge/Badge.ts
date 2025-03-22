@@ -20,6 +20,7 @@ export class JuelBadge extends JuelComponent {
         super();
         this.type = AlertTypes.Primary;
         this.renderStyle = RenderStyles.Default;
+        this.position = CompassPositions.NorthEast;
     }
 
     render() {

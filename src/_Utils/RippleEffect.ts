@@ -13,8 +13,8 @@ export class RippleEffect {
 
   static createRipple(event: MouseEvent) {
     let element = event.currentTarget as HTMLElement;
-    element.style.position = 'relative';
-    element.style.overflow = 'hidden';
+    const container = document.createElement('span');
+    container.classList.add('ripple-container');
     const rect = element.getBoundingClientRect();
     const ripple = document.createElement('span');
     ripple.setAttribute('part', 'ripple');
@@ -39,7 +39,8 @@ export class RippleEffect {
     ripple.style.pointerEvents = 'none';
 
     // Append the ripple element
-    element.appendChild(ripple);
+    container.appendChild(ripple);
+    element.appendChild(container);
 
     // Remove the ripple after animation
     ripple.addEventListener('animationend', () => {
