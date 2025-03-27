@@ -1,6 +1,7 @@
 import './Badge/Badge';
 import './Draggable/Draggable';
 import './Flip/Flip';
+import './Media/Media';
 import './Shape/Shape';
 import './Tooltip/Tooltip';
 import './Media/Media';
