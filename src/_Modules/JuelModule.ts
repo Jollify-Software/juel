@@ -1,4 +1,5 @@
 import { AudioModule } from "./AudioModule";
+import { DeviceModule } from "./Device/DeviceModule";
 import { VisualGuide } from "./Guide/Guide";
 import { GuideModule } from "./Guide/GuideModule";
 import { Options } from "./Guide/Options";
@@ -18,4 +19,6 @@ export module JuelModule {
     export var toast = ToastModule;
 
     export var guide = GuideModule;
+
+    export var device = DeviceModule;
 }
