@@ -1,7 +1,7 @@
 import { CSSResultGroup, html, LitElement, PropertyValues, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators";
 import { DOMStringMapConverter } from "../../_Converters/DOMStringMapConvertor";
-import { Container, Shape, Svg, SVG, Text } from "@svgdotjs/svg.js";
+import { Container, Path, Shape, Svg, SVG, Text } from "@svgdotjs/svg.js";
 import bind from "bind-decorator";
 import { ShapeTemplateService } from "./Services/ShapeTemplateService";
 import { ShapeStrategies, ShapeStrategy } from "./ShapeStrategies/ShapeStrategy";
@@ -11,6 +11,7 @@ import { IconsModule } from "../../_Modules/Icons/IconsModule";
 import { svgToClipPath } from "../../_Utils/draw/svgToClipPath";
 import { extractPoints } from "../../_Utils/draw/extractPoint";
 import { normalizePoints } from "../../_Utils/draw/normalizePoints";
+import { polygonStrToPath } from "../../_Utils/draw/polygonToPath";
 
 @customElement("juel-shape")
 export class JuelShape extends LitElement {
@@ -31,6 +32,7 @@ export class JuelShape extends LitElement {
     initialShape: Shape;
     initialShapeCopy: Shape;
     svgContainerRef: HTMLDivElement;
+    isPath: boolean = false;
 
     sts: ShapeTemplateService;
 
@@ -79,20 +81,22 @@ export class JuelShape extends LitElement {
                 this.shape.attr(this.args);
             }
             if (this.hover) {
-                const [normalizedInitial, normalizedTarget] = normalizePoints(this.initialShape, this.shape);
-                console.log(normalizedInitial, normalizedTarget);
-                this.initialShape = normalizedInitial;
-                this.shape = normalizedTarget;
+
+                    const [normalizedInitial, normalizedTarget] = normalizePoints(this.initialShape, this.shape);
+                    console.log(normalizedInitial, normalizedTarget);
+                    this.initialShape = normalizedInitial;
+                    this.shape = normalizedTarget;
+                
                     this.addEventListener("mouseenter", () => {
                         if (!this.initialShapeCopy) {
                             this.initialShapeCopy = this.initialShape.clone();
                         }
-                        const targetPoints = extractPoints(this.shape);
-                        this.initialShape.animate(1000).plot(targetPoints);
+                            const targetPoints = extractPoints(this.shape);
+                            this.initialShape.animate(1000).plot(targetPoints);
                     });
                     this.addEventListener("mouseleave", () => {
-                        const targetPoints = extractPoints(this.initialShapeCopy);
-                        this.initialShape.animate(1000).plot(targetPoints);
+                            const targetPoints = extractPoints(this.initialShapeCopy);
+                            this.initialShape.animate(1000).plot(targetPoints);
                     });
             }
         }
@@ -128,19 +132,26 @@ export class JuelShape extends LitElement {
     }
 
     private drawShape() {
-        if (this.draw && this.type && this.type in ShapeStrategies) {
-            let strategy = ShapeStrategies[this.type] as ShapeStrategy;
-            this.shape = strategy.draw(this.draw, this.clientWidth, this.clientHeight);
+        if (this.draw && this.type) {
+            if (this.type in ShapeStrategies) {
+                let strategy = ShapeStrategies[this.type] as ShapeStrategy;
+                this.shape = strategy.draw(this.draw, this.clientWidth, this.clientHeight);
+            } else { // Type not in shapeStrategies
+                let svg = IconsModule.get(this.type);
+                if (svg) {
+                    this.shape = this.draw.svg(svg);
+                }
+            }
             if (this.hover) {
-                this.shape.remove();
+                if (this.shape.type !== "svg") {
+                    this.shape.remove();
+                } else {
+                    this.isPath = true;
+                }
                 // Initial shape: A rectangle covering the full SVG area
                 const initialShape = `${this.clientWidth},0 ${this.clientWidth},${this.clientHeight} 0,${this.clientHeight} 0,0`;
-                this.initialShape = this.draw.polygon(initialShape).fill('#ffcc00');
-            }
-        } else if (this.draw && this.type) { // Type not in shapeStrategies
-            let svg = IconsModule.get(this.type);
-            if (svg) {
-                this.shape = this.draw.svg(svg);
+                    this.initialShape = this.draw.polygon(initialShape).fill('#ffcc00');
+                
             }
         }
     }
