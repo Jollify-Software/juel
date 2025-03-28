@@ -22,6 +22,7 @@ export class InputBase extends JuelComponent {
     @property({ attribute: "render-style" }) renderStyle: RenderStyles;
     @property({ type: Boolean }) addonActive: boolean;
     @property() label: string;
+    @property() glyph: string;
     @property({ type: Boolean, attribute: "hide-label" })
     hideLabel: boolean;
     @property() name: string;

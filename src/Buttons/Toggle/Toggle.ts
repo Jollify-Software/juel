@@ -7,6 +7,7 @@ import { EventNames } from "../../_Core/Events/EventNames";
 import { ToggleEvents } from "./ToggleEvents";
 import { InputBase } from "../../_Base/InputBase";
 import { when } from "lit/directives/when";
+import { styleMap } from "lit/directives/style-map";
 
 @customElement("juel-toggle")
 export class JuelToggle extends InputBase {
@@ -151,26 +152,41 @@ export class JuelToggle extends InputBase {
     }
   }
 
-  renderChecked(label: string) {
-    return html`<slot name="${this.checked ? 'checked' : 'unchecked'}">${when(label,
-      () => html`<button id="trigger">${label}</button`,
+  renderChecked(label: string, glyph: string) {
+    let style = {};
+    if (glyph) {
+      style['mask-image'] = `var(--icon-${glyph})`;
+      style['mask-repeat'] = 'no-repeat';
+      style['mask-position'] = label ? 'left' : 'center';
+    }
+
+    return html`<slot name="${this.checked ? 'checked' : 'unchecked'}">${when(label || glyph,
+      () => html`<button style="${styleMap(style)}" id="trigger">${label}</button`,
       () => html`<span class="${this.rounded  ? 'slider rounded' : 'slider'}"></span>`)}</slot>`;
   }
 
     render() {
       let labelChecked = this.label;
       let labelUnchecked = this.label;
-      if (this.label && this.label.includes(',')) {
-        let splity = this.label.split(',');
+      if (this.label && this.label.includes('|')) {
+        let splity = this.label.split('|');
         labelChecked = splity[0];
         labelUnchecked = splity[1];
+      }
+
+      let glyphChecked = this.glyph;
+      let glyphUnchecked = this.glyph;
+      if (this.glyph && this.glyph.includes('|')) {
+        let splity = this.glyph.split('|');
+        glyphChecked = splity[0];
+        glyphUnchecked = splity[1];
       }
 
         return html`<label class="${this.custom ? 'custom' : 'switch'}" @click="${this.toggleClicked}">
         <input type="checkbox" id="checkbox" .checked=${this.checked} @change="${this.checkChange}">
         ${when(this.checked,
-          () => this.renderChecked(labelChecked),
-          () => this.renderChecked(labelUnchecked))}
+          () => this.renderChecked(labelChecked, glyphChecked),
+          () => this.renderChecked(labelUnchecked, glyphUnchecked))}
       </label>`;
     }
 }
