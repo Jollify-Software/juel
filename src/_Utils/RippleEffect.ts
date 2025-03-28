@@ -44,7 +44,7 @@ export class RippleEffect {
 
     // Remove the ripple after animation
     ripple.addEventListener('animationend', () => {
-      ripple.remove();
+      container.remove();
     });
   }
 }
