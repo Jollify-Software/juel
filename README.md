@@ -17,6 +17,8 @@ The Juel library can be used via CDN, just add the following script tag to your 
 
 ### Accordion
 
+### Tabs
+
 ## Purpose
 
 These Web Components have been created for the [Jollify app](https://jollify.app) and website.  

@@ -770,24 +770,41 @@ ${uj(this.code(t,e))}
       border-top: none;
     }
   `,Lm([tx({type:String})],Lv.prototype,"title",void 0),Lv=Lm([X("juel-tab")],Lv);let Lb=class extends Lg{_handleSlotChange(){this.requestUpdate()}render(){return tF`
-      <div class="tabs">
-        <slot name="prepend"></slot>
-        ${function*(t,e){if(void 0!==t){let i=0;for(let r of t)yield e(r,i++)}}(this._tabs,(t,e)=>tF`
-          <div class="tab" ?selected=${this.selectedIndex===e} @click=${this.clickFactory(e)}>
-            ${t.title}
-          </div>
-        `)}
-        <slot name="append"></slot>
+      <div class="tabs-container" style="--container-direction: ${"vertical"===this.direction?"row":"column"};">
+        <div class="tabs" style="--direction: ${"vertical"===this.direction?"column":"row"};">
+          <slot name="prepend"></slot>
+          ${function*(t,e){if(void 0!==t){let i=0;for(let r of t)yield e(r,i++)}}(this._tabs,(t,e)=>tF`
+            <div class="tab" ?selected=${this.selectedIndex===e} @click=${this.clickFactory(e)}>
+              ${t.title}
+            </div>
+          `)}
+          <slot name="append"></slot>
+        </div>
+        <div class="tab-content">
+          <slot @slotchange=${this._handleSlotChange}></slot>
+        </div>
       </div>
-      <slot @slotchange=${this._handleSlotChange}></slot>
-    `}updated(){this._updateTabs()}_updateTabs(){this._tabs&&this._tabs.forEach((t,e)=>{t.style.display=e===this.selectedIndex?"block":"none"})}clickFactory(t){return e=>{super.handleClick(e),this.selectTab(t)}}selectTab(t){this.selectedIndex=t}constructor(){super(...arguments),this.selectedIndex=0}};Lb.styles=te`
+    `}updated(){this._updateTabs()}_updateTabs(){this._tabs&&this._tabs.forEach((t,e)=>{t.style.display=e===this.selectedIndex?"block":"none"})}clickFactory(t){return e=>{super.handleClick(e),this.selectTab(t)}}selectTab(t){this.selectedIndex=t}constructor(){super(...arguments),this.selectedIndex=0,this.direction="horizontal"}};Lb.styles=te`
     :host {
       display: block;
       font-family: Arial, sans-serif;
     }
+    .tabs-container {
+      display: flex;
+      flex-direction: var(--container-direction, row);
+    }
+    :host([direction="vertical"]) .tabs-container {
+      flex-direction: row;
+    }
     .tabs {
       display: flex;
+      flex-direction: var(--direction, row);
       border-bottom: 1px solid #dee2e6;
+    }
+    :host([direction="vertical"]) .tabs {
+      flex-direction: column;
+      border-bottom: none;
+      border-right: 1px solid #dee2e6;
     }
     .tab {
       position: relative;
@@ -800,6 +817,13 @@ ${uj(this.code(t,e))}
       margin-right: 4px;
       transition: background-color 0.2s, border-color 0.2s;
     }
+    :host([direction="vertical"]) .tab {
+      border-bottom: 1px solid transparent;
+      border-right: none;
+      border-radius: 0.25rem 0 0 0.25rem;
+      margin-right: 0;
+      margin-bottom: 4px;
+    }
     .tab:hover {
       background-color: #e9ecef;
       border-color: #ced4da;
@@ -808,10 +832,23 @@ ${uj(this.code(t,e))}
       font-weight: bold;
       border: 1px solid #ced4da;
       border-bottom: 1px solid white;
-      background-color: white;
+      background-color: var(--active, #e7f1ff);
       color: #495057;
     }
-  `,Lm([tx({type:Number})],Lb.prototype,"selectedIndex",void 0),Lm([t_({selector:"juel-tab"})],Lb.prototype,"_tabs",void 0),Lb=Lm([X("juel-tabs")],Lb);let Ly=class extends et{render(){return tF`
+    :host([direction="vertical"]) .tab[selected] {
+      border-bottom: 1px solid #ced4da;
+      border-right: 1px solid white;
+    }
+    .tab-content {
+      flex: 1;
+      padding: 16px;
+      border: 1px solid #ccc;
+      border-left: none;
+    }
+    :host([direction="vertical"]) .tab-content {
+      border-left: 1px solid #dee2e6;
+    }
+  `,Lm([tx({type:Number})],Lb.prototype,"selectedIndex",void 0),Lm([tx({type:String})],Lb.prototype,"direction",void 0),Lm([t_({selector:"juel-tab"})],Lb.prototype,"_tabs",void 0),Lb=Lm([X("juel-tabs")],Lb);let Ly=class extends et{render(){return tF`
       <div class="toolbar">
         <slot></slot>
       </div>
