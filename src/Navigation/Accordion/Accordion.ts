@@ -7,6 +7,7 @@ import { JuelComponent } from '../../_Base/JuelComponent';
 @customElement('juel-accordion-section')
 export class JuelAccordionSection extends JuelComponent {
   @property({ type: String }) title = '';
+  @property({ type: String }) glyph;
   @property({ type: Boolean, reflect: true }) open = false;
 
   static styles = css`
@@ -14,25 +15,36 @@ export class JuelAccordionSection extends JuelComponent {
       display: block;
       border: 1px solid #ccc;
       margin-bottom: 4px;
+      border-radius: 0.25rem;
+      transition: box-shadow 0.3s ease;
+    }
+    :host([open]) {
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     }
     .header {
       position: relative;
-      background: #f0f0f0;
-      padding: 10px;
+      background: #f8f9fa; /* Light gray background similar to Bootstrap */
+      padding: 0.75rem 1.25rem;
       cursor: pointer;
       font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      border-bottom: 1px solid #dee2e6;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    :host([open]) .header {
+      background: var(--active, #e7f1ff);
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
     }
     .icon {
       display: inline-block;
       width: 16px;
       height: 16px;
-      background: var(--icon-chevron-down);
+      background: var(--glyph, var(--icon-chevron-down));
       transition: transform 0.3s ease;
     }
-    :host([open]) .icon {
+    :host([open]) .icon:not(.glyph) {
       transform: rotate(-180deg);
     }
     .content {
@@ -40,20 +52,25 @@ export class JuelAccordionSection extends JuelComponent {
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s ease, padding 0.3s ease;
-      padding: 0 10px;
-      border-top: 1px solid #ccc;
+      padding: 0 1.25rem;
+      border-top: 1px solid #dee2e6;
     }
     :host([open]) .content {
       max-height: 200px; /* Adjust based on expected content size */
-      padding: 10px;
+      padding: 1rem 1.25rem;
     }
   `;
 
   render() {
+    let iconStyle = this.glyph ? `--glyph: var(--icon-${this.glyph})` : '';
+    let iconClass = this.glyph ? `icon glyph` : 'icon';
+
     return html`
       <div class="header" @click="${this.toggle}">
-        <span>${this.title}</span>
-        <span class="icon"></span>
+        <slot name="header">
+          <span>${this.title}</span>
+        </slot>
+        <span style="${iconStyle}" class="${iconClass}"></span>
       </div>
       <div class="content"><slot></slot></div>
     `;
@@ -68,7 +85,7 @@ export class JuelAccordionSection extends JuelComponent {
 
 @customElement('juel-accordion')
 export class JuelAccordion extends NavigationBase {
-  @property({ type: Boolean }) allowMultiple = false;
+  @property({ type: Boolean }) multiple = false;
 
   @queryAssignedElements({ selector: 'juel-accordion-section' })
   private _sections?: NodeListOf<JuelAccordionSection>;
@@ -79,39 +96,29 @@ export class JuelAccordion extends NavigationBase {
     }
   `;
 
-    constructor() {
-        super();
-        this.ripple = false; // Handled by sections
-    }
+  constructor() {
+    super();
+    this.ripple = false; // Handled by sections
+  }
 
   render() {
     return html`
-      ${map(this._sections,
-        (section) => html`
-          <div
-            .title=${section.title} 
-            .open=${section.open} 
-            @toggle=${(e) => this._handleToggle(e, section)}>
-            <slot name="${section.getAttribute('slot') || ''}"></slot>
-          </div>
-        `
-      )}
-      <slot @slotchange=${this._handleSlotChange}></slot>
+      <slot @slotchange="${this._handleSlotChange}"></slot>
     `;
   }
 
   private _handleSlotChange() {
-    const currentSections = this._sections;
-    if (currentSections && Array.from(currentSections).some(section => !section.isConnected)) {
-      this.requestUpdate();
-    }
+    this._sections?.forEach((section) => {
+      section.addEventListener('toggle', (e: Event) => this._handleToggle(e, section));
+    });
   }
 
-  private _handleToggle(event: MouseEvent, toggledSection: JuelAccordionSection) {
-    super.handleClick(event);
-    if (!this.allowMultiple && event instanceof CustomEvent) {
-      this._sections?.forEach(section => {
-        if (section !== toggledSection) section.open = false;
+  private _handleToggle(event: Event, toggledSection: JuelAccordionSection) {
+    if (!this.multiple) {
+      this._sections?.forEach((section) => {
+        if (section !== toggledSection) {
+          section.open = false;
+        }
       });
     }
   }

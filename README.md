@@ -11,6 +11,12 @@ The Juel library can be used via CDN, just add the following script tag to your 
 <script src="https://cdn.jsdelivr.net/gh/Jollify-Software/juel/dist/juel.js"></script>
 ```
 
+# Components
+
+## Navigation
+
+### Accordion
+
 ## Purpose
 
 These Web Components have been created for the [Jollify app](https://jollify.app) and website.  
