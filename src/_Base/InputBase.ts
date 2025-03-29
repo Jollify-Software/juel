@@ -155,6 +155,16 @@ export class InputBase extends JuelComponent {
         return klass;
     }
 
+    getIconStyle() {
+        let iconStyle = {};
+        if (this.glyph) {
+            iconStyle["mask-image"] = `var(--icon-${this.glyph})`;
+            iconStyle["mask-repeat"] = "no-repeat";
+            iconStyle["mask-position"] = "center";
+        }
+        return iconStyle;
+    }
+
     protected renderInput(): unknown {
         return;
     }

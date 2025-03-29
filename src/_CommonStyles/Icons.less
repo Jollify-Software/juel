@@ -1,5 +1,6 @@
 @miscIcons: previous,next,indicator,crosshair,close,tick,access;
 
+@import "./icon.less";
 @import "~/icons/text/text-icons.less";
 @import "~/icons/geo/geo-icons.less";
 @import "~/icons/arrows/arrows-icons.less";
@@ -22,25 +23,7 @@
     });
 }
 
-.icn() {
-    background: black;
-    mask-repeat: no-repeat;
-}
 .icon {
-    .icn();
-    display: inline-block;
-    width: 32px;
-    height: 32px;
-    &.lg {
-        .icn();
-        width: 48px;
-        height: 48px;
-    }
-    &.sm {
-        .icn();
-        width: 16px;
-        height: 16px;
-    }
     each(@miscIcons, {
         &.@{value} {
             mask-image: ~'var(--icon-@{value})';

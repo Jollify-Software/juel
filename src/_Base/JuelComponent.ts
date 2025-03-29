@@ -8,7 +8,6 @@ export class JuelComponent extends LitElement {
     @property() juelParent: JuelComponent;
     loaded: boolean = false;
     @property({ type: Boolean }) ripple: boolean = true;
-
     readyPromise: Promise<any>;
     readyResolve: (value: any) => void;
     hasUpdated: boolean;
