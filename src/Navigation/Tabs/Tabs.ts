@@ -71,7 +71,7 @@ export class JuelTabs extends NavigationBase {
       <div class="tabs">
         <slot name="prepend"></slot>
         ${map(this._tabs, (tab, index) => html`
-          <div class="tab" ?selected=${this.selectedIndex === index} @click=${this.handleClick(index)}>
+          <div class="tab" ?selected=${this.selectedIndex === index} @click=${this.clickFactory(index)}>
             ${tab.title}
           </div>
         `)}
@@ -93,11 +93,9 @@ export class JuelTabs extends NavigationBase {
     }
   }
 
-  handleClick(index: number) {
+  clickFactory(index: number) {
     return (e: MouseEvent) => {
-        if (e) {
-            RippleEffect.createRipple(e);
-        }
+        super.handleClick(e);
         this.selectTab(index);
     }
 }

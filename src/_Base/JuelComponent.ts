@@ -1,11 +1,13 @@
 import { CSSResult, CSSResultGroup, LitElement, PropertyValueMap } from "lit";
 import { property } from "lit/decorators";
 import { FindParent } from "../_Utils/FindParent";
+import { RippleEffect } from "../_Utils/RippleEffect";
 
 export class JuelComponent extends LitElement {
 
     @property() juelParent: JuelComponent;
     loaded: boolean = false;
+    @property({ type: Boolean }) ripple: boolean = true;
 
     readyPromise: Promise<any>;
     readyResolve: (value: any) => void;
@@ -14,6 +16,9 @@ export class JuelComponent extends LitElement {
     template: string;
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+        if (this.ripple) {
+            RippleEffect.init(this.shadowRoot);
+        }
         if (this.parentElement && 'childFirstUpdated' in this.parentElement) {
             (<JuelComponent>this.parentElement).childFirstUpdated(this);
         }
@@ -97,5 +102,11 @@ export class JuelComponent extends LitElement {
             detail: args
         });
         this.dispatchEvent(evt);
+    }
+
+    handleClick(event: MouseEvent) {
+        if (this.ripple) {
+            RippleEffect.createRipple(event);
+        }
     }
 }
