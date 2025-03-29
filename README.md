@@ -13,6 +13,10 @@ The Juel library can be used via CDN, just add the following script tag to your 
 
 # Components
 
+## Buttons
+
+### Button
+
 ## Navigation
 
 ### Accordion

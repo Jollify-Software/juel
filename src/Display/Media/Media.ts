@@ -22,13 +22,30 @@ export class JuelMedia extends JuelComponent {
 
     sourceType: MediaSourceType;
 
-    protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
-        
+    index: number;
+
+    attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
+        if (name == "src") {
+            if (value && value.includes(" ")) {
+                let splity = value.split(" ");
+                this.index = Math.floor(Math.random() * splity.length);
+            }
+        }
+        super.attributeChangedCallback(name, _old, value);
+    }
+
+    getSrc(): string {
+        if (this.src.includes(" ")) {
+            let splity = this.src.split(" ");
+            return splity[this.index];
+        }
+        return this.src;
     }
 
     protected render(): unknown {
+        let splity: string[];
         if (this.src.includes(" ")) {
-            let splity = this.src.split(" ");
+            splity = this.src.split(" ");
             this.sourceType = isMediaSource(splity[0]);
         } else {
             this.sourceType = isMediaSource(this.src);
@@ -42,7 +59,7 @@ export class JuelMedia extends JuelComponent {
         let classes = { background: this.background};
         let styles;
         if (this.src.includes(' ') && this.blend) {
-            let splity = this.src.split(" ");
+            splity = this.src.split(" ");
             styles = {
                 'background-image': splity.map((str) => `url(${str})`).join(', '),
                 'background-blend-mode': `${this.blend}`
@@ -51,12 +68,12 @@ export class JuelMedia extends JuelComponent {
 
         return html`<div id="container" class="${classMap(classes)}">
         ${choose(this.sourceType.type, [
-            ["video", () => when(this.background, () => html`<video autoplay muted loop src="${this.src}" >`,
+            ["video", () => when(this.background, () => html`<video autoplay muted loop src="${this.getSrc()}" >`,
                 () => html`<video controls src="${this.src}" >`)],
-            ["audio", () => when(this.background, () => html`<audio autoplay muted loop src="${this.src}" >`,
+            ["audio", () => when(this.background, () => html`<audio autoplay muted loop src="${this.getSrc()}" >`,
                 () => html`<audio controls src="${this.src}" >`)],
-            ["image", () => when(this.src.includes(' '), () => html`<div style="${styleMap(styles)}"></div>`,
-                () => html`<img src="${this.src}" >`)
+            ["image", () => when(splity && this.blend, () => html`<div style="${styleMap(styles)}"></div>`,
+                () => html`<img src="${this.getSrc()}" >`)
             ]
         ])}
         </div>`;
