@@ -9,17 +9,22 @@ export class JuelAccordionSection extends JuelComponent {
   @property({ type: String }) title = '';
   @property({ type: String }) glyph;
   @property({ type: Boolean, reflect: true }) open = false;
+  @property({ type: String }) trigger: 'hover' | 'click' | string = 'click';
 
   static styles = css`
     :host {
       display: block;
       border: 1px solid #ccc;
-      margin-bottom: 4px;
+      margin: 4px;
       border-radius: 0.25rem;
-      transition: box-shadow 0.3s ease;
+      transition: box-shadow 0.3s ease, width 0.3s ease;
+      flex: 0 0 auto;
+      width: 100px; /* Default collapsed width */
+      overflow: hidden;
     }
     :host([open]) {
       box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+      width: 300px; /* Expanded width */
     }
     .header {
       position: relative;
@@ -49,24 +54,47 @@ export class JuelAccordionSection extends JuelComponent {
     }
     .content {
       display: block;
-      max-height: 0;
+      max-width: 0;
       overflow: hidden;
-      transition: max-height 0.3s ease, padding 0.3s ease;
+      transition: max-width 0.3s ease, padding 0.3s ease;
       padding: 0 1.25rem;
       border-top: 1px solid #dee2e6;
     }
     :host([open]) .content {
-      max-height: 200px; /* Adjust based on expected content size */
+      max-width: 100%; /* Adjust based on expected content size */
       padding: 1rem 1.25rem;
     }
   `;
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (this.trigger && this.trigger !== 'hover' && this.trigger !== 'click') {
+      const externalTrigger = document.querySelector(this.trigger);
+      if (externalTrigger) {
+        externalTrigger.addEventListener('click', this._externalToggle.bind(this));
+      }
+    }
+  }
+
+  disconnectedCallback() {
+    if (this.trigger && this.trigger !== 'hover' && this.trigger !== 'click') {
+      const externalTrigger = document.querySelector(this.trigger);
+      if (externalTrigger) {
+        externalTrigger.removeEventListener('click', this._externalToggle.bind(this));
+      }
+    }
+    super.disconnectedCallback();
+  }
 
   render() {
     let iconStyle = this.glyph ? `--glyph: var(--icon-${this.glyph})` : '';
     let iconClass = this.glyph ? `icon glyph` : 'icon';
 
     return html`
-      <div class="header" @click="${this.toggle}">
+      <div 
+        class="header" 
+        @click="${this.trigger === 'click' ? this.toggle : null}" 
+        @mouseover="${this.trigger === 'hover' ? this.toggle : null}">
         <slot name="header">
           <span>${this.title}</span>
         </slot>
@@ -81,18 +109,25 @@ export class JuelAccordionSection extends JuelComponent {
     this.open = !this.open;
     this.dispatchEvent(new CustomEvent('toggle', { detail: this.open, bubbles: true, composed: true }));
   }
+
+  private _externalToggle() {
+    this.open = !this.open;
+    this.dispatchEvent(new CustomEvent('toggle', { detail: this.open, bubbles: true, composed: true }));
+  }
 }
 
 @customElement('juel-accordion')
 export class JuelAccordion extends NavigationBase {
   @property({ type: Boolean }) multiple = false;
+  @property({ type: String }) direction: 'vertical' | 'horizontal' = 'vertical';
 
   @queryAssignedElements({ selector: 'juel-accordion-section' })
   private _sections?: NodeListOf<JuelAccordionSection>;
 
   static styles = css`
     :host {
-      display: block;
+      display: flex;
+      flex-direction: var(--direction, column); /* Default to vertical layout */
     }
   `;
 
@@ -105,6 +140,12 @@ export class JuelAccordion extends NavigationBase {
     return html`
       <slot @slotchange="${this._handleSlotChange}"></slot>
     `;
+  }
+
+  updated(changedProperties: Map<string | number | symbol, unknown>) {
+    if (changedProperties.has('direction')) {
+      this.style.setProperty('--direction', this.direction === 'horizontal' ? 'row' : 'column');
+    }
   }
 
   private _handleSlotChange() {
