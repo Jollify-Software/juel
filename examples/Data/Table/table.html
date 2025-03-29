@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <script src="../../../dist/juel.js"></script>
+    </head>
+    <body>
+        <juel-table>
+            <juel-column slot="columns" field="name" header="Full Name"></juel-column>
+            <juel-column slot="columns" field="age" header="Age (Years)"></juel-column>
+          </juel-table>
+          <script>
+            var data = [
+                { name: 'John Doe', age: 30 },
+                { name: 'Jane Smith', age: 25 },
+                { name: 'Sam Brown', age: 35 }
+            ];
+            var grid = document.querySelector('juel-table');
+            grid.data = data;
+          </script>          
+    </body>
+</html>

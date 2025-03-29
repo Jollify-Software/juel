@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <script src="../../../dist/juel.js"></script>
+    </head>
+    <body>
+        <juel-table selection="single">
+            <juel-column slot="columns" field="name" header="Full Name"></juel-column>
+            <juel-column slot="columns" field="age" header="Age (Years)"></juel-column>
+          </juel-table>
+          <juel-table selection="multiple">
+            <juel-column slot="columns" field="name" header="Full Name"></juel-column>
+            <juel-column slot="columns" field="age" header="Age (Years)"></juel-column>
+          </juel-table>
+          <juel-table selection="check">
+            <juel-column slot="columns" field="name" header="Full Name"></juel-column>
+            <juel-column slot="columns" field="age" header="Age (Years)"></juel-column>
+          </juel-table>
+          <script>
+            var data = [
+                { name: 'John Doe', age: 30 },
+                { name: 'Jane Smith', age: 25 },
+                { name: 'Sam Brown', age: 35 }
+            ];
+            var grid = document.querySelectorAll('juel-table');
+            for (var i = 0; i < grid.length; i++) {
+                grid[i].data = data;
+            }
+          </script>          
+    </body>
+</html>

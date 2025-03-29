@@ -3,6 +3,7 @@ import './src/JuelGlobal';
 import "./src/_Shared/Import";
 
 import "./src/Buttons/Import";
+import "./src/Data/Import";
 import "./src/Dialog/Imports";
 import "./src/Display/Import";
 import "./src/Document/Import";
