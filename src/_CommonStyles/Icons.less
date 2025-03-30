@@ -8,6 +8,7 @@
 @import "~/icons/control/control-icons.less";
 @import "~/icons/communication/communication-icons.less";
 @import "~/icons/brands/brand-icons.less";
+@import "~/icons/math/math-icons.less";
 
 .icons() {
     .text-icons();
@@ -17,6 +18,7 @@
     .control-icons();
     .communication-icons();
     .brand-icons();
+    .math-icons();
 
     each(@miscIcons, {
         --icon-@{value}: url("data-url:~/icons/@{value}.svg");

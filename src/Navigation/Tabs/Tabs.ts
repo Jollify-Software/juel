@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, TemplateResult } from 'lit';
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js';
 import { map } from 'lit/directives/map';
 import { NavigationBase } from '../NavigationBase';
@@ -7,6 +7,9 @@ import { RippleEffect } from '../../_Utils/RippleEffect';
 @customElement('juel-tab')
 export class JuelTab extends LitElement {
   @property({ type: String }) title = '';
+
+  @queryAssignedElements({ selector: 'juel-tab' })
+  subTabs?: NodeListOf<JuelTab>;
 
   static styles = css`
     :host {
@@ -94,6 +97,57 @@ export class JuelTabs extends NavigationBase {
     :host([direction="vertical"]) .tab-content {
       border-left: 1px solid #dee2e6;
     }
+    .sub-tabs {
+      display: none;
+      flex-direction: var(--sub-tabs-direction, row);
+      margin-left: var(--sub-tabs-indent, 0);
+      border-left: var(--sub-tabs-border-left, none);
+      border-right: var(--sub-tabs-border-right, none);
+      border-top: var(--sub-tabs-border-top, none);
+      border-bottom: var(--sub-tabs-border-bottom, none);
+    }
+    :host([direction="vertical"]) .sub-tabs {
+      flex-direction: column;
+      margin-left: 16px;
+      border-left: 1px solid #dee2e6;
+    }
+    :host([direction="horizontal"]) .sub-tabs {
+      border-top: 1px solid #dee2e6;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .sub-tab {
+      position: relative;
+      padding: 8px 12px;
+      cursor: pointer;
+      background-color: #f1f3f5;
+      border: 1px solid transparent;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .sub-tab:hover {
+      background-color: #e9ecef;
+      border-color: #ced4da;
+    }
+    .sub-tab[selected] {
+      font-weight: bold;
+      background-color: var(--active, #e7f1ff);
+      color: #495057;
+    }
+    .expand-collapse-button {
+      width: 16px;
+      height: 16px;
+      margin-left: 8px;
+      cursor: pointer;
+      background-color: black;
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      transition: transform 0.2s;
+    }
+    .expand-collapse-button[expanded] {
+      mask-image: var(--icon-minus);
+    }
+    .expand-collapse-button:not([expanded]) {
+      mask-image: var(--icon-plus);
+    }
   `;
 
   private _handleSlotChange() {
@@ -106,8 +160,14 @@ export class JuelTabs extends NavigationBase {
         <div class="tabs" style="--direction: ${this.direction === 'vertical' ? 'column' : 'row'};">
           <slot name="prepend"></slot>
           ${map(this._tabs, (tab, index) => html`
-            <div class="tab" ?selected=${this.selectedIndex === index} @click=${this.clickFactory(index)}>
-              ${tab.title}
+            <div class="tab" ?selected=${this.selectedIndex === index}>
+              <div @click=${this.clickFactory(tab, index)}>
+                ${tab.title}
+                ${tab.subTabs?.length ? html`
+                  <button class="expand-collapse-button" @click=${this.toggleSubTabs(index)}></button>
+                ` : ''}
+              </div>
+              ${tab.subTabs?.length ? this.renderSubTabs(tab.subTabs, tab, index) : ''}
             </div>
           `)}
           <slot name="append"></slot>
@@ -115,6 +175,22 @@ export class JuelTabs extends NavigationBase {
         <div class="tab-content">
           <slot @slotchange=${this._handleSlotChange}></slot>
         </div>
+      </div>
+    `;
+  }
+
+  private renderSubTabs(subTabs: NodeListOf<JuelTab>, parentTab: JuelTab, parentIndex: number): TemplateResult {
+    return html`
+      <div class="sub-tabs" style="--sub-tabs-direction: ${this.direction === 'vertical' ? 'column' : 'row'};">
+        ${Array.from(subTabs).map((subTab, subIndex) => html`
+          <div class="sub-tab" ?selected=${this.selectedIndex === parentIndex && subTab.style.display === 'block'} @click=${this.clickFactory(parentTab, parentIndex, subIndex)}>
+            ${subTab.title}
+            ${subTab.subTabs?.length ? html`
+              <button class="expand-collapse-button" @click=${this.toggleSubTabs(parentIndex, subIndex)}></button>
+            ` : ''}
+            ${subTab.subTabs?.length ? this.renderSubTabs(subTab.subTabs, subTab, parentIndex) : ''}
+          </div>
+        `)}
       </div>
     `;
   }
@@ -131,15 +207,49 @@ export class JuelTabs extends NavigationBase {
     }
   }
 
-  clickFactory(index: number) {
+  clickFactory(tab: JuelTab, parentIndex: number, subIndex?: number) {
     return (e: MouseEvent) => {
-        super.handleClick(e);
-        this.selectTab(index);
-    }
-}
+      super.handleClick(e);
+      if (subIndex !== undefined) {
+        this.selectSubTab(tab, parentIndex, subIndex);
+      } else {
+        this.selectTab(parentIndex);
+      }
+    };
+  }
 
   selectTab(index: number) {
     this.selectedIndex = index;
+  }
+
+  selectSubTab(tab: JuelTab, parentIndex: number, subIndex: number) {
+    this.selectedIndex = parentIndex;
+    const subTabs = tab.subTabs;
+    if (subTabs) {
+      Array.from(subTabs).forEach((subTab, index) => {
+        subTab.style.display = index === subIndex ? 'block' : 'none';
+      });
+    }
+  }
+
+  toggleSubTabs(parentIndex: number, subIndex?: number) {
+    return (e: MouseEvent) => {
+      e.stopPropagation();
+      const button = e.target as HTMLElement;
+      const tab = button.closest(subIndex !== undefined ? '.sub-tab' : '.tab') as HTMLElement;
+      if (tab) {
+        const subTabsContainer = tab.querySelector('.sub-tabs') as HTMLElement;
+        if (subTabsContainer) {
+          const isExpanded = subTabsContainer.style.display === 'flex';
+          subTabsContainer.style.display = isExpanded ? 'none' : 'flex';
+          if (isExpanded) {
+            button.removeAttribute('expanded');
+          } else {
+            button.setAttribute('expanded', 'true');
+          }
+        }
+      }
+    };
   }
 }
 

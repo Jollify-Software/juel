@@ -1,0 +1,14 @@
+@mathIcons: calculator, plus, minus, plus-minus, square-root, times, divide, equal, not-equal;
+
+.math-icons() {
+    each(@mathIcons, {
+        --icon-@{value}: url("data-url:~/icons/math/@{value}.svg");
+    });
+}
+.icon {
+    each(@mathIcons, {
+        &.@{value} {
+            mask-image: ~'var(--icon-@{value})';
+        }
+    });
+}
