@@ -13,18 +13,21 @@ export class JuelAccordionSection extends JuelComponent {
 
   static styles = css`
     :host {
-      display: block;
+      display: flex;
+      flex-direction: var(--direction);
       border: 1px solid #ccc;
       margin: 4px;
       border-radius: 0.25rem;
-      transition: box-shadow 0.3s ease, width 0.3s ease;
+      transition: box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease;
       flex: 0 0 auto;
-      width: 100px; /* Default collapsed width */
+      width: var(--width);
+      height: var(--height);
       overflow: hidden;
     }
     :host([open]) {
       box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-      width: 300px; /* Expanded width */
+      width: var(--expand-width);
+      height: var(--expand-height);
     }
     .header {
       position: relative;
@@ -54,14 +57,16 @@ export class JuelAccordionSection extends JuelComponent {
     }
     .content {
       display: block;
-      max-width: 0;
+      max-width: var(--max-width);
+      max-height: var(--max-height);
       overflow: hidden;
-      transition: max-width 0.3s ease, padding 0.3s ease;
+      transition: max-width 0.3s ease, max-height 0.3s ease, padding 0.3s ease;
       padding: 0 1.25rem;
       border-top: 1px solid #dee2e6;
     }
     :host([open]) .content {
-      max-width: 100%; /* Adjust based on expected content size */
+      max-width: var(--max-width);
+      max-height: var(--max-height);
       padding: 1rem 1.25rem;
     }
   `;
@@ -144,7 +149,14 @@ export class JuelAccordion extends NavigationBase {
 
   updated(changedProperties: Map<string | number | symbol, unknown>) {
     if (changedProperties.has('direction')) {
-      this.style.setProperty('--direction', this.direction === 'horizontal' ? 'row' : 'column');
+      const isHorizontal = this.direction === 'horizontal';
+      this.style.setProperty('--direction', isHorizontal ? 'row' : 'column');
+      this.style.setProperty('--max-width', isHorizontal ? '100%' : 'unset');
+      this.style.setProperty('--max-height', isHorizontal ? 'unset' : '100%');
+      this.style.setProperty('--expand-width', isHorizontal ? '300px' : 'unset');
+      this.style.setProperty('--expand-height', isHorizontal ? 'unset' : '300px');
+      this.style.setProperty('--width', isHorizontal ? '100px' : '100%');
+      this.style.setProperty('--height', isHorizontal ? '100%' : '100px');
     }
   }
 
