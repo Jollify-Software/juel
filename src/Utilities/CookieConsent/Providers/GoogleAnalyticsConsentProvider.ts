@@ -6,7 +6,7 @@ export class GoogleAnalyticsConsentProvider implements IConsentProvider {
 
         let script = document.createElement("script");
         script.async = true;
-        script.src = "https://www.googletagmanager.com/gtag/js?id=YOUR_GA_MEASUREMENT_ID";
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${key}`;
         
         script.onload = function () {
             // Now manually initialise Google Analytics

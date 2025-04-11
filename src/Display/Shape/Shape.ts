@@ -12,6 +12,7 @@ import { svgToClipPath } from "../../_Utils/draw/svgToClipPath";
 import { extractPoints } from "../../_Utils/draw/extractPoint";
 import { normalizePoints } from "../../_Utils/draw/normalizePoints";
 import { polygonStrToPath } from "../../_Utils/draw/polygonToPath";
+import { CompassPositions } from "../../_Core/CompassPositions";
 
 @customElement("juel-shape")
 export class JuelShape extends LitElement {
@@ -20,6 +21,7 @@ export class JuelShape extends LitElement {
 
     @property() type: string;
     @property() src: string;
+    @property({ type: String }) direction: string = CompassPositions.North;
     @property({ converter: DOMStringMapConverter }) args: object;
     @property({ attribute: "text-attr", converter: DOMStringMapConverter }) textArgs: object;
     @property() text: string;
@@ -35,6 +37,7 @@ export class JuelShape extends LitElement {
     isPath: boolean = false;
 
     sts: ShapeTemplateService;
+    private resizeObserver: ResizeObserver;
 
     constructor() {
         super();
@@ -52,11 +55,15 @@ export class JuelShape extends LitElement {
 
 
     protected render(): unknown {
-        return html`<span class="content"><slot></slot></span><div class="svg-container"></dov>`;
+        return html`<span class="content"><slot></slot></span><div part="shape" class="svg-container rotate ${this.direction}"></dov>`;
     }
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
-        $.when($.ready).then(this.ready)
+        $.when($.ready).then(this.ready);
+
+        // Initialize ResizeObserver
+        this.resizeObserver = new ResizeObserver(() => this.handleResize());
+        this.resizeObserver.observe(this);
     }
 
     @bind
@@ -117,6 +124,26 @@ export class JuelShape extends LitElement {
                 this.textEl = this.container.add(this.shape).text(this.text);
             }
             this.textEl.attr(this.textArgs);
+        }
+    }
+
+    private handleResize() {
+        if (this.shape) {
+            const width = this.clientWidth;
+            const height = this.clientHeight;
+
+            // Scale the shape to match the new dimensions
+            this.shape.size(width, height);
+        }
+        if (this.draw) {
+            this.draw.size(this.clientWidth, this.clientHeight);
+        }
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
         }
     }
 

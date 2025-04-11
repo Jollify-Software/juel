@@ -10,13 +10,13 @@ export class ArrowShapeStrategy implements ShapeStrategy {
         const headWidth = size * 0.6; // Width of the arrow's head
       
         const points = `
-        ${width / 2},${height / 2 - size / 2}
-        ${width / 2 + headWidth / 2},${height / 2 - size / 2 + headHeight}
-        ${width / 2 + shaftWidth / 2},${height / 2 - size / 2 + headHeight}
-        ${width / 2 + shaftWidth / 2},${height / 2 + size / 2}
-        ${width / 2 - shaftWidth / 2},${height / 2 + size / 2}
-        ${width / 2 - shaftWidth / 2},${height / 2 - size / 2 + headHeight}
-        ${width / 2 - headWidth / 2},${height / 2 - size / 2 + headHeight}
+        0,${height / 2 - size / 2}
+        ${headWidth},${height / 2 - size / 2 + headHeight}
+        ${shaftWidth},${height / 2 - size / 2 + headHeight}
+        ${shaftWidth},${height / 2 + size / 2}
+        ${-shaftWidth},${height / 2 + size / 2}
+        ${-shaftWidth},${height / 2 - size / 2 + headHeight}
+        ${-headWidth},${height / 2 - size / 2 + headHeight}
       `;
       
         let shape = draw.polygon(points.trim()).center(size / 2, size / 2);
