@@ -37,6 +37,7 @@
         "@popperjs/core": "^2.11.8",
         "@swc/helpers": "^0.5.15",
         "@types/toastr": "^2.1.43",
+        "@zxing/browser": "^0.1.5",
         "animejs": "^3.2.2",
         "bind-decorator": "^1.0.11",
         "codemirror": "^6.0.1",
