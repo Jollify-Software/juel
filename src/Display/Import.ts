@@ -1,3 +1,4 @@
+import './Alert/Alert';
 import './Badge/Badge';
 import './Draggable/Draggable';
 import './Flip/Flip';

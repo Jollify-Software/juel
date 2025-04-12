@@ -1,0 +1,73 @@
+@import '../../_CommonStyles/Icon.less';
+@import '../../_CommonStyles/_Colours.less';
+
+:host {
+    display: block;
+    border-radius: 4px;
+    padding: 16px;
+    position: relative;
+    transition: opacity 0.3s ease;
+  }
+
+  :host([hidden]) {
+    display: none;
+  }
+
+  .alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 8px;
+  }
+
+  .icon-slot {
+    flex-shrink: 0;
+  }
+
+  .content {
+    flex-grow: 1;
+  }
+
+  .title {
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+
+  .close-button {
+    width: 32px;
+    height: 32px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 1);
+    }
+
+    &:focus {
+        outline: 2px solid rgba(0, 0, 0, 0.2);
+    }
+
+    &:after {
+        content: '';
+        width: 16px;
+        height: 16px;
+        mask-image: var(--icon-close);
+        mask-size: contain;
+        mask-repeat: no-repeat;
+        mask-position: center;
+        -webkit-mask-image: var(--icon-close);
+        -webkit-mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        background-color: var(--dark, black);
+    }
+  }

@@ -20,17 +20,21 @@
 }
 each(@colours, {
     @var: ~'var(--@{key})';
-    @lightened: if(luma(@value) < 50%, lighten(@value, 10%), darken(@value, 10%));
+    @lightened: if(luma(@value) < 50%, lighten(@value, 32%), darken(@value, 32%));
     .@{key} {
         background-color: var(--background-color, @var);
         color: var(--color, if(luma(@value) > 50%, black, white));
         border: 1px solid var(--background-color, @var);
+        &.alert {
+            background-color: var(--background-color, @lightened);
+        color: var(--color, @var) !important;
+        }
         .icon {
             background-color: var(--color, if(luma(@value) > 50%, black, white));
         }
         &:hover {
             background-color: var(--hover-background-color, var(--color, @lightened));
-            color: var(--hover-color, var(---background-color), var(--color, if(luma(@value) > 50%, black, white)));
+            color: var(--hover-color, if(luma(@value) > 50%, black, white));
             border-color: var(--hover-border-color, @lightened);
             .icon {
                 background-color: var(--hover-color, var(--color, if(luma(@value) > 50%, black, white)));
