@@ -80,7 +80,13 @@ export class JuelShape extends LitElement {
 
             if (!this.draw) {
                 this.draw = SVG();
-                this.draw.addTo(this.svgContainerRef).viewbox(0, 0, this.clientWidth, this.clientHeight);
+                this.draw.addTo(this.svgContainerRef)
+                    .viewbox(0, 0, this.clientWidth, this.clientHeight)
+                    .attr({
+                        preserveAspectRatio: "none",
+                        width: "100%",
+                        height: "100%",
+                    });
             }
             this.drawShape();
 
