@@ -3,23 +3,21 @@ import { ShapeStrategy } from "./ShapeStrategy";
 
 export class ArrowShapeStrategy implements ShapeStrategy {
     draw(draw: Svg, width: number, height: number): Shape {
-        let size = Math.max(width, height);
+        const shaftWidth = width * 0.4; // Shaft width is 40% of the element's width
+        const headHeight = height * 0.5; // Head height is 50% of the element's height
+        const headWidth = width; // Head width matches the element's width
 
-        const shaftWidth = size * 0.4; // Width of the arrow's shaft
-        const headHeight = size * 0.4; // Height of the arrow's head
-        const headWidth = size * 0.6; // Width of the arrow's head
-      
         const points = `
-        0,${height / 2 - size / 2}
-        ${headWidth},${height / 2 - size / 2 + headHeight}
-        ${shaftWidth},${height / 2 - size / 2 + headHeight}
-        ${shaftWidth},${height / 2 + size / 2}
-        ${-shaftWidth},${height / 2 + size / 2}
-        ${-shaftWidth},${height / 2 - size / 2 + headHeight}
-        ${-headWidth},${height / 2 - size / 2 + headHeight}
+        0,0
+        ${headWidth / 2},${headHeight}
+        ${shaftWidth / 2},${headHeight}
+        ${shaftWidth / 2},${height}
+        ${-shaftWidth / 2},${height}
+        ${-shaftWidth / 2},${headHeight}
+        ${-headWidth / 2},${headHeight}
       `;
-      
-        let shape = draw.polygon(points.trim()).center(size / 2, size / 2);
+
+        let shape = draw.polygon(points.trim()).center(width / 2, height / 2);
         return shape;
     }
 

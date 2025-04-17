@@ -13,6 +13,7 @@ import { extractPoints } from "../../_Utils/draw/extractPoint";
 import { normalizePoints } from "../../_Utils/draw/normalizePoints";
 import { polygonStrToPath } from "../../_Utils/draw/polygonToPath";
 import { CompassPositions } from "../../_Core/CompassPositions";
+import interact from "@interactjs/interactjs";
 
 @customElement("juel-shape")
 export class JuelShape extends LitElement {
@@ -26,6 +27,7 @@ export class JuelShape extends LitElement {
     @property({ attribute: "text-attr", converter: DOMStringMapConverter }) textArgs: object;
     @property() text: string;
     @property() hover: string;
+    @property({ type: Boolean }) editable: boolean = false;
 
     draw: Svg;
     container: Container;
@@ -59,11 +61,16 @@ export class JuelShape extends LitElement {
     }
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
         $.when($.ready).then(this.ready);
 
         // Initialize ResizeObserver
         this.resizeObserver = new ResizeObserver(() => this.handleResize());
         this.resizeObserver.observe(this);
+
+        if (this.editable) {
+            this.addResizeHandles();
+        }
     }
 
     @bind
@@ -131,6 +138,10 @@ export class JuelShape extends LitElement {
             }
             this.textEl.attr(this.textArgs);
         }
+
+        if (this.editable) {
+            this.addDraggablePoints();
+        }
     }
 
     private handleResize() {
@@ -186,6 +197,49 @@ export class JuelShape extends LitElement {
                     this.initialShape = this.draw.polygon(initialShape).fill('#ffcc00');
                 
             }
+        }
+    }
+
+    private addResizeHandles() {
+        const resizeHandles = document.createElement('div');
+        resizeHandles.classList.add('resize-handles');
+        this.shadowRoot.appendChild(resizeHandles);
+
+        interact(resizeHandles).resizable({
+            edges: { left: true, right: true, bottom: true, top: true },
+        }).on('resizemove', (event) => {
+            const { width, height } = event.rect;
+            this.style.width = `${width}px`;
+            this.style.height = `${height}px`;
+            this.handleResize();
+        });
+    }
+
+    private addDraggablePoints() {
+        if (this.shape && this.shape.type === 'polygon') {
+            const points = extractPoints(this.shape);
+            points.forEach((point, index) => {
+                const circle = document.createElement('div');
+                circle.classList.add('draggable-point');
+                circle.style.position = 'absolute';
+                circle.style.left = `${point[0]}px`;
+                circle.style.top = `${point[1]}px`;
+                this.shadowRoot.appendChild(circle);
+
+                interact(circle).draggable({
+                    listeners: {
+                        move: (event) => {
+                            const dx = event.dx;
+                            const dy = event.dy;
+                            point[0] += dx;
+                            point[1] += dy;
+                            circle.style.left = `${point[0]}px`;
+                            circle.style.top = `${point[1]}px`;
+                            (<any>this.shape).plot(points);
+                        },
+                    },
+                });
+            });
         }
     }
 
