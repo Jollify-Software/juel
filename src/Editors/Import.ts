@@ -8,6 +8,8 @@ import './Select/Select';
 
 import './Form/Form';
 
+import './PointSelector/PointSelector';
+
 import "./HtmlEditor/HtmlEditor";
 
 import "./MarkdownEditor/MarkdownEditor";

@@ -1,0 +1,18 @@
+<html>
+<head>
+    <script src="../../../dist/juel.js"></script>
+    </head>
+    <body>
+        <juel-point-selector input></juel-point-selector>
+    <script>
+        // Initialize the point selector with some options
+        const pointSelector = document.querySelector('juel-point-selector');
+        pointSelector.addEventListener('point-selected', (event) => {
+            console.log('Point selected:', event.detail);
+        });
+        pointSelector.addEventListener('point-cancelled', () => {
+            console.log('Point selection cancelled');
+        });
+    </script>
+    </body>
+</html>

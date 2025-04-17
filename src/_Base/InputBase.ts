@@ -18,8 +18,8 @@ export class InputBase extends JuelComponent {
     ///static styles?: CSSResultGroup = unsafeCSS(Styles);
 
     @property() value: any;
-    @property() type: AlertTypes;
-    @property({ attribute: "render-style" }) renderStyle: RenderStyles;
+    @property() type: AlertTypes = AlertTypes.Primary;
+    @property({ attribute: "render-style" }) renderStyle: RenderStyles = RenderStyles.Default;
     @property({ type: Boolean }) addonActive: boolean;
     @property() label: string;
     @property() glyph: string;
@@ -173,7 +173,7 @@ export class InputBase extends JuelComponent {
         let klass: any = {
             "input-group": true,
         };
-        if (!("renderStyle" in this.parentElement)) {
+        if (this.parentElement && !("renderStyle" in this.parentElement)) {
             klass[`${this.type}-border`] = true;
         }
         /*
