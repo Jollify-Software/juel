@@ -152,8 +152,8 @@ export class JuelAccordion extends NavigationBase {
     if (changedProperties.has('direction')) {
       const isHorizontal = this.direction === 'horizontal';
       this.style.setProperty('--direction', isHorizontal ? 'row' : 'column');
-      this.style.setProperty('--max-width', isHorizontal ? '100%' : 'unset');
-      this.style.setProperty('--max-height', isHorizontal ? 'unset' : '100%');
+      this.style.setProperty('--max-width', isHorizontal ? '100%' : '0px');
+      this.style.setProperty('--max-height', isHorizontal ? '0px' : '400px');
       this.style.setProperty('--expand-width', isHorizontal ? '300px' : 'unset');
       this.style.setProperty('--expand-height', isHorizontal ? 'unset' : '300px');
       this.style.setProperty('--width', isHorizontal ? '100px' : '100%');
