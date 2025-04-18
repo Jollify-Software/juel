@@ -68,6 +68,7 @@ export class JuelAccordionSection extends JuelComponent {
       max-width: var(--max-width);
       max-height: var(--max-height);
       padding: 1rem 1.25rem;
+      overflow: auto;
     }
   `;
 
