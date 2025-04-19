@@ -1,20 +1,21 @@
 .icn() {
-    background: black;
     mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: 55%;
 }
 .icon {
     .icn();
     display: inline-block;
-    width: 32px;
-    height: 32px;
     &.lg {
-        .icn();
         width: 48px;
         height: 48px;
     }
     &.sm {
-        .icn();
         width: 16px;
         height: 16px;
+    }
+    &.md {
+        width: 32px;
+        height: 32px;
     }
 }

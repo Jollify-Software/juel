@@ -29,14 +29,14 @@ each(@colours, {
             background-color: var(--background-color, @lightened);
         color: var(--color, @var) !important;
         }
-        .icon {
+        .icon:not(.empty) {
             background-color: var(--color, if(luma(@value) > 50%, black, white));
         }
         &:hover {
             background-color: var(--hover-background-color, var(--color, @lightened));
             color: var(--hover-color, if(luma(@value) > 50%, black, white));
             border-color: var(--hover-border-color, @lightened);
-            .icon {
+            .icon:not(.empty) {
                 background-color: var(--hover-color, var(--color, if(luma(@value) > 50%, black, white)));
             }
         }

@@ -5,6 +5,8 @@ import { IconGet } from "../../_Modules/Icons/IconGetFunction";
 import { when } from "lit/directives/when";
 import { InputBase } from "../../_Base/InputBase";
 import { IconExists } from "../../_Modules/Icons/IconExistsFunction";
+import { isEmoji } from "../../_Utils/String/isEmoji";
+import { isDataUrl } from "../../_Utils/String/isDataUrl";
 
 @customElement('juel-icon-button')
 export class CircleIconButton extends InputBase {
@@ -19,21 +21,24 @@ export class CircleIconButton extends InputBase {
   @property({ type: String })
   label: string = 'Button';
 
-  exists: boolean;
+  isIcon: boolean;
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.exists = IconExists(this.icon);
+    this.isIcon = !(isEmoji(this.icon) || isDataUrl(this.icon));
   }
 
   // Render the button
   render() {
-    const styles = this.exists ? `mask-image: var(--icon-${this.icon});` : '';
-    const klass = this.getInputClass();
+    const styles = this.isIcon ? `mask-image: var(--icon-${this.icon});` : '';
+    let klass = this.getInputClass();
+    if (this.isIcon == true) {
+      klass = 'icon ' + klass;
+    }
 
     return html`
       <button @click=${this._handleClick} style="${styles}" class="${klass}" aria-label="${this.label}">
-      ${when(this.exists == false, () => html`<span class="icon">${this.icon}</span>`)}
+      ${when(this.isIcon == false, () => html`<span class="icon empty">${this.icon}</span>`)}
       </button>
     `;
   }

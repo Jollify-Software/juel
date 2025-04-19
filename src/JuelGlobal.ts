@@ -1,3 +1,10 @@
+(function() {
+    let style = document.createElement("style");
+    style.id = "juel-styles";
+    style.textContent = Styles;
+    document.head.append(style);
+})();
+
 import { JuelModule } from "./_Modules/JuelModule";
 import "./_Modules/WindowModule";
 import $ from "jquery";
@@ -17,13 +24,7 @@ import { Iconify } from "./_Modules/Icons/IconifyFunction";
 
 (function() {
     IsMobile();
-    Vh();
-    
-    let style = document.createElement("style");
-    style.id = "juel-styles";
-    style.textContent = Styles;
-    document.head.append(style);
-    // TODO Loop around all icon-XX variables and append to hidden SVG
+    Vh()
 })();
 $(function() {
     let elements = document.querySelectorAll(".reverse") as NodeListOf<HTMLElement>;

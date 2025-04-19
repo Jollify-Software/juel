@@ -1,5 +1,5 @@
 import { html, LitElement, PropertyValues, unsafeCSS } from "lit";
-import { property, customElement } from "lit/decorators";
+import { property, customElement, state } from "lit/decorators";
 import style from 'bundle-text:./Toggle.less';
 import { ChangedEventArgs } from "../../_Core/Events/ChangedEventArgs";
 import { Dispatch } from "../../_Core/DispatchFunction";
@@ -8,6 +8,9 @@ import { ToggleEvents } from "./ToggleEvents";
 import { InputBase } from "../../_Base/InputBase";
 import { when } from "lit/directives/when";
 import { styleMap } from "lit/directives/style-map";
+import { ArrayConverter } from "../../_Converters/ArrayConverter";
+import { classMap } from "lit/directives/class-map";
+import { forwardProperties } from "../../_Directives/ForwardPropertiesDirective";
 
 @customElement("juel-toggle")
 export class JuelToggle extends InputBase {
@@ -37,69 +40,27 @@ export class JuelToggle extends InputBase {
     height: number = null;
 
     @property({ type: Boolean })
-    checked: boolean;
+    checked: boolean = false;
+    @property({ type: String, converter: ArrayConverter('|') })
+    states: string[] = [ 'secondary', 'primary' ];
 
-    state: number;
+    @state()
+    index: number = 0;
 
-    /**
-     *
-     */
-    constructor() {
-      super();
-      this.checked = false;
-    }
-
-    protected firstUpdated(_changedProperties: PropertyValues): void {
-      super.firstUpdated(_changedProperties);
-      let trigger = this.shadowRoot.getElementById('trigger') as HTMLDivElement;
-
-      if (!this.width) {
-        this.style.width = `${this.width}px`;
-      } else if (trigger) {
-        this.style.width = trigger.style.width;
-      } else {
-        this.style.width = `${this.defaultWidth}px`;
-      }
-      if (!this.height) {
-        this.style.height = `${this.height}px`;
-      } else if (trigger) {
-        this.style.height = trigger.style.height;
-      } else {
-        this.style.height = `${this.defaultHeight}px`;
-      }
-
-      if (this.checked) {
-        this.classList.remove("unchecked");
-        this.classList.add("checked");
-      } else {
-        this.classList.remove("checked");
-        this.classList.add("unchecked");
-      }
-
-      if (trigger) {
-        $(trigger).on('click', () => {
-          this.toggle();
-          if (this.singular == true) {
-            this.singularCheck();
-          }
-        })
-      }
+    get currentState() {
+        return this.states[this.index];
     }
 
   private toggle() {
-    this.checked = !this.checked;
-    let checkbox = this.shadowRoot.getElementById("checkbox") as HTMLInputElement;
-    checkbox.checked = this.checked;
-    if (this.checked) {
-      this.classList.remove("unchecked");
-      this.classList.add("checked");
-    } else {
-      this.classList.remove("checked");
-      this.classList.add("unchecked");
-    }
-    let args: ChangedEventArgs = {
-      value: this.checked
-    }
+    this.checked = !this.checked; // Optional: Keep checked boolean for backward compatibility
+    this.index = (this.index + 1) % this.states.length;
+    const currentState = this.states[this.index];
+    this.classList.remove(...this.states);
+    this.classList.add(currentState);
+
+    const args: ChangedEventArgs = {
+      value: currentState
+    };
     Dispatch(this, ToggleEvents.Toggled, args);
   }
 
@@ -141,12 +102,14 @@ export class JuelToggle extends InputBase {
     let args: ChangedEventArgs = {
       value: this.checked
     }
-    Dispatch(this, ToggleEvents.Toggled, args);
-    this.requestUpdate();
+    //Dispatch(this, ToggleEvents.Toggled, args);
+    //this.requestUpdate();
   }
 
   toggleClicked(e: Event) {
+    e.stopPropagation(); // Prevent event from bubbling up
     super.onClick(e);
+    this.toggle();
     if (this.singular == true) {
       this.singularCheck();
     }
@@ -160,33 +123,50 @@ export class JuelToggle extends InputBase {
       style['mask-position'] = label ? 'left' : 'center';
     }
 
-    return html`<slot name="${this.checked ? 'checked' : 'unchecked'}">${when(label || glyph,
-      () => html`<button style="${styleMap(style)}" id="trigger">${label}</button`,
-      () => html`<span class="${this.rounded  ? 'slider rounded' : 'slider'}"></span>`)}</slot>`;
+    return html`<slot name="${this.checked ? 'checked' : 'unchecked'}">${when((!label) && glyph,
+      () => html`<juel-icon-button ${this.glyph ? forwardProperties({
+        keys : this.glyph.split('|').map((g) => `--icon-${g}`),
+      }) : ''} icon="${glyph}"></juel-icon-button>`,
+      () => when(label || glyph,
+        () => html`<juel-button ${this.glyph ? forwardProperties({
+        keys : this.glyph.split('|').map((g) => `--icon-${g}`),
+      }) : ''} type="${this.currentState}" label="${label}" glyph="${glyph}" id="trigger">${label}</juel-button`,
+        () => html`<span class="${this.rounded  ? 'slider rounded' : 'slider'}"></span>`))}</slot>`;
   }
 
-    render() {
-      let labelChecked = this.label;
-      let labelUnchecked = this.label;
-      if (this.label && this.label.includes('|')) {
-        let splity = this.label.split('|');
-        labelChecked = splity[0];
-        labelUnchecked = splity[1];
+  render() {
+    let label;
+    if (this.label && this.label.includes('|')) {
+      let splity = this.label.split('|');
+      if (this.index >= 0 && this.index < splity.length) {
+        label = splity[this.index];
       }
-
-      let glyphChecked = this.glyph;
-      let glyphUnchecked = this.glyph;
-      if (this.glyph && this.glyph.includes('|')) {
-        let splity = this.glyph.split('|');
-        glyphChecked = splity[0];
-        glyphUnchecked = splity[1];
-      }
-
-        return html`<label class="${this.custom ? 'custom' : 'switch'}" @click="${this.toggleClicked}">
-        <input type="checkbox" id="checkbox" .checked=${this.checked} @change="${this.checkChange}">
-        ${when(this.checked,
-          () => this.renderChecked(labelChecked, glyphChecked),
-          () => this.renderChecked(labelUnchecked, glyphUnchecked))}
-      </label>`;
     }
+
+    let glyph;
+    if (this.glyph && this.glyph.includes('|')) {
+      let splity = this.glyph.split('|');
+      if (this.index >= 0 && this.index < splity.length) {
+        glyph = splity[this.index];
+      }
+    }
+
+    let klass = {};
+    if (this.checked) {
+      klass['checked'] = true;
+    } else {
+      klass['unchecked'] = true;
+    }
+    if (this.custom) {
+      klass['custom'] = true;
+    } else if ((!label) && (!glyph)) {
+      klass['switch'] = true;
+    }
+
+    return html`<label class="${classMap(klass)}" @click="${this.toggleClicked}">
+      ${when(this.checked,
+        () => this.renderChecked(label, glyph),
+        () => this.renderChecked(label, glyph))}
+    </label>`;
+  }
 }
