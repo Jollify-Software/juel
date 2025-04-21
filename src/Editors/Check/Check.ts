@@ -1,9 +1,12 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import { styleMap } from 'lit/directives/style-map';
+import { JuelComponent } from '../../_Base/JuelComponent';
+import { ChangedEventArgs } from '../../_Core/Events/ChangedEventArgs';
+import { EventNames } from '../../_Core/Events/EventNames';
 
 @customElement('juel-check')
-export class JuelCheck extends LitElement {
+export class JuelCheck extends JuelComponent {
   static styles = css`
     :host {
       display: block;
@@ -56,11 +59,10 @@ export class JuelCheck extends LitElement {
   private _onCheckboxChange(event: Event) {
     const target = event.target as HTMLInputElement;
     this.value = target.checked;
-    this.dispatchEvent(new CustomEvent('value-changed', {
-      detail: { value: this.value },
-      bubbles: true,
-      composed: true,
-    }));
+    let args: ChangedEventArgs = {
+      value: this.value
+    };
+    this.fire(EventNames.ValueChanged, args);
   }
 
   render() {

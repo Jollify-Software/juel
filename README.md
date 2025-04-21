@@ -13,6 +13,14 @@ The Juel library can be used via CDN, just add the following script tag to your 
 
 # Components
 
+* [Bootstrap](https://getbootstrap.com/).
+* [Bulma](https://bulma.io/).
+* [Foundation](https://get.foundation/).
+* [MudBlazor](https://www.mudblazor.com/).
+* [Blazorise](https://blazorise.com/docs).
+* [DevExpress](https://demos.devexpress.com/blazor/).
+* [Telerik](https://www.telerik.com/blazor-ui).
+
 ## Buttons
 
 ### Button

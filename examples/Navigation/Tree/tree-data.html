@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <script src="../../../dist/juel.js"></script>
+    </head>
+    <body>
+        <tree-menu ItemsField="children"></tree-menu>
+
+<script>
+  const menu = document.querySelector('tree-menu');
+  menu.data = [
+    { label: 'Home' },
+    {
+      label: 'About',
+      children: [
+        { label: 'Team' },
+        { label: 'Mission' }
+      ]
+    }
+  ];
+</script>      
+    </body>
+</html>
