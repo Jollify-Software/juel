@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, PropertyValues, PropertyValueMap } from 'lit';
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js';
 import { map } from 'lit/directives/map';
 import { NavigationBase } from '../NavigationBase';
@@ -92,6 +92,22 @@ export class JuelAccordionSection extends JuelComponent {
     super.disconnectedCallback();
   }
 
+  protected updated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
+    // Ensure the parent element exists and is a JuelAccordion
+    const parent = this.parentElement as HTMLElement;
+    if (parent && 'direction' in parent) {
+    // Calculate the size of the header
+    const header = this.shadowRoot?.querySelector('.header') as HTMLElement;
+    if (header) {
+      const isHorizontal = parent.direction === 'horizontal';
+      const headerSize = isHorizontal ? header.offsetWidth : header.offsetHeight;
+
+      // Set the size property on the parent
+      parent.style.setProperty(isHorizontal ? '--width' : '--height', `${headerSize}px`);
+    }
+  }
+  }
+
   render() {
     let iconStyle = this.glyph ? `--glyph: var(--icon-${this.glyph})` : '';
     let iconClass = this.glyph ? `icon glyph` : 'icon';
@@ -149,6 +165,8 @@ export class JuelAccordion extends NavigationBase {
   }
 
   updated(changedProperties: Map<string | number | symbol, unknown>) {
+    super.updated(changedProperties);
+
     if (changedProperties.has('direction')) {
       const isHorizontal = this.direction === 'horizontal';
       this.style.setProperty('--direction', isHorizontal ? 'row' : 'column');
