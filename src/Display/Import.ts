@@ -7,3 +7,4 @@ import './Shape/Shape';
 import './Tooltip/Tooltip';
 import './Media/Media';
 import './Parallax/Parallax';
+import './Card/Card';

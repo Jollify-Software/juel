@@ -1,12 +1,23 @@
 <html>
 
 <head>
-    <script src="../../dist/juel.js"></script>
+    <script src="../../../dist/juel.js"></script>
 </head>
 <body>
     <juel-card>
+        <div slot="header">Card Title</div>
+      
+        <p>This is some card content in the body. It can include any HTML or other components.</p>
+      
+        <div slot="footer">
+          <button>OK</button>
+        </div>
+      </juel-card>
+
+
+    <juel-card>
             <img slot="image" src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg">
-        <h5 slot="title">Card title</h5>
+        <h5 slot="header">Card title</h5>
         <p>
             Some quick example text to build on the card title and make up the bulk of the card's content.
         </p>
