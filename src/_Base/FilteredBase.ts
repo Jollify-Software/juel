@@ -6,8 +6,10 @@ import { map } from "lit/directives/map";
 import { toTitle } from "../_Utils/ToTitle";
 import { choose } from "lit/directives/choose";
 import { when } from "lit/directives/when";
+import { JuelComponent } from "./JuelComponent";
+import { parseDataset } from "../_Utils/data/parseDataset";
 
-export class FilteredBase extends ListBase {
+export class FilteredBase extends JuelComponent {
 
     @property()
     /**
@@ -26,6 +28,10 @@ export class FilteredBase extends ListBase {
      */
     all: string;
 
+    items: HTMLElement[];
+
+    filterObjects: object = null;
+
     /**
      *
      */
@@ -34,12 +40,20 @@ export class FilteredBase extends ListBase {
         this.all = "true";
     }
 
-    getFilters() {
-        let items = this.getItems() as FilteredItemBase[];
+    getFilters(items: HTMLElement[]) {
         if (items) {
         let filters = {};
         for (let item of items) {
-            for (let key in item.filter) {
+            let filter: object;
+            if ('filter' in item) {
+                filter = item['filter'] as object;
+            } else {
+                filter = parseDataset(item, 'filter');
+            }
+            if (!filter) {
+                continue;
+            }
+            for (let key in filter) {
                 let ray: any[];
                 if (key in filters) {
                     ray = filters[key];
@@ -47,22 +61,48 @@ export class FilteredBase extends ListBase {
                     ray = [];
                     filters[key] = ray;
                 }
-                if (!ray.includes(item.filter[key])) {
-                    ray.push(item.filter[key]);
+                if (!ray.includes(filter[key])) {
+                    ray.push(filter[key]);
                 }
             }
         }
         console.log(filters);
-        return filters;
+        this.filterObjects = filters;
     }
-    return null;
+    }
+
+    handleSlotChange(e: Event) {
+        let slot = e.target as HTMLSlotElement;
+        this.items = slot.assignedElements({ flatten: true }) as HTMLElement[];
+        this.getFilters(this.items);
+        this.requestUpdate();
     }
 
     filterItems(name: string, value: any) {
         console.log(`Filter: ${name} - ${value}`)
-        let items = this.getItems() as FilteredItemBase[];
-        for (let item of items) {
-            item.performFilter(name, value);
+        if (this.items == null) {
+            return;
+        }
+        for (let item of this.items) {
+            if (item.hasAttribute(`data-filter-${name}`)) {
+                let filter = item.getAttribute(`data-filter-${name}`);
+                if (value == true && filter == null) {
+                    $(item).hide('slow');
+                    continue;
+                } else if (filter == null) {
+                    continue;
+                }
+
+                if (value == '*') {
+                    $(item).show('slow');
+                } else if (value == true && filter == "true") {
+                    $(item).show('slow');
+                } else if (filter == value) {
+                    $(item).show('slow');
+                } else {
+                    $(item).hide('slow');
+                }
+            }
         }
     }
 
@@ -77,22 +117,22 @@ export class FilteredBase extends ListBase {
     renderStringFiltersAsSelect(key: string, values: string[]) {
         let part = `filter-${key}-select`;
         return html`<juel-select part="${part}">${map(values,
-            value => html`<juel-item @click=${() => this.filterItems(key, value)}>${toTitle(value)}</juel-item>`)}
+            value => html`<juel-select-option @click=${() => this.filterItems(key, value)}>${toTitle(value)}</juel-select-option>`)}
             </juel-select>`;
     }
 
     renderFilters() {
-        let filters = this.getFilters();
-        if (filters) {
-            let keys = Object.keys(filters);
-            let types = keys.map(x => typeof filters[x][0])
+        console.log(this.filters, this.filterObjects);
+        if (this.filters && this.filters != "false" && this.filterObjects) {
+            let keys = Object.keys(this.filterObjects);
+            let types = keys.map(x => typeof this.filterObjects[x][0])
             return html`<ul id="filters" part="filters">${map(keys, (key, i) => {
-                let values = filters[key];
+                let values = this.filterObjects[key];
                 let type = types[i];
                 return html`<li><span part="filter-text filter-${key}-text">${toTitle(key)}</span><span class="filter-options">${choose(type, [
                     [ 'string', () => html`${when(types.filter(x => x == type).length >= 2, () => this.renderStringFiltersAsSelect(key, values), () => this.renderStringFiltersAsButtons(key, values))}` ],
                     [ 'number', () => html`` ],
-                    [ 'boolean', () => html`<juel-toggle part="filter-${key}-toggle" @toggled=${e => this.filterItems(key, e.detail.value)}></juel-toggle>` ]
+                    [ 'boolean', () => html`<juel-toggle checked="true" part="filter-${key}-toggle" @toggled=${e => this.filterItems(key, e.detail.value)}></juel-toggle>` ]
                 ])}</span></li>`;
             })}</ul>`;
         }

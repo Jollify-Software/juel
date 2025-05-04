@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid Layout Example</title>
+    <script src="../../../dist/juel.js"></script>
+    <style>
+        div {
+            width: 200px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <juel-grid gap="10px" filters="true">
+        <div data-filter-letter="A" data-filter-vowel="true" style="background: lightblue;">A</div>
+        <div data-filter-letter="B" style="background: lightcoral;">B</div>
+        <div data-filter-letter="C" style="background: lightgreen;">C</div>
+        <div data-filter-letter="D" style="background: lightpink;">D</div>
+        <div data-filter-letter="E" data-filter-vowel="true" style="background: lightyellow;">E</div>
+    </juel-grid>
+</body>
+</html>

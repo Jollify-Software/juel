@@ -1,8 +1,10 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators';
+import { FilteredBase } from '../../_Base/FilteredBase';
 
 @customElement('juel-grid')
-export class JuelGrid extends LitElement {
+export class JuelGrid extends FilteredBase {
+
   @property({ type: String }) layout: string = '';
   @property({ type: String }) gap: string | null = null;
   @property({ type: String, attribute: "column-gap" }) columnGap: string | null = null;
@@ -21,7 +23,11 @@ export class JuelGrid extends LitElement {
   `;
 
   private generateGridStyles() {
-    if (!this.layout) return '';
+    if (!this.layout) return `
+        display: flex !important;
+        flex-wrap: wrap;
+        ${this.gap ? `gap: ${this.gap};` : ''}
+      `;
 
     const rows = this.layout.trim().split(' ').map(Number);
     const maxColumns = Math.max(...rows);
@@ -88,8 +94,9 @@ export class JuelGrid extends LitElement {
         }
         ${slottedStyles}
       </style>
+      ${this.renderFilters()}
       <div class="grid">
-        <slot></slot>
+        <slot @slotchange="${this.handleSlotChange}"></slot>
       </div>
     `;
   }

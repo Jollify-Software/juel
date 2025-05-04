@@ -5,20 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grid Layout Example</title>
     <script src="../../../dist/juel.js"></script>
-    <style>
-        div {
-            width: 200px;
-            height: 100px;
-        }
-    </style>
 </head>
 <body>
-    <juel-grid gap="10px">
+    <juel-grid layout="2 1 2" gap="10px">
         <div style="background: lightblue;">A</div>
         <div style="background: lightcoral;">B</div>
         <div style="background: lightgreen;">C</div>
         <div style="background: lightpink;">D</div>
         <div style="background: lightyellow;">E</div>
+    </juel-grid>
+
+    <juel-grid layout="2 2"  row-gap="15px" column-gap="20px">
+        <div style="background: lightblue;">A</div>
+        <div style="background: lightcoral;">B</div>
+        <div style="background: lightgreen;">C</div>
+        <div style="background: lightpink;">D</div>
     </juel-grid>
 </body>
 </html>

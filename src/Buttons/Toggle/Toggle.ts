@@ -59,7 +59,7 @@ export class JuelToggle extends InputBase {
     this.classList.add(currentState);
 
     const args: ChangedEventArgs = {
-      value: currentState
+      value: this.states.length == 2 ? currentState == this.states[1] : currentState,
     };
     Dispatch(this, ToggleEvents.Toggled, args);
   }
