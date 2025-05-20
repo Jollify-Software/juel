@@ -1,4 +1,8 @@
 juel-contents {
+    li {
+        list-style: none;
+        margin: 0.3em 0;
+    }
     a {
         display: flex;
 
@@ -6,6 +10,64 @@ juel-contents {
             flex-grow: 1;
             border: none;
             border-bottom: dotted;
+            margin: 0;
         }
     }
+}
+
+/* === Table of Contents Styling === */
+juel-contents.contents {
+    font-family: Georgia, serif;
+    font-size: 0.95em;
+    color: #222;
+    margin-bottom: 2em;
+}
+
+juel-contents ul#toc {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+juel-contents li[part="list-item"] {
+    margin: 0.3em 0;
+}
+
+juel-contents a[part="link"] {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    text-decoration: none;
+    color: #002855;
+    border-radius: 4px;
+    padding: 0.2em 0;
+}
+
+juel-contents a[part="link"]:hover {
+    background-color: #f0f4f8;
+    text-decoration: underline;
+}
+
+/* Dotted connector between title and page number */
+juel-contents a[part="link"] hr {
+    flex-grow: 1;
+    border: none;
+    border-bottom: 1px dotted #999;
+    margin: 0 0.5em;
+    height: 0;
+}
+
+/* Page number styling */
+juel-contents a[part="link"] span:last-child {
+    min-width: 2em;
+    text-align: right;
+    color: #444;
+}
+
+/* Nested list (subheadings) */
+juel-contents ul ul {
+    padding-left: 1.2em;
+    border-left: 2px solid #ccc;
+    margin-left: 0.3em;
+    margin-top: 0.3em;
 }
