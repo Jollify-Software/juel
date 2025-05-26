@@ -7,7 +7,7 @@ export class JuelCard extends LitElement {
     .card {
       border: 1px solid #e0e0e0;
       border-radius: 0.5rem;
-      display: flex;
+      display: inline-flex;
     flex-direction: column;
     }
 
