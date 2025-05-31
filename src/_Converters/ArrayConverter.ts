@@ -32,7 +32,7 @@ export function ArrayConverter(separator: string = " "): (value: string) => any[
     };
 }
 
-export function MultiArrayConvertor(arraySeparator: string = ",", separator: string = " "): (value: string) => any[][] {
+export function MultiArrayConvertor(arraySeparator: string = ",", separator: string = " "): (value: string) => any[] | any[][] {
     return (value: string) => {
         if (value.includes(arraySeparator)) {
             let raySplitty = value.split(arraySeparator);

@@ -1,5 +1,5 @@
 import "./Chart/Chart";
-import "./Chart/ChartDataSet";
+import "./Chart/ChartSeries";
 import "./Timeline/Timeline";
 import './Progress/Progress';
 import './Map/Map';

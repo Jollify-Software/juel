@@ -1,115 +1,134 @@
-import Chart from "chart.js";
-import { html, LitElement, PropertyValueMap } from "lit";
-import { property, customElement } from "lit/decorators";
-import { JuelComponent } from "../../_Base/JuelComponent";
-import { ArrayConverter } from "../../_Converters/ArrayConverter";
+import { LitElement, html, css } from 'lit';
+import { customElement, property, query } from 'lit/decorators.js';
+import * as d3 from 'd3';
+import { debounceTime, Subject } from 'rxjs';
+import { ArrayConverter } from '../../_Converters/ArrayConverter';
+import { ChartType } from './Classes/ChartType';
+import { ChartSeries } from './Classes/ChartSeries';
+import { ChartStrategy } from './Strategies/ChartStrategy';
+import { PieChartStrategy } from './Strategies/PieChartStrategy';
+import { LineChartStrategy } from './Strategies/LineChartStrategy';
+import { BarChartStrategy } from './Strategies/BarChartStrategy';
+import { AreaChartStrategy } from './Strategies/AreaChartStrategy';
+import { DoughnutChartStrategy } from './Strategies/DoughnutChartStrategy';
+import { StackedBarChartStrategy } from './Strategies/StackedBarChartStrategy';
+import { ScatterChartStrategy } from './Strategies/ScatterChartStrategy';
+import { RadarChartStrategy } from './Strategies/RadarChartStrategy';
 
-@customElement("juel-chart")
-export class JuelChart extends JuelComponent {
+@customElement('juel-chart')
+export class JuelChart extends LitElement {
+  @property({ type: String }) type: ChartType = ChartType.Bar;
+  @property({ type: Array, converter: ArrayConverter(',') }) labels?: string[];
 
-    static ChartScriptId: string = "juel-chart-js";
-    static ChartScriptUrl: string = "https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js";
+  @query('slot') slotElement!: HTMLSlotElement;
 
-    chartScriptLoaded: Promise<any>;
+  private slotChange$ = new Subject<void>();
+  private mutationObserver?: MutationObserver;
+  private resizeObserver?: ResizeObserver;
 
-    @property({ type: Number}) width: number = 400;
-    @property({ type: Number}) height: number = 400;
-    @property() type: string;
-    @property({ converter: ArrayConverter(',') }) labels: string[];
-    @property({ type: Boolean}) responsive: boolean;
-    @property() legend: string;
-    @property() indexAxis: string;
+  static styles = css`
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+      .juel-chart-tooltip {
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+  `;
 
-    chart: Chart;
-    @property({ type: Object }) data: any;
-    @property({ type: Object }) options: any;
-    canvas: HTMLCanvasElement;
-    g: CanvasRenderingContext2D;
+  constructor() {
+    super();
+    this.slotChange$.pipe(debounceTime(50)).subscribe(() => this.renderChart());
+  }
 
-    constructor() {
-        super();
+  connectedCallback() {
+    super.connectedCallback();
+    this.resizeObserver = new ResizeObserver(() => this.slotChange$.next());
+    this.resizeObserver.observe(this);
+  }
 
-        this.responsive = false;
-        this.width = 400;
-        this.height = 400;
-        this.type = "bar";
-        this.data = {};
-        this.options = {};
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.resizeObserver?.disconnect();
+  }
+
+  render() {
+    return html`
+      <svg></svg>
+      <slot @slotchange=${this.handleSlotchange}></slot>
+    `;
+  }
+
+  private handleSlotchange() {
+    this.observeSeriesMutations();
+    this.slotChange$.next();
+  }
+
+  private observeSeriesMutations() {
+    this.mutationObserver?.disconnect();
+
+    this.mutationObserver = new MutationObserver(() => {
+      this.slotChange$.next();
+    });
+
+    this.seriesElements.forEach(el => {
+      this.mutationObserver!.observe(el, { attributes: true });
+    });
+  }
+
+  private get seriesElements(): HTMLElement[] {
+    return (this.slotElement.assignedElements() || []) as HTMLElement[];
+  }
+
+  private renderChart() {
+    const svg = d3.select(this.renderRoot.querySelector('svg'));
+    svg.selectAll('*').remove();
+
+    const width = this.clientWidth;
+    const height = this.clientHeight;
+    const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+
+    const allSeries: ChartSeries[] = this.seriesElements.map(el => ({
+      label: (el as any).label,
+      data: (el as any).data as number[],
+      color: (el as any).color || 'steelblue'
+    }));
+
+    let strategy: ChartStrategy;
+    switch (this.type) {
+      case ChartType.Pie:
+        strategy = new PieChartStrategy(svg, width, height, margin, allSeries, this.labels);
+        break;
+      case ChartType.Line:
+        strategy = new LineChartStrategy(svg, width, height, margin, allSeries, this.labels);
+        break;
+        case ChartType.Area:
+        strategy = new AreaChartStrategy(svg, width, height, margin, allSeries, this.labels);
+        break;
+        case ChartType.Doughnut:
+        strategy = new DoughnutChartStrategy(svg, width, height, margin, allSeries, this.labels);
+        break;
+        case ChartType.StackedBar:
+        strategy = new StackedBarChartStrategy(svg, width, height, margin, allSeries, this.labels);
+        break;
+        case ChartType.Scatter:
+        strategy = new ScatterChartStrategy(svg, width, height, margin, allSeries, this.labels);
+        break;
+        case ChartType.Radar:
+        strategy = new RadarChartStrategy(svg, width, height, margin, allSeries, this.labels);
+        break;
+      case ChartType.Bar:
+      default:
+        strategy = new BarChartStrategy(svg, width, height, margin, allSeries, this.labels);
+        break;
     }
 
-    protected updated(_changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
-        this.data.labels = this.labels
-
-        let plugins: any = {};
-            if (this.legend) {
-                if (this.legend == "false") {
-                    plugins.legend = {
-                        display: false
-                    };
-                } else {
-                    plugins.legend = {
-                        position: this.legend
-                    };
-                }
-            }
-            if (this.title) {
-                plugins.title = {
-                    display: true,
-                    text: this.title
-                }
-            }
-            this.options.responsive = this.responsive;
-            if (this.indexAxis) {
-                this.options.indexAxis = this.indexAxis;
-            }
-            if (plugins) {
-                this.options.plugins = plugins;
-            }
-
-            this.g = (<HTMLCanvasElement>this.shadowRoot.getElementById("canvas"))
-                .getContext("2d");
-            this.chartScriptLoaded = this.scriptElement();
-    }
-
-    async scriptElement() {
-        let script = document.querySelector(`#${JuelChart.ChartScriptId}`) as HTMLScriptElement;
-        if (!('Chart' in window)) {
-            console.log("Loading ChartJS")
-            await import(JuelChart.ChartScriptUrl);
-        }
-    }
-
-    renderChart() {
-        this.chartScriptLoaded.then(() => {
-            try
-            {
-            console.log("Render chart")
-            let ChartFunc = window['Chart'] as any;
-        let config: any = {
-            type: this.type,
-            data: this.data,
-            options: this.options
-        };
-        console.log(config)
-        if (!this.chart) {
-        this.chart = new ChartFunc(this.g, config)
-        console.log(ChartFunc)
-        console.log("Chart created")
-        } else {
-
-            this.chart.data = this.data;
-            this.chart.update();
-            console.log("Chart updated")
-        }
-    }
-    catch (ex)
-    {
-        console.log(ex)
-    }
-        });
-    }
-
-    render() {
-        return html`<canvas id="canvas" width="${this.width}" height="${this.height}"></canvas>`;
-    }
+    strategy.render();
+  }
 }
