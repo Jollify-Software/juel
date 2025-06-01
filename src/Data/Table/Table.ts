@@ -60,6 +60,37 @@ export class JuelTable extends LitElement {
     this.requestUpdate();
   }
 
+  private renderCellTemplate(template: HTMLTemplateElement, context: any) {
+    const fragment = template.content.cloneNode(true) as DocumentFragment;
+
+    // Helper to replace {{field}} in a string
+    const replaceVars = (text: string) =>
+      text.replace(/\{\{(.*?)\}\}/g, (_, key) => context[key.trim()] ?? '');
+
+    // Replace in direct text nodes of the fragment
+    fragment.childNodes.forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        node.textContent = replaceVars(node.textContent ?? '');
+      }
+    });
+
+    // Replace in text nodes and attributes inside elements
+    fragment.querySelectorAll('*').forEach(node => {
+      // Replace in text nodes
+      node.childNodes.forEach(child => {
+        if (child.nodeType === Node.TEXT_NODE) {
+          child.textContent = replaceVars(child.textContent ?? '');
+        }
+      });
+      // Replace in attributes
+      Array.from(node.attributes ?? []).forEach(attr => {
+        attr.value = replaceVars(attr.value);
+      });
+    });
+
+    return html`${fragment}`;
+  }
+
   static styles = css`
     table {
       width: 100%;
@@ -84,8 +115,9 @@ export class JuelTable extends LitElement {
 
   render() {
     const hasCustomColumns = this.columns && this.columns.length > 0;
+    // Allow columns without a field property (unbound columns)
     const columns = hasCustomColumns
-      ? this.columns!.map(el => el.field || '')
+      ? this.columns!.map(el => el.field || '') // Keep empty string for unbound columns
       : this.data.length > 0 ? Object.keys(this.data[0]) : [];
 
     return html`
@@ -93,7 +125,9 @@ export class JuelTable extends LitElement {
         <thead>
           <tr>
             ${this.selection === SelectionMode.Check ? html`<th></th>` : ''}
-            ${columns.map(col => html`<th>${col}</th>`)}
+            ${hasCustomColumns
+              ? this.columns!.map(col => html`<th>${col.header || col.field || ''}</th>`)
+              : columns.map(col => html`<th>${col}</th>`)}
           </tr>
         </thead>
         <tbody>
@@ -108,18 +142,38 @@ export class JuelTable extends LitElement {
                   />
                 </td>
               ` : ''}
-              ${columns.map(col => html`
-                <td 
-                  @click=${(event: Event) => {
-                    if (this.selection !== SelectionMode.Check && this.selection !== SelectionMode.None) {
-                      this.handleRowClick(row, index, event);
-                    }
-                    this.handleCellClick(row, col, event);
-                  }}
-                >
-                  ${row[col]}
-                </td>
-              `)}
+              ${hasCustomColumns
+                ? this.columns!.map((columnEl, colIndex) => {
+                    const template = columnEl.template;
+                    const field = columnEl.field;
+                    return html`
+                      <td 
+                        @click=${(event: Event) => {
+                          if (this.selection !== SelectionMode.Check && this.selection !== SelectionMode.None) {
+                            this.handleRowClick(row, index, event);
+                          }
+                          this.handleCellClick(row, field, event);
+                        }}
+                      >
+                        ${template
+                          ? this.renderCellTemplate(template, row)
+                          : (field ? row[field] : '')}
+                      </td>
+                    `;
+                  })
+                : columns.map((col, colIndex) => html`
+                    <td 
+                      @click=${(event: Event) => {
+                        if (this.selection !== SelectionMode.Check && this.selection !== SelectionMode.None) {
+                          this.handleRowClick(row, index, event);
+                        }
+                        this.handleCellClick(row, col, event);
+                      }}
+                    >
+                      ${row[col]}
+                    </td>
+                  `)
+              }
             </tr>
           `)}
         </tbody>
@@ -134,6 +188,16 @@ export class JuelColumn extends LitElement {
   @property({ type: String }) field = '';
   @property({ type: String }) header = '';
 
+    @queryAssignedElements({ flatten: true })
+  private _assignedElements?: HTMLElement[];
+
+  get template(): HTMLTemplateElement | null {
+    if (!this._assignedElements) return null;
+    return this._assignedElements.find(
+      el => el instanceof HTMLTemplateElement
+    ) as HTMLTemplateElement | null;
+  }
+  
   render() {
     return html`<slot></slot>`;
   }
