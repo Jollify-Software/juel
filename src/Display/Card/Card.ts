@@ -5,6 +5,7 @@ import { customElement } from 'lit/decorators.js';
 export class JuelCard extends LitElement {
   static styles = css`
     .card {
+    background: var(--light)l
       border: 1px solid #e0e0e0;
       border-radius: 0.5rem;
       display: inline-flex;
