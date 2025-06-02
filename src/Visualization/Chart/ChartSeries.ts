@@ -8,6 +8,8 @@ export class JuelChartSeries extends LitElement {
   data: number[] | number[][] = [];
   @property({ type: String }) label: string = '';
   @property({ type: String }) color: string = 'steelblue';
+  @property({ type: Number }) min?: number;
+  @property({ type: Number }) max?: number;
 
   createRenderRoot() {
     // Prevent shadow DOM so parent can read child content

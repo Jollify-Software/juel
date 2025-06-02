@@ -14,6 +14,21 @@ import { DoughnutChartStrategy } from './Strategies/DoughnutChartStrategy';
 import { StackedBarChartStrategy } from './Strategies/StackedBarChartStrategy';
 import { ScatterChartStrategy } from './Strategies/ScatterChartStrategy';
 import { RadarChartStrategy } from './Strategies/RadarChartStrategy';
+import { GaugeChartStrategy } from './Strategies/GaugeChartStrategy';
+
+function AllChartStrategies(): { [key: string]: typeof ChartStrategy } {
+  let obj: { [key: string]: typeof ChartStrategy } = {};
+  obj[ChartType.Bar] = BarChartStrategy;
+  obj[ChartType.Line] = LineChartStrategy;
+  obj[ChartType.Area] = AreaChartStrategy;
+  obj[ChartType.Doughnut] = DoughnutChartStrategy;
+  obj[ChartType.Pie] = PieChartStrategy;
+  obj[ChartType.StackedBar] = StackedBarChartStrategy;
+  obj[ChartType.Scatter] = ScatterChartStrategy;
+  obj[ChartType.Radar] = RadarChartStrategy;
+  obj[ChartType.Gauge] = GaugeChartStrategy;
+  return obj;
+};
 
 @customElement('juel-chart')
 export class JuelChart extends LitElement {
@@ -94,40 +109,28 @@ export class JuelChart extends LitElement {
     const height = this.clientHeight;
     const margin = { top: 20, right: 30, bottom: 40, left: 40 };
 
-    const allSeries: ChartSeries[] = this.seriesElements.map(el => ({
-      label: (el as any).label,
-      data: (el as any).data as number[],
-      color: (el as any).color || 'steelblue'
-    }));
+    console.log('Rendering chart of type:', this.type);
 
-    let strategy: ChartStrategy;
-    switch (this.type) {
-      case ChartType.Pie:
-        strategy = new PieChartStrategy(svg, width, height, margin, allSeries, this.labels);
-        break;
-      case ChartType.Line:
-        strategy = new LineChartStrategy(svg, width, height, margin, allSeries, this.labels);
-        break;
-        case ChartType.Area:
-        strategy = new AreaChartStrategy(svg, width, height, margin, allSeries, this.labels);
-        break;
-        case ChartType.Doughnut:
-        strategy = new DoughnutChartStrategy(svg, width, height, margin, allSeries, this.labels);
-        break;
-        case ChartType.StackedBar:
-        strategy = new StackedBarChartStrategy(svg, width, height, margin, allSeries, this.labels);
-        break;
-        case ChartType.Scatter:
-        strategy = new ScatterChartStrategy(svg, width, height, margin, allSeries, this.labels);
-        break;
-        case ChartType.Radar:
-        strategy = new RadarChartStrategy(svg, width, height, margin, allSeries, this.labels);
-        break;
-      case ChartType.Bar:
-      default:
-        strategy = new BarChartStrategy(svg, width, height, margin, allSeries, this.labels);
-        break;
-    }
+    const allSeries: ChartSeries[] = this.seriesElements.map(el => {
+      let s: ChartSeries = {
+        label: (el as any).label,
+        data: (el as any).data as number[],
+        color: (el as any).color || 'steelblue'
+      };
+      if ((el as any).min !== undefined) {
+        s.min = Number((el as any).min);
+      }
+      if ((el as any).max !== undefined) {
+        s.max = Number((el as any).max);
+      }
+      return s;
+    });
+
+    console.log('Rendering chart with series:', allSeries);
+    // Dynamically select and instantiate the strategy
+    const StrategyClass: any = AllChartStrategies()[this.type] || BarChartStrategy;
+    console.log(StrategyClass);
+    const strategy = new StrategyClass(svg, width, height, margin, allSeries, this.labels);
 
     strategy.render();
   }
