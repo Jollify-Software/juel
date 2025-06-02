@@ -1,4 +1,4 @@
-import { computePosition, autoUpdate } from '@floating-ui/dom';
+import { computePosition, autoUpdate, autoPlacement } from '@floating-ui/dom';
 import { FloatingInstance } from './floatingInstance';
 
 /**
@@ -25,7 +25,12 @@ export function createFloating(reference, floating, options = {}) : FloatingInst
 
   // Update function to compute and apply styles
   const update = async () => {
-    const { x, y, placement } = await computePosition(reference, floating, options);
+    const { x, y, placement } = await computePosition(reference, floating,
+      Object.assign(options, {
+        middleware: [
+          autoPlacement()
+        ],
+      }));
     applyStyles({ x, y, placement });
   };
 
