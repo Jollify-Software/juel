@@ -12,6 +12,9 @@ export class CollapsibleBase extends JuelComponent {
   @property({ type: String })
   trigger: 'mouseenter' | 'click' = 'mouseenter';
 
+  @property()
+  placement: 'top' | 'bottom' | 'left' | 'right' = 'bottom';
+
   private floatingInstance: ReturnType<typeof createFloating> | null = null;
   private eventSubscriptions: Subscription[] = [];
   private isMouseOverCollapse: boolean = false;
@@ -38,7 +41,7 @@ export class CollapsibleBase extends JuelComponent {
 
     if (this.collapseMode === 'floating') {
       this.floatingInstance = createFloating(this.getTriggerElement(), this.getCollapseElement(), {
-        placement: 'bottom',
+        placement: this.placement,
       });
     }
   }
