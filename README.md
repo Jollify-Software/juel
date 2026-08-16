@@ -11,6 +11,71 @@ The Juel library can be used via CDN, just add the following script tag to your 
 <script src="https://cdn.jsdelivr.net/gh/Jollify-Software/juel/dist/juel.js"></script>
 ```
 
+# Global JavaScript API
+
+Loading `juel.js` exposes a global `window.juel` object, in addition to the custom elements. This is a public API surface — external code calls into it directly (e.g. the Blazor bindings project talks to Juel through this via JS interop), so its shape should be treated as a compatibility contract, not internal detail.
+
+`juel.js` also sets `window.$` / `window.jQuery` (jQuery is bundled and still required internally by several components).
+
+## `juel.messageBox`
+
+Themed replacements for `alert` / `confirm` / `prompt`. Each call returns a `Promise` that resolves with `{ status, value }` (`status` is a `MessageBoxResultStatus`: `OK`, `Cancel`, `Yes`, `No`).
+
+```js
+juel.messageBox.error(text, title?);
+juel.messageBox.success(text, title?);
+juel.messageBox.warning(text, title?);
+juel.messageBox.question(text, title?);  // Yes/No buttons
+juel.messageBox.show(args);              // full control: title, text, icon, buttons, prompt, close, labels
+```
+
+## `juel.toast`
+
+```js
+juel.toast.show(options);
+juel.toast.into(message);     // info toast
+juel.toast.success(message);
+juel.toast.warning(message);
+juel.toast.error(message);
+```
+
+## `juel.icon`
+
+```js
+juel.icon.exists(name);
+juel.icon.get(name, svg?);
+juel.icon.use(name);
+juel.icon.iconify();
+```
+
+## `juel.guide`
+
+```js
+juel.guide.start(steps?, options?);  // guided tour / walkthrough overlay
+juel.guide.end();
+```
+
+## `juel.device`
+
+```js
+juel.device.getDeviceSize();
+juel.device.getOrientation();
+juel.device.addResizeListener(listener);
+juel.device.removeResizeListener(listener);
+juel.device.addOrientationListener(listener);
+juel.device.removeOrientationListener(listener);
+```
+
+## `juel.audio`
+
+```js
+juel.audio.play(src);  // returns false if that src is already playing
+```
+
+## `juel.params`
+
+A `Proxy` over the current page's `URLSearchParams` — e.g. `juel.params.foo` reads the `?foo=` query parameter.
+
 # Components
 
 * [Bootstrap](https://getbootstrap.com/).

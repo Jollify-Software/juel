@@ -1,7 +1,8 @@
 import { DragMoveListener, DragMoveListener2 } from "../_Utils/DragMoveListener";
 import { IsMobile } from "../_Utils/IsMobile";
-import { DialogManagerService } from "../DialogManager/DialogManagerService";
+import { DialogManagerService } from "../Dialog/DialogManager/DialogManagerService";
 import { DialogOptions } from "./DialogOptions";
+import { AnimateStyle } from "../_Utils/dom/AnimateStyle";
 
 declare var interact: any;
 
@@ -56,16 +57,16 @@ export class Dialog {
             if (this.location && this.size) {
                 switch (this.location) {
                     case 'top':
-                        $(this.element).animate({
+                        AnimateStyle(this.element, {
                             'top': 0
-                        }, 'slow');
+                        });
                         let openDialogs = this.service.dialogs.filter(x => x.id != this.id && x.isOpen)
                             .map(x => x.element);
                         if (openDialogs) {
-                            $(openDialogs).animate({
+                            openDialogs.forEach(el => AnimateStyle(el, {
                                 'top': `${this.size}vh`,
                                 'height': `${(100 - parseInt(this.size))}vh`
-                            }, 'slow');
+                            }));
                         }
                         break;
                 }
@@ -77,16 +78,16 @@ export class Dialog {
                 if (this.location && this.size) {
                     switch (this.location) {
                         case 'top':
-                            $(this.element).animate({
+                            AnimateStyle(this.element, {
                                 'top': `-${this.size}vh`
-                            }, 'slow');
+                            });
                             let openDialogs = this.service.dialogs.filter(x => x.id != this.id && x.isOpen)
                                 .map(x => x.element);
                             if (openDialogs) {
-                                $(openDialogs).animate({
+                                openDialogs.forEach(el => AnimateStyle(el, {
                                     'top': `0`,
                                     'height': `100%`
-                                }, 'slow');
+                                }));
                             }
                             break;
                     }
@@ -157,16 +158,16 @@ export class Dialog {
                 if (this.location && this.size) {
                     switch (this.location) {
                         case 'top':
-                            $(this.element).animate({
+                            AnimateStyle(this.element, {
                                 'top': `calc(var(--vh) * ${this.size})`
-                            }, 'slow');
+                            });
                             let openDialogs = this.service.dialogs.filter(x => x.id != this.id && x.isOpen)
                                 .map(x => x.element);
                             if (openDialogs) {
-                                $(openDialogs).animate({
+                                openDialogs.forEach(el => AnimateStyle(el, {
                                     'top': `calc(var(--vh) * ${this.size})`,
                                     'height': '100%'
-                                }, 'slow');
+                                }));
                             }
                             break;
                     }

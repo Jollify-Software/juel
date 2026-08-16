@@ -17,8 +17,13 @@ import { TransitionModule } from "./_Modules/TransistionModule";
 import { WindowModule } from "./_Modules/WindowModule";
 import { ColourClasses } from "./ColourClasses";
 import { Iconify } from "./_Modules/Icons/IconifyFunction";
+import { DomReady } from "./_Utils/DomReady";
 
 (<any>window).juel = JuelModule;
+// A large number of components (ListBase, Toggle, Lightbox, Modal, etc.) reference
+// the bare global `$`/`jQuery` with no local import of their own. jQuery does NOT
+// self-attach to window when bundled via a CommonJS-style import (Parcel), so this
+// explicit assignment is required for those components to keep working.
 (<any>window).$ = $;
 (<any>window).jQuery = $;
 
@@ -26,7 +31,7 @@ import { Iconify } from "./_Modules/Icons/IconifyFunction";
     IsMobile();
     Vh()
 })();
-$(function() {
+DomReady().then(() => {
     let elements = document.querySelectorAll(".reverse") as NodeListOf<HTMLElement>;
     for (let a of elements) {
         let text = ReverseString(a.textContent);

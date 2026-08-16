@@ -9,6 +9,7 @@ import { when } from "lit/directives/when";
 import Style from 'bundle-text:./Contents.less';
 import { findAll, findAllUntil } from "../../_Utils/dom/findAllUntil";
 import { generateIdFromText } from "../../_Utils/String/generateIdFromText";
+import { DomReady } from "../../_Utils/DomReady";
 
 @customElement("juel-contents")
 export class JuelContents extends LitElement {
@@ -109,8 +110,8 @@ export class JuelContents extends LitElement {
     }
 
     firstUpdated() {
-        let promise = ('reportReady' in window) ? window['reportReady'] : $.ready;
-        $.when(promise).then(() => {
+        let promise = ('reportReady' in window) ? window['reportReady'] : DomReady();
+        Promise.resolve(promise).then(() => {
             console.log("Contents ready", 'reportReady' in window);
             if (this.link == "true") {
                 let div = document.createElement("div");

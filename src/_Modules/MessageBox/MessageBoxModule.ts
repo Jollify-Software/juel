@@ -5,6 +5,7 @@ import { MessageBoxIcon } from "./MessageBoxIcon";
 import MessageBoxIconStrategies from "./MessageBoxIconStrategies";
 import MessageBoxInputStrategies from "./MessageBoxInputStrategies";
 import Styles from 'bundle-text:./MessageBoxStyles.less'
+import { ElementFromHtml } from "../../_Utils/dom/ElementFromHtml";
 
 export module MessageBoxModule {
 
@@ -59,7 +60,8 @@ export module MessageBoxModule {
                 resolve(value);
             };
 
-            let msgBox = $(`<style>${Styles}</style><div id="overlay">
+            let msgBox = ElementFromHtml(`<div id="overlay">
+        <style>${Styles}</style>
         <div id="dialog">
         <div id="dialog-title">
         <span>${args.title}</span>
@@ -102,17 +104,17 @@ export module MessageBoxModule {
                 MessageBoxButtonStrategies[MessageBoxButtons.OK](args, msgBox, resolvePromise, reject);
             }
             if (prompt == false) {
-                msgBox.find("juel-button").trigger('focus');
+                (msgBox.querySelector("juel-button") as HTMLElement)?.focus();
             }
             if (args.close && args.close == true) {
-                let closeBtn = $(`<div class="close"></div>`);
-                closeBtn.on("click", () => {
+                let closeBtn = ElementFromHtml(`<div class="close"></div>`);
+                closeBtn.addEventListener("click", () => {
                     msgBox.remove();
                     resolvePromise(0);
                 });
-                    msgBox.find("#dialog-title").append(closeBtn);
+                msgBox.querySelector("#dialog-title").append(closeBtn);
             }
-            $(document.body).append(msgBox);
+            document.body.append(msgBox);
         });
     }
 }

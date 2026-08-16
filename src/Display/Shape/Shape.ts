@@ -14,6 +14,7 @@ import { normalizePoints } from "../../_Utils/draw/normalizePoints";
 import { polygonStrToPath } from "../../_Utils/draw/polygonToPath";
 import { CompassPositions } from "../../_Core/CompassPositions";
 import interact from "@interactjs/interactjs";
+import { DomReady } from "../../_Utils/DomReady";
 
 @customElement("juel-shape")
 export class JuelShape extends LitElement {
@@ -62,7 +63,7 @@ export class JuelShape extends LitElement {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
-        $.when($.ready).then(this.ready);
+        DomReady().then(this.ready);
 
         // Initialize ResizeObserver
         this.resizeObserver = new ResizeObserver(() => this.handleResize());

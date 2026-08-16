@@ -1,4 +1,4 @@
-import { Dialog } from "../_Core/Dialog";
+import { Dialog } from "../../_Core/Dialog";
 import { JuelDialogManager } from "./DialogManager";
 
 export class DialogManagerService {

@@ -10,10 +10,13 @@ import { InputTypes } from '../_Templates/InputTypes';
 import { bind } from "../_Utils/Bind";
 import { when } from "lit/directives/when";
 import { classMap } from "lit/directives/class-map";
+import { NextAllMatching } from "../_Utils/dom/NextAllMatching";
+import { FocusNextTabbable } from "../_Utils/dom/FocusNextTabbable";
 
 export class InputBase extends JuelComponent {
 
     static InputElementNames: string = "juel-text, juel-memo, juel-range, juel-tickbox, juel-radio";
+    static TabbableSelector: string = `a[href], area[href], input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex='-1']), ${InputBase.InputElementNames}`;
 
     ///static styles?: CSSResultGroup = unsafeCSS(Styles);
 
@@ -32,7 +35,6 @@ export class InputBase extends JuelComponent {
     inputType: InputTypes;
 
     input = createRef<HTMLInputElement>();
-    $this: JQuery<HTMLElement>;
 
     dropdownShown: boolean = false;
     dropdown: Instance;
@@ -52,7 +54,6 @@ export class InputBase extends JuelComponent {
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated();
         RippleEffect.init(this.shadowRoot);
-        this.$this = $(this);
         this.addEventListener("keyup", e => {
             if (e.key == "Enter") {
                 this.nextOrSubmit();
@@ -65,12 +66,12 @@ export class InputBase extends JuelComponent {
 
     @bind
     nextOrSubmit() {
-        let next = this.$this.nextAll(InputBase.InputElementNames);
+        let next = NextAllMatching(this, InputBase.InputElementNames);
         if (next.length == 0) {
             let steps = this.closest("juel-steps") as any;
             if (steps) {
                 steps.next();
-                (<any>$).tabNext();
+                FocusNextTabbable(InputBase.TabbableSelector);
             } else {
                 let frm = this.closest("form") as HTMLFormElement;
                 if (frm && 'requestSubmit' in frm) {
@@ -80,7 +81,7 @@ export class InputBase extends JuelComponent {
                 }
             }
         } else {
-            (<any>$).tabNext();
+            FocusNextTabbable(InputBase.TabbableSelector);
         }
     }
 

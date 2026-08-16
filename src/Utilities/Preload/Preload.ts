@@ -1,6 +1,7 @@
 import bind from "bind-decorator";
 import { LitElement, PropertyValueMap } from "lit";
 import { customElement, property } from "lit/decorators";
+import { DomReady } from "../../_Utils/DomReady";
 
 @customElement("juel-preload")
 export class JuelPreload extends LitElement {
@@ -25,10 +26,9 @@ export class JuelPreload extends LitElement {
         window['assetsReady'] = this.assetsReady;
         window['waitAssetsReady'] = () => this.assetsReady;
 
-        let promise = ('reportReady' in window) ? window['reportReady'] : $.ready;
-        
-            $.when(promise).then(() => this.ready());
-        
+        let promise = ('reportReady' in window) ? window['reportReady'] : DomReady();
+
+        Promise.resolve(promise).then(() => this.ready());
     }
 
     ready() {

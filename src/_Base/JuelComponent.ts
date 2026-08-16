@@ -2,6 +2,7 @@ import { CSSResult, CSSResultGroup, LitElement, PropertyValueMap } from "lit";
 import { property } from "lit/decorators";
 import { FindParent } from "../_Utils/FindParent";
 import { RippleEffect } from "../_Utils/RippleEffect";
+import { DomReady } from "../_Utils/DomReady";
 
 export class JuelComponent extends LitElement {
 
@@ -21,7 +22,7 @@ export class JuelComponent extends LitElement {
         if (this.parentElement && 'childFirstUpdated' in this.parentElement) {
             (<JuelComponent>this.parentElement).childFirstUpdated(this);
         }
-        $.when($.ready).then(() => {
+        DomReady().then(() => {
             this.ready();
         });
         super.firstUpdated(_changedProperties);
@@ -55,7 +56,7 @@ export class JuelComponent extends LitElement {
         if (this.parentElement && 'childUpdated' in this.parentElement) {
             (<JuelComponent>this.parentElement).childUpdated(this);
         }
-        $.when($.ready).then(() => {
+        DomReady().then(() => {
             this.load(_changedProperties);
         });
         this.loaded = true;

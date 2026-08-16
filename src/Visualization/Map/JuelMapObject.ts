@@ -22,7 +22,7 @@ export class JuelMapObject extends JuelComponent {
     }
 
     extendStyles(options: any) {
-        $.extend(options, this.styles);
+        Object.assign(options, this.styles);
     }
 
     bindPopup(obj: any) {

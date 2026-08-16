@@ -14,10 +14,12 @@ class AttrDirective extends Directive {
         prev[current.name] = current.value;
         return prev;
       }, {});
-      if (attrs && !$.isEmptyObject(map)) {
+      if (attrs && Object.keys(map).length > 0) {
         // Remove all the attributes
         attrs.forEach(at => value.removeAttribute(at.name));
-        $(el).attr(map);
+        for (const [attrName, attrValue] of Object.entries(map)) {
+          el.setAttribute(attrName, attrValue as string);
+        }
       }
     }
     return this.render(name, value);

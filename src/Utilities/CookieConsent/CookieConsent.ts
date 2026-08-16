@@ -7,6 +7,7 @@ import { when } from "lit/directives/when";
 import { GoogleAnalyticsConsentProvider } from "./Providers/GoogleAnalyticsConsentProvider";
 import { IConsentProvider } from "./Providers/IConsentProvider";
 import { MetricoolConsentProvider } from "./Providers/MetricoolConsentProvider";
+import { DomReady } from "../../_Utils/DomReady";
 
 const cookieName = "cookie-consent";
 
@@ -109,7 +110,7 @@ export class JuelCookieConsent extends LitElement {
     if (storedPreferences) {
       this.cookiePreferences = JSON.parse(storedPreferences);
       this.showConsent = false; // Hide if preferences already exist
-      $.ready.then(() => this.appendTemplates());
+      DomReady().then(() => this.appendTemplates());
     }
   }
 
