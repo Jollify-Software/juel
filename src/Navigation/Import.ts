@@ -5,3 +5,4 @@ import './Tabs/Tabs';
 import './Toolbar/Toolbar';
 import './Accordion/Accordion';
 import './Tree/Tree';
+import './ScrollPane/ScrollPane';

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Scroll Pane — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .sp-photo {
+            width: 360px;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+        .sp-controls-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .sp-panel {
+            width: 360px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Scroll Pane</h1>
+        <p>
+            <code>&lt;juel-scroll-pane&gt;</code> shows its slotted children one at a time in a
+            horizontally-scrolling strip. By default it's driven purely by external controls — the
+            <code>controls</code>, <code>next</code>/<code>previous</code>, <code>random</code>, or
+            <code>data-toggle</code> attributes, each naming a CSS selector for an element elsewhere
+            on the page to listen on. Add <code>swipe</code> to also let visitors drag/swipe the pane
+            itself.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic</h2>
+        <p>The <code>swipe</code> attribute lets visitors drag or swipe the pane itself to move between slides.</p>
+        <div class="example-demo">
+            <juel-scroll-pane swipe>
+                <img class="sp-photo" src="../../img/Desert.jpg" alt="Desert" />
+                <img class="sp-photo" src="../../img/Koala.jpg" alt="Koala" />
+                <img class="sp-photo" src="../../img/Lighthouse.jpg" alt="Lighthouse" />
+            </juel-scroll-pane>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Built-in controls</h2>
+        <p>The <code>controls</code> attribute overlays previous/next arrows on the pane's edges.</p>
+        <div class="example-demo">
+            <juel-scroll-pane controls>
+                <img class="sp-photo" src="../../img/Penguins.jpg" alt="Penguins" />
+                <img class="sp-photo" src="../../img/Tulips.jpg" alt="Tulips" />
+                <img class="sp-photo" src="../../img/Desert.jpg" alt="Desert" />
+            </juel-scroll-pane>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>External navigation</h2>
+        <p><code>previous</code>/<code>next</code> point at any external element that should step the pane.</p>
+        <div class="example-demo example-demo-column">
+            <div class="sp-controls-row">
+                <juel-button id="sp-prev" type="secondary" render-style="outline" label="&larr; Previous"></juel-button>
+                <juel-button id="sp-next" type="secondary" render-style="outline" label="Next &rarr;"></juel-button>
+            </div>
+            <juel-scroll-pane previous="#sp-prev" next="#sp-next">
+                <img class="sp-photo" src="../../img/Koala.jpg" alt="Koala" />
+                <img class="sp-photo" src="../../img/Lighthouse.jpg" alt="Lighthouse" />
+                <img class="sp-photo" src="../../img/Penguins.jpg" alt="Penguins" />
+            </juel-scroll-pane>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Jump to a slide</h2>
+        <p>
+            <code>data-toggle</code> on a slide names an element that jumps straight to it; clicking
+            that same element again returns to the <code>master</code> slide.
+        </p>
+        <div class="example-demo example-demo-column">
+            <div class="sp-controls-row">
+                <juel-button id="jump-desert" type="tertiary" label="Desert"></juel-button>
+                <juel-button id="jump-tulips" type="tertiary" label="Tulips"></juel-button>
+            </div>
+            <juel-scroll-pane index="1" master="1">
+                <img class="sp-photo" data-toggle="#jump-desert" src="../../img/Desert.jpg" alt="Desert" />
+                <img class="sp-photo" src="../../img/Koala.jpg" alt="Koala" />
+                <img class="sp-photo" data-toggle="#jump-tulips" src="../../img/Tulips.jpg" alt="Tulips" />
+            </juel-scroll-pane>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Random</h2>
+        <p><code>random</code> points at an element that jumps to a random slide, avoiding repeats until every slide has been shown.</p>
+        <div class="example-demo example-demo-column">
+            <div class="sp-controls-row">
+                <juel-button id="sp-random" type="info" render-style="outline" label="Random"></juel-button>
+            </div>
+            <juel-scroll-pane random="#sp-random">
+                <img class="sp-photo" src="../../img/Desert.jpg" alt="Desert" />
+                <img class="sp-photo" src="../../img/Koala.jpg" alt="Koala" />
+                <img class="sp-photo" src="../../img/Lighthouse.jpg" alt="Lighthouse" />
+                <img class="sp-photo" src="../../img/Penguins.jpg" alt="Penguins" />
+            </juel-scroll-pane>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Reading the current index</h2>
+        <p>
+            <code>index</code> sets (and reflects) the active slide — set it up front to choose the
+            starting slide, and listen for <code>index-changed</code> to react whenever it moves,
+            such as binding the current slide number elsewhere on the page.
+        </p>
+        <div class="example-demo example-demo-column">
+            <div class="sp-controls-row">
+                <juel-button id="idx-prev" type="secondary" render-style="outline" label="&larr; Previous"></juel-button>
+                <juel-button id="idx-next" type="secondary" render-style="outline" label="Next &rarr;"></juel-button>
+            </div>
+            <juel-scroll-pane id="idx-pane" index="1" previous="#idx-prev" next="#idx-next">
+                <img class="sp-photo" src="../../img/Desert.jpg" alt="Desert" />
+                <img class="sp-photo" src="../../img/Koala.jpg" alt="Koala" />
+                <img class="sp-photo" src="../../img/Lighthouse.jpg" alt="Lighthouse" />
+            </juel-scroll-pane>
+            <p>Current slide index: <strong id="idx-output">1</strong></p>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Per-slide sizing</h2>
+        <p>The pane resizes itself to match each slide's own dimensions as you move between them.</p>
+        <div class="example-demo example-demo-column">
+            <div class="sp-controls-row">
+                <juel-button id="size-prev" type="secondary" render-style="outline" label="&larr; Previous"></juel-button>
+                <juel-button id="size-next" type="secondary" render-style="outline" label="Next &rarr;"></juel-button>
+            </div>
+            <juel-scroll-pane previous="#size-prev" next="#size-next">
+                <div class="sp-panel" style="width:360px;height:120px;background:#4c6ef5;">Short panel</div>
+                <div class="sp-panel" style="width:360px;height:280px;background:#f76707;">Tall panel</div>
+            </juel-scroll-pane>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('idx-pane').addEventListener('index-changed', (e) => {
+            document.getElementById('idx-output').textContent = e.detail.index;
+        });
+    </script>
+</body>
+
+</html>
