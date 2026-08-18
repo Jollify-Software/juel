@@ -1,8 +1,10 @@
 import { LitElement, html, css } from 'lit-element';
-import { customElement } from 'lit/decorators';
+import { customElement, property } from 'lit/decorators';
 
 @customElement('juel-toolbar')
 export class JuelToolbar extends LitElement {
+  @property({ type: String, reflect: true }) direction: 'horizontal' | 'vertical' = 'horizontal';
+
   static styles = css`
     :host {
       display: block;
@@ -14,9 +16,22 @@ export class JuelToolbar extends LitElement {
 
     .toolbar {
       display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: var(--toolbar-gap, 1rem);
+      /* Fills whatever height the host ends up with (auto by default, or an
+         explicit height set by the consumer) so a .spacer child has actual
+         room to grow into — this matters most for direction="vertical". */
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    :host([direction="vertical"]) .toolbar {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      align-items: stretch;
     }
 
     ::slotted(*) {
@@ -30,7 +45,7 @@ export class JuelToolbar extends LitElement {
 
   render() {
     return html`
-      <div class="toolbar">
+      <div class="toolbar" role="toolbar" aria-orientation="${this.direction}">
         <slot></slot>
       </div>
     `;

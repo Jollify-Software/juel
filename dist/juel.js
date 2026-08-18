@@ -108063,10 +108063,14 @@ var __decorate = undefined && undefined.__decorate || function(decorators, targe
 let JuelToolbar = class JuelToolbar extends (0, _litElement.LitElement) {
     render() {
         return (0, _litElement.html)`
-      <div class="toolbar">
+      <div class="toolbar" role="toolbar" aria-orientation="${this.direction}">
         <slot></slot>
       </div>
     `;
+    }
+    constructor(){
+        super(...arguments);
+        this.direction = 'horizontal';
     }
 };
 JuelToolbar.styles = (0, _litElement.css)`
@@ -108080,9 +108084,22 @@ JuelToolbar.styles = (0, _litElement.css)`
 
     .toolbar {
       display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: var(--toolbar-gap, 1rem);
+      /* Fills whatever height the host ends up with (auto by default, or an
+         explicit height set by the consumer) so a .spacer child has actual
+         room to grow into — this matters most for direction="vertical". */
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    :host([direction="vertical"]) .toolbar {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      align-items: stretch;
     }
 
     ::slotted(*) {
@@ -108093,6 +108110,12 @@ JuelToolbar.styles = (0, _litElement.css)`
       flex-grow: 1;
     }
   `;
+__decorate([
+    (0, _decorators.property)({
+        type: String,
+        reflect: true
+    })
+], JuelToolbar.prototype, "direction", void 0);
 JuelToolbar = __decorate([
     (0, _decorators.customElement)('juel-toolbar')
 ], JuelToolbar);
