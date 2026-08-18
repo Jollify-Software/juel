@@ -1,12 +1,96 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-accordion>
-            <juel-accordion-section title="Section 1">Content for Section 1</juel-accordion-section>
-            <juel-accordion-section title="Section 2">Content for Section 2</juel-accordion-section>
-            <juel-accordion-section title="Section 3">Content for Section 3</juel-accordion-section>
-          </juel-accordion>
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Accordion — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+</head>
+
+<body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Accordion</h1>
+        <p>
+            <code>&lt;juel-accordion&gt;</code> groups <code>&lt;juel-accordion-section&gt;</code>
+            panels behind clickable headers. By default only one section is open at a time;
+            headers are keyboard-operable (<kbd>Tab</kbd> + <kbd>Enter</kbd>/<kbd>Space</kbd>)
+            and expose <code>aria-expanded</code>/<code>aria-controls</code>.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic</h2>
+        <p>Opening a section closes the others — set <code>title</code> on each section for the default header.</p>
+        <div class="example-demo example-demo-column">
+            <juel-accordion>
+                <juel-accordion-section title="Section 1">Content for Section 1</juel-accordion-section>
+                <juel-accordion-section title="Section 2">Content for Section 2</juel-accordion-section>
+                <juel-accordion-section title="Section 3">Content for Section 3</juel-accordion-section>
+            </juel-accordion>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Multiple open</h2>
+        <p>The <code>multiple</code> attribute lets any number of sections stay open at once.</p>
+        <div class="example-demo example-demo-column">
+            <juel-accordion multiple>
+                <juel-accordion-section title="Section 1" open>Content for Section 1</juel-accordion-section>
+                <juel-accordion-section title="Section 2" open>Content for Section 2</juel-accordion-section>
+                <juel-accordion-section title="Section 3">Content for Section 3</juel-accordion-section>
+            </juel-accordion>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Icons &amp; custom headers</h2>
+        <p>
+            <code>glyph</code> swaps the chevron for a built-in icon. The <code>header</code> slot
+            replaces the default title entirely, for cases like a heading element or extra controls.
+        </p>
+        <div class="example-demo example-demo-column">
+            <juel-accordion multiple>
+                <juel-accordion-section title="Section 1" glyph="smile">Content for Section 1</juel-accordion-section>
+                <juel-accordion-section title="Section 2">
+                    <h3 slot="header" style="margin: 0;">Custom heading</h3>
+                    Content for Section 2
+                </juel-accordion-section>
+                <juel-accordion-section title="Section 3" glyph="mail">Content for Section 3</juel-accordion-section>
+            </juel-accordion>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Horizontal</h2>
+        <p><code>direction="horizontal"</code> lays sections out side by side, expanding widthwise instead of vertically.</p>
+        <div class="example-demo">
+            <juel-accordion direction="horizontal">
+                <juel-accordion-section title="Section 1">Content for Section 1</juel-accordion-section>
+                <juel-accordion-section title="Section 2">Content for Section 2</juel-accordion-section>
+                <juel-accordion-section title="Section 3">Content for Section 3</juel-accordion-section>
+            </juel-accordion>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Triggers</h2>
+        <p>
+            <code>trigger="hover"</code> opens a section on mouse-over instead of click.
+            <code>trigger</code> can also hold a CSS selector for an external element that toggles
+            the section — here a plain button outside the accordion controls "Section 3".
+        </p>
+        <div class="example-demo example-demo-column">
+            <juel-button id="section3-trigger" type="secondary" label="Toggle Section 3"></juel-button>
+            <juel-accordion>
+                <juel-accordion-section trigger="hover" title="Section 1 (hover)">Content for Section 1</juel-accordion-section>
+                <juel-accordion-section title="Section 2 (click)">Content for Section 2</juel-accordion-section>
+                <juel-accordion-section trigger="#section3-trigger" title="Section 3 (external button)">Content for Section 3</juel-accordion-section>
+            </juel-accordion>
+        </div>
+    </section>
+</body>
+
 </html>

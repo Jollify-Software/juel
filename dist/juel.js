@@ -107983,57 +107983,58 @@ var __decorate = undefined && undefined.__decorate || function(decorators, targe
     else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+let sectionId = 0;
 let JuelAccordionSection = class JuelAccordionSection extends (0, _juelComponent.JuelComponent) {
     connectedCallback() {
         super.connectedCallback();
         if (this.trigger && this.trigger !== 'hover' && this.trigger !== 'click') {
             const externalTrigger = document.querySelector(this.trigger);
-            if (externalTrigger) externalTrigger.addEventListener('click', this._externalToggle.bind(this));
+            if (externalTrigger) externalTrigger.addEventListener('click', this._boundExternalToggle);
         }
     }
     disconnectedCallback() {
         if (this.trigger && this.trigger !== 'hover' && this.trigger !== 'click') {
             const externalTrigger = document.querySelector(this.trigger);
-            if (externalTrigger) externalTrigger.removeEventListener('click', this._externalToggle.bind(this));
+            if (externalTrigger) externalTrigger.removeEventListener('click', this._boundExternalToggle);
         }
         super.disconnectedCallback();
-    }
-    updated(_changedProperties) {
-        const parent = this.parentElement;
-        if (parent && 'direction' in parent) {
-            var _this_shadowRoot;
-            const header = (_this_shadowRoot = this.shadowRoot) === null || _this_shadowRoot === void 0 ? void 0 : _this_shadowRoot.querySelector('.header');
-            if (header) {
-                const isHorizontal = parent.direction === 'horizontal';
-                const headerSize = isHorizontal ? header.offsetWidth : header.offsetHeight;
-                parent.style.setProperty(isHorizontal ? '--width' : '--height', `${headerSize}px`);
-            }
-        }
     }
     render() {
         let iconStyle = this.glyph ? `--glyph: var(--icon-${this.glyph})` : '';
         let iconClass = this.glyph ? `icon glyph` : 'icon';
         return (0, _lit.html)`
-      <div 
-        class="header" 
-        @click="${this.trigger === 'click' ? this.toggle : null}" 
-        @mouseover="${this.trigger === 'hover' ? this.toggle : null}">
+      <div
+        class="header"
+        role="button"
+        tabindex="0"
+        id="${this._headerId}"
+        aria-expanded="${this.open}"
+        aria-controls="${this._contentId}"
+        @click="${this.trigger === 'click' ? this.toggle : null}"
+        @keydown="${this.trigger === 'click' ? this._onHeaderKeydown : null}"
+        @mouseenter="${this.trigger === 'hover' ? this.toggle : null}">
         <slot name="header">
           <span>${this.title}</span>
         </slot>
         <span style="${iconStyle}" class="${iconClass}"></span>
       </div>
-      <div class="content"><slot></slot></div>
+      <div class="content" role="region" id="${this._contentId}" aria-labelledby="${this._headerId}"><slot></slot></div>
     `;
     }
     toggle(e) {
-        super.handleClick(e);
+        if (e instanceof MouseEvent) super.handleClick(e);
         this.open = !this.open;
         this.dispatchEvent(new CustomEvent('toggle', {
             detail: this.open,
             bubbles: true,
             composed: true
         }));
+    }
+    _onHeaderKeydown(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.toggle(e);
+        }
     }
     _externalToggle() {
         this.open = !this.open;
@@ -108048,6 +108049,9 @@ let JuelAccordionSection = class JuelAccordionSection extends (0, _juelComponent
         this.title = '';
         this.open = false;
         this.trigger = 'click';
+        this._headerId = `juel-accordion-header-${++sectionId}`;
+        this._contentId = `juel-accordion-content-${sectionId}`;
+        this._boundExternalToggle = this._externalToggle.bind(this);
     }
 };
 JuelAccordionSection.styles = (0, _lit.css)`
@@ -108057,16 +108061,11 @@ JuelAccordionSection.styles = (0, _lit.css)`
       border: 1px solid #ccc;
       margin: 4px;
       border-radius: 0.25rem;
-      transition: box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease;
+      transition: box-shadow 0.3s ease;
       flex: 0 0 auto;
-      width: var(--width);
-      height: var(--height);
-      overflow: hidden;
     }
     :host([open]) {
       box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-      width: var(--expand-width);
-      height: var(--expand-height);
     }
     .header {
       position: relative;
@@ -108077,6 +108076,8 @@ JuelAccordionSection.styles = (0, _lit.css)`
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 0.75rem;
+      white-space: nowrap;
       border-bottom: 1px solid #dee2e6;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
     }
@@ -108084,10 +108085,15 @@ JuelAccordionSection.styles = (0, _lit.css)`
       background: var(--active, #e7f1ff);
       box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
     }
+    .header:focus-visible {
+      outline: 2px solid var(--active, #0d6efd);
+      outline-offset: -2px;
+    }
     .icon {
       display: inline-block;
       width: 16px;
       height: 16px;
+      flex: 0 0 auto;
       background: var(--glyph, var(--icon-chevron-down));
       transition: transform 0.3s ease;
     }
@@ -108096,18 +108102,18 @@ JuelAccordionSection.styles = (0, _lit.css)`
     }
     .content {
       display: block;
-      max-width: var(--max-width);
-      max-height: var(--max-height);
+      max-width: 0;
+      max-height: 0;
       overflow: hidden;
       transition: max-width 0.3s ease, max-height 0.3s ease, padding 0.3s ease;
       padding: 0 1.25rem;
-      border-top: 1px solid #dee2e6;
     }
     :host([open]) .content {
-      max-width: var(--max-width);
-      max-height: var(--max-height);
+      max-width: var(--max-width, 10000px);
+      max-height: var(--max-height, 10000px);
       padding: 1rem 1.25rem;
       overflow: auto;
+      border-top: 1px solid #dee2e6;
     }
   `;
 __decorate([
@@ -108145,18 +108151,21 @@ let JuelAccordion = class JuelAccordion extends (0, _navigationBase.NavigationBa
         if (changedProperties.has('direction')) {
             const isHorizontal = this.direction === 'horizontal';
             this.style.setProperty('--direction', isHorizontal ? 'row' : 'column');
-            this.style.setProperty('--max-width', isHorizontal ? '100%' : 'unset');
-            this.style.setProperty('--max-height', isHorizontal ? 'unset' : '100%');
-            this.style.setProperty('--expand-width', isHorizontal ? '400px' : 'unset');
-            this.style.setProperty('--expand-height', isHorizontal ? 'unset' : '400px');
-            this.style.setProperty('--width', isHorizontal ? '100px' : '100%');
-            this.style.setProperty('--height', isHorizontal ? '100%' : '100px');
+            this.style.setProperty('--max-width', isHorizontal ? '400px' : '10000px');
+            this.style.setProperty('--max-height', isHorizontal ? '10000px' : '400px');
         }
     }
     _handleSlotChange() {
-        var _this__sections;
+        var _this__sections, _this__sections1;
+        let lastOpen;
         (_this__sections = this._sections) === null || _this__sections === void 0 ? void 0 : _this__sections.forEach((section)=>{
+            if (section.open) lastOpen = section;
+            if (this._wiredSections.has(section)) return;
+            this._wiredSections.add(section);
             section.addEventListener('toggle', (e)=>this._handleToggle(e, section));
+        });
+        if (!this.multiple && lastOpen) (_this__sections1 = this._sections) === null || _this__sections1 === void 0 ? void 0 : _this__sections1.forEach((section)=>{
+            if (section !== lastOpen) section.open = false;
         });
     }
     _handleToggle(event, toggledSection) {
@@ -108169,6 +108178,7 @@ let JuelAccordion = class JuelAccordion extends (0, _navigationBase.NavigationBa
         super();
         this.multiple = false;
         this.direction = 'vertical';
+        this._wiredSections = new WeakSet();
         this.ripple = false;
     }
 };
