@@ -107665,6 +107665,7 @@ var _lit = require("lit");
 var _decoratorsJs = require("lit/decorators.js");
 var _map = require("lit/directives/map");
 var _navigationBase = require("../NavigationBase");
+var _tabsEvents = require("./TabsEvents");
 var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -107708,44 +107709,73 @@ let JuelTabs = class JuelTabs extends (0, _navigationBase.NavigationBase) {
     render() {
         return (0, _lit.html)`
       <div class="tabs-container" style="--container-direction: ${this.direction === 'vertical' ? 'row' : 'column'};">
-        <div class="tabs" style="--direction: ${this.direction === 'vertical' ? 'column' : 'row'};">
+        <div class="tabs" role="tablist" aria-orientation="${this.direction}" style="--direction: ${this.direction === 'vertical' ? 'column' : 'row'};">
           <slot name="prepend"></slot>
           ${(0, _map.map)(this._tabs, (tab, index)=>{
-            var _tab_subTabs, _tab_subTabs1;
+            var _tab_subTabs;
+            const selected = this.selectedIndex === index;
+            const hasSubTabs = !!((_tab_subTabs = tab.subTabs) === null || _tab_subTabs === void 0 ? void 0 : _tab_subTabs.length);
+            const expanded = hasSubTabs && !!this._subExpanded.get(tab);
             return (0, _lit.html)`
-            <div class="tab" ?selected=${this.selectedIndex === index}>
-              <div @click=${this.clickFactory(tab, index)}>
+            <div
+              class="tab"
+              role="tab"
+              id="tab-${index}"
+              tabindex="${selected ? '0' : '-1'}"
+              aria-selected="${selected}"
+              aria-controls="tab-content"
+              ?selected=${selected}
+              @click=${this.clickFactory(tab, index)}
+              @keydown=${(e)=>this._onTopTabKeydown(e, index)}>
                 ${tab.title}
-                ${((_tab_subTabs = tab.subTabs) === null || _tab_subTabs === void 0 ? void 0 : _tab_subTabs.length) ? (0, _lit.html)`
-                  <button class="expand-collapse-button" @click=${this.toggleSubTabs(index)}></button>
+                ${hasSubTabs ? (0, _lit.html)`
+                  <button
+                    class="expand-collapse-button"
+                    aria-expanded="${expanded}"
+                    aria-label="${expanded ? 'Collapse' : 'Expand'} ${tab.title} sub-tabs"
+                    @click=${this.toggleSubTabsFactory(tab)}></button>
                 ` : ''}
-              </div>
-              ${((_tab_subTabs1 = tab.subTabs) === null || _tab_subTabs1 === void 0 ? void 0 : _tab_subTabs1.length) ? this.renderSubTabs(tab.subTabs, tab, index) : ''}
+              ${hasSubTabs ? this.renderSubTabs(tab.subTabs, tab, index, expanded) : ''}
             </div>
           `;
         })}
           <slot name="append"></slot>
         </div>
-        <div class="tab-content">
+        <div class="tab-content" id="tab-content" role="tabpanel" aria-labelledby="tab-${this.selectedIndex}">
           <slot @slotchange=${this._handleSlotChange}></slot>
         </div>
       </div>
     `;
     }
-    renderSubTabs(subTabs, parentTab, parentIndex) {
+    renderSubTabs(subTabs, parentTab, parentIndex, expanded) {
+        var _this__subSelection_get;
+        const selectedSub = (_this__subSelection_get = this._subSelection.get(parentTab)) !== null && _this__subSelection_get !== void 0 ? _this__subSelection_get : 0;
         return (0, _lit.html)`
-      <div class="sub-tabs" style="--sub-tabs-direction: ${this.direction === 'vertical' ? 'column' : 'row'};">
+      <div class="sub-tabs" role="tablist" aria-orientation="${this.direction}" style="--sub-tabs-direction: ${this.direction === 'vertical' ? 'column' : 'row'};" ?expanded=${expanded}>
         ${Array.from(subTabs).map((subTab, subIndex)=>{
-            var _subTab_subTabs, _subTab_subTabs1;
+            var _subTab_subTabs;
+            const selected = this.selectedIndex === parentIndex && subIndex === selectedSub;
+            const hasSubTabs = !!((_subTab_subTabs = subTab.subTabs) === null || _subTab_subTabs === void 0 ? void 0 : _subTab_subTabs.length);
+            const subExpanded = hasSubTabs && !!this._subExpanded.get(subTab);
             return (0, _lit.html)`
-          <div class="sub-tab" ?selected=${this.selectedIndex === parentIndex && subTab.style.display === 'block'} @click=${this.clickFactory(parentTab, parentIndex, subIndex)}>
+          <div
+            class="sub-tab"
+            role="tab"
+            tabindex="0"
+            aria-selected="${selected}"
+            ?selected=${selected}
+            @click=${this.clickFactory(parentTab, parentIndex, subIndex)}
+            @keydown=${(e)=>this._onSubTabKeydown(e, parentTab, parentIndex, subIndex)}>
             ${subTab.title}
-            ${((_subTab_subTabs = subTab.subTabs) === null || _subTab_subTabs === void 0 ? void 0 : _subTab_subTabs.length) ? (0, _lit.html)`
-              <button class="expand-collapse-button" @click=${this.toggleSubTabs(parentIndex, subIndex)}></button>
+            ${hasSubTabs ? (0, _lit.html)`
+              <button
+                class="expand-collapse-button"
+                aria-expanded="${subExpanded}"
+                aria-label="${subExpanded ? 'Collapse' : 'Expand'} ${subTab.title} sub-tabs"
+                @click=${this.toggleSubTabsFactory(subTab)}></button>
             ` : ''}
-            ${((_subTab_subTabs1 = subTab.subTabs) === null || _subTab_subTabs1 === void 0 ? void 0 : _subTab_subTabs1.length) ? this.renderSubTabs(subTab.subTabs, subTab, parentIndex) : ''}
-          </div>
-        `;
+            ${hasSubTabs ? this.renderSubTabs(subTab.subTabs, subTab, parentIndex, subExpanded) : ''}
+          </div>`;
         })}
       </div>
     `;
@@ -107754,8 +107784,23 @@ let JuelTabs = class JuelTabs extends (0, _navigationBase.NavigationBase) {
         this._updateTabs();
     }
     _updateTabs() {
-        if (this._tabs) this._tabs.forEach((tab, index)=>{
-            tab.style.display = index === this.selectedIndex ? 'block' : 'none';
+        var _this__tabs;
+        (_this__tabs = this._tabs) === null || _this__tabs === void 0 ? void 0 : _this__tabs.forEach((tab, index)=>{
+            const active = index === this.selectedIndex;
+            tab.style.display = active ? 'block' : 'none';
+            this._updateSubTabs(tab, active);
+        });
+    }
+    _updateSubTabs(tab, ancestorActive) {
+        const subTabs = tab.subTabs;
+        if (!subTabs || subTabs.length === 0) return;
+        if (!this._subSelection.has(tab)) this._subSelection.set(tab, 0);
+        if (!this._subExpanded.has(tab)) this._subExpanded.set(tab, ancestorActive);
+        const selectedSub = this._subSelection.get(tab);
+        Array.from(subTabs).forEach((subTab, subIndex)=>{
+            const subActive = ancestorActive && subIndex === selectedSub;
+            subTab.style.display = subActive ? 'block' : 'none';
+            this._updateSubTabs(subTab, subActive);
         });
     }
     clickFactory(tab, parentIndex, subIndex) {
@@ -107766,35 +107811,76 @@ let JuelTabs = class JuelTabs extends (0, _navigationBase.NavigationBase) {
         };
     }
     selectTab(index) {
+        if (index === this.selectedIndex) return;
+        const previousIndex = this.selectedIndex;
         this.selectedIndex = index;
+        this.dispatchEvent(new CustomEvent((0, _tabsEvents.TabsEvents).TabChanged, {
+            detail: {
+                index,
+                previousIndex
+            }
+        }));
     }
     selectSubTab(tab, parentIndex, subIndex) {
+        const changingTab = parentIndex !== this.selectedIndex;
+        const changingSub = this._subSelection.get(tab) !== subIndex;
+        if (!changingTab && !changingSub) return;
+        const previousIndex = this.selectedIndex;
         this.selectedIndex = parentIndex;
-        const subTabs = tab.subTabs;
-        if (subTabs) Array.from(subTabs).forEach((subTab, index)=>{
-            subTab.style.display = index === subIndex ? 'block' : 'none';
-        });
+        this._subSelection.set(tab, subIndex);
+        this._subExpanded.set(tab, true);
+        this.requestUpdate();
+        this.dispatchEvent(new CustomEvent((0, _tabsEvents.TabsEvents).TabChanged, {
+            detail: {
+                index: parentIndex,
+                previousIndex,
+                subIndex
+            }
+        }));
     }
-    toggleSubTabs(parentIndex, subIndex) {
+    toggleSubTabsFactory(tab) {
         return (e)=>{
             e.stopPropagation();
-            const button = e.target;
-            const tab = button.closest(subIndex !== undefined ? '.sub-tab' : '.tab');
-            if (tab) {
-                const subTabsContainer = tab.querySelector('.sub-tabs');
-                if (subTabsContainer) {
-                    const isExpanded = subTabsContainer.style.display === 'flex';
-                    subTabsContainer.style.display = isExpanded ? 'none' : 'flex';
-                    if (isExpanded) button.removeAttribute('expanded');
-                    else button.setAttribute('expanded', 'true');
-                }
-            }
+            this._subExpanded.set(tab, !this._subExpanded.get(tab));
+            this.requestUpdate();
         };
+    }
+    _onTopTabKeydown(e, index) {
+        var _this__tabs;
+        var _this__tabs_length;
+        const count = (_this__tabs_length = (_this__tabs = this._tabs) === null || _this__tabs === void 0 ? void 0 : _this__tabs.length) !== null && _this__tabs_length !== void 0 ? _this__tabs_length : 0;
+        const target = this._resolveArrowTarget(e, index, count);
+        if (target === null) return;
+        e.preventDefault();
+        this.selectTab(target);
+        this.updateComplete.then(()=>{
+            var _this_shadowRoot_querySelectorAll_target, _this_shadowRoot;
+            (_this_shadowRoot = this.shadowRoot) === null || _this_shadowRoot === void 0 ? void 0 : (_this_shadowRoot_querySelectorAll_target = _this_shadowRoot.querySelectorAll('.tabs > .tab')[target]) === null || _this_shadowRoot_querySelectorAll_target === void 0 ? void 0 : _this_shadowRoot_querySelectorAll_target.focus();
+        });
+    }
+    _onSubTabKeydown(e, tab, parentIndex, subIndex) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.selectSubTab(tab, parentIndex, subIndex);
+        }
+    }
+    _resolveArrowTarget(e, index, count) {
+        if (count === 0) return null;
+        const isVertical = this.direction === 'vertical';
+        const nextKey = isVertical ? 'ArrowDown' : 'ArrowRight';
+        const prevKey = isVertical ? 'ArrowUp' : 'ArrowLeft';
+        if (e.key === nextKey) return (index + 1) % count;
+        if (e.key === prevKey) return (index - 1 + count) % count;
+        if (e.key === 'Home') return 0;
+        if (e.key === 'End') return count - 1;
+        return null;
     }
     constructor(){
         super(...arguments);
         this.selectedIndex = 0;
         this.direction = 'horizontal';
+        this._subSelection = new Map();
+        this._subExpanded = new Map();
     }
 };
 JuelTabs.styles = (0, _lit.css)`
@@ -107852,6 +107938,11 @@ JuelTabs.styles = (0, _lit.css)`
       border-bottom: 1px solid #ced4da;
       border-right: 1px solid white;
     }
+    .tab:focus-visible,
+    .sub-tab:focus-visible {
+      outline: 2px solid #0d6efd;
+      outline-offset: -2px;
+    }
     .tab-content {
       flex: 1;
       padding: 16px;
@@ -107869,6 +107960,9 @@ JuelTabs.styles = (0, _lit.css)`
       border-right: var(--sub-tabs-border-right, none);
       border-top: var(--sub-tabs-border-top, none);
       border-bottom: var(--sub-tabs-border-bottom, none);
+    }
+    .sub-tabs[expanded] {
+      display: flex;
     }
     :host([direction="vertical"]) .sub-tabs {
       flex-direction: column;
@@ -107902,15 +107996,20 @@ JuelTabs.styles = (0, _lit.css)`
       margin-left: 8px;
       cursor: pointer;
       background-color: black;
+      border: none;
+      padding: 0;
       mask-size: contain;
       mask-repeat: no-repeat;
       transition: transform 0.2s;
     }
-    .expand-collapse-button[expanded] {
+    .expand-collapse-button[aria-expanded="true"] {
       mask-image: var(--icon-minus);
     }
-    .expand-collapse-button:not([expanded]) {
+    .expand-collapse-button[aria-expanded="false"] {
       mask-image: var(--icon-plus);
+    }
+    .expand-collapse-button:focus-visible {
+      outline: 2px solid #0d6efd;
     }
   `;
 __decorate([
@@ -107932,7 +108031,7 @@ JuelTabs = __decorate([
     (0, _decoratorsJs.customElement)('juel-tabs')
 ], JuelTabs);
 
-},{"lit":"6MR4h","lit/decorators.js":"iBjLb","lit/directives/map":"88TQh","../NavigationBase":"fFRwm","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"fFRwm":[function(require,module,exports,__globalThis) {
+},{"lit":"6MR4h","lit/decorators.js":"iBjLb","lit/directives/map":"88TQh","../NavigationBase":"fFRwm","./TabsEvents":"eb7UW","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"fFRwm":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "NavigationBase", ()=>NavigationBase);
@@ -107940,7 +108039,16 @@ var _juelComponent = require("../_Base/JuelComponent");
 class NavigationBase extends (0, _juelComponent.JuelComponent) {
 }
 
-},{"../_Base/JuelComponent":"6km1i","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"3Uxif":[function(require,module,exports,__globalThis) {
+},{"../_Base/JuelComponent":"6km1i","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"eb7UW":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "TabsEvents", ()=>TabsEvents);
+var TabsEvents;
+(function(TabsEvents) {
+    TabsEvents["TabChanged"] = "tab-changed";
+})(TabsEvents || (TabsEvents = {}));
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"3Uxif":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "JuelToolbar", ()=>JuelToolbar);

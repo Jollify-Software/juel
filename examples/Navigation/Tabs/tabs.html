@@ -1,19 +1,99 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <title>Tabs — Juel Examples</title>
     <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
 </head>
 
 <body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
 
-    <juel-tabs selectedIndex="0">
-        <h4 slot="prepend">Prepend</h4>
-        <juel-tab title="Tab 1">Content for Tab 1</juel-tab>
-        <juel-tab title="Tab 2">Content for Tab 2</juel-tab>
-        <juel-tab title="Tab 3">Content for Tab 3</juel-tab>
-        <h4 slot="append">Append</h4>
-      </juel-tabs>
+    <header class="example-header">
+        <h1>Tabs</h1>
+        <p>
+            <code>&lt;juel-tabs&gt;</code> switches between <code>&lt;juel-tab title="…"&gt;</code>
+            panels. Use arrow keys (Home/End too) to move between tabs, <code>direction="vertical"</code>
+            for a side rail, and nest <code>&lt;juel-tab&gt;</code> inside a tab for a sub-tab tree.
+        </p>
+    </header>
 
+    <section class="example-section">
+        <h2>Basic</h2>
+        <p>Click a tab, or focus the tab row and use the arrow keys.</p>
+        <div class="example-demo">
+            <juel-tabs class="tabs-demo" style="width: 100%;">
+                <juel-tab title="Overview">Juel is a Lit-based web component library.</juel-tab>
+                <juel-tab title="Install">Add <code>dist/juel.js</code> to your page, no build step required.</juel-tab>
+                <juel-tab title="Usage">Use any <code>juel-*</code> element directly in HTML once the script has loaded.</juel-tab>
+            </juel-tabs>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Vertical</h2>
+        <p><code>direction="vertical"</code> lays the tab list out as a side rail.</p>
+        <div class="example-demo">
+            <juel-tabs direction="vertical" style="width: 100%;">
+                <juel-tab title="Profile">Your public profile details.</juel-tab>
+                <juel-tab title="Account">Email, password, and sign-in options.</juel-tab>
+                <juel-tab title="Notifications">Choose what you get notified about.</juel-tab>
+            </juel-tabs>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Prepend / append</h2>
+        <p>Content in the <code>prepend</code>/<code>append</code> slots sits at either end of the tab row.</p>
+        <div class="example-demo">
+            <juel-tabs style="width: 100%;">
+                <h4 slot="prepend" style="margin: 0 12px 0 0;">Docs</h4>
+                <juel-tab title="Guide">Start here.</juel-tab>
+                <juel-tab title="API">Full reference.</juel-tab>
+                <span slot="append" style="margin-left: auto; align-self: center; color: var(--secondary);">v1.0</span>
+            </juel-tabs>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Nested sub-tabs</h2>
+        <p>
+            A <code>&lt;juel-tab&gt;</code> nested inside another becomes a sub-tab. The active
+            branch opens with its first sub-tab already selected — no dead-end tab with nothing
+            shown. Click the +/&minus; button to browse a branch without switching to it.
+        </p>
+        <div class="example-demo">
+            <juel-tabs style="width: 100%;">
+                <juel-tab title="Team">
+                    Meet the team.
+                    <juel-tab title="Engineering">The people who build it.</juel-tab>
+                    <juel-tab title="Design">The people who shape it.</juel-tab>
+                </juel-tab>
+                <juel-tab title="Company">About the company.</juel-tab>
+            </juel-tabs>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Reacting to tab-changed</h2>
+        <p>Listen for <code>tab-changed</code> to bind the selected tab elsewhere on the page.</p>
+        <div class="example-demo example-demo-column">
+            <juel-tabs id="output-tabs" style="width: 100%;">
+                <juel-tab title="First">First tab content.</juel-tab>
+                <juel-tab title="Second">Second tab content.</juel-tab>
+                <juel-tab title="Third">Third tab content.</juel-tab>
+            </juel-tabs>
+            <p style="margin-top: 1rem;">Selected tab index: <strong id="output-index">0</strong></p>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('output-tabs').addEventListener('tab-changed', (e) => {
+            document.getElementById('output-index').textContent = e.detail.index;
+        });
+    </script>
 </body>
 
 </html>
