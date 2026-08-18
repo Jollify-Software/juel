@@ -9582,8 +9582,16 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "FindParent", ()=>FindParent);
 function FindParent(element, predicate) {
-    while((element = element.parentElement) && predicate(element.parentElement));
-    return element;
+    let current = element;
+    while(current){
+        const rootNode = current.getRootNode();
+        var _current_parentElement;
+        const next = (_current_parentElement = current.parentElement) !== null && _current_parentElement !== void 0 ? _current_parentElement : rootNode instanceof ShadowRoot ? rootNode.host : null;
+        if (!next) return null;
+        if (predicate(next)) return next;
+        current = next;
+    }
+    return null;
 }
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"hQEbq":[function(require,module,exports,__globalThis) {
@@ -108384,7 +108392,25 @@ var __decorate = undefined && undefined.__decorate || function(decorators, targe
     else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+function resolveTreeSelectable(el, ownSelectable, isBranch) {
+    if (ownSelectable) return true;
+    let ancestor = el.parentElement;
+    while(ancestor && ancestor.tagName !== 'TREE-MENU')ancestor = ancestor.parentElement;
+    const mode = ancestor === null || ancestor === void 0 ? void 0 : ancestor.selectable;
+    if (mode === true || mode === 'true') return true;
+    if (mode === 'branchesOnly') return isBranch;
+    if (mode === 'leavesOnly') return !isBranch;
+    return false;
+}
 let TreeMenu = class TreeMenu extends (0, _lit.LitElement) {
+    connectedCallback() {
+        super.connectedCallback();
+        this.addEventListener('node-selected', this._onDeclarativeSelect);
+    }
+    disconnectedCallback() {
+        this.removeEventListener('node-selected', this._onDeclarativeSelect);
+        super.disconnectedCallback();
+    }
     toggle(node) {
         node._expanded = !node._expanded;
         this.requestUpdate();
@@ -108401,40 +108427,65 @@ let TreeMenu = class TreeMenu extends (0, _lit.LitElement) {
                 return hasChildren;
             case 'leavesOnly':
                 return !hasChildren;
+            default:
+                return false;
         }
     }
-    handleSelect(label) {
+    handleSelect(node, label) {
+        this._selectedNode = node;
         this.dispatchEvent(new CustomEvent('node-selected', {
             detail: {
                 label
-            }
+            },
+            bubbles: true,
+            composed: true
         }));
+        this.requestUpdate();
+    }
+    handleActivate(node, label, canSelect, hasChildren) {
+        if (canSelect) this.handleSelect(node, label);
+        else if (hasChildren) this.toggle(node);
+    }
+    handleKeydown(e, node, canSelect, hasChildren) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.handleActivate(node, node[this.labelField], canSelect, hasChildren);
+        } else if (e.key === 'ArrowRight' && hasChildren && !node._expanded) {
+            e.preventDefault();
+            this.toggle(node);
+        } else if (e.key === 'ArrowLeft' && hasChildren && node._expanded) {
+            e.preventDefault();
+            this.toggle(node);
+        }
     }
     renderNode(node) {
         const label = node[this.labelField];
         const children = node[this.itemsField];
         const hasChildren = Array.isArray(children) && children.length > 0;
         const canSelect = this.isSelectable(node, hasChildren);
+        const isSelected = node === this._selectedNode;
         return (0, _lit.html)`
-      <li>
-        <div class="node">
+      <li role="treeitem" aria-expanded="${hasChildren ? node._expanded ? 'true' : 'false' : (0, _lit.nothing)}" aria-selected="${canSelect ? isSelected ? 'true' : 'false' : (0, _lit.nothing)}">
+        <div class="node ${canSelect || hasChildren ? 'hoverable' : ''} ${isSelected ? 'selected' : ''}">
           ${hasChildren ? (0, _lit.html)`<span
                 class="chevron ${node._expanded ? 'rotated' : ''}"
                 @click="${()=>this.toggle(node)}"
-              ></span>` : (0, _lit.html)`<span style="width: 1em; margin-right: 0.5em;">•</span>`}
+              ></span>` : (0, _lit.html)`<span class="leaf-bullet"></span>`}
           <span
             class="label ${canSelect ? 'selectable' : ''}"
-            @click="${()=>canSelect && this.handleSelect(label)}"
+            tabindex="${canSelect || hasChildren ? '0' : '-1'}"
+            @click="${()=>this.handleActivate(node, label, canSelect, hasChildren)}"
+            @keydown="${(e)=>this.handleKeydown(e, node, canSelect, hasChildren)}"
           >
             ${label}
           </span>
         </div>
-        ${hasChildren && node._expanded ? (0, _lit.html)`<ul>${children.map((child)=>this.renderNode(child))}</ul>` : ''}
+        ${hasChildren && node._expanded ? (0, _lit.html)`<ul role="group">${children.map((child)=>this.renderNode(child))}</ul>` : ''}
       </li>
     `;
     }
     render() {
-        if (this.data.length > 0) return (0, _lit.html)`<ul>${this.data.map((item)=>this.renderNode(item))}</ul>`;
+        if (this.data.length > 0) return (0, _lit.html)`<ul role="tree">${this.data.map((item)=>this.renderNode(item))}</ul>`;
         return (0, _lit.html)`<slot></slot>`;
     }
     constructor(){
@@ -108444,35 +108495,97 @@ let TreeMenu = class TreeMenu extends (0, _lit.LitElement) {
         this.itemsField = 'items';
         this.selectableField = 'selectable';
         this.selectable = 'false';
+        this._selectedNode = null;
+        this._selectedElement = null;
+        this._onDeclarativeSelect = (e)=>{
+            if (this.data.length > 0) return;
+            const target = e.target;
+            if (target === this || !('selected' in target)) return;
+            if (this._selectedElement && this._selectedElement !== target) this._selectedElement.selected = false;
+            this._selectedElement = target;
+            target.selected = true;
+        };
     }
 };
 TreeMenu.styles = (0, _lit.css)`
+    :host {
+      display: block;
+      font-family: Arial, sans-serif;
+      font-size: 0.9rem;
+      color: var(--dark, #343a40);
+    }
     ul {
       list-style: none;
-      padding-left: 1rem;
       margin: 0;
+      padding-left: 1.125rem;
+      border-left: 1px solid #e9ecef;
+    }
+    :host > ul {
+      padding-left: 0;
+      border-left: none;
     }
     .node {
-      cursor: pointer;
       display: flex;
       align-items: center;
+      gap: 0.375rem;
+      min-height: 2rem;
+      padding: 0 0.375rem;
+      border-radius: 0.375rem;
+      border-left: 3px solid transparent;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .node.hoverable:hover {
+      background: #f1f3f5;
+    }
+    .node.selected {
+      background: var(--active, #e7f1ff);
+      border-left-color: var(--primary, #007bff);
     }
     .label {
-      padding: 2px 4px;
+      flex: 1;
+      min-width: 0;
+      padding: 0.375rem 0.5rem 0.375rem 0;
+      cursor: default;
     }
-    .label.selectable:hover {
-      background: #efefef;
+    .label.selectable {
+      cursor: pointer;
+    }
+    .node.selected .label {
+      font-weight: bold;
+      color: var(--primary, #007bff);
+    }
+    .label:focus-visible {
+      outline: 2px solid var(--primary, #007bff);
+      outline-offset: -2px;
+      border-radius: 0.25rem;
     }
     .chevron {
-      width: 1em;
-      height: 1em;
+      flex: 0 0 auto;
+      width: 1.1em;
+      height: 1.1em;
       background: var(--icon-chevron-down) no-repeat center;
-      background-size: contain;
-      transition: transform 0.3s ease;
-      margin-right: 0.5em;
+      background-size: 0.7em;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      transition: transform 0.2s ease;
     }
     .chevron.rotated {
       transform: rotate(180deg);
+    }
+    .leaf-bullet {
+      flex: 0 0 auto;
+      width: 1.1em;
+      height: 1.1em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .leaf-bullet::before {
+      content: '';
+      width: 0.3em;
+      height: 0.3em;
+      border-radius: 50%;
+      background: #adb5bd;
     }
   `;
 __decorate([
@@ -108504,27 +108617,39 @@ TreeMenu = __decorate([
     (0, _decorators.customElement)('tree-menu')
 ], TreeMenu);
 let TreeLeaf = class TreeLeaf extends (0, _lit.LitElement) {
-    isParentSelectable() {
-        const parent = this.parentElement;
-        var _ref;
-        this.selectable = (_ref = 'selectable' in parent && ((parent === null || parent === void 0 ? void 0 : parent.selectable) === true || (parent === null || parent === void 0 ? void 0 : parent.selectable) == 'true')) !== null && _ref !== void 0 ? _ref : this.selectable;
-        return this.selectable;
+    isSelectable() {
+        return resolveTreeSelectable(this, this.selectable, false);
     }
     handleClick() {
-        if (this.isParentSelectable()) this.dispatchEvent(new CustomEvent('node-selected', {
-            detail: {
-                label: this.label
-            }
-        }));
+        if (this.isSelectable()) {
+            this.selected = true;
+            this.dispatchEvent(new CustomEvent('node-selected', {
+                detail: {
+                    label: this.label
+                },
+                bubbles: true,
+                composed: true
+            }));
+        }
+    }
+    handleKeydown(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.handleClick();
+        }
     }
     render() {
-        const isSelectable = this.isParentSelectable();
+        const isSelectable = this.isSelectable();
         return (0, _lit.html)`
       <div
         class="leaf ${isSelectable ? 'selectable' : ''}"
+        role="treeitem"
+        tabindex="${isSelectable ? '0' : '-1'}"
+        aria-selected="${isSelectable ? this.selected ? 'true' : 'false' : (0, _lit.nothing)}"
         @click="${this.handleClick}"
+        @keydown="${this.handleKeydown}"
       >
-        ${isSelectable ? (0, _lit.html)`<juel-check @value-changed="${(e)=>e.stopPropagation()}"></juel-check>` : ''}
+        ${isSelectable ? (0, _lit.html)`<juel-check .value="${this.selected}" @value-changed="${(e)=>e.stopPropagation()}"></juel-check>` : ''}
         ${this.label}
       </div>
     `;
@@ -108533,21 +108658,42 @@ let TreeLeaf = class TreeLeaf extends (0, _lit.LitElement) {
         super(...arguments);
         this.label = '';
         this.selectable = false;
+        this.selected = false;
     }
 };
 TreeLeaf.styles = (0, _lit.css)`
     :host {
       display: block;
-      padding-left: 1rem;
+      font-family: Arial, sans-serif;
+      font-size: 0.9rem;
+      color: var(--dark, #343a40);
     }
     .leaf {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 2rem;
+      padding: 0 0.5rem;
       cursor: default;
+      border-radius: 0.375rem;
+      border-left: 3px solid transparent;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
     }
     .leaf.selectable {
       cursor: pointer;
     }
     .leaf.selectable:hover {
-      background: #efefef;
+      background: #f1f3f5;
+    }
+    :host([selected]) .leaf {
+      background: var(--active, #e7f1ff);
+      border-left-color: var(--primary, #007bff);
+      font-weight: bold;
+      color: var(--primary, #007bff);
+    }
+    .leaf:focus-visible {
+      outline: 2px solid var(--primary, #007bff);
+      outline-offset: -2px;
     }
   `;
 __decorate([
@@ -108560,39 +108706,63 @@ __decorate([
         type: Boolean
     })
 ], TreeLeaf.prototype, "selectable", void 0);
+__decorate([
+    (0, _decorators.property)({
+        type: Boolean,
+        reflect: true
+    })
+], TreeLeaf.prototype, "selected", void 0);
 TreeLeaf = __decorate([
     (0, _decorators.customElement)('tree-leaf')
 ], TreeLeaf);
 let TreeBranch = class TreeBranch extends (0, _lit.LitElement) {
-    isParentSelectable() {
-        const parent = this.parentElement;
-        var _ref;
-        this.selectable = (_ref = 'selectable' in parent && ((parent === null || parent === void 0 ? void 0 : parent.selectable) === true || (parent === null || parent === void 0 ? void 0 : parent.selectable) == 'true')) !== null && _ref !== void 0 ? _ref : this.selectable;
-        return this.selectable;
+    isSelectable() {
+        return resolveTreeSelectable(this, this.selectable, true);
     }
     handleClick() {
-        if (this.isParentSelectable()) this.dispatchEvent(new CustomEvent('node-selected', {
-            detail: {
-                label: this.label
-            }
-        }));
+        if (this.isSelectable()) {
+            this.selected = true;
+            this.dispatchEvent(new CustomEvent('node-selected', {
+                detail: {
+                    label: this.label
+                },
+                bubbles: true,
+                composed: true
+            }));
+        }
         this.toggle();
+    }
+    handleKeydown(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.handleClick();
+        } else if (e.key === 'ArrowRight' && !this.expanded) {
+            e.preventDefault();
+            this.toggle();
+        } else if (e.key === 'ArrowLeft' && this.expanded) {
+            e.preventDefault();
+            this.toggle();
+        }
     }
     toggle() {
         this.expanded = !this.expanded;
     }
     render() {
-        const isSelectable = this.isParentSelectable();
+        const isSelectable = this.isSelectable();
         return (0, _lit.html)`
       <div
         class="branch-header ${isSelectable ? 'selectable' : ''}"
+        role="treeitem"
+        tabindex="0"
+        aria-expanded="${this.expanded}"
+        aria-selected="${isSelectable ? this.selected ? 'true' : 'false' : (0, _lit.nothing)}"
         @click="${this.handleClick}"
-      >
-        ${isSelectable ? (0, _lit.html)`<juel-check @value-changed="${(e)=>e.stopPropagation()}"></juel-check>` : ''}
+        @keydown="${this.handleKeydown}">
+        ${isSelectable ? (0, _lit.html)`<juel-check .value="${this.selected}" @value-changed="${(e)=>e.stopPropagation()}"></juel-check>` : ''}
         <span class="chevron ${this.expanded ? 'rotated' : ''}"></span>
         ${this.label}
       </div>
-      <div class="children" ?hidden="${!this.expanded}">
+      <div class="children" role="group" ?hidden="${!this.expanded}">
         <slot></slot>
       </div>
     `;
@@ -108602,35 +108772,56 @@ let TreeBranch = class TreeBranch extends (0, _lit.LitElement) {
         this.label = '';
         this.expanded = false;
         this.selectable = false;
+        this.selected = false;
     }
 };
 TreeBranch.styles = (0, _lit.css)`
     :host {
       display: block;
-      padding-left: 1rem;
+      font-family: Arial, sans-serif;
+      font-size: 0.9rem;
+      color: var(--dark, #343a40);
     }
     .branch-header {
       cursor: pointer;
       font-weight: bold;
       display: flex;
       align-items: center;
+      gap: 0.5rem;
+      min-height: 2rem;
+      padding: 0 0.5rem;
+      border-radius: 0.375rem;
+      border-left: 3px solid transparent;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
     }
     .chevron {
-      width: 1em;
-      height: 1em;
+      flex: 0 0 auto;
+      width: 1.1em;
+      height: 1.1em;
       background: var(--icon-chevron-down) no-repeat center;
-      background-size: contain;
-      transition: transform 0.3s ease;
-      margin-right: 0.5em;
+      background-size: 0.7em;
+      border-radius: 0.25rem;
+      transition: transform 0.2s ease;
     }
     .chevron.rotated {
       transform: rotate(180deg);
     }
-    .branch-header.selectable:hover {
-      background: #efefef;
+    .branch-header:hover {
+      background: #f1f3f5;
+    }
+    :host([selected]) .branch-header {
+      background: var(--active, #e7f1ff);
+      border-left-color: var(--primary, #007bff);
+      color: var(--primary, #007bff);
+    }
+    .branch-header:focus-visible {
+      outline: 2px solid var(--primary, #007bff);
+      outline-offset: -2px;
     }
     .children {
-      margin-left: 1rem;
+      margin-left: 0.9rem;
+      padding-left: 0.75rem;
+      border-left: 1px solid #e9ecef;
     }
     .children[hidden] {
       display: none;
@@ -108652,6 +108843,12 @@ __decorate([
         type: Boolean
     })
 ], TreeBranch.prototype, "selectable", void 0);
+__decorate([
+    (0, _decorators.property)({
+        type: Boolean,
+        reflect: true
+    })
+], TreeBranch.prototype, "selected", void 0);
 TreeBranch = __decorate([
     (0, _decorators.customElement)('tree-branch')
 ], TreeBranch);

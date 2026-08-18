@@ -1,21 +1,94 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <tree-menu selectable="true">
-            <tree-branch label="About">
-              <tree-leaf label="Team"></tree-leaf>
-              <tree-leaf label="Mission"></tree-leaf>
-            </tree-branch>
-          
-            <tree-branch label="Services">
-              <tree-branch label="Web">
-                <tree-leaf label="HTML"></tree-leaf>
-                <tree-leaf label="CSS"></tree-leaf>
-              </tree-branch>
-              <tree-leaf label="Mobile Apps"></tree-leaf>
-            </tree-branch>
-          </tree-menu>          
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Tree — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+</head>
+
+<body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Tree</h1>
+        <p>
+            <code>&lt;tree-menu&gt;</code> renders a collapsible tree two ways: declaratively, by
+            nesting <code>&lt;tree-branch&gt;</code>/<code>&lt;tree-leaf&gt;</code> elements in
+            markup, or from data, by setting its <code>data</code> property to an array. Set
+            <code>selectable</code> to let visitors pick a node — <code>true</code>, <code>false</code>,
+            <code>branchesOnly</code>, or <code>leavesOnly</code> — and listen for
+            <code>node-selected</code>.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Declarative</h2>
+        <p>Nest <code>&lt;tree-branch label="…"&gt;</code> and <code>&lt;tree-leaf label="…"&gt;</code> directly in markup. Click a chevron to expand, click a checked row to select it.</p>
+        <div class="example-demo">
+            <tree-menu id="declarative-tree" selectable="true" style="width: 100%;">
+                <tree-branch label="About">
+                    <tree-leaf label="Team"></tree-leaf>
+                    <tree-leaf label="Mission"></tree-leaf>
+                </tree-branch>
+                <tree-branch label="Services">
+                    <tree-branch label="Web">
+                        <tree-leaf label="HTML"></tree-leaf>
+                        <tree-leaf label="CSS"></tree-leaf>
+                    </tree-branch>
+                    <tree-leaf label="Mobile Apps"></tree-leaf>
+                </tree-branch>
+            </tree-menu>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Data-driven</h2>
+        <p>Set <code>data</code> to an array of objects — <code>labelField</code>/<code>itemsField</code> name which keys hold the label and children.</p>
+        <div class="example-demo">
+            <tree-menu id="data-tree" selectable="leavesOnly" style="width: 100%;"></tree-menu>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Reacting to node-selected</h2>
+        <p>Listen for <code>node-selected</code> to react elsewhere on the page.</p>
+        <div class="example-demo example-demo-column">
+            <tree-menu id="output-tree" selectable="leavesOnly" style="width: 100%;">
+                <tree-branch label="Fruit">
+                    <tree-leaf label="Apple"></tree-leaf>
+                    <tree-leaf label="Banana"></tree-leaf>
+                </tree-branch>
+            </tree-menu>
+            <p style="margin-top: 1rem;">Last selected: <strong id="output-label">none</strong></p>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('data-tree').itemsField = 'children';
+        document.getElementById('data-tree').data = [
+            { label: 'Home' },
+            {
+                label: 'About',
+                children: [
+                    { label: 'Team' },
+                    { label: 'Mission' },
+                ],
+            },
+            {
+                label: 'Services',
+                children: [
+                    { label: 'Consulting' },
+                    { label: 'Support' },
+                ],
+            },
+        ];
+
+        document.getElementById('output-tree').addEventListener('node-selected', (e) => {
+            document.getElementById('output-label').textContent = e.detail.label;
+        });
+    </script>
+</body>
+
 </html>
