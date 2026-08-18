@@ -10512,12 +10512,16 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "createFloating", ()=>createFloating);
 var _asyncToGenerator = require("@swc/helpers/_/_async_to_generator");
+var _objectSpread = require("@swc/helpers/_/_object_spread");
+var _objectSpreadProps = require("@swc/helpers/_/_object_spread_props");
 var _dom = require("@floating-ui/dom");
 function createFloating(reference, floating, options = {}) {
     let cleanupAutoUpdate;
+    var _options_strategy;
+    const strategy = (_options_strategy = options.strategy) !== null && _options_strategy !== void 0 ? _options_strategy : 'absolute';
     const applyStyles = ({ x, y, placement })=>{
         Object.assign(floating.style, {
-            position: 'absolute',
+            position: strategy,
             left: `${x}px`,
             top: `${y}px`
         });
@@ -10525,8 +10529,9 @@ function createFloating(reference, floating, options = {}) {
     };
     const update = /*#__PURE__*/ function() {
         var _ref = (0, _asyncToGenerator._)(function*() {
-            const { x, y, placement } = yield (0, _dom.computePosition)(reference, floating, Object.assign(options, {
-                middleware: [
+            var _options_middleware;
+            const { x, y, placement } = yield (0, _dom.computePosition)(reference, floating, (0, _objectSpreadProps._)((0, _objectSpread._)({}, options), {
+                middleware: (_options_middleware = options.middleware) !== null && _options_middleware !== void 0 ? _options_middleware : [
                     (0, _dom.autoPlacement)()
                 ]
             }));
@@ -10554,7 +10559,7 @@ function createFloating(reference, floating, options = {}) {
     };
 }
 
-},{"@swc/helpers/_/_async_to_generator":"bp41a","@floating-ui/dom":"is3b8","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"is3b8":[function(require,module,exports,__globalThis) {
+},{"@swc/helpers/_/_async_to_generator":"bp41a","@swc/helpers/_/_object_spread":"kbZU4","@swc/helpers/_/_object_spread_props":"gRdFM","@floating-ui/dom":"is3b8","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"is3b8":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getOverflowAncestors", ()=>(0, _dom.getOverflowAncestors));
@@ -107483,6 +107488,7 @@ var _navLess = require("bundle-text:./Nav.less");
 var _navLessDefault = parcelHelpers.interopDefault(_navLess);
 var _classMap = require("lit/directives/class-map");
 var _ref = require("lit/directives/ref");
+var _domReady = require("../../_Utils/DomReady");
 var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -107493,18 +107499,33 @@ let JuelNav = class JuelNav extends (0, _lit.LitElement) {
     firstUpdated(_changedProperties) {
         if (this.sticky) this.stickNavbar();
     }
+    disconnectedCallback() {
+        window.removeEventListener('scroll', this._boundHandleScroll);
+        super.disconnectedCallback();
+    }
     stickNavbar() {
-        document.addEventListener('DOMContentLoaded', ()=>{
+        (0, _domReady.DomReady)().then(()=>{
             const navbar = this.nav.value;
-            const navbarOffset = navbar.offsetTop;
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > navbarOffset) navbar.classList.add('fixed');
-                else navbar.classList.remove('fixed');
-            });
+            this._navbarOffset = navbar.offsetTop;
+            window.addEventListener('scroll', this._boundHandleScroll);
         });
+    }
+    _handleScroll() {
+        const navbar = this.nav.value;
+        if (window.scrollY > this._navbarOffset) navbar.classList.add('fixed');
+        else navbar.classList.remove('fixed');
     }
     toggleMenu() {
         this.open = !this.open;
+    }
+    _onToggleKeydown(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.toggleMenu();
+        }
+    }
+    _onMenuClick() {
+        if (this.open) this.open = false;
     }
     render() {
         let menuClass = {
@@ -107513,12 +107534,19 @@ let JuelNav = class JuelNav extends (0, _lit.LitElement) {
         return (0, _lit.html)`
       <nav ${(0, _ref.ref)(this.nav)}>
         <div class="logo"><slot name="title"></slot></div>
-        <div class="menu-toggle ${(0, _classMap.classMap)(menuClass)}" @click="${this.toggleMenu}">
+        <div
+          class="menu-toggle ${(0, _classMap.classMap)(menuClass)}"
+          role="button"
+          tabindex="0"
+          aria-expanded="${this.open}"
+          aria-label="Toggle menu"
+          @click="${this.toggleMenu}"
+          @keydown="${this._onToggleKeydown}">
           <div></div>
           <div></div>
           <div></div>
         </div>
-        <ul class="menu ${(0, _classMap.classMap)(menuClass)}">
+        <ul class="menu ${(0, _classMap.classMap)(menuClass)}" @click="${this._onMenuClick}">
           <slot></slot>
         </ul>
       </nav>
@@ -107529,6 +107557,8 @@ let JuelNav = class JuelNav extends (0, _lit.LitElement) {
         this.nav = (0, _ref.createRef)();
         this.open = false;
         this.sticky = true;
+        this._boundHandleScroll = this._handleScroll.bind(this);
+        this._navbarOffset = 0;
     }
 };
 JuelNav.styles = (0, _lit.unsafeCSS)((0, _navLessDefault.default));
@@ -107546,8 +107576,8 @@ JuelNav = __decorate([
     (0, _decorators.customElement)('juel-nav')
 ], JuelNav);
 
-},{"lit":"6MR4h","lit/decorators":"iBjLb","bundle-text:./Nav.less":"cxSW8","lit/directives/class-map":"4herI","lit/directives/ref":"dqTUo","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"cxSW8":[function(require,module,exports,__globalThis) {
-module.exports = ":host {\n  --nav-height: 50px;\n  font-family: Arial, sans-serif;\n  display: block;\n}\n\nnav {\n  background-color: var(--background, var(--light));\n  color: var(--color, var(--dark));\n  height: var(--nav-height);\n  justify-content: space-between;\n  align-items: center;\n  padding: 10px 20px;\n  display: flex;\n  position: relative;\n}\n\nnav.fixed {\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  box-shadow: 0 3px 15px #0003;\n}\n\n.logo {\n  font-size: 20px;\n  font-weight: bold;\n}\n\n.menu {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(*) {\n  padding: var(--padding, 12px 8px);\n  color: var(--color, var(--dark));\n}\n\n.menu-toggle {\n  cursor: pointer;\n  flex-direction: column;\n  justify-content: space-between;\n  width: 30px;\n  height: 25px;\n  display: none;\n}\n\n.menu-toggle div {\n  background-color: var(--background, var(--dark));\n  transform-origin: 0;\n  width: 100%;\n  height: 3px;\n  transition: transform 1s, opacity 1s;\n}\n\n.menu-toggle.open div:first-child {\n  transform: rotateZ(45deg);\n}\n\n.menu-toggle.open div:nth-child(2) {\n  opacity: 0;\n}\n\n.menu-toggle.open div:nth-child(3) {\n  transform: rotateZ(-45deg);\n}\n\n@media (width <= 768px) {\n  .menu {\n    background-color: var(--background, var(--light));\n    width: 100%;\n    top: var(--nav-height);\n    flex-direction: column;\n    padding: 10px 0;\n    display: none;\n    position: absolute;\n    left: 0;\n  }\n\n  .fixed {\n    position: relative !important;\n  }\n\n  .menu.open, .menu-toggle {\n    display: flex;\n  }\n}\n";
+},{"lit":"6MR4h","lit/decorators":"iBjLb","bundle-text:./Nav.less":"cxSW8","lit/directives/class-map":"4herI","lit/directives/ref":"dqTUo","../../_Utils/DomReady":"b6Rbc","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"cxSW8":[function(require,module,exports,__globalThis) {
+module.exports = ":host {\n  --nav-height: 50px;\n  font-family: Arial, sans-serif;\n  display: block;\n}\n\nnav {\n  background-color: var(--background, var(--light));\n  color: var(--color, var(--dark));\n  height: var(--nav-height);\n  justify-content: space-between;\n  align-items: center;\n  padding: 10px 20px;\n  display: flex;\n  position: relative;\n}\n\nnav.fixed {\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  box-shadow: 0 3px 15px #0003;\n}\n\n.logo {\n  font-size: 20px;\n  font-weight: bold;\n}\n\n.menu {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(*) {\n  padding: var(--padding, 12px 8px);\n  color: var(--color, var(--dark));\n}\n\n.menu-toggle {\n  cursor: pointer;\n  flex-direction: column;\n  justify-content: space-between;\n  width: 30px;\n  height: 25px;\n  display: none;\n}\n\n.menu-toggle:focus-visible {\n  outline: 2px solid var(--color, var(--dark));\n  outline-offset: 2px;\n}\n\n.menu-toggle div {\n  background-color: var(--color, var(--dark));\n  transform-origin: 0;\n  width: 100%;\n  height: 3px;\n  transition: transform 1s, opacity 1s;\n}\n\n.menu-toggle.open div:first-child {\n  transform: rotateZ(45deg);\n}\n\n.menu-toggle.open div:nth-child(2) {\n  opacity: 0;\n}\n\n.menu-toggle.open div:nth-child(3) {\n  transform: rotateZ(-45deg);\n}\n\n@media (width <= 768px) {\n  .menu {\n    background-color: var(--background, var(--light));\n    width: 100%;\n    top: var(--nav-height);\n    flex-direction: column;\n    padding: 10px 0;\n    display: none;\n    position: absolute;\n    left: 0;\n  }\n\n  .fixed {\n    position: relative !important;\n  }\n\n  .menu.open, .menu-toggle {\n    display: flex;\n  }\n}\n";
 
 },{}],"7rvSV":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");

@@ -1,18 +1,129 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-        <style>
-            body {
-                height: 200vh;
-            }
-        </style>
-    </head>
-    <body>
-        <juel-nav>
-            <juel-item>Home</juel-item>
-            <juel-item>About</juel-item>
-            <juel-item>Services</juel-item>
-            <juel-item>Contact</juel-item>
-        </juel-nav>
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Nav — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .nav-demo {
+            width: 100%;
+        }
+        .nav-note {
+            margin: 0.75rem 0 0;
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+        .sticky-filler p {
+            max-width: 42em;
+            margin: 0 0 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Nav</h1>
+        <p>
+            <code>&lt;juel-nav&gt;</code> is a header bar for a <code>title</code>-slotted logo and a
+            row of menu items. It collapses to a hamburger menu at 768px and narrower, can
+            <code>sticky</code> itself to the top of the page on scroll, and themes via CSS custom
+            properties. Nest a <code>&lt;juel-item&gt;</code> with an <code>items</code> slot for a
+            dropdown submenu.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic</h2>
+        <p>A title and a row of items, given via the default slot.</p>
+        <div class="example-demo">
+            <juel-nav class="nav-demo js-no-sticky">
+                <strong slot="title">Juel</strong>
+                <juel-item>Home</juel-item>
+                <juel-item>About</juel-item>
+                <juel-item>Services</juel-item>
+                <juel-item>Contact</juel-item>
+            </juel-nav>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Dropdown submenu</h2>
+        <p>A <code>&lt;juel-item&gt;</code> with content in its <code>items</code> slot opens a floating dropdown on hover.</p>
+        <div class="example-demo">
+            <juel-nav class="nav-demo js-no-sticky">
+                <strong slot="title">Juel</strong>
+                <juel-item>Home</juel-item>
+                <juel-item>
+                    <span slot="title">Company</span>
+                    <juel-item slot="items">About</juel-item>
+                    <juel-item slot="items">Team</juel-item>
+                    <juel-item slot="items">Careers</juel-item>
+                </juel-item>
+                <juel-item>Contact</juel-item>
+            </juel-nav>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Mobile menu</h2>
+        <p>Below 768px viewport width the item row is replaced by a hamburger toggle — resize your browser to see it.</p>
+        <div class="example-demo">
+            <juel-nav class="nav-demo js-no-sticky">
+                <strong slot="title">Juel</strong>
+                <juel-item>Home</juel-item>
+                <juel-item>About</juel-item>
+                <juel-item>Services</juel-item>
+                <juel-item>Contact</juel-item>
+            </juel-nav>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Sticky navigation</h2>
+        <p>
+            <code>sticky</code> (the default) fixes the nav to the top of the page once you scroll
+            past it. Scroll down through this section to see it engage.
+        </p>
+        <div class="example-demo" style="display: block;">
+            <juel-nav class="nav-demo">
+                <strong slot="title">Juel</strong>
+                <juel-item>Home</juel-item>
+                <juel-item>About</juel-item>
+                <juel-item>Services</juel-item>
+                <juel-item>Contact</juel-item>
+            </juel-nav>
+            <div class="sticky-filler" style="padding: 1.5rem 0 0; min-height: 1400px;">
+                <p>Keep scrolling — the nav above sticks to the top of the page once it reaches it, and un-sticks again once you scroll back above its original position.</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer massa urna, lobortis in metus sit amet, finibus volutpat tellus. Pellentesque molestie, est in rhoncus aliquam, lectus purus vestibulum justo, dapibus placerat augue sem at mauris.</p>
+                <p>Aenean faucibus nibh sem, non euismod velit tempor at. Nulla tincidunt, risus quis ultrices malesuada, felis lorem vehicula nulla, vitae faucibus urna diam eu libero. Proin iaculis consequat posuere.</p>
+                <p>Morbi dapibus mi vitae mi vehicula, nec convallis est pulvinar. Quisque suscipit dapibus massa, vitae fringilla arcu. Donec eleifend at leo nec maximus. Morbi sit amet ante lorem.</p>
+                <p>Pellentesque laoreet consequat ante, id eleifend arcu varius vel. Etiam nec malesuada sapien. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
+                <p>Morbi nulla nibh, consequat vel ipsum ac, pellentesque dignissim diam. Fusce ligula libero, eleifend a enim eget, pulvinar iaculis diam. Phasellus fermentum lorem a justo ultrices semper.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Theming</h2>
+        <p><code>--background</code>, <code>--color</code>, <code>--nav-height</code> and <code>--padding</code> style the bar; the hamburger icon follows <code>--color</code> so it stays visible on a dark background.</p>
+        <div class="example-demo">
+            <juel-nav class="nav-demo js-no-sticky" style="--background:#1c2333; --color:#f5f7ff; --nav-height:60px; --padding:14px 18px;">
+                <strong slot="title">Juel</strong>
+                <juel-item>Home</juel-item>
+                <juel-item>About</juel-item>
+                <juel-item>Services</juel-item>
+                <juel-item>Contact</juel-item>
+            </juel-nav>
+        </div>
+    </section>
+
+    <script>
+        document.querySelectorAll('.js-no-sticky').forEach((el) => { el.sticky = false; });
+    </script>
+</body>
+
 </html>
