@@ -7,3 +7,4 @@ import './Accordion/Accordion';
 import './Tree/Tree';
 import './ScrollPane/ScrollPane';
 import './Steps/Steps';
+import './ScrollSpy/ScrollSpy';

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Scroll Spy — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .spy-layout {
+            display: flex;
+            gap: 1.5rem;
+            width: 100%;
+            align-items: flex-start;
+        }
+        .spy-nav {
+            flex: 0 0 160px;
+            position: sticky;
+            top: 0;
+            border-left: 1px solid #dee2e6;
+        }
+        .spy-content {
+            flex: 1;
+            height: 320px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            background: #fff;
+        }
+        .spy-section {
+            height: 280px;
+            padding: 1.25rem;
+            border-bottom: 1px solid #f1f3f5;
+        }
+        .spy-section:last-child {
+            border-bottom: none;
+        }
+        .spy-section h3 {
+            margin-top: 0;
+        }
+        .spy-section p {
+            color: var(--secondary);
+            max-width: 40em;
+        }
+    </style>
+</head>
+
+<body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Scroll Spy</h1>
+        <p>
+            <code>&lt;juel-scrollspy&gt;</code> highlights which <code>&lt;juel-scrollspy-item
+            href="#id"&gt;</code> corresponds to whatever section is scrolled into view.
+            <code>target</code> names the CSS selector of the scrollable container to watch — leave
+            it unset to watch the page itself. Clicking an item smooth-scrolls to its section.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic</h2>
+        <p>Scroll the panel on the right, or click a link to jump to a section.</p>
+        <div class="example-demo">
+            <div class="spy-layout">
+                <juel-scrollspy target=".spy-content" class="spy-nav">
+                    <juel-scrollspy-item href="#intro">Introduction</juel-scrollspy-item>
+                    <juel-scrollspy-item href="#install">Installation</juel-scrollspy-item>
+                    <juel-scrollspy-item href="#usage">Usage</juel-scrollspy-item>
+                    <juel-scrollspy-item href="#faq">FAQ</juel-scrollspy-item>
+                </juel-scrollspy>
+                <div class="spy-content">
+                    <section id="intro" class="spy-section">
+                        <h3>Introduction</h3>
+                        <p>Juel is a Lit-based web component library — every element ships as a plain custom element, usable from any framework or none at all.</p>
+                    </section>
+                    <section id="install" class="spy-section">
+                        <h3>Installation</h3>
+                        <p>Add a single script tag pointing at <code>dist/juel.js</code>. No bundler or build step is required to start using the components.</p>
+                    </section>
+                    <section id="usage" class="spy-section">
+                        <h3>Usage</h3>
+                        <p>Once the script has loaded, every <code>juel-*</code> element is defined and can be used directly in HTML, exactly like a built-in tag.</p>
+                    </section>
+                    <section id="faq" class="spy-section">
+                        <h3>FAQ</h3>
+                        <p>Questions not covered here can be raised against the component library's issue tracker.</p>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Reacting to active-changed</h2>
+        <p>Listen for <code>active-changed</code> to bind the current section elsewhere on the page.</p>
+        <div class="example-demo example-demo-column">
+            <div class="spy-layout">
+                <juel-scrollspy id="output-spy" target=".output-content" class="spy-nav">
+                    <juel-scrollspy-item href="#out-one">One</juel-scrollspy-item>
+                    <juel-scrollspy-item href="#out-two">Two</juel-scrollspy-item>
+                    <juel-scrollspy-item href="#out-three">Three</juel-scrollspy-item>
+                </juel-scrollspy>
+                <div class="spy-content output-content">
+                    <section id="out-one" class="spy-section">
+                        <h3>One</h3>
+                        <p>Scroll down to see the active section below update.</p>
+                    </section>
+                    <section id="out-two" class="spy-section">
+                        <h3>Two</h3>
+                        <p>Still scrolling.</p>
+                    </section>
+                    <section id="out-three" class="spy-section">
+                        <h3>Three</h3>
+                        <p>Made it.</p>
+                    </section>
+                </div>
+            </div>
+            <p style="margin-top: 1rem;">Active section: <strong id="output-href">none</strong></p>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('output-spy').addEventListener('active-changed', (e) => {
+            document.getElementById('output-href').textContent = e.detail.href;
+        });
+    </script>
+</body>
+
+</html>

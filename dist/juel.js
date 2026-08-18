@@ -107486,8 +107486,9 @@ var _accordion = require("./Accordion/Accordion");
 var _tree = require("./Tree/Tree");
 var _scrollPane = require("./ScrollPane/ScrollPane");
 var _steps = require("./Steps/Steps");
+var _scrollSpy = require("./ScrollSpy/ScrollSpy");
 
-},{"./Nav/Nav":"4IUyQ","./Breadcrumb/Breadcrumb":"7rvSV","./Breadcrumb/BreadcrumbItem":"1jiN0","./Tabs/Tabs":"jnYlh","./Toolbar/Toolbar":"3Uxif","./Accordion/Accordion":"aNGrR","./Tree/Tree":"fbmp8","./ScrollPane/ScrollPane":"9aoYH","./Steps/Steps":"jaKn0"}],"4IUyQ":[function(require,module,exports,__globalThis) {
+},{"./Nav/Nav":"4IUyQ","./Breadcrumb/Breadcrumb":"7rvSV","./Breadcrumb/BreadcrumbItem":"1jiN0","./Tabs/Tabs":"jnYlh","./Toolbar/Toolbar":"3Uxif","./Accordion/Accordion":"aNGrR","./Tree/Tree":"fbmp8","./ScrollPane/ScrollPane":"9aoYH","./Steps/Steps":"jaKn0","./ScrollSpy/ScrollSpy":"jyjHO"}],"4IUyQ":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "JuelNav", ()=>JuelNav);
@@ -111305,7 +111306,191 @@ var StepsEvents;
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"1RtVq":[function(require,module,exports,__globalThis) {
 module.exports = ":host {\n  font-family: Arial, sans-serif;\n  display: block;\n}\n\n.steps-header {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  display: flex;\n}\n\n.step {\n  text-align: center;\n  flex-direction: column;\n  flex: 1;\n  align-items: center;\n  display: flex;\n  position: relative;\n}\n\n.step:not(:first-child):before {\n  content: \"\";\n  z-index: 0;\n  background: #dee2e6;\n  width: 100%;\n  height: 2px;\n  position: absolute;\n  top: 15px;\n  left: -50%;\n}\n\n.step.completed:not(:first-child):before, .step.active:not(:first-child):before {\n  background: var(--primary, #007bff);\n}\n\n.circle {\n  z-index: 1;\n  color: #6c757d;\n  background: #f8f9fa;\n  border: 2px solid #dee2e6;\n  border-radius: 50%;\n  justify-content: center;\n  align-items: center;\n  width: 30px;\n  height: 30px;\n  font-weight: bold;\n  transition: background-color .2s, border-color .2s, color .2s;\n  display: flex;\n  position: relative;\n}\n\n.step.completed .circle, .step.active .circle {\n  border-color: var(--primary, #007bff);\n}\n\n.step.completed .circle {\n  background: var(--primary, #007bff);\n  color: #fff;\n}\n\n.step.active .circle {\n  color: var(--primary, #007bff);\n}\n\n.circle[tabindex=\"0\"] {\n  cursor: pointer;\n}\n\n.circle[aria-disabled=\"true\"] {\n  cursor: default;\n}\n\n.circle:focus-visible {\n  outline: 2px solid var(--primary, #007bff);\n  outline-offset: 2px;\n}\n\n.check {\n  width: 14px;\n  height: 14px;\n  -webkit-mask-image: var(--icon-tick);\n  mask-image: var(--icon-tick);\n  background-color: #fff;\n  -webkit-mask-position: center;\n  mask-position: center;\n  -webkit-mask-repeat: no-repeat;\n  mask-repeat: no-repeat;\n}\n\n.label {\n  color: #6c757d;\n  margin-top: .5rem;\n  font-size: .8rem;\n}\n\n.step.active .label {\n  color: var(--dark, #212529);\n  font-weight: bold;\n}\n\n.step-content {\n  margin-top: 1.5rem;\n}\n";
 
-},{}],"1Ys6c":[function(require,module,exports,__globalThis) {
+},{}],"jyjHO":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "JuelScrollSpyItem", ()=>JuelScrollSpyItem);
+parcelHelpers.export(exports, "JuelScrollSpy", ()=>JuelScrollSpy);
+var _lit = require("lit");
+var _decoratorsJs = require("lit/decorators.js");
+var _navigationBase = require("../NavigationBase");
+var _scrollSpyEvents = require("./ScrollSpyEvents");
+var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let JuelScrollSpyItem = class JuelScrollSpyItem extends (0, _lit.LitElement) {
+    render() {
+        return (0, _lit.html)`<a href="${this.href}" aria-current="${this.active ? 'true' : 'false'}" @click="${this._onClick}"><slot></slot></a>`;
+    }
+    _onClick(e) {
+        const target = this._targetElement();
+        if (target) {
+            e.preventDefault();
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }
+    _targetElement() {
+        if (!this.href.startsWith('#')) return null;
+        return document.getElementById(this.href.slice(1));
+    }
+    constructor(){
+        super(...arguments);
+        this.href = '';
+        this.active = false;
+    }
+};
+JuelScrollSpyItem.styles = (0, _lit.css)`
+    :host {
+      display: block;
+    }
+    a {
+      display: block;
+      padding: 0.375rem 0.75rem;
+      color: var(--secondary, #6c757d);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    a:hover {
+      color: var(--dark, #343a40);
+    }
+    :host([active]) a {
+      color: var(--primary, #007bff);
+      border-left-color: var(--primary, #007bff);
+      font-weight: bold;
+    }
+    a:focus-visible {
+      outline: 2px solid var(--primary, #007bff);
+      outline-offset: -2px;
+    }
+  `;
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelScrollSpyItem.prototype, "href", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: Boolean,
+        reflect: true
+    })
+], JuelScrollSpyItem.prototype, "active", void 0);
+JuelScrollSpyItem = __decorate([
+    (0, _decoratorsJs.customElement)('juel-scrollspy-item')
+], JuelScrollSpyItem);
+let JuelScrollSpy = class JuelScrollSpy extends (0, _navigationBase.NavigationBase) {
+    disconnectedCallback() {
+        var _this__observer;
+        (_this__observer = this._observer) === null || _this__observer === void 0 ? void 0 : _this__observer.disconnect();
+        super.disconnectedCallback();
+    }
+    updated(changedProperties) {
+        super.updated(changedProperties);
+        if (changedProperties.has('target')) this._setupObserver();
+    }
+    _handleSlotChange() {
+        this._setupObserver();
+    }
+    render() {
+        return (0, _lit.html)`
+      <div role="list">
+        <slot @slotchange="${this._handleSlotChange}"></slot>
+      </div>
+    `;
+    }
+    _setupObserver() {
+        var _this__observer;
+        (_this__observer = this._observer) === null || _this__observer === void 0 ? void 0 : _this__observer.disconnect();
+        this._intersecting.clear();
+        if (!this._items || this._items.length === 0) return;
+        const root = this.target ? document.querySelector(this.target) : null;
+        this._observer = new IntersectionObserver((entries)=>{
+            entries.forEach((entry)=>{
+                if (entry.isIntersecting) this._intersecting.add(entry.target);
+                else this._intersecting.delete(entry.target);
+            });
+            this._updateActive();
+        }, {
+            root,
+            rootMargin: '0px 0px -80% 0px',
+            threshold: 0
+        });
+        this._items.forEach((item)=>{
+            const id = item.href.startsWith('#') ? item.href.slice(1) : '';
+            const el = id ? document.getElementById(id) : null;
+            if (el) this._observer.observe(el);
+        });
+    }
+    _updateActive() {
+        if (this._intersecting.size === 0) return;
+        let topEl = null;
+        let topPosition = -Infinity;
+        this._intersecting.forEach((el)=>{
+            const top = el.getBoundingClientRect().top;
+            if (top > topPosition) {
+                topPosition = top;
+                topEl = el;
+            }
+        });
+        if (!topEl) return;
+        const nextActive = (this._items ? Array.from(this._items) : []).find((item)=>{
+            const id = item.href.startsWith('#') ? item.href.slice(1) : '';
+            return id && document.getElementById(id) === topEl;
+        });
+        if (!nextActive || nextActive === this._activeItem) return;
+        if (this._activeItem) this._activeItem.active = false;
+        this._activeItem = nextActive;
+        nextActive.active = true;
+        this.dispatchEvent(new CustomEvent((0, _scrollSpyEvents.ScrollSpyEvents).ActiveChanged, {
+            detail: {
+                href: nextActive.href
+            }
+        }));
+    }
+    constructor(){
+        super();
+        this.target = '';
+        this._intersecting = new Set();
+        this._activeItem = null;
+        this.ripple = false;
+    }
+};
+JuelScrollSpy.styles = (0, _lit.css)`
+    :host {
+      display: block;
+      font-family: Arial, sans-serif;
+    }
+  `;
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelScrollSpy.prototype, "target", void 0);
+__decorate([
+    (0, _decoratorsJs.queryAssignedElements)({
+        selector: 'juel-scrollspy-item'
+    })
+], JuelScrollSpy.prototype, "_items", void 0);
+JuelScrollSpy = __decorate([
+    (0, _decoratorsJs.customElement)('juel-scrollspy')
+], JuelScrollSpy);
+
+},{"lit":"6MR4h","lit/decorators.js":"iBjLb","../NavigationBase":"fFRwm","./ScrollSpyEvents":"cgDzo","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"cgDzo":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ScrollSpyEvents", ()=>ScrollSpyEvents);
+var ScrollSpyEvents;
+(function(ScrollSpyEvents) {
+    ScrollSpyEvents["ActiveChanged"] = "active-changed";
+})(ScrollSpyEvents || (ScrollSpyEvents = {}));
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"1Ys6c":[function(require,module,exports,__globalThis) {
 var _chart = require("./Chart/Chart");
 var _chartSeries = require("./Chart/ChartSeries");
 var _timeline = require("./Timeline/Timeline");
