@@ -1,26 +1,97 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <title>Button — Juel Examples</title>
     <script src="../../../dist/juel.js"></script>
-    <link rel="stylesheet" href="../demo.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-        integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
 </head>
 
 <body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
 
-    <juel-button type="primary" label="Primary"></juel-button>
-    <juel-button type="Secondary" label="Secondary"></juel-button>
-    <juel-button type="tertiary" label="Tertiary"></juel-button>
-    <juel-button type="info" label="Info"></juel-button>
-    <juel-button type="success" label="Success"></juel-button>
-    <juel-button type="Danger" label="Danger"></juel-button>
-    <juel-button type="Warning" label="Warning"></juel-button>
-    <juel-button type="light" label="Light"></juel-button>
-    <juel-button type="dark" label="Dark"></juel-button>
+    <header class="example-header">
+        <h1>Button</h1>
+        <p>
+            <code>&lt;juel-button&gt;</code> is a themed button/submit control.
+            Colour comes from the <code>type</code> attribute, styling from
+            <code>render-style</code>, and it can carry a <code>glyph</code> icon,
+            prepend/append slots, or a dropdown.
+        </p>
+    </header>
 
+    <section class="example-section">
+        <h2>Types</h2>
+        <p>The <code>type</code> attribute selects the semantic colour. Values are lower-case and match <code>AlertTypes</code>.</p>
+        <div class="example-demo">
+            <juel-button type="primary" label="Primary"></juel-button>
+            <juel-button type="secondary" label="Secondary"></juel-button>
+            <juel-button type="tertiary" label="Tertiary"></juel-button>
+            <juel-button type="info" label="Info"></juel-button>
+            <juel-button type="success" label="Success"></juel-button>
+            <juel-button type="danger" label="Danger"></juel-button>
+            <juel-button type="warning" label="Warning"></juel-button>
+            <juel-button type="light" label="Light"></juel-button>
+            <juel-button type="dark" label="Dark"></juel-button>
+        </div>
+    </section>
 
+    <section class="example-section">
+        <h2>Render style</h2>
+        <p><code>render-style="outline"</code> swaps the filled background for an outlined variant.</p>
+        <div class="example-demo">
+            <juel-button type="primary" render-style="outline" label="Primary"></juel-button>
+            <juel-button type="secondary" render-style="outline" label="Secondary"></juel-button>
+            <juel-button type="tertiary" render-style="outline" label="Tertiary"></juel-button>
+            <juel-button type="info" render-style="outline" label="Info"></juel-button>
+            <juel-button type="success" render-style="outline" label="Success"></juel-button>
+            <juel-button type="danger" render-style="outline" label="Danger"></juel-button>
+            <juel-button type="warning" render-style="outline" label="Warning"></juel-button>
+            <juel-button type="light" render-style="outline" label="Light"></juel-button>
+            <juel-button type="dark" render-style="outline" label="Dark"></juel-button>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Icons</h2>
+        <p>The <code>glyph</code> attribute renders a built-in icon alongside the label.</p>
+        <div class="example-demo">
+            <juel-button type="primary" label="Primary" glyph="smile"></juel-button>
+            <juel-button type="secondary" label="Secondary" glyph="mail"></juel-button>
+            <juel-button type="tertiary" label="Tertiary" glyph="bluesky"></juel-button>
+            <juel-button type="info" label="Info" glyph="info"></juel-button>
+            <juel-button type="success" label="Success" glyph="success"></juel-button>
+            <juel-button type="danger" label="Danger" glyph="error"></juel-button>
+            <juel-button type="warning" label="Warning" glyph="warning"></juel-button>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Prepend / append</h2>
+        <p>Content placed in the <code>prepend</code> and <code>append</code> slots renders either side of the label.</p>
+        <div class="example-demo">
+            <juel-button type="primary">
+                <juel-button slot="prepend" type="primary">Left</juel-button>
+                Middle
+                <juel-button slot="append" type="primary">Right</juel-button>
+            </juel-button>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Dropdown</h2>
+        <p>Content in the <code>dropdown</code> slot opens beneath the button.</p>
+        <div class="example-demo">
+            <juel-button type="primary" label="Options">
+                <ul slot="dropdown">
+                    <li>One</li>
+                    <li>Two</li>
+                    <li>Three</li>
+                </ul>
+            </juel-button>
+        </div>
+    </section>
 </body>
 
 </html>

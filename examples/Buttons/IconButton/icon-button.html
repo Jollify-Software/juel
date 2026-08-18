@@ -1,14 +1,55 @@
-<html encoding="UTF-8">
+<!doctype html>
+<html lang="en">
 
 <head>
-  <script src="../../../dist/juel.js"></script>
+    <meta charset="utf-8">
+    <title>Icon Button — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
 </head>
 
 <body>
-  <juel-icon-button icon="⭐" label="Star button">
-  </juel-icon-button>
-  <juel-icon-button icon="smile" label="Star button">
-  </juel-icon-button>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Icon Button</h1>
+        <p>
+            <code>&lt;juel-icon-button&gt;</code> is a circular, icon-only button.
+            <code>icon</code> accepts a built-in glyph name, an emoji, or a data URL;
+            <code>label</code> is required for accessibility even though it isn't shown.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Glyph icons</h2>
+        <p>A built-in icon name renders via the same icon set as <code>juel-button</code>'s <code>glyph</code>.</p>
+        <div class="example-demo">
+            <juel-icon-button icon="smile" label="Smile"></juel-icon-button>
+            <juel-icon-button icon="mail" label="Mail"></juel-icon-button>
+            <juel-icon-button icon="play" label="Play"></juel-icon-button>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Types</h2>
+        <p>Like <code>juel-button</code>, the <code>type</code> attribute selects the semantic colour.</p>
+        <div class="example-demo">
+            <juel-icon-button type="primary" icon="smile" label="Primary"></juel-icon-button>
+            <juel-icon-button type="success" icon="success" label="Success"></juel-icon-button>
+            <juel-icon-button type="danger" icon="error" label="Danger"></juel-icon-button>
+            <juel-icon-button type="warning" icon="warning" label="Warning"></juel-icon-button>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Emoji</h2>
+        <p>Any emoji works directly as the <code>icon</code> value, no glyph name needed.</p>
+        <div class="example-demo">
+            <juel-icon-button icon="⭐" label="Star"></juel-icon-button>
+            <juel-icon-button icon="❤️" label="Like"></juel-icon-button>
+            <juel-icon-button icon="🔔" label="Notifications"></juel-icon-button>
+        </div>
+    </section>
 </body>
 
 </html>

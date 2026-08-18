@@ -1,26 +1,94 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <title>Toggle — Juel Examples</title>
     <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
 </head>
 
 <body>
-    <juel-toggle>
-    </juel-toggle>
-    <juel-toggle rounded="true">
-    </juel-toggle>
-    <juel-toggle checked="true" glyph="stop|play">
-    </juel-toggle>
-    <juel-toggle checked="true" glyph="stop|play" label="stop|play">
-    </juel-toggle>
-    <juel-toggle states="primary|secondary|tertiary|info|success|danger" checked="true" label="primary|secondary|tertiary|info|success|danger">
-    </juel-toggle>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Toggle</h1>
+        <p>
+            <code>&lt;juel-toggle&gt;</code> is a switch-style checkbox. It can show a label,
+            an icon, or cycle through more than two <code>states</code>, and its
+            <code>singular</code> mode makes a group of toggles behave like a radio group.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic</h2>
+        <p>With no attributes it's a plain on/off switch. <code>rounded</code> gives it pill-shaped ends.</p>
+        <div class="example-demo">
+            <juel-toggle></juel-toggle>
+            <juel-toggle rounded="true"></juel-toggle>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Icon &amp; label</h2>
+        <p>
+            <code>glyph</code> takes one icon per state, pipe-separated (<code>off|on</code>).
+            Add <code>label</code> the same way to show text instead of the switch track.
+        </p>
+        <div class="example-demo">
+            <juel-toggle checked="true" glyph="stop|play"></juel-toggle>
+            <juel-toggle checked="true" glyph="stop|play" label="Stop|Play"></juel-toggle>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>More than two states</h2>
+        <p><code>states</code> takes a pipe-separated list of button <code>type</code> colours to cycle through on each click; pair it with a matching <code>label</code> list.</p>
+        <div class="example-demo">
+            <juel-toggle
+                states="primary|secondary|tertiary|info|success|danger"
+                checked="true"
+                label="Primary|Secondary|Tertiary|Info|Success|Danger">
+            </juel-toggle>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Singular (exclusive) groups</h2>
+        <p>
+            <code>singular="true"</code> makes clicking one toggle un-check the others in its group —
+            radio-button-like behaviour. Note this is <strong>not</strong> a robust
+            <code>name</code>-based group: by default the group is whatever <code>&lt;juel-toggle&gt;</code>
+            siblings share the same parent element, so restructuring the surrounding markup can silently
+            split a group apart.
+        </p>
+        <div class="example-demo">
+            <juel-toggle singular="true"></juel-toggle>
+            <juel-toggle singular="true" rounded="true"></juel-toggle>
+            <juel-toggle singular="true"></juel-toggle>
+            <juel-toggle singular="true" rounded="true"></juel-toggle>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Singular, contained</h2>
+        <p>
+            <code>contained="true"</code> plus a <code>container</code> selector scopes the exclusive
+            group to the nearest ancestor matching that selector, instead of direct siblings —
+            useful when each toggle is wrapped in its own element, like a list item.
+        </p>
+        <div class="example-demo example-demo-column">
+            <ul>
+                <li><juel-toggle singular="true" contained="true" container="ul" content="Off|On"></juel-toggle> Option one</li>
+                <li><juel-toggle singular="true" contained="true" container="ul" content="Off|On"></juel-toggle> Option two</li>
+                <li><juel-toggle singular="true" contained="true" container="ul" content="Off|On"></juel-toggle> Option three</li>
+            </ul>
+        </div>
+    </section>
 
     <script>
-        const toggle = document.querySelectorAll('juel-toggle');
-        toggle.forEach(el => el.addEventListener('toggled', (e) => {
-            console.log(e.detail.value);
-        }));
+        document.querySelectorAll('juel-toggle').forEach(el =>
+            el.addEventListener('toggled', (e) => console.log('toggled', e.target, e.detail.value)));
     </script>
 </body>
 

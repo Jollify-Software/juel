@@ -1,0 +1,75 @@
+/* Shared layout for Juel component example pages. Link this after juel.js's
+   injected styles so component defaults (colours, spacing, fonts) still come
+   from the library itself — this file only styles the surrounding page. */
+
+body {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+}
+
+.example-back {
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--secondary);
+    text-decoration: none;
+}
+.example-back:hover {
+    text-decoration: underline;
+}
+
+.example-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.example-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: 1.75rem;
+}
+.example-header p {
+    margin: 0;
+    color: var(--secondary);
+    max-width: 40em;
+}
+.example-header code {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+}
+
+.example-section {
+    margin-bottom: 2.5rem;
+}
+.example-section h2 {
+    margin: 0 0 0.375rem;
+    font-size: 1.125rem;
+}
+.example-section > p {
+    margin: 0 0 1rem;
+    color: var(--secondary);
+    max-width: 40em;
+}
+.example-section code {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+}
+
+.example-demo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 0.5rem;
+}
+.example-demo.example-demo-column {
+    flex-direction: column;
+    align-items: flex-start;
+}

@@ -130,7 +130,7 @@ export class JuelToggle extends InputBase {
       () => when(label || glyph,
         () => html`<juel-button ${this.glyph ? forwardProperties({
         keys : this.glyph.split('|').map((g) => `--icon-${g}`),
-      }) : ''} type="${this.currentState}" label="${label}" glyph="${glyph}" id="trigger">${label}</juel-button`,
+      }) : ''} type="${this.currentState}" label="${label}" glyph="${glyph}" id="trigger">${label}</juel-button>`,
         () => html`<span class="${this.rounded  ? 'slider rounded' : 'slider'}"></span>`))}</slot>`;
   }
 
