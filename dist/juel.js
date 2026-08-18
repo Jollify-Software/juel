@@ -107477,8 +107477,9 @@ var _toolbar = require("./Toolbar/Toolbar");
 var _accordion = require("./Accordion/Accordion");
 var _tree = require("./Tree/Tree");
 var _scrollPane = require("./ScrollPane/ScrollPane");
+var _steps = require("./Steps/Steps");
 
-},{"./Nav/Nav":"4IUyQ","./Breadcrumb/Breadcrumb":"7rvSV","./Breadcrumb/BreadcrumbItem":"1jiN0","./Tabs/Tabs":"jnYlh","./Toolbar/Toolbar":"3Uxif","./Accordion/Accordion":"aNGrR","./Tree/Tree":"fbmp8","./ScrollPane/ScrollPane":"9aoYH"}],"4IUyQ":[function(require,module,exports,__globalThis) {
+},{"./Nav/Nav":"4IUyQ","./Breadcrumb/Breadcrumb":"7rvSV","./Breadcrumb/BreadcrumbItem":"1jiN0","./Tabs/Tabs":"jnYlh","./Toolbar/Toolbar":"3Uxif","./Accordion/Accordion":"aNGrR","./Tree/Tree":"fbmp8","./ScrollPane/ScrollPane":"9aoYH","./Steps/Steps":"jaKn0"}],"4IUyQ":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "JuelNav", ()=>JuelNav);
@@ -110802,6 +110803,179 @@ var ScrollPaneEvents;
     else if (0, module.exports) module.exports = Hammer;
     else window1[exportName] = Hammer;
 })(window, document, 'Hammer');
+
+},{}],"jaKn0":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "JuelStep", ()=>JuelStep);
+parcelHelpers.export(exports, "JuelSteps", ()=>JuelSteps);
+var _lit = require("lit");
+var _decoratorsJs = require("lit/decorators.js");
+var _navigationBase = require("../NavigationBase");
+var _juelComponent = require("../../_Base/JuelComponent");
+var _stepsEvents = require("./StepsEvents");
+var _stepsLess = require("bundle-text:./Steps.less");
+var _stepsLessDefault = parcelHelpers.interopDefault(_stepsLess);
+var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let JuelStep = class JuelStep extends (0, _juelComponent.JuelComponent) {
+    render() {
+        return (0, _lit.html)`<slot></slot>`;
+    }
+    constructor(){
+        super(...arguments);
+        this.label = '';
+        this.active = false;
+    }
+};
+JuelStep.styles = (0, _lit.css)`
+    :host {
+      display: none;
+    }
+    :host([active]) {
+      display: block;
+    }
+  `;
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelStep.prototype, "label", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: Boolean,
+        reflect: true
+    })
+], JuelStep.prototype, "active", void 0);
+JuelStep = __decorate([
+    (0, _decoratorsJs.customElement)('juel-step')
+], JuelStep);
+let JuelSteps = class JuelSteps extends (0, _navigationBase.NavigationBase) {
+    get _total() {
+        return this._steps && this._steps.length > 0 ? this._steps.length : this.totalSteps;
+    }
+    updated(changedProperties) {
+        super.updated(changedProperties);
+        this._syncActiveStep();
+    }
+    _syncActiveStep() {
+        var _this__steps;
+        (_this__steps = this._steps) === null || _this__steps === void 0 ? void 0 : _this__steps.forEach((step, index)=>{
+            step.active = index === this.current;
+        });
+    }
+    _handleSlotChange() {
+        this.requestUpdate();
+    }
+    next() {
+        this.goTo(this.current + 1);
+    }
+    previous() {
+        this.goTo(this.current - 1);
+    }
+    goTo(index) {
+        const total = this._total;
+        if (total === 0) return;
+        const clamped = Math.max(0, Math.min(index, total - 1));
+        if (clamped === this.current) return;
+        const previous = this.current;
+        this.current = clamped;
+        if (this.current > this._furthest) this._furthest = this.current;
+        this.dispatchEvent(new CustomEvent((0, _stepsEvents.StepsEvents).StepChanged, {
+            detail: {
+                current: this.current,
+                previous,
+                total
+            }
+        }));
+    }
+    _onStepClick(index) {
+        if (index <= this._furthest) this.goTo(index);
+    }
+    _onStepKeydown(e, index) {
+        if ((e.key === 'Enter' || e.key === ' ') && index <= this._furthest) {
+            e.preventDefault();
+            this.goTo(index);
+        }
+    }
+    render() {
+        const total = this._total;
+        const hasSteps = !!this._steps && this._steps.length > 0;
+        const indices = Array.from({
+            length: total
+        }, (_, i)=>i);
+        return (0, _lit.html)`
+      <ol class="steps-header" role="list">
+        ${indices.map((i)=>{
+            var _this__steps_i;
+            const state = i < this.current ? 'completed' : i === this.current ? 'active' : 'upcoming';
+            const reachable = i <= this._furthest;
+            const label = hasSteps ? (_this__steps_i = this._steps[i]) === null || _this__steps_i === void 0 ? void 0 : _this__steps_i.label : '';
+            return (0, _lit.html)`
+            <li class="step ${state}">
+              <div
+                class="circle"
+                role="button"
+                tabindex="${reachable ? '0' : '-1'}"
+                aria-current="${i === this.current ? 'step' : 'false'}"
+                aria-disabled="${!reachable}"
+                @click="${()=>this._onStepClick(i)}"
+                @keydown="${(e)=>this._onStepKeydown(e, i)}">
+                ${state === 'completed' ? (0, _lit.html)`<span class="check"></span>` : (0, _lit.html)`${i + 1}`}
+              </div>
+              ${label ? (0, _lit.html)`<span class="label">${label}</span>` : ''}
+            </li>`;
+        })}
+      </ol>
+      <div class="step-content" ?hidden="${!hasSteps}">
+        <slot @slotchange="${this._handleSlotChange}"></slot>
+      </div>
+    `;
+    }
+    constructor(){
+        super();
+        this.totalSteps = 0;
+        this.current = 0;
+        this._furthest = 0;
+        this.ripple = false;
+    }
+};
+JuelSteps.styles = (0, _lit.unsafeCSS)((0, _stepsLessDefault.default));
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: Number,
+        attribute: 'total-steps'
+    })
+], JuelSteps.prototype, "totalSteps", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: Number
+    })
+], JuelSteps.prototype, "current", void 0);
+__decorate([
+    (0, _decoratorsJs.queryAssignedElements)({
+        selector: 'juel-step'
+    })
+], JuelSteps.prototype, "_steps", void 0);
+JuelSteps = __decorate([
+    (0, _decoratorsJs.customElement)('juel-steps')
+], JuelSteps);
+
+},{"lit":"6MR4h","lit/decorators.js":"iBjLb","../NavigationBase":"fFRwm","../../_Base/JuelComponent":"6km1i","./StepsEvents":"ckU7Q","bundle-text:./Steps.less":"1RtVq","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"ckU7Q":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "StepsEvents", ()=>StepsEvents);
+var StepsEvents;
+(function(StepsEvents) {
+    StepsEvents["StepChanged"] = "step-changed";
+})(StepsEvents || (StepsEvents = {}));
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"1RtVq":[function(require,module,exports,__globalThis) {
+module.exports = ":host {\n  font-family: Arial, sans-serif;\n  display: block;\n}\n\n.steps-header {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  display: flex;\n}\n\n.step {\n  text-align: center;\n  flex-direction: column;\n  flex: 1;\n  align-items: center;\n  display: flex;\n  position: relative;\n}\n\n.step:not(:first-child):before {\n  content: \"\";\n  z-index: 0;\n  background: #dee2e6;\n  width: 100%;\n  height: 2px;\n  position: absolute;\n  top: 15px;\n  left: -50%;\n}\n\n.step.completed:not(:first-child):before, .step.active:not(:first-child):before {\n  background: var(--primary, #007bff);\n}\n\n.circle {\n  z-index: 1;\n  color: #6c757d;\n  background: #f8f9fa;\n  border: 2px solid #dee2e6;\n  border-radius: 50%;\n  justify-content: center;\n  align-items: center;\n  width: 30px;\n  height: 30px;\n  font-weight: bold;\n  transition: background-color .2s, border-color .2s, color .2s;\n  display: flex;\n  position: relative;\n}\n\n.step.completed .circle, .step.active .circle {\n  border-color: var(--primary, #007bff);\n}\n\n.step.completed .circle {\n  background: var(--primary, #007bff);\n  color: #fff;\n}\n\n.step.active .circle {\n  color: var(--primary, #007bff);\n}\n\n.circle[tabindex=\"0\"] {\n  cursor: pointer;\n}\n\n.circle[aria-disabled=\"true\"] {\n  cursor: default;\n}\n\n.circle:focus-visible {\n  outline: 2px solid var(--primary, #007bff);\n  outline-offset: 2px;\n}\n\n.check {\n  width: 14px;\n  height: 14px;\n  -webkit-mask-image: var(--icon-tick);\n  mask-image: var(--icon-tick);\n  background-color: #fff;\n  -webkit-mask-position: center;\n  mask-position: center;\n  -webkit-mask-repeat: no-repeat;\n  mask-repeat: no-repeat;\n}\n\n.label {\n  color: #6c757d;\n  margin-top: .5rem;\n  font-size: .8rem;\n}\n\n.step.active .label {\n  color: var(--dark, #212529);\n  font-weight: bold;\n}\n\n.step-content {\n  margin-top: 1.5rem;\n}\n";
 
 },{}],"1Ys6c":[function(require,module,exports,__globalThis) {
 var _chart = require("./Chart/Chart");

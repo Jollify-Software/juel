@@ -1,0 +1,103 @@
+:host {
+    display: block;
+    font-family: Arial, sans-serif;
+}
+
+.steps-header {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.step {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.step:not(:first-child)::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: -50%;
+    width: 100%;
+    height: 2px;
+    background: #dee2e6;
+    z-index: 0;
+}
+
+.step.completed:not(:first-child)::before,
+.step.active:not(:first-child)::before {
+    background: var(--primary, #007bff);
+}
+
+.circle {
+    position: relative;
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    color: #6c757d;
+    font-weight: bold;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.step.completed .circle,
+.step.active .circle {
+    border-color: var(--primary, #007bff);
+}
+
+.step.completed .circle {
+    background: var(--primary, #007bff);
+    color: #fff;
+}
+
+.step.active .circle {
+    color: var(--primary, #007bff);
+}
+
+.circle[tabindex="0"] {
+    cursor: pointer;
+}
+
+.circle[aria-disabled="true"] {
+    cursor: default;
+}
+
+.circle:focus-visible {
+    outline: 2px solid var(--primary, #007bff);
+    outline-offset: 2px;
+}
+
+.check {
+    width: 14px;
+    height: 14px;
+    background-color: #fff;
+    mask-image: var(--icon-tick);
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+
+.label {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.step.active .label {
+    color: var(--dark, #212529);
+    font-weight: bold;
+}
+
+.step-content {
+    margin-top: 1.5rem;
+}

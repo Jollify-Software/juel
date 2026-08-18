@@ -1,8 +1,132 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-steps total-steps="4"></juel-steps>
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Steps — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .steps-demo {
+            width: 100%;
+            max-width: 480px;
+        }
+        .steps-controls-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.25rem;
+        }
+        .step-body p {
+            margin: 0;
+            color: var(--secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Steps</h1>
+        <p>
+            <code>&lt;juel-steps&gt;</code> is a step-progress indicator for wizard-style flows.
+            Nest labelled <code>&lt;juel-step&gt;</code> panels for a self-contained wizard, or use
+            <code>total-steps</code> alone as a bare numbered indicator you drive externally. Call
+            <code>next()</code>/<code>previous()</code>/<code>goTo(index)</code>, or click any step
+            already reached.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic</h2>
+        <p>Each <code>&lt;juel-step label="…"&gt;</code> becomes one indicator and one content panel. Completed steps are clickable.</p>
+        <div class="example-demo example-demo-column">
+            <juel-steps id="basic-steps" class="steps-demo">
+                <juel-step label="Account">
+                    <div class="step-body"><p>Choose a username and password.</p></div>
+                </juel-step>
+                <juel-step label="Profile">
+                    <div class="step-body"><p>Tell us a bit about yourself.</p></div>
+                </juel-step>
+                <juel-step label="Confirm">
+                    <div class="step-body"><p>Review everything before finishing.</p></div>
+                </juel-step>
+                <juel-step label="Done">
+                    <div class="step-body"><p>You're all set.</p></div>
+                </juel-step>
+            </juel-steps>
+            <div class="steps-controls-row">
+                <juel-button id="basic-prev" type="secondary" render-style="outline" label="&larr; Previous"></juel-button>
+                <juel-button id="basic-next" type="secondary" render-style="outline" label="Next &rarr;"></juel-button>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Numbered only</h2>
+        <p><code>total-steps</code> alone renders a bare numbered indicator with no content panels of its own, for when you're managing the step content yourself.</p>
+        <div class="example-demo example-demo-column">
+            <juel-steps id="numbered-steps" class="steps-demo" total-steps="5"></juel-steps>
+            <div class="steps-controls-row">
+                <juel-button id="numbered-prev" type="secondary" render-style="outline" label="&larr; Previous"></juel-button>
+                <juel-button id="numbered-next" type="secondary" render-style="outline" label="Next &rarr;"></juel-button>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Form wizard</h2>
+        <p>Step panels can hold real fields — group them per step and drive progress with your own Next/Previous controls.</p>
+        <div class="example-demo example-demo-column">
+            <juel-steps id="wizard-steps" class="steps-demo">
+                <juel-step label="Account">
+                    <juel-text label="Username"></juel-text>
+                    <juel-text label="Email"></juel-text>
+                </juel-step>
+                <juel-step label="Profile">
+                    <juel-text label="Full name"></juel-text>
+                </juel-step>
+                <juel-step label="Done">
+                    <div class="step-body"><p>All fields collected — nothing left to submit in this demo.</p></div>
+                </juel-step>
+            </juel-steps>
+            <div class="steps-controls-row">
+                <juel-button id="wizard-prev" type="secondary" render-style="outline" label="&larr; Previous"></juel-button>
+                <juel-button id="wizard-next" type="secondary" render-style="outline" label="Next &rarr;"></juel-button>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Reacting to step-changed</h2>
+        <p>Listen for <code>step-changed</code> to bind the current step elsewhere on the page.</p>
+        <div class="example-demo example-demo-column">
+            <juel-steps id="output-steps" class="steps-demo" total-steps="4"></juel-steps>
+            <div class="steps-controls-row">
+                <juel-button id="output-prev" type="secondary" render-style="outline" label="&larr; Previous"></juel-button>
+                <juel-button id="output-next" type="secondary" render-style="outline" label="Next &rarr;"></juel-button>
+            </div>
+            <p style="margin-top: 1rem;">Step <strong id="output-current">1</strong> of <strong id="output-total">4</strong></p>
+        </div>
+    </section>
+
+    <script>
+        const wire = (stepsId, prevId, nextId) => {
+            const steps = document.getElementById(stepsId);
+            document.getElementById(prevId).addEventListener('click', () => steps.previous());
+            document.getElementById(nextId).addEventListener('click', () => steps.next());
+        };
+        wire('basic-steps', 'basic-prev', 'basic-next');
+        wire('numbered-steps', 'numbered-prev', 'numbered-next');
+        wire('wizard-steps', 'wizard-prev', 'wizard-next');
+        wire('output-steps', 'output-prev', 'output-next');
+
+        const outputSteps = document.getElementById('output-steps');
+        document.getElementById('output-total').textContent = outputSteps.totalSteps;
+        outputSteps.addEventListener('step-changed', (e) => {
+            document.getElementById('output-current').textContent = e.detail.current + 1;
+        });
+    </script>
+</body>
+
 </html>
