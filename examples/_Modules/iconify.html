@@ -1,17 +1,78 @@
-<html>
-    <head>
-        <script src="../../dist/juel.js"></script>
-    </head>
-    <body>
-        <ul>
-            <li>e: someone@someone.com</li>
-            <li>t: 123456</li>
-            <li>w red-blue: jollify.app</li>
-            <li>x: @jollify</li>
-            <li>fb: jollify</li>
-            <li>yt: @jollify</li>
-            <li>bs primary-secondary: @jollify</li>
-            <li>wa primary-secondary: @jollify</li>
-        </ul>
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Iconify — Juel Examples</title>
+    <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../_Shared/examples.css" />
+    <link rel="stylesheet" href="../demo.css" />
+    <style>
+        #contact-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        #contact-list .icon {
+            vertical-align: -0.2em;
+            margin-right: 0.4rem;
+        }
+    </style>
+</head>
+
+<body>
+    <a class="example-back" href="../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Iconify</h1>
+        <p>
+            <code>window.juel.icon.iconify(element?)</code> scans <code>&lt;li&gt;</code> elements
+            (every <code>&lt;ul&gt;</code> on the page, or just the one passed in) for a short text code
+            at the start — <code>e:</code>, <code>t:</code>, <code>yt:</code>, <code>fb:</code>, and so
+            on — and replaces it with the matching brand/contact icon. It's meant for turning a plain
+            contact list into an iconified one without hand-writing markup for each row. It doesn't run
+            automatically; call it once after your content is in the DOM.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Before</h2>
+        <p>The source list, before <code>iconify()</code> runs:</p>
+        <pre class="example-demo"><code>&lt;li&gt;e: hello@jollify.app&lt;/li&gt;
+&lt;li&gt;t: 01234 567890&lt;/li&gt;
+&lt;li&gt;w: jollify.app&lt;/li&gt;
+&lt;li&gt;x: @jollify&lt;/li&gt;
+&lt;li&gt;fb: jollify&lt;/li&gt;
+&lt;li&gt;yt: (https://youtube.com/@jollify)&lt;/li&gt;
+&lt;li&gt;bs: @jollify&lt;/li&gt;
+&lt;li&gt;wa: @jollify&lt;/li&gt;
+&lt;li&gt;tt: @jollify&lt;/li&gt;</code></pre>
+    </section>
+
+    <section class="example-section">
+        <h2>After</h2>
+        <p>The same list, once <code>iconify()</code> has run against it. A <code>(url)</code> right after the colon becomes a link around the icon.</p>
+        <div class="example-demo">
+            <ul id="contact-list">
+                <li>e: hello@jollify.app</li>
+                <li>t: 01234 567890</li>
+                <li>w: jollify.app</li>
+                <li>x: @jollify</li>
+                <li>fb: jollify</li>
+                <li>yt: (https://youtube.com/@jollify)</li>
+                <li>bs: @jollify</li>
+                <li>wa: @jollify</li>
+                <li>tt: @jollify</li>
+            </ul>
+        </div>
+    </section>
+
+    <script>
+        juel.icon.iconify(document.getElementById('contact-list'));
+    </script>
+</body>
+
 </html>

@@ -1,7 +1,7 @@
 const iconifyCodes = [
-    { code: 'tt', icon: 'tikTok' },
+    { code: 'tt', icon: 'tiktok' },
     { code: 'yt', icon: 'youtube', color: 'red' },
-    { code: 'e', icon: 'envelope' },
+    { code: 'e', icon: 'mail' },
     { code: 't', icon: 'phone' },
     { code: 'w', icon: 'globe' },
     { code: 'x', icon: 'x' },
@@ -11,12 +11,18 @@ const iconifyCodes = [
 ];
 
 export function IconifyMap() {
-    let pattern = '^(CODE) ?([\\w-]*)?: ?(\\(.*\\))?';
-    return iconifyCodes.map(icon => {
-        return {
-            pattern: new RegExp(pattern.replace('CODE', icon.code)),
-            icon: icon.icon,
-            color: icon.color
-        };
-    });
+    let pattern = '^(CODE) ?([\\w-]*)?: ?(?:\\((.*)\\))?';
+    // Longer codes must be tried before any shorter code that's a prefix of
+    // them (e.g. "wa" before "w") — otherwise the shorter pattern matches
+    // first and swallows the rest of the longer code as a bogus class
+    // override.
+    return [...iconifyCodes]
+        .sort((a, b) => b.code.length - a.code.length)
+        .map(icon => {
+            return {
+                pattern: new RegExp(pattern.replace('CODE', icon.code)),
+                icon: icon.icon,
+                color: icon.color
+            };
+        });
 }

@@ -6,15 +6,16 @@ import { MarkdownEditorEvents } from "../../MarkdownEditor/MarkdownEditorEvents"
 import { MessageBoxArgs } from "./MessageBoxArgs";
 import { MessageBoxPromptField } from "./MessageBoxPromptField";
 import { ElementFromHtml } from "../../_Utils/dom/ElementFromHtml";
+import { EscapeHtml } from "../../_Utils/EscapeHtml";
 
 var MessageBoxInputStrategies: {[id: string]: (args: MessageBoxArgs, msgBox: HTMLElement, field?: MessageBoxPromptField | null ) => void } = {};
 
 MessageBoxInputStrategies["text"] = (args, msgBox, field) => {
     let input: HTMLElement;
     if (!field) {
-        input = ElementFromHtml(`<juel-text style="flex-basis: 100%" value="${args.value ?? ""}"></juel-text>`);
+        input = ElementFromHtml(`<juel-text style="flex-basis: 100%" value="${EscapeHtml(args.value ?? "")}"></juel-text>`);
     } else {
-        input = ElementFromHtml(`<juel-text style="flex-basis: 100%" label="${upperFirst(field.name)}" value="${field.value ?? ""}"></juel-text>`);
+        input = ElementFromHtml(`<juel-text style="flex-basis: 100%" label="${EscapeHtml(upperFirst(field.name))}" value="${EscapeHtml(field.value ?? "")}"></juel-text>`);
     }
     input.addEventListener(EventNames.ValueChanged as any, (e: CustomEvent<ChangedEventArgs>) => {
         if (field) {

@@ -2,7 +2,9 @@ export function IconGet(name: string, svg: boolean = true): string {
     let style = getComputedStyle(document.body);
     let icon = style.getPropertyValue(`--icon-${name}`);
     if (icon) {
-        var data = /(?<=url\().*(?=\))/.exec(icon)[0];
+        let match = /(?<=url\().*(?=\))/.exec(icon);
+        if (!match) return '';
+        let data = match[0];
         let splitty = data.split(',');
         if (splitty.length > 1) {
             let decoded = (<any>decodeURIComponent(splitty[1]))

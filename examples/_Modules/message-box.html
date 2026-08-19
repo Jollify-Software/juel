@@ -1,16 +1,53 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <title>Message Box — Juel Examples</title>
     <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../_Shared/examples.css" />
 </head>
 
 <body>
-    <div class="container">
-        <h1>Icons</h1>
-        <button id="asterisk">Asterisk</button><button id="error">Error</button><button id="ex">Exclamation</button><button id="hand">Hand</button><button id="info">Information</button><button id="question">Question</button><button id="stop">Stop</button><button id="success">Success</button><button id="warning">Warning</button>
-        <h1>Prompt</h1>
-        <button id="text">Text</button><button id="name-description">Name Description</button><button id="markdown">Markdown</button>
-    </div>
+    <a class="example-back" href="../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Message Box</h1>
+        <p>
+            <code>window.juel.messageBox</code> shows a modal dialog. <code>error()</code>,
+            <code>success()</code>, <code>warning()</code> and <code>question()</code> are shorthands
+            around the general-purpose <code>show(args)</code>, which also supports prompts (a single
+            text field, several named fields, or a markdown-rendered value) and returns a promise that
+            resolves with whatever the user entered. Only one message box shows at a time — calling
+            <code>show()</code> again while one is already open is a no-op.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Icons</h2>
+        <p>The built-in icon/shorthand combinations.</p>
+        <div class="example-demo">
+            <juel-button type="secondary" render-style="outline" label="Asterisk" id="asterisk"></juel-button>
+            <juel-button type="danger" label="Error" id="error"></juel-button>
+            <juel-button type="secondary" render-style="outline" label="Exclamation" id="ex"></juel-button>
+            <juel-button type="secondary" render-style="outline" label="Hand" id="hand"></juel-button>
+            <juel-button type="info" label="Information" id="info"></juel-button>
+            <juel-button type="secondary" render-style="outline" label="Question" id="question"></juel-button>
+            <juel-button type="secondary" render-style="outline" label="Stop" id="stop"></juel-button>
+            <juel-button type="success" label="Success" id="success"></juel-button>
+            <juel-button type="warning" label="Warning" id="warning"></juel-button>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Prompts</h2>
+        <p><code>show()</code>'s promise resolves with the entered value once the user confirms.</p>
+        <div class="example-demo">
+            <juel-button type="primary" label="Text" id="text"></juel-button>
+            <juel-button type="primary" label="Name + description" id="name-description"></juel-button>
+            <juel-button type="primary" label="Markdown" id="markdown"></juel-button>
+        </div>
+    </section>
 
     <script>
         document.getElementById("asterisk").addEventListener("click", () => {
@@ -83,12 +120,11 @@
             });
         });
 
-
         document.getElementById("markdown").addEventListener("click", () => {
             juel.messageBox.show({
                 title: "Hello there",
                 prompt: "markdown",
-                value: `# Prompt for some Markdown  
+                value: `# Prompt for some Markdown
 😉`,
                 attr: {
                     "font-awesome": ""

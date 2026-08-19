@@ -92,4 +92,22 @@ describe("MessageBoxButtonStrategies", () => {
         click(msgBox.querySelector("#cancel"));
         expect(resolve).toHaveBeenCalledWith({ status: MessageBoxResultStatus.Cancel, value: "the-value" });
     });
+
+    test("YesNo: custom labels apply to their own button, not just 'ok' (regression: GetLabel ignored which button name was requested)", () => {
+        args.labels = { yes: "Confirm", no: "Deny" };
+        MessageBoxButtonStrategies[MessageBoxButtons.YesNo](args, msgBox, resolve, reject);
+
+        expect(msgBox.querySelector("#yes").getAttribute("label")).toBe("Confirm");
+        expect(msgBox.querySelector("#no").getAttribute("label")).toBe("Deny");
+    });
+
+    test("OKCancel: a label containing HTML-special characters is escaped, not injected as markup (regression: unescaped interpolation into an HTML string)", () => {
+        args.labels = { ok: `"><img src=x onerror=alert(1)>` };
+        MessageBoxButtonStrategies[MessageBoxButtons.OKCancel](args, msgBox, resolve, reject);
+
+        let okBtn = msgBox.querySelector("#ok");
+        expect(okBtn).not.toBeNull();
+        expect(msgBox.querySelector("img")).toBeNull();
+        expect(okBtn.getAttribute("label")).toBe(`"><img src=x onerror=alert(1)>`);
+    });
 });

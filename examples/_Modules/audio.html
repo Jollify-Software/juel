@@ -1,14 +1,54 @@
-<html>
-    <head>
-        <script src="../../dist/juel.js"></script>
-    </head>
-    <body>
-        <button onclick="play()">Play</button>
+<!doctype html>
+<html lang="en">
 
-        <script>
-            function play() {
-                var canPlay = juel.audio.play("../_Assets/click-mech.mp3");
-            }
-        </script>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <title>Audio — Juel Examples</title>
+    <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../_Shared/examples.css" />
+    <style>
+        .audio-status {
+            margin: 0;
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <a class="example-back" href="../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Audio</h1>
+        <p>
+            <code>window.juel.audio.play(src)</code> plays a sound by URL. It returns <code>true</code>
+            if playback started, or <code>false</code> if that same <code>src</code> is already playing —
+            calling it again on a still-playing sound is a no-op rather than restarting or layering it.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Play a sound</h2>
+        <p>Each button plays a different file. Click one twice quickly to see the dedup in action — the second call returns <code>false</code> until the first finishes.</p>
+        <div class="example-demo">
+            <juel-button type="primary" label="Click" id="play-click"></juel-button>
+            <juel-button type="secondary" render-style="outline" label="Shepherd's Hey" id="play-jig"></juel-button>
+        </div>
+        <p class="audio-status" id="audio-status">Play a sound to see its return value here.</p>
+    </section>
+
+    <script>
+        function bind(buttonId, src) {
+            document.getElementById(buttonId).addEventListener('click', () => {
+                const started = juel.audio.play(src);
+                document.getElementById('audio-status').textContent =
+                    `juel.audio.play(${JSON.stringify(src)}) → ${started}` +
+                    (started ? '' : ' (already playing)');
+            });
+        }
+        bind('play-click', '../_Assets/click-mech.mp3');
+        bind('play-jig', '../_Assets/Shepherd_Hey.mp3');
+    </script>
+</body>
+
 </html>

@@ -3,11 +3,17 @@ import { MessageBoxResultStatus } from './MessageBoxResultStatus';
 import { MessageBoxArgs } from './MessageBoxArgs';
 import { MessageBoxResult } from './MessageBoxResult';
 import { ElementFromHtml } from '../../_Utils/dom/ElementFromHtml';
+import { EscapeHtml } from '../../_Utils/EscapeHtml';
 
 var MessageBoxButtonStrategies: {[id: number]: (args: MessageBoxArgs, msgBox: HTMLElement, resolve: (value: MessageBoxResult) => void, resect: (reason?: any) => void ) => void } = {};
 
 function GetLabel(args: MessageBoxArgs, name: string, label: string) {
-    return args.labels && name in args.labels ? args.labels["ok"] : label;
+    // Was hardcoded to args.labels["ok"] regardless of which button's name
+    // was actually requested, so custom labels/`{ yes, no, ... }` etc. only
+    // ever worked (by coincidence) for the "ok" button — every other one
+    // rendered the literal string "undefined".
+    let value = args.labels && name in args.labels ? args.labels[name] : label;
+    return EscapeHtml(value);
 }
 
 MessageBoxButtonStrategies[MessageBoxButtons.OK] = function(args, msgBox, resolve, reject) {

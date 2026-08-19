@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Guide — Juel Examples</title>
+    <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../_Shared/examples.css" />
+    <style>
+        .guide-target {
+            padding: 0.75rem 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            background: #fff;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <a class="example-back" href="../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Guide</h1>
+        <p>
+            <code>window.juel.guide</code> walks visitors through a page with a dimmed overlay, a
+            highlight box around each step's target element, and a tooltip. <code>start(steps,
+            options)</code> takes an array of <code>{ selector, title, description }</code> steps;
+            arrow keys move between steps and Escape ends the tour early.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic</h2>
+        <p>Highlights three elements on this page in turn.</p>
+        <div class="example-demo">
+            <div id="guide-step-1" class="guide-target">Step one target</div>
+            <div id="guide-step-2" class="guide-target">Step two target</div>
+            <div id="guide-step-3" class="guide-target">Step three target</div>
+            <juel-button type="primary" label="Start tour" id="start-basic-guide"></juel-button>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Starting a different tour</h2>
+        <p>Calling <code>start()</code> again — even while a tour set up by an earlier call is still showing — always uses the steps just given, not whatever the first call was showing.</p>
+        <div class="example-demo">
+            <juel-button type="secondary" render-style="outline" label="Start tour A" id="start-tour-a"></juel-button>
+            <juel-button type="secondary" render-style="outline" label="Start tour B" id="start-tour-b"></juel-button>
+        </div>
+    </section>
+
+    <script>
+        const steps = [
+            { selector: '#guide-step-1', title: 'Step one', description: 'This is the first thing to notice.' },
+            { selector: '#guide-step-2', title: 'Step two', description: 'Now look over here.' },
+            { selector: '#guide-step-3', title: 'Step three', description: "That's the whole tour." },
+        ];
+
+        document.getElementById('start-basic-guide').addEventListener('click', () => {
+            juel.guide.start(steps, {
+                onEnd: () => console.log('guide ended'),
+            });
+        });
+
+        document.getElementById('start-tour-a').addEventListener('click', () => {
+            juel.guide.start([steps[0]], {});
+        });
+        document.getElementById('start-tour-b').addEventListener('click', () => {
+            juel.guide.start([steps[2]], {});
+        });
+    </script>
+</body>
+
+</html>

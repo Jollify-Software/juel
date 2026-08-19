@@ -18,9 +18,8 @@ export function Iconify(element: HTMLUListElement = null) {
                     }
                     li.innerHTML = li.innerHTML.replace(icon.pattern, (match, code, klass, href) => {
                         let str = value;
-                        //klass = klass.replace('-', ' ');
                         if (!klass) {
-                            
+                            // no per-icon class override
                         } else if (klass.includes('background')) {
                             str = `<span class="icon sm ${icon.icon} ${klass}"></span>`;
                         } else {

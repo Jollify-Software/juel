@@ -8,10 +8,16 @@ export module AudioModule {
                 audios = {};
             }
             audios[src] = audio;
-            audio.onended = () => {
+            const forget = () => {
                 delete audios[src];
-            }
-            audio.play();
+            };
+            audio.onended = forget;
+            // A failed load (bad src, network error) never fires onended,
+            // and a rejected play() (e.g. blocked by autoplay policy) never
+            // starts playing at all — either way, without this the src stays
+            // marked "in progress" forever and can never be played again.
+            audio.onerror = forget;
+            audio.play().catch(forget);
             return true;
         } else {
             return false;

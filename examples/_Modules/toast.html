@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Toast — Juel Examples</title>
+    <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../_Shared/examples.css" />
+</head>
+
+<body>
+    <a class="example-back" href="../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Toast</h1>
+        <p>
+            <code>window.juel.toast</code> shows a stack of dismissing-after-a-delay notifications in
+            the bottom-right corner. <code>success()</code>, <code>error()</code>,
+            <code>warning()</code> and <code>into()</code> are shorthands for
+            <code>show({ message, type, duration })</code>. Every call shares one stack, so multiple
+            toasts queue underneath each other instead of overlapping.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Types</h2>
+        <p>Each type gets its own color and, for <code>success</code>, a longer default duration (5s vs 3s).</p>
+        <div class="example-demo">
+            <juel-button type="success" label="Success" id="toast-success"></juel-button>
+            <juel-button type="danger" label="Error" id="toast-error"></juel-button>
+            <juel-button type="warning" label="Warning" id="toast-warning"></juel-button>
+            <juel-button type="info" label="Info" id="toast-info"></juel-button>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Stacking</h2>
+        <p>Firing several at once queues them in a single stack rather than overlapping.</p>
+        <div class="example-demo">
+            <juel-button type="secondary" render-style="outline" label="Show 3 toasts" id="toast-stack"></juel-button>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('toast-success').addEventListener('click', () => juel.toast.success('Saved successfully.'));
+        document.getElementById('toast-error').addEventListener('click', () => juel.toast.error('Something went wrong.'));
+        document.getElementById('toast-warning').addEventListener('click', () => juel.toast.warning('Check this before continuing.'));
+        document.getElementById('toast-info').addEventListener('click', () => juel.toast.into('Here is some information.'));
+
+        document.getElementById('toast-stack').addEventListener('click', () => {
+            juel.toast.success('First toast');
+            juel.toast.warning('Second toast');
+            juel.toast.error('Third toast');
+        });
+    </script>
+</body>
+
+</html>

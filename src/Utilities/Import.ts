@@ -4,3 +4,4 @@ import './Countdown/Countdown';
 import './Trigger/Trigger';
 import './Scroll/Scroll';
 import './Scanner/Scanner';
+import './Embed/Embed';

@@ -1,23 +1,95 @@
-<html>
-    <head>
-        <script src="../../dist/juel.js"></script>
-        <style>
-            div {
-                width: 100px;
-            }
-        </style>
-    </head>
-    <body>
-        <juel-icons icons="smile"></juel-icons>
-        <div id="use-smile"></div>
-        <div id="another-smile"></div>
+<!doctype html>
+<html lang="en">
 
-        <script>
-            console.log(juel.icon.get("smile"))
-           document.getElementById("use-smile").innerHTML = 
-               juel.icon.get("smile");
-            document.getElementById("another-smile").innerHTML =
-                juel.icon.use("smile");
-        </script>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <title>Icon — Juel Examples</title>
+    <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../_Shared/examples.css" />
+    <link rel="stylesheet" href="../demo.css" />
+    <style>
+        .icon-demo-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+            color: var(--secondary);
+        }
+        .icon-demo-item .icon {
+            width: 32px;
+            height: 32px;
+        }
+        .icon-output {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .icon-output svg {
+            width: 32px;
+            height: 32px;
+        }
+    </style>
+</head>
+
+<body>
+    <a class="example-back" href="../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Icon</h1>
+        <p>
+            <code>window.juel.icon</code> reads icons out of CSS custom properties named
+            <code>--icon-&lt;name&gt;</code> (each one a data-URL SVG). Icons are usually just applied
+            as a class — <code>&lt;span class="icon smile"&gt;&lt;/span&gt;</code> — but the module also
+            exposes ways to pull an icon out as markup.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>As a class</h2>
+        <p>The normal way to show an icon — no JS needed, just <code>.icon.&lt;name&gt;</code> plus a size (<code>sm</code>/<code>md</code>/<code>lg</code>).</p>
+        <div class="example-demo">
+            <div class="icon-demo-item"><span class="icon lg smile"></span>smile</div>
+            <div class="icon-demo-item"><span class="icon lg bold"></span>bold</div>
+            <div class="icon-demo-item"><span class="icon lg list"></span>list</div>
+            <div class="icon-demo-item"><span class="icon lg quote"></span>quote</div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2><code>get()</code> vs <code>use()</code></h2>
+        <p>
+            <code>juel.icon.get(name)</code> returns a self-contained <code>&lt;svg&gt;</code> string —
+            simple, but duplicates the full path data every time it's called.
+            <code>juel.icon.use(name)</code> instead injects the icon once into a shared, hidden sprite
+            and returns a small <code>&lt;svg&gt;&lt;use&gt;</code> reference to it — cheaper when the
+            same icon appears many times on a page.
+        </p>
+        <div class="example-demo icon-output">
+            <div id="get-output"></div>
+            <div id="use-output"></div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2><code>exists()</code></h2>
+        <p>Checks whether a <code>--icon-&lt;name&gt;</code> custom property is defined, without rendering anything.</p>
+        <div class="example-demo">
+            <juel-button type="secondary" render-style="outline" label="Check 'smile' and 'not-a-real-icon'" id="check-exists"></juel-button>
+        </div>
+        <p class="audio-status" id="exists-output" style="margin-top: 0.75rem; color: var(--secondary); font-size: 0.875rem;"></p>
+    </section>
+
+    <script>
+        document.getElementById('get-output').innerHTML = juel.icon.get('smile');
+        document.getElementById('use-output').innerHTML = juel.icon.use('smile');
+
+        document.getElementById('check-exists').addEventListener('click', () => {
+            const smile = juel.icon.exists('smile');
+            const fake = juel.icon.exists('not-a-real-icon');
+            document.getElementById('exists-output').textContent =
+                `exists('smile') → ${smile}, exists('not-a-real-icon') → ${fake}`;
+        });
+    </script>
+</body>
+
 </html>

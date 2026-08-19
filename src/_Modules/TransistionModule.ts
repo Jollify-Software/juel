@@ -1,8 +1,15 @@
 import { CopyComputedStyles } from "../_Utils/CopyComutedStyles";
-import { CopyStyles } from "../_Utils/CopyStyles";
 
 export module TransitionModule {
     const transitionNameRegEx = /(transition-?[0-9a-z]*)/;
+
+    function restoreStyle(element: HTMLElement, styles: string | null) {
+        if (styles === null) {
+            element.removeAttribute("style");
+        } else {
+            element.setAttribute("style", styles);
+        }
+    }
 
     export var initTransitions = () => {
         var elements = document.querySelectorAll('[class*="transition"]');
@@ -17,8 +24,7 @@ export module TransitionModule {
             CopyComputedStyles(previous, element)
             setTimeout(() => {
                 element.classList.add("transition");
-                console.log(styles)
-                element.setAttribute("style", styles)
+                restoreStyle(element, styles);
             }, 10);
         }
     }
@@ -26,7 +32,6 @@ export module TransitionModule {
         let result = transitionNameRegEx.exec(element.className);
         if (result && result.length > 0) {
             let lastMatch = result[result.length-1];
-            console.log("Searching for transitions named: " + lastMatch)
             let elements = Array.from(document.querySelectorAll(`.${lastMatch}`));
             let index = elements.indexOf(element);
             if (index == 0) {
@@ -38,8 +43,7 @@ export module TransitionModule {
             CopyComputedStyles(previous, element)
             setTimeout(() => {
                 element.classList.add("transition");
-                console.log(styles)
-                element.setAttribute("style", styles)
+                restoreStyle(element, styles);
             }, 10);
         }
     }

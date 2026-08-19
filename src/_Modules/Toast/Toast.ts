@@ -14,6 +14,8 @@ export class Toast {
       if (!this.container) {
         this.container = document.createElement("div");
         this.container.id = "toast-container";
+        this.container.setAttribute("role", "status");
+        this.container.setAttribute("aria-live", "polite");
         this.container.style.position = "fixed";
         this.container.style.bottom = "20px";
         this.container.style.right = "20px";

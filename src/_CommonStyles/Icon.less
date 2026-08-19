@@ -5,6 +5,13 @@
 .icon {
     .icn();
     display: inline-block;
+    // Icons are rendered via mask-image (see Icons.less and the per-category
+    // *-icons.less files) — with no background behind the mask, nothing is
+    // visible at all unless a background-color/-image is set some other way
+    // (e.g. Iconify's "background-X" modifier classes). currentColor is a
+    // sensible default so a plain .icon.name at least shows up, tinted to
+    // match its surrounding text.
+    background-color: currentColor;
     &.lg {
         width: 48px;
         height: 48px;

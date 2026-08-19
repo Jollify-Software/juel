@@ -26,7 +26,6 @@ export class JuelTrigger extends CommandComponent {
         if (this.event) {
             this.element.addEventListener(this.event, this.onEvent);
         }
-        console.log(this.element)
     }
 
     disconnectedCallback(): void {
@@ -44,9 +43,6 @@ export class JuelTrigger extends CommandComponent {
 
     @bind
     onEvent(e: Event) {
-        console.log(this.event);
-        console.log(e);
-        console.log(this.actions);
         if (this.actions) {
             for (let action of this.actions) {
                 if (action.condition) {
@@ -67,7 +63,6 @@ export class JuelTrigger extends CommandComponent {
     }
 
     performAction(action: TriggerAction = null) {
-        console.log(action);
         if (!action) {
             if (this.action && this.element &&
                 this.action in this.element) {
@@ -84,7 +79,8 @@ export class JuelTrigger extends CommandComponent {
                             this.element.classList.add(action.arguments);
                             if (action.arguments.startsWith("transition")) {
                                 TransitionModule.transitionElement(this.element);
-                            }   
+                            }
+                            break;
                         default:
                             if (action.action in this.element) {
                             // TODO: Call with parameters

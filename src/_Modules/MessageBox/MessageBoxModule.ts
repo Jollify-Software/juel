@@ -6,6 +6,7 @@ import MessageBoxIconStrategies from "./MessageBoxIconStrategies";
 import MessageBoxInputStrategies from "./MessageBoxInputStrategies";
 import Styles from 'bundle-text:./MessageBoxStyles.less'
 import { ElementFromHtml } from "../../_Utils/dom/ElementFromHtml";
+import { EscapeHtml } from "../../_Utils/EscapeHtml";
 
 export module MessageBoxModule {
 
@@ -64,10 +65,10 @@ export module MessageBoxModule {
         <style>${Styles}</style>
         <div id="dialog">
         <div id="dialog-title">
-        <span>${args.title}</span>
+        <span>${EscapeHtml(args.title)}</span>
         </div>
         <div id="dialog-body">
-        ${args.text ? `<p>${args.text}</p>` : ``}
+        ${args.text ? `<p>${EscapeHtml(args.text)}</p>` : ``}
         </div>
         </div>
         </div>`);
