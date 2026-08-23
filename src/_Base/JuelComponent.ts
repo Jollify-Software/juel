@@ -16,7 +16,7 @@ export class JuelComponent extends LitElement {
     template: string;
 
     protected firstUpdated(_changedProperties?: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
-        if (this.ripple) {
+        if (this.ripple && this.shadowRoot) {
             RippleEffect.init(this.shadowRoot);
         }
         if (this.parentElement && 'childFirstUpdated' in this.parentElement) {

@@ -1,25 +1,153 @@
-<html>
-    <head>
-        <script src="../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-animate id="animate-square" selector="#square" loop="true">
-            <juel-animate-frame properties="translateX: +=300px;translateY: +=0"></juel-animate-frame>
-            <juel-animate-frame properties="translateX: +=0;translateY: +=300px"></juel-animate-frame>
-            <juel-animate-frame properties="translateX: -=300px;translateY: +=0"></juel-animate-frame>
-            <juel-animate-frame properties="translateX: +=0;translateY: -=300px"></juel-animate-frame>
-        </juel-animate>
+<!doctype html>
+<html lang="en">
 
-        <button onclick="go()">Animate</button>
-        <div style="width:400px;height:400px;border:5px solid black">
-            <div id="square" style="width:100px;height:100px;background:blue;"></div>
+<head>
+    <meta charset="utf-8">
+    <title>Animate — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .animate-stage {
+            width: 400px;
+            max-width: 100%;
+            height: 400px;
+            border: 3px solid var(--dark, #343a40);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .animate-square {
+            width: 100px;
+            height: 100px;
+            background: var(--primary, #007bff);
+            border-radius: 4px;
+        }
+        .animate-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .animate-properties {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+        .animate-property {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 160px;
+        }
+        .animate-property label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--secondary, #6c757d);
+        }
+        .animate-property select,
+        .animate-property input[type="range"] {
+            font: inherit;
+        }
+        .animate-property .range-value {
+            font-size: 0.8125rem;
+            color: var(--secondary, #6c757d);
+        }
+    </style>
+</head>
+
+<body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Animate</h1>
+        <p>
+            <code>&lt;juel-animate selector="..."&gt;</code> wraps a keyframe sequence for a target
+            element, built from <code>&lt;juel-animate-frame&gt;</code> children (each with
+            <code>properties</code>, <code>duration</code>, <code>delay</code>, and
+            <code>easing</code>), powered by <a href="https://animejs.com/">anime.js</a>.
+            Call <code>play()</code>, <code>pause()</code>, or <code>stop()</code> on the element
+            to control it.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic keyframe loop</h2>
+        <p>Four keyframes moving the square around a square path, looping continuously.</p>
+
+        <div class="animate-controls">
+            <juel-button type="primary" onclick="document.getElementById('animate-square').play()">Play</juel-button>
+            <juel-button type="secondary" render-style="outline" onclick="document.getElementById('animate-square').pause()">Pause</juel-button>
+            <juel-button type="secondary" render-style="outline" onclick="document.getElementById('animate-square').stop()">Stop</juel-button>
         </div>
 
-        <script>
-            function go() {
-                var el = document.getElementById("animate-square");
-                el.play();
+        <div class="example-demo">
+            <div class="animate-stage">
+                <juel-animate id="animate-square" selector="#square" loop="true">
+                    <juel-animate-frame properties="translateX: +=300px;translateY: +=0"></juel-animate-frame>
+                    <juel-animate-frame properties="translateX: +=0;translateY: +=300px"></juel-animate-frame>
+                    <juel-animate-frame properties="translateX: -=300px;translateY: +=0"></juel-animate-frame>
+                    <juel-animate-frame properties="translateX: +=0;translateY: -=300px"></juel-animate-frame>
+                </juel-animate>
+                <div id="square" class="animate-square"></div>
+            </div>
+        </div>
+
+        <h2>Properties</h2>
+        <p>Change these live — they stop the animation, apply the new settings, and leave it ready to play again.</p>
+        <div class="animate-properties">
+            <div class="animate-property">
+                <label for="easing-select">Easing</label>
+                <select id="easing-select" onchange="setEasing('animate-square', this.value)">
+                    <option value="">linear (default)</option>
+                    <option value="easeInQuad">easeInQuad</option>
+                    <option value="easeOutQuad">easeOutQuad</option>
+                    <option value="easeInOutQuad">easeInOutQuad</option>
+                    <option value="easeInElastic">easeInElastic</option>
+                    <option value="easeOutElastic">easeOutElastic</option>
+                    <option value="easeInBounce">easeInBounce</option>
+                    <option value="easeOutBounce">easeOutBounce</option>
+                </select>
+            </div>
+            <div class="animate-property">
+                <label for="duration-range">Duration per leg: <span class="range-value" id="duration-value">1000ms</span></label>
+                <input type="range" id="duration-range" min="200" max="3000" step="100" value="1000"
+                    oninput="document.getElementById('duration-value').textContent = this.value + 'ms'"
+                    onchange="setDuration('animate-square', this.value)" />
+            </div>
+            <div class="animate-property">
+                <label>Loop</label>
+                <juel-toggle id="loop-toggle" checked></juel-toggle>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function stopAndRecompile(id) {
+            const el = document.getElementById(id);
+            el.stop();
+            el.compile();
+        }
+
+        function setEasing(id, value) {
+            const el = document.getElementById(id);
+            el.easing = value || undefined;
+            stopAndRecompile(id);
+        }
+
+        function setDuration(id, ms) {
+            const el = document.getElementById(id);
+            if (el.frames) {
+                el.frames.forEach(f => f.duration = Number(ms));
             }
-        </script>
-    </body>
+            stopAndRecompile(id);
+        }
+
+        document.getElementById('loop-toggle').addEventListener('toggled', (e) => {
+            const el = document.getElementById('animate-square');
+            el.loop = e.detail.value;
+            stopAndRecompile('animate-square');
+        });
+    </script>
+</body>
+
 </html>

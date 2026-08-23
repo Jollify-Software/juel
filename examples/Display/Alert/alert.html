@@ -1,28 +1,101 @@
-<html>
-    <head>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Alert — Juel Examples</title>
     <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
 </head>
+
 <body>
-    <juel-alert type="info">
-        This is an informational alert.
-    </juel-alert>
-    <juel-alert type="success">
-        This is an informational alert.
-    </juel-alert>
-    <juel-alert type="danger">
-        This is an informational alert.
-    </juel-alert>
-    <juel-alert type="warning">
-        This is an informational alert.
-    </juel-alert>
-    <juel-alert type="dark">
-        This is an informational alert.
-    </juel-alert>
-    <juel-alert type="light">
-        This is an informational alert.
-    </juel-alert>
-    <juel-alert type="info">
-        This is an informational alert.
-    </juel-alert>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Alert</h1>
+        <p>
+            <code>&lt;juel-alert type="..."&gt;</code> is a dismissible message banner.
+            <code>title</code> adds a bold heading, <code>closeable</code> shows a close button
+            (fires an <code>alert-closed</code> event), <code>icon</code> reserves space for an
+            <code>icon</code>-slotted glyph, <code>dense</code> tightens the padding, and
+            <code>elevation</code> (0-24) adds a drop shadow.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Types</h2>
+        <p>The <code>type</code> attribute selects the semantic colour.</p>
+        <div class="example-demo example-demo-column">
+            <juel-alert type="primary">This is a primary alert.</juel-alert>
+            <juel-alert type="secondary">This is a secondary alert.</juel-alert>
+            <juel-alert type="tertiary">This is a tertiary alert.</juel-alert>
+            <juel-alert type="info">This is an info alert.</juel-alert>
+            <juel-alert type="success">This is a success alert.</juel-alert>
+            <juel-alert type="warning">This is a warning alert.</juel-alert>
+            <juel-alert type="danger">This is a danger alert.</juel-alert>
+            <juel-alert type="light">This is a light alert.</juel-alert>
+            <juel-alert type="dark">This is a dark alert.</juel-alert>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Render style</h2>
+        <p><code>render-style="outline"</code> swaps the filled background for a bordered, transparent one.</p>
+        <div class="example-demo example-demo-column">
+            <juel-alert type="info" render-style="outline">This is an outlined info alert.</juel-alert>
+            <juel-alert type="danger" render-style="outline">This is an outlined danger alert.</juel-alert>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Title</h2>
+        <p>An optional bold heading above the alert's content.</p>
+        <div class="example-demo">
+            <juel-alert type="success" title="Success">Your changes have been saved.</juel-alert>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Closeable</h2>
+        <p>Adds a close button that hides the alert and fires <code>alert-closed</code>.</p>
+        <div class="example-demo">
+            <juel-alert type="warning" closeable title="Heads up">This alert can be dismissed.</juel-alert>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Icon</h2>
+        <p>The <code>icon</code> attribute reserves a slot for an <code>icon</code>-slotted glyph.</p>
+        <div class="example-demo example-demo-column">
+            <juel-alert type="success" icon title="Done">
+                <span slot="icon" class="icon lg success"></span>
+                The operation completed successfully.
+            </juel-alert>
+            <juel-alert type="danger" icon title="Error" closeable>
+                <span slot="icon" class="icon lg error"></span>
+                Something went wrong — please try again.
+            </juel-alert>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Dense</h2>
+        <p><code>dense</code> reduces the padding for a more compact alert.</p>
+        <div class="example-demo example-demo-column">
+            <juel-alert type="info" dense>A dense info alert.</juel-alert>
+            <juel-alert type="info">A regular info alert, for comparison.</juel-alert>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Elevation</h2>
+        <p><code>elevation</code> (0-24) adds a drop shadow, like MudBlazor's elevation scale.</p>
+        <div class="example-demo">
+            <juel-alert type="light" elevation="2">Elevation 2</juel-alert>
+            <juel-alert type="light" elevation="8">Elevation 8</juel-alert>
+            <juel-alert type="light" elevation="16">Elevation 16</juel-alert>
+        </div>
+    </section>
 </body>
+
 </html>

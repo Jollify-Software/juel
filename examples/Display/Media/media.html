@@ -1,12 +1,75 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
-  <script src="../../../dist/juel.js"></script>
+    <meta charset="utf-8">
+    <title>Media — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .media-frame {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            height: 240px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+    </style>
 </head>
 
 <body>
-  <juel-media background="true" src="https://jollify.app/video/beach.mp4">
-    </juel-media>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Media</h1>
+        <p>
+            <code>&lt;juel-media src="..."&gt;</code> renders an image, video, or audio player,
+            auto-detected from the URL's extension or hostname. <code>background</code> makes it
+            fill its (positioned) container muted/looping/autoplaying; <code>alt</code> sets image
+            alt text; <code>blend</code> composites multiple space-separated image sources with a
+            CSS <code>background-blend-mode</code>.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Image</h2>
+        <p>A plain <code>&lt;img&gt;</code> is rendered when the source isn't a recognised video/audio type.</p>
+        <div class="example-demo">
+            <juel-media src="https://picsum.photos/seed/juel-media/400/240" alt="A random placeholder photo"></juel-media>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Video (controls)</h2>
+        <p>A recognised video extension (or platform hostname) renders a <code>&lt;video&gt;</code> with controls.</p>
+        <div class="example-demo">
+            <juel-media src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"></juel-media>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Background video</h2>
+        <p><code>background</code> switches to an autoplaying, muted, looping video that fills its container — the host becomes absolutely positioned, so wrap it in a <code>position: relative</code> box.</p>
+        <div class="example-demo">
+            <div class="media-frame">
+                <juel-media background src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"></juel-media>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Blended images</h2>
+        <p>Multiple space-separated image sources with <code>blend</code> composite together via <code>background-blend-mode</code>.</p>
+        <div class="example-demo">
+            <div class="media-frame">
+                <juel-media background
+                    blend="multiply"
+                    src="https://picsum.photos/seed/juel-a/400/240 https://picsum.photos/seed/juel-b/400/240">
+                </juel-media>
+            </div>
+        </div>
+    </section>
 </body>
 
 </html>

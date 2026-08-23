@@ -1,17 +1,93 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <hr>
-        <juel-button type="primary">Launch App
-            <juel-badge type="primary" label="Primary"></juel-badge>
-        </juel-button>
-        <juel-button type="Info">Check Mail
-            <juel-badge type="Danger" label="10"></juel-badge>
-        </juel-button>
-        <juel-button type="Secondary">Download
-            <juel-badge type="success" label="New"></juel-badge>
-        </juel-button>
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Badge — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .badge-anchor {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            background: var(--secondary-text, #eee);
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Badge</h1>
+        <p>
+            <code>&lt;juel-badge label="..."&gt;</code> renders a small pill, absolutely positioned
+            at a corner (<code>position</code>, default <code>ne</code>) of its nearest positioned
+            ancestor. Wrap it around (or alongside) content with <code>position: relative</code> —
+            <code>label</code> supplies default text, or slot in your own content instead.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Types</h2>
+        <p>The <code>type</code> attribute selects the semantic colour.</p>
+        <div class="example-demo">
+            <span class="badge-anchor"><juel-badge type="primary" label="1"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="secondary" label="2"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="tertiary" label="3"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="info" label="4"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="success" label="5"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="warning" label="6"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="danger" label="99+"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="dark" label="9"></juel-badge></span>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Render style</h2>
+        <p><code>render-style="outline"</code> swaps the filled background for a bordered, transparent one.</p>
+        <div class="example-demo">
+            <span class="badge-anchor"><juel-badge type="danger" render-style="outline" label="3"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="success" render-style="outline" label="New"></juel-badge></span>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Position</h2>
+        <p>All eight compass positions, anchored to the corner or edge of the wrapping element.</p>
+        <div class="example-demo">
+            <span class="badge-anchor"><juel-badge type="primary" position="n" label="n"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="primary" position="ne" label="ne"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="primary" position="e" label="e"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="primary" position="se" label="se"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="primary" position="s" label="s"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="primary" position="sw" label="sw"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="primary" position="w" label="w"></juel-badge></span>
+            <span class="badge-anchor"><juel-badge type="primary" position="nw" label="nw"></juel-badge></span>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Slotted content</h2>
+        <p>Slotted children override the <code>label</code> fallback.</p>
+        <div class="example-demo">
+            <span class="badge-anchor"><juel-badge type="warning" label="fallback (unused)">&#9733;</juel-badge></span>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>On a button</h2>
+        <p>A common real-world case: a notification count badge on a button, which already establishes its own positioned container.</p>
+        <div class="example-demo">
+            <juel-button type="primary">Inbox
+                <juel-badge type="danger" label="3"></juel-badge>
+            </juel-button>
+        </div>
+    </section>
+</body>
+
 </html>

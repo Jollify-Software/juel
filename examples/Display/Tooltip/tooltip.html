@@ -1,14 +1,59 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-tooltip text="This is a tooltip!">
-            <button>Hover over me!</button>
-        </juel-tooltip>
+<!doctype html>
+<html lang="en">
 
-        <juel-tooltip text="Another tooltip!">
-            <button>Hover over me too!</button>
-        </juel-tooltip>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <title>Tooltip — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+</head>
+
+<body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Tooltip</h1>
+        <p>
+            <code>&lt;juel-tooltip text="..."&gt;</code> wraps its slotted trigger content and
+            shows a floating-ui-positioned tooltip on hover/focus. Slot a <code>tip</code> child
+            instead of <code>text</code> for richer tooltip content.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic</h2>
+        <p>Hover or focus the trigger to show the tooltip.</p>
+        <div class="example-demo">
+            <juel-tooltip text="This is a tooltip!">
+                <button>Hover over me!</button>
+            </juel-tooltip>
+
+            <juel-tooltip text="Another tooltip!">
+                <button>Hover over me too!</button>
+            </juel-tooltip>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Slotted tip content</h2>
+        <p>A <code>tip</code>-slotted child overrides <code>text</code> for richer content.</p>
+        <div class="example-demo">
+            <juel-tooltip>
+                <button>Hover for rich content</button>
+                <span slot="tip"><strong>Bold</strong> tooltip content</span>
+            </juel-tooltip>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Keyboard focus</h2>
+        <p>The tooltip also shows on keyboard focus, not just hover — tab to this link.</p>
+        <div class="example-demo">
+            <juel-tooltip text="Shown on focus too">
+                <a href="#" onclick="return false;">Focus me with Tab</a>
+            </juel-tooltip>
+        </div>
+    </section>
+</body>
+
 </html>

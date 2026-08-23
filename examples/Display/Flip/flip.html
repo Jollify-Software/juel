@@ -1,19 +1,70 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <title>Flip — Juel Examples</title>
     <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-flip [slot] {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            color: #fff;
+            border-radius: 4px;
+        }
+        juel-flip [slot="front"] { background: var(--primary, #007bff); }
+        juel-flip [slot="back"] { background: var(--success, #28a745); }
+    </style>
 </head>
 
 <body>
-    <juel-flip>
-        <h1 slot="front">Front</h1>
-        <h1 slot="back">Back</h1>
-    </juel-flip>
-    <h2>Vertical</h2>
-    <juel-flip vertical="true">
-        <h1 slot="front">Front</h1>
-        <h1 slot="back">Back</h1>
-    </juel-flip>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Flip</h1>
+        <p>
+            <code>&lt;juel-flip&gt;</code> shows a <code>front</code>-slotted and
+            <code>back</code>-slotted face, flipping between them on <code>trigger</code>
+            (<code>click</code>, the default, or <code>hover</code>). <code>vertical</code>
+            flips top-to-bottom instead of left-to-right.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Click (default)</h2>
+        <p>Click the box to flip it.</p>
+        <div class="example-demo">
+            <juel-flip>
+                <h1 slot="front">Front</h1>
+                <h1 slot="back">Back</h1>
+            </juel-flip>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Hover</h2>
+        <p><code>trigger="hover"</code> shows the back face while the pointer is over the box.</p>
+        <div class="example-demo">
+            <juel-flip trigger="hover">
+                <h1 slot="front">Front</h1>
+                <h1 slot="back">Back</h1>
+            </juel-flip>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Vertical</h2>
+        <p><code>vertical</code> flips top-to-bottom instead of left-to-right.</p>
+        <div class="example-demo">
+            <juel-flip vertical>
+                <h1 slot="front">Front</h1>
+                <h1 slot="back">Back</h1>
+            </juel-flip>
+        </div>
+    </section>
 </body>
 
 </html>

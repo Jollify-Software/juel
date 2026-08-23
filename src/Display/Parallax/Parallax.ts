@@ -41,7 +41,7 @@ export class ParallaxSection extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    window.addEventListener('scroll', this.handleScroll);
+    window.addEventListener('scroll', this.handleScroll, { passive: true });
   }
 
   disconnectedCallback() {
@@ -49,12 +49,15 @@ export class ParallaxSection extends LitElement {
     super.disconnectedCallback();
   }
 
+  protected firstUpdated(): void {
+    this.handleScroll();
+  }
+
   private handleScroll = () => {
     const image = this.shadowRoot!.querySelector('.parallax-image') as HTMLElement;
-    const offset = window.scrollY * this.intensity;
-    if (image) {
-      image.style.transform = `translateY(${offset}px)`;
-    }
+    if (!image) return;
+    const offset = this.getBoundingClientRect().top * this.intensity;
+    image.style.transform = `translateY(${offset}px)`;
   };
 
   render() {

@@ -8,8 +8,25 @@ export abstract class ChartStrategy {
     protected height: number,
     protected margin: { top: number; right: number; bottom: number; left: number },
     protected series: ChartSeries[],
-    protected labels?: string[]
+    protected labels?: string[],
+    protected tooltipDiv?: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>
   ) {}
+
+  static createTooltip(): d3.Selection<HTMLDivElement, unknown, HTMLElement, any> {
+    return d3
+      .select('body')
+      .append('div')
+      .attr('class', 'juel-chart-tooltip')
+      .style('position', 'absolute')
+      .style('pointer-events', 'none')
+      .style('background', 'rgba(0,0,0,0.8)')
+      .style('color', '#fff')
+      .style('padding', '6px 10px')
+      .style('border-radius', '4px')
+      .style('font-size', '13px')
+      .style('z-index', '1000')
+      .style('display', 'none');
+  }
 
   abstract render(): void;
 
@@ -59,23 +76,18 @@ export abstract class ChartStrategy {
       .attr('alignment-baseline', 'middle');
   }
 
-  protected tooltipDiv?: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
+  private static escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
   protected ensureTooltip() {
     if (!this.tooltipDiv) {
-      this.tooltipDiv = d3
-        .select('body')
-        .append('div')
-        .attr('class', 'juel-chart-tooltip')
-        .style('position', 'absolute')
-        .style('pointer-events', 'none')
-        .style('background', 'rgba(0,0,0,0.8)')
-        .style('color', '#fff')
-        .style('padding', '6px 10px')
-        .style('border-radius', '4px')
-        .style('font-size', '13px')
-        .style('z-index', '1000')
-        .style('display', 'none');
+      this.tooltipDiv = ChartStrategy.createTooltip();
     }
   }
 
@@ -84,12 +96,14 @@ export abstract class ChartStrategy {
     selection
       .on('mouseover', (event, d) => {
         const target = event.currentTarget as SVGElement;
-        const value = target.getAttribute('data-value');
-        const series = target.getAttribute('data-series');
+        const value = target.getAttribute('data-value') ?? '';
+        const series = target.getAttribute('data-series') ?? '';
         const label = target.getAttribute('data-label') ?? "Value";
         this.tooltipDiv!
           .style('display', 'block')
-          .html(`<strong>${series}</strong><br/>${label}: ${value}`);
+          .html(
+            `<strong>${ChartStrategy.escapeHtml(series)}</strong><br/>${ChartStrategy.escapeHtml(label)}: ${ChartStrategy.escapeHtml(value)}`
+          );
       })
       .on('mousemove', (event) => {
         this.tooltipDiv!

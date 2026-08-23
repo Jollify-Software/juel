@@ -5,4 +5,7 @@ import './Progress/Progress';
 import './Map/Map';
 import './Map/MapMarker';
 import './Map/MapJson';
+import './Map/MapCircle';
+import './Map/MapPoint';
+import './Map/MapPolygon';
 import './WordCloud/WordCloud';

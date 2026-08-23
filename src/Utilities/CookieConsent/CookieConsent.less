@@ -1,43 +1,100 @@
 :host {
-    display: block;
+  display: block;
+}
+
+.cookie-consent-overlay {
+  box-sizing: border-box;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--popup-background, #fff);
+  color: var(--body-color, #212529);
+  box-shadow: var(--box-shadow, 0 -2px 10px rgba(0, 0, 0, 0.2));
+  border: 1px solid var(--popup-border-color, rgba(0, 0, 0, 0.12));
+  border-bottom: none;
+  border-radius: var(--border-radius-lg, 0.75rem) var(--border-radius-lg, 0.75rem) 0 0;
+  padding: 20px;
+  z-index: 10000;
+}
+
+.cookie-consent-header {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--dark, #343a40);
+  margin-bottom: 8px;
+}
+
+.cookie-consent-description {
+  margin: 0 0 16px;
+  color: var(--secondary, #6c757d);
+  line-height: 1.5;
+}
+
+.cookie-manage-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 4px;
+  color: var(--primary, #007bff);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cookie-options {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.cookie-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--popup-border-color, rgba(0, 0, 0, 0.08));
+
+  &:last-child {
+    border-bottom: none;
   }
+
+  label {
+    font-weight: 500;
+  }
+}
+
+.cookie-option-static {
+  font-size: 0.8125rem;
+  color: var(--secondary, #6c757d);
+  white-space: nowrap;
+}
+
+.cookie-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cookie-buttons juel-button {
+  flex: 1 1 auto;
+  min-width: 96px;
+}
+
+@media (min-width: 640px) {
   .cookie-consent-overlay {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #f4f4f4;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
-    padding: 16px;
-    z-index: 10000;
+    left: auto;
+    right: 16px;
+    bottom: 16px;
+    width: 420px;
+    max-width: calc(100vw - 32px);
+    border-bottom: 1px solid var(--popup-border-color, rgba(0, 0, 0, 0.12));
+    border-radius: var(--border-radius-lg, 0.75rem);
   }
-  .cookie-consent-header {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
+
+  .cookie-buttons juel-button {
+    flex: 0 0 auto;
   }
-  .cookie-options {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .cookie-option {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .cookie-buttons {
-    display: flex;
-    justify-content: start;
-    margin-top: 16px;
-  }
-  juel-button {
-    margin: 0 0.25rem;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-  }
-  .btn-settings {
-    background: #2196f3;
-    color: white;
-  }
+}

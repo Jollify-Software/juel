@@ -1,24 +1,48 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-parallax
-        image="../../_Assets/education.jpg"
-        height="1600"
-        intensity="0.8"
-      >
-        <h1>Welcome to Parallax Scrolling</h1>
-        <p>Customise the parallax effect easily.</p>
-      </juel-parallax>
-  
-      <juel-parallax
-        image="../../_Assets/cry.jpg"
-        height="1000"
-        intensity="0.2"
-      >
-        <h1>Another Section</h1>
-        <p>This is a reusable component.</p>
-      </juel-parallax>
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Parallax — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+</head>
+
+<body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Parallax</h1>
+        <p>
+            <code>&lt;juel-parallax image="..." height="..." intensity="..."&gt;</code> gives its
+            slotted content a scrolling background image that moves at a different speed
+            (<code>intensity</code>, 0-1) than the page — scroll down to see it.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Two sections</h2>
+        <p>Each section tracks its own position independently as you scroll past it.</p>
+        <div class="example-demo">
+            <juel-parallax image="../../_Assets/education.jpg" height="500" intensity="0.4">
+                <h1>Welcome to Parallax Scrolling</h1>
+                <p>Customise the parallax effect easily.</p>
+            </juel-parallax>
+        </div>
+    </section>
+
+    <div style="height: 700px;"></div>
+
+    <section class="example-section">
+        <h2>A second section, further down</h2>
+        <p>Scroll here — before the fix, a section this far down the page would render with its background already scrolled far out of view.</p>
+        <div class="example-demo">
+            <juel-parallax image="../../_Assets/cry.jpg" height="500" intensity="0.15">
+                <h1>Another Section</h1>
+                <p>This is a reusable component.</p>
+            </juel-parallax>
+        </div>
+    </section>
+</body>
+
 </html>

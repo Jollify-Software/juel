@@ -1,9 +1,89 @@
-<html>
-    <head>
-        <script src="../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-trigger selector="button" event="click">
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Animate — Triggers — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .animate-stage {
+            width: 100%;
+            height: 160px;
+            border: 3px solid var(--dark, #343a40);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 200px;
+        }
+        .animate-square {
+            width: 100px;
+            height: 100px;
+            border-radius: 4px;
+        }
+        .animate-square.red { background: var(--danger, #dc3545); }
+        .animate-square.blue { background: var(--primary, #007bff); }
+        .animate-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .animate-controls-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .animate-controls-group label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--secondary, #6c757d);
+        }
+        .animate-controls-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Animate — Triggers</h1>
+        <p>
+            <code>&lt;juel-trigger selector="..." event="..."&gt;</code> listens for an event on a
+            matching element and runs the <code>&lt;juel-trigger-action&gt;</code> children's
+            <code>action</code> (a method name) on their own <code>selector</code> target.
+            <code>juel-animate</code> dispatches <code>animation-start</code>,
+            <code>animation-pause</code>, <code>animation-end</code>, and
+            <code>animation-stop</code> — wiring a trigger to <code>animation-end</code> lets one
+            animation kick off the next.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Chained ping-pong</h2>
+        <p>
+            Clicking the button plays the red square's animation; each square's
+            <code>animation-end</code> triggers the other one to play, so they hand off back and
+            forth indefinitely.
+        </p>
+        <div class="animate-controls">
+            <juel-button type="primary" id="start-chain">Start the chain</juel-button>
+        </div>
+        <div class="example-demo">
+            <div class="animate-stage">
+                <div id="square" class="animate-square red"></div>
+                <div id="square2" class="animate-square blue"></div>
+            </div>
+        </div>
+
+        <juel-trigger selector="#start-chain" event="button-clicked">
             <juel-trigger-action selector="#animate-square" action="play"></juel-trigger-action>
         </juel-trigger>
         <juel-trigger selector="#animate-square" event="animation-end">
@@ -14,18 +94,37 @@
         </juel-trigger>
 
         <juel-animate id="animate-square" selector="#square">
-            <juel-animate-frame duration="1s" properties="translateX: -=300px;translateY: +=0"></juel-animate-frame>
-            <juel-animate-frame duration="1s" properties="translateX: +=300px;translateY: 0"></juel-animate-frame>
-        </juel-animate>
-        <juel-animate id="animate-square2" selector="#square2">
             <juel-animate-frame duration="1s" properties="translateX: +=300px;translateY: +=0"></juel-animate-frame>
             <juel-animate-frame duration="1s" properties="translateX: -=300px;translateY: 0"></juel-animate-frame>
         </juel-animate>
+        <juel-animate id="animate-square2" selector="#square2">
+            <juel-animate-frame duration="1s" properties="translateX: -=300px;translateY: +=0"></juel-animate-frame>
+            <juel-animate-frame duration="1s" properties="translateX: +=300px;translateY: 0"></juel-animate-frame>
+        </juel-animate>
+    </section>
 
-        <button>Animate</button>
-        <div style="width:100%;display:flex;justify-content: center;border:5px solid black">
-            <div id="square" style="width:100px;height:100px;background:red;"></div>
-            <div id="square2" style="width:100px;height:100px;background:blue;"></div>
+    <section class="example-section">
+        <h2>Manual controls</h2>
+        <p>Each square can also be driven directly, bypassing the trigger chain above.</p>
+        <div class="animate-controls-row">
+            <div class="animate-controls-group">
+                <label>Red square</label>
+                <div class="animate-controls">
+                    <juel-button type="primary" onclick="document.getElementById('animate-square').play()">Play</juel-button>
+                    <juel-button type="secondary" render-style="outline" onclick="document.getElementById('animate-square').pause()">Pause</juel-button>
+                    <juel-button type="secondary" render-style="outline" onclick="document.getElementById('animate-square').stop()">Stop</juel-button>
+                </div>
+            </div>
+            <div class="animate-controls-group">
+                <label>Blue square</label>
+                <div class="animate-controls">
+                    <juel-button type="primary" onclick="document.getElementById('animate-square2').play()">Play</juel-button>
+                    <juel-button type="secondary" render-style="outline" onclick="document.getElementById('animate-square2').pause()">Pause</juel-button>
+                    <juel-button type="secondary" render-style="outline" onclick="document.getElementById('animate-square2').stop()">Stop</juel-button>
+                </div>
+            </div>
         </div>
-    </body>
+    </section>
+</body>
+
 </html>

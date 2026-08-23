@@ -40,6 +40,7 @@ export class JuelChart extends LitElement {
   private slotChange$ = new Subject<void>();
   private mutationObserver?: MutationObserver;
   private resizeObserver?: ResizeObserver;
+  private tooltipDiv?: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
 
   static styles = css`
     :host {
@@ -71,6 +72,8 @@ export class JuelChart extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback();
     this.resizeObserver?.disconnect();
+    this.tooltipDiv?.remove();
+    this.tooltipDiv = undefined;
   }
 
   render() {
@@ -124,8 +127,12 @@ export class JuelChart extends LitElement {
       return s;
     });
 
+    if (!this.tooltipDiv) {
+      this.tooltipDiv = ChartStrategy.createTooltip();
+    }
+
     const StrategyClass: any = AllChartStrategies()[this.type] || BarChartStrategy;
-    const strategy = new StrategyClass(svg, width, height, margin, allSeries, this.labels);
+    const strategy = new StrategyClass(svg, width, height, margin, allSeries, this.labels, this.tooltipDiv);
 
     strategy.render();
   }

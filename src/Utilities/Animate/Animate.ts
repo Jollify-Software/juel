@@ -70,7 +70,6 @@ export class JuelAnimate extends CommandComponent {
     }
 
     play() {
-        console.log(this.compiledAnimation)
         let evt = new CustomEvent(Events.animationStart, {
             detail: {
                 element: this
@@ -78,6 +77,16 @@ export class JuelAnimate extends CommandComponent {
         });
         this.dispatchEvent(evt);
         this.compiledAnimation.play();
+    }
+
+    pause() {
+        let evt = new CustomEvent(Events.animationPause, {
+            detail: {
+                element: this
+            }
+        });
+        this.dispatchEvent(evt);
+        this.compiledAnimation.pause();
     }
 
     stop() {

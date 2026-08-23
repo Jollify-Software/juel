@@ -32,16 +32,16 @@ export class JuelCookieConsent extends LitElement {
         "metricool": new MetricoolConsentProvider()
     }
 
-    // Handle toggling cookie categories
-  private handleToggle(category: keyof typeof this.cookiePreferences): void {
+    // Handle toggling a cookie category from a juel-toggle's "toggled" event
+  private handleToggle(category: keyof CookiePreferences, value: boolean): void {
     if (category === "essential") return; // Essential cookies cannot be disabled
     this.cookiePreferences = {
       ...this.cookiePreferences,
-      [category]: !this.cookiePreferences[category],
+      [category]: value,
     };
   }
 
-  // Handle "Accept All"
+  // Handle "Accept all"
   private handleAcceptAll(): void {
     this.cookiePreferences = {
       essential: true,
@@ -49,18 +49,29 @@ export class JuelCookieConsent extends LitElement {
       marketing: true,
     };
     this.savePreferences();
-    this.appendTemplates();
   }
 
-  // Handle "Reject All"
+  // Handle "Reject all"
   private handleRejectAll(): void {
-    this.showConsent = false;
+    this.cookiePreferences = {
+      essential: true,
+      analytics: false,
+      marketing: false,
+    };
+    this.savePreferences();
   }
 
-  // Save preferences to localStorage and hide the consent component
+  // Handle "Save preferences" (the granular choices made in full mode)
+  private handleSavePreferences(): void {
+    this.savePreferences();
+  }
+
+  // Save preferences to localStorage, hide the consent banner, and load any
+  // consented-to provider scripts
   private savePreferences(): void {
     localStorage.setItem(cookieName, JSON.stringify(this.cookiePreferences));
     this.showConsent = false;
+    this.appendTemplates();
   }
 
   // Render the component
@@ -72,27 +83,37 @@ export class JuelCookieConsent extends LitElement {
         <div class="cookie-consent-header"><slot name="title">We use cookies</slot></div>
         <slot name="content">
         ${when(this.full == true, () => html`
-        <p>We use cookies to enhance your experience. You can manage your preferences below:</p>
+        <p class="cookie-consent-description">We use cookies to enhance your experience. You can manage your preferences below:</p>
         <div class="cookie-options">
           ${Object.entries(this.cookiePreferences).map(
-            ([category, enabled]) => html`
+            ([category, enabled]) => category === "essential"
+              ? html`
+                <div class="cookie-option">
+                  <label>Essential Cookies</label>
+                  <span class="cookie-option-static">Always active</span>
+                </div>
+              `
+              : html`
               <div class="cookie-option">
                 <label>${this.capitalize(category)} Cookies</label>
-                <input
-                  type="checkbox"
+                <juel-toggle
                   .checked=${enabled}
-                  @change=${() => this.handleToggle(category as keyof typeof this.cookiePreferences)}
-                  ?disabled=${category === "essential"}
-                />
+                  @toggled=${(e: CustomEvent) => this.handleToggle(category as keyof CookiePreferences, e.detail.value)}
+                ></juel-toggle>
               </div>
             `
           )}
-        </div>`, () => html`<p>We use cookies to enhance your experience, analyse site traffic, and personalise content.`)
+        </div>`, () => html`
+        <p class="cookie-consent-description">
+          We use cookies to enhance your experience, analyse site traffic, and personalise content.
+          <button type="button" class="cookie-manage-link" @click=${() => this.full = true}>Manage preferences</button>
+        </p>`)
     }
         </slot>
         <div class="cookie-buttons">
-          <juel-button type="danger" @button-clicked=${this.handleRejectAll}>Reject</juel-button>
-          <juel-button type="success" @button-clicked=${this.handleAcceptAll}>Accept</juel-button>
+          <juel-button type="secondary" render-style="outline" @button-clicked=${this.handleRejectAll}>Reject all</juel-button>
+          ${when(this.full == true, () => html`<juel-button type="primary" render-style="outline" @button-clicked=${this.handleSavePreferences}>Save preferences</juel-button>`)}
+          <juel-button type="primary" @button-clicked=${this.handleAcceptAll}>Accept all</juel-button>
         </div>
       </div>
     `;
@@ -114,7 +135,12 @@ export class JuelCookieConsent extends LitElement {
     }
   }
 
+  // Loads provider scripts and appends any custom <template>s — gated on
+  // analytics consent, since the built-in providers (and most custom
+  // templates) are tracking/analytics scripts.
   appendTemplates() {
+    if (!this.cookiePreferences.analytics) return;
+
     if (this.keys) {
       for (const key in this.keys) {
         if (key in this.providers) {

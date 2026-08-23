@@ -31,6 +31,6 @@ export class JuelBadge extends JuelComponent {
         if (this.position) {
             klass += ` position outside ${this.position}`;
         }
-        return html`<span id="root" class="${klass}"><slot>${this.label}<slot></span>`
+        return html`<span id="root" class="${klass}"><slot>${this.label}</slot></span>`
     }
 }

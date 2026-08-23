@@ -58,7 +58,7 @@ export class JuelShape extends LitElement {
 
 
     protected render(): unknown {
-        return html`<span class="content"><slot></slot></span><div part="shape" class="svg-container rotate ${this.direction}"></dov>`;
+        return html`<span class="content"><slot></slot></span><div part="shape" class="svg-container rotate ${this.direction}"></div>`;
     }
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
@@ -104,7 +104,6 @@ export class JuelShape extends LitElement {
             if (this.hover) {
 
                     const [normalizedInitial, normalizedTarget] = normalizePoints(this.initialShape, this.shape);
-                    console.log(normalizedInitial, normalizedTarget);
                     this.initialShape = normalizedInitial;
                     this.shape = normalizedTarget;
                 

@@ -1,12 +1,71 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <title>Cookie Consent — Juel Examples</title>
     <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../_Shared/examples.css" />
 </head>
 
 <body>
-    <juel-cookie-consent keys="gtag:G-Z6DT8QHGR7;metricool">
-    </juel-cookie-consent>
+    <a class="example-back" href="../index.html">&larr; All examples</a>
+
+    <header class="example-header">
+        <h1>Cookie Consent</h1>
+        <p>
+            <code>&lt;juel-cookie-consent&gt;</code> shows a bottom banner asking for cookie consent,
+            remembering the choice in <code>localStorage</code>. It defaults to a quick
+            Accept/Reject choice; "Manage preferences" reveals per-category toggles
+            (<code>full</code> starts there directly). <code>keys="gtag:G-XXXX;metricool:..."</code>
+            loads the matching provider script only once analytics consent is given. It's a
+            <code>position: fixed</code> overlay, so the buttons below show/reset it live at the
+            bottom of this page rather than in a contained demo box.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Quick choice (default)</h2>
+        <p>Reject/Accept up front, with a link through to the full preference panel.</p>
+        <div class="example-demo">
+            <juel-button type="primary" onclick="show('quick-demo')">Show the banner</juel-button>
+            <juel-button type="secondary" render-style="outline" onclick="reset('quick-demo')">Reset stored choice</juel-button>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Full preferences</h2>
+        <p><code>full</code> opens straight to the per-category toggles (Essential is always active and shown as a static label, not a toggle).</p>
+        <div class="example-demo">
+            <juel-button type="primary" onclick="show('full-demo')">Show the banner</juel-button>
+            <juel-button type="secondary" render-style="outline" onclick="reset('full-demo')">Reset stored choice</juel-button>
+        </div>
+    </section>
+
+    <juel-cookie-consent id="quick-demo" keys="gtag:G-Z6DT8QHGR7;metricool"></juel-cookie-consent>
+    <juel-cookie-consent id="full-demo" full></juel-cookie-consent>
+
+    <script>
+        const ids = ['quick-demo', 'full-demo'];
+        // showConsent is a boolean property, not attribute-value-driven (a "false"
+        // attribute would still mean true) — start both hidden via the property directly.
+        for (const id of ids) {
+            document.getElementById(id).showConsent = false;
+        }
+
+        function show(id) {
+            localStorage.removeItem('cookie-consent');
+            for (const other of ids) {
+                document.getElementById(other).showConsent = other === id;
+            }
+        }
+        function reset(id) {
+            localStorage.removeItem('cookie-consent');
+            const el = document.getElementById(id);
+            el.cookiePreferences = { essential: true, analytics: false, marketing: false };
+            el.showConsent = false;
+        }
+    </script>
 </body>
 
 </html>

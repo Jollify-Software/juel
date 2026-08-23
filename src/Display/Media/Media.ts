@@ -14,11 +14,13 @@ export class JuelMedia extends JuelComponent {
     static styles = unsafeCSS(Styles);
 
     @property()
-    src: string;
+    src: string = '';
     @property()
     blend: string = 'unset';
     @property({ type: Boolean })
     background: boolean;
+    @property()
+    alt: string = '';
 
     sourceType: MediaSourceType;
 
@@ -43,6 +45,10 @@ export class JuelMedia extends JuelComponent {
     }
 
     protected render(): unknown {
+        if (!this.src) {
+            return html``;
+        }
+
         let splity: string[];
         if (this.src.includes(" ")) {
             splity = this.src.split(" ");
@@ -50,10 +56,9 @@ export class JuelMedia extends JuelComponent {
         } else {
             this.sourceType = isMediaSource(this.src);
         }
-        console.log(this.sourceType);
-        if (this.src) {
+        if (this.sourceType.type === 'image') {
             let img = new Image();
-            img.src = img.src;
+            img.src = this.getSrc();
         }
 
         let classes = { background: this.background};
@@ -73,7 +78,7 @@ export class JuelMedia extends JuelComponent {
             ["audio", () => when(this.background, () => html`<audio autoplay muted loop src="${this.getSrc()}" >`,
                 () => html`<audio controls src="${this.src}" >`)],
             ["image", () => when(splity && this.blend, () => html`<div style="${styleMap(styles)}"></div>`,
-                () => html`<img src="${this.getSrc()}" >`)
+                () => html`<img src="${this.getSrc()}" alt="${this.alt}">`)
             ]
         ])}
         </div>`;

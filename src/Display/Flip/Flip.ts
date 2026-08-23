@@ -22,23 +22,19 @@ export class JuelFlip extends JuelComponent {
     }
 
     init() {
-        let evtName;
-        switch (this.trigger) {
-            case "click":
-                evtName = "click";
-                break;
-            case "hover":
-                evtName = "mouseenter";
-                break;
+        const container = $(this.shadowRoot.getElementById('container')).off();
+        const el = this.shadowRoot.getElementById('inner');
+        if (this.vertical) {
+            el.classList.add("vertical");
         }
-        $(this.shadowRoot.getElementById('container')).off()
-            .on(evtName, () => {
-                let el = this.shadowRoot.getElementById('inner');
-                if (this.vertical) {
-                        el.classList.add("vertical");
-                }
-                el.classList.toggle("flip")
-            })
+
+        if (this.trigger === "hover") {
+            container
+                .on("mouseenter", () => el.classList.add("flip"))
+                .on("mouseleave", () => el.classList.remove("flip"));
+        } else {
+            container.on("click", () => el.classList.toggle("flip"));
+        }
     }
 
     ready() {
@@ -50,7 +46,7 @@ export class JuelFlip extends JuelComponent {
       return html` <div id="container">
         <div id="inner">
           <div class="front" part="front">
-            <slot name="front"></front>>
+            <slot name="front"></slot>
           </div>
           <div class="back" part="back">
             <slot name="back"></slot>
