@@ -114,7 +114,16 @@ export class JuelEmbed extends LitElement {
       if (!response.ok) {
         throw new Error(`${response.status} ${response.statusText}`);
       }
-      this._htmlFragment = await response.text();
+      const text = await response.text();
+      // Relative URLs inside a fetched fragment resolve against the *consuming*
+      // page's URL, not the fragment's own location — so a shared partial can't
+      // hardcode a relative link back to, say, the gallery index. {{basePath}}
+      // is replaced with the relative path from this page back to the folder
+      // this.url was fetched from, derived from this.url itself (the same
+      // relative prefix the consuming page already had to get right to reach
+      // the fragment in the first place).
+      const basePath = this.url.slice(0, this.url.lastIndexOf("/") + 1);
+      this._htmlFragment = text.replace(/\{\{basePath\}\}/g, basePath);
     } catch (e) {
       this._error = `Couldn't load ${this.url}: ${e instanceof Error ? e.message : String(e)}`;
     }

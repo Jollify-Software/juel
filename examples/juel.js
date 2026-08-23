@@ -189249,7 +189249,9 @@ let JuelEmbed = class JuelEmbed extends (0, _lit.LitElement) {
             try {
                 const response = yield fetch(_this.url);
                 if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-                _this._htmlFragment = yield response.text();
+                const text = yield response.text();
+                const basePath = _this.url.slice(0, _this.url.lastIndexOf("/") + 1);
+                _this._htmlFragment = text.replace(/\{\{basePath\}\}/g, basePath);
             } catch (e) {
                 _this._error = `Couldn't load ${_this.url}: ${e instanceof Error ? e.message : String(e)}`;
             }
