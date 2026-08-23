@@ -17684,9 +17684,7 @@ function MultiArrayConvertor(arraySeparator = ",", separator = " ") {
                     return splitty.map((val)=>{
                         return GetValue(val);
                     });
-                } else return [
-                    GetValue(str)
-                ];
+                } else return GetValue(str);
             });
         } else return [
             GetValue(value)
@@ -111642,7 +111640,6 @@ let JuelChart = class JuelChart extends (0, _lit.LitElement) {
             bottom: 40,
             left: 40
         };
-        console.log('Rendering chart of type:', this.type);
         const allSeries = this.seriesElements.map((el)=>{
             let s = {
                 label: el.label,
@@ -111653,9 +111650,7 @@ let JuelChart = class JuelChart extends (0, _lit.LitElement) {
             if (el.max !== undefined) s.max = Number(el.max);
             return s;
         });
-        console.log('Rendering chart with series:', allSeries);
         const StrategyClass = AllChartStrategies()[this.type] || (0, _barChartStrategy.BarChartStrategy);
-        console.log(StrategyClass);
         const strategy = new StrategyClass(svg, width, height, margin, allSeries, this.labels);
         strategy.render();
     }

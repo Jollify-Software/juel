@@ -1,28 +1,164 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
-  <script src="../../../dist/juel.js"></script>
+    <meta charset="utf-8">
+    <title>Chart — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .chart-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            width: 100%;
+        }
+        .chart-box {
+            flex: 1 1 380px;
+            height: 320px;
+        }
+        .chart-box juel-chart {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 
 <body>
-  <juel-chart type="bar" labels="January, February, March, April, May">
-    <juel-chart-series label="Sales" color="orange" data="5, 10, 15, 7, 20"></juel-chart-series>
-    <juel-chart-series label="Sales 2" color="blue" data="20, 7, 15, 10, 5"></juel-chart-series>
-  </juel-chart>
+    <a class="example-back" href="../../index.html">&larr; All examples</a>
 
-  <juel-chart type="line" labels="January, February, March">
-    <juel-chart-series label="Apples" color="red" data="5, 10, 15"></juel-chart-series>
-    <juel-chart-series label="Oranges" color="orange" data="3, 7, 12"></juel-chart-series>
-    <juel-chart-series label="Bananas" color="gold" data="4, 8, 6"></juel-chart-series>
-  </juel-chart>
+    <header class="example-header">
+        <h1>Chart</h1>
+        <p>
+            <code>&lt;juel-chart type="..."&gt;</code> renders a chart from one or more
+            <code>&lt;juel-chart-series&gt;</code> children, each supplying a <code>label</code>,
+            <code>color</code>, and <code>data</code>. Values in <code>data</code> are comma-separated
+            (<code>"10, 20, 15"</code>); scatter series use <code>x:y</code> pairs instead
+            (<code>"1:2, 2:4"</code>).
+        </p>
+    </header>
 
-  <juel-chart type="pie">
-    <juel-chart-series label="Apples" color="red" data="5"></juel-chart-series>
-    <juel-chart-series label="Oranges" color="orange" data="10"></juel-chart-series>
-    <juel-chart-series label="Bananas" color="gold" data="15"></juel-chart-series>
-  </juel-chart>
+    <section class="example-section">
+        <h2>Bar</h2>
+        <p>Grouped columns per <code>labels</code> category.</p>
+        <div class="example-demo">
+            <div class="chart-box">
+                <juel-chart type="bar" labels="Q1, Q2, Q3, Q4">
+                    <juel-chart-series label="North" color="teal" data="10, 20, 15, 25"></juel-chart-series>
+                    <juel-chart-series label="South" color="salmon" data="8, 12, 18, 22"></juel-chart-series>
+                </juel-chart>
+            </div>
+        </div>
+    </section>
 
+    <section class="example-section">
+        <h2>Stacked bar</h2>
+        <p>Series stack on top of each other instead of grouping side by side.</p>
+        <div class="example-demo">
+            <div class="chart-box">
+                <juel-chart type="stacked-bar" labels="2019, 2020, 2021, 2022">
+                    <juel-chart-series label="Product A" color="#4CAF50" data="10, 15, 20, 25"></juel-chart-series>
+                    <juel-chart-series label="Product B" color="#2196F3" data="8, 12, 18, 22"></juel-chart-series>
+                    <juel-chart-series label="Product C" color="#FFC107" data="5, 10, 15, 20"></juel-chart-series>
+                </juel-chart>
+            </div>
+        </div>
+    </section>
 
+    <section class="example-section">
+        <h2>Line</h2>
+        <p>One point per label, connected in order.</p>
+        <div class="example-demo">
+            <div class="chart-box">
+                <juel-chart type="line" labels="Jan, Feb, Mar, Apr">
+                    <juel-chart-series label="Visits" color="navy" data="100, 120, 90, 140"></juel-chart-series>
+                    <juel-chart-series label="Signups" color="limegreen" data="30, 50, 40, 60"></juel-chart-series>
+                </juel-chart>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Area</h2>
+        <p>Same as line, filled down to the axis.</p>
+        <div class="example-demo">
+            <div class="chart-box">
+                <juel-chart type="area" labels="Q1, Q2, Q3, Q4">
+                    <juel-chart-series label="North" color="teal" data="10, 20, 15, 25"></juel-chart-series>
+                </juel-chart>
+            </div>
+        </div>
+    </section>
+
+    <div class="chart-grid">
+        <section class="example-section chart-box">
+            <h2>Pie</h2>
+            <p>Each series contributes a single value (its <code>data</code>'s first entry) as one slice.</p>
+            <div class="example-demo">
+                <div class="chart-box">
+                    <juel-chart type="pie">
+                        <juel-chart-series label="Apples" color="red" data="5"></juel-chart-series>
+                        <juel-chart-series label="Oranges" color="orange" data="10"></juel-chart-series>
+                        <juel-chart-series label="Bananas" color="gold" data="15"></juel-chart-series>
+                    </juel-chart>
+                </div>
+            </div>
+        </section>
+
+        <section class="example-section chart-box">
+            <h2>Doughnut</h2>
+            <p>A pie chart with a hollow center.</p>
+            <div class="example-demo">
+                <div class="chart-box">
+                    <juel-chart type="doughnut">
+                        <juel-chart-series label="Chrome" color="#4285F4" data="60"></juel-chart-series>
+                        <juel-chart-series label="Firefox" color="#FF7139" data="25"></juel-chart-series>
+                        <juel-chart-series label="Safari" color="#00A1F1" data="10"></juel-chart-series>
+                        <juel-chart-series label="Edge" color="#0078D7" data="5"></juel-chart-series>
+                    </juel-chart>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section class="example-section">
+        <h2>Radar</h2>
+        <p>One axis per label, one polygon per series.</p>
+        <div class="example-demo">
+            <div class="chart-box">
+                <juel-chart type="radar" labels="Speed, Strength, Agility, Endurance, Intelligence">
+                    <juel-chart-series label="Athlete 1" color="red" data="8, 7, 6, 9, 5"></juel-chart-series>
+                    <juel-chart-series label="Athlete 2" color="blue" data="6, 9, 7, 6, 8"></juel-chart-series>
+                </juel-chart>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Scatter</h2>
+        <p>Series data is a list of <code>x:y</code> pairs instead of plain values.</p>
+        <div class="example-demo">
+            <div class="chart-box">
+                <juel-chart type="scatter">
+                    <juel-chart-series label="Group A" color="purple" data="1:2, 2:4, 3:6, 4:8"></juel-chart-series>
+                    <juel-chart-series label="Group B" color="orange" data="1:3, 2:5, 3:7, 4:9"></juel-chart-series>
+                </juel-chart>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Gauge</h2>
+        <p>Each series is a needle; <code>min</code>/<code>max</code> set that series' scale.</p>
+        <div class="example-demo">
+            <div class="chart-box">
+                <juel-chart type="gauge">
+                    <juel-chart-series label="A" data="60" color="red" min="0" max="100"></juel-chart-series>
+                    <juel-chart-series label="B" data="80" color="blue" min="0" max="200"></juel-chart-series>
+                </juel-chart>
+            </div>
+        </div>
+    </section>
 </body>
 
 </html>

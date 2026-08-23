@@ -43,7 +43,7 @@ export function MultiArrayConvertor(arraySeparator: string = ",", separator: str
                         return GetValue(val);
                     })
                 } else {
-                    return [GetValue(str)];
+                    return GetValue(str);
                 }
             });
         } else {

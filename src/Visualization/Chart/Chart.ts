@@ -109,8 +109,6 @@ export class JuelChart extends LitElement {
     const height = this.clientHeight;
     const margin = { top: 20, right: 30, bottom: 40, left: 40 };
 
-    console.log('Rendering chart of type:', this.type);
-
     const allSeries: ChartSeries[] = this.seriesElements.map(el => {
       let s: ChartSeries = {
         label: (el as any).label,
@@ -126,10 +124,7 @@ export class JuelChart extends LitElement {
       return s;
     });
 
-    console.log('Rendering chart with series:', allSeries);
-    // Dynamically select and instantiate the strategy
     const StrategyClass: any = AllChartStrategies()[this.type] || BarChartStrategy;
-    console.log(StrategyClass);
     const strategy = new StrategyClass(svg, width, height, margin, allSeries, this.labels);
 
     strategy.render();
