@@ -170,7 +170,7 @@ export class JuelSelect extends LitElement {
             ? this.renderOptionsList(data)
             : html`<option disabled>No matches found</option>`}
         </select>
-        <button class="clear-button" @click="${this.handleClear}">Clear</button>
+        <button type="button" class="clear-button" @click="${this.handleClear}">Clear</button>
       </div>
     `;
   }

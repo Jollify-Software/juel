@@ -1,8 +1,34 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-date label="Select date"></juel-date>
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Date — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Date</h1>
+        <p>
+            <code>&lt;juel-date label="..." type="..."&gt;</code> wraps a native date/time input.
+            <code>type</code> selects <code>date</code> (default), <code>month</code>,
+            <code>time</code>, or <code>week</code>. Fires <code>value-changed</code> on change.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Types</h2>
+        <div class="example-demo example-demo-column">
+            <juel-date label="Date" type="date"></juel-date>
+            <juel-date label="Month" type="month"></juel-date>
+            <juel-date label="Time" type="time"></juel-date>
+            <juel-date label="Week" type="week"></juel-date>
+        </div>
+    </section>
+</body>
+
 </html>

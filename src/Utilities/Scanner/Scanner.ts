@@ -59,10 +59,10 @@ export class JuelScanner extends LitElement {
       <div class="scanner-container" part="container">
         <video id="video" autoplay part="video"></video>
         ${when(!this.trigger, () => html`
-          <button @click="${this.toggleScanning}" part="toggle-button">
+          <button type="button" @click="${this.toggleScanning}" part="toggle-button">
             ${this.scanning ? 'Stop Scanning' : 'Start Scanning'}
           </button>`, () => html`
-          <button @click="${this.hideScanner}" part="hide-button">Hide Scanner</button>`)}
+          <button type="button" @click="${this.hideScanner}" part="hide-button">Hide Scanner</button>`)}
       </div>
     `;
   }

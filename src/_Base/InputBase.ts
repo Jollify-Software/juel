@@ -197,7 +197,7 @@ export class InputBase extends JuelComponent {
         <div part="input-group" class="${classMap(klass)}"> 
             <div><slot name="prepend"></slot>
                 ${this.renderInput()}
-            ${when(this.hasDropdown, () => html`<button id="dropdown-toggle" @click="${this.toggleDropdown}"></button>`)}
+            ${when(this.hasDropdown, () => html`<button type="button" id="dropdown-toggle" @click="${this.toggleDropdown}"></button>`)}
             <slot @slotchange="${this.dropdownSlotChange}" name="dropdown" style="display: none"></slot>
             <slot name="append"></slot></div>
         </div>`;

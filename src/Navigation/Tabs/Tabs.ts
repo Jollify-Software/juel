@@ -198,6 +198,7 @@ export class JuelTabs extends NavigationBase {
                 ${tab.title}
                 ${hasSubTabs ? html`
                   <button
+                    type="button"
                     class="expand-collapse-button"
                     aria-expanded="${expanded}"
                     aria-label="${expanded ? 'Collapse' : 'Expand'} ${tab.title} sub-tabs"
@@ -236,6 +237,7 @@ export class JuelTabs extends NavigationBase {
             ${subTab.title}
             ${hasSubTabs ? html`
               <button
+                type="button"
                 class="expand-collapse-button"
                 aria-expanded="${subExpanded}"
                 aria-label="${subExpanded ? 'Collapse' : 'Expand'} ${subTab.title} sub-tabs"

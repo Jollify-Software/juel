@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Theme Picker — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        /* Demo-only theme CSS — juel-theme-toggle/select apply data-theme
+           to <html>, but what a theme actually *means* visually is entirely
+           up to the consuming page. This is just enough to prove it works. */
+        .theme-demo-box {
+            padding: 1.5rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background: #fff;
+            color: #212529;
+            transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+        :root[data-theme="dark"] .theme-demo-box {
+            background: #212529;
+            color: #f8f9fa;
+            border-color: #495057;
+        }
+        :root[data-theme="solarized"] .theme-demo-box {
+            background: #fdf6e3;
+            color: #657b83;
+            border-color: #eee8d5;
+        }
+        .theme-log {
+            font-family: var(--font-monospace, monospace);
+            font-size: 0.8125rem;
+            color: var(--secondary, #6c757d);
+            white-space: pre-wrap;
+            margin-top: 0.75rem;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Theme Picker</h1>
+        <p>
+            <code>window.juel.theme</code> is the actual abstraction — it applies a theme name as
+            <code>data-theme</code> on <code>&lt;html&gt;</code>, persists it, and fires a
+            <code>theme-changed</code> event on <code>document</code> so any code (or any number of
+            picker instances) can react. <code>&lt;juel-theme-toggle&gt;</code> and
+            <code>&lt;juel-theme-select&gt;</code> are just two thin UIs built on top of it — what a
+            theme actually changes visually is entirely up to your own CSS.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Toggle</h2>
+        <p><code>&lt;juel-theme-toggle&gt;</code> — a binary light/dark switch, built on <code>juel-toggle</code>.</p>
+        <div class="example-demo">
+            <juel-theme-toggle></juel-theme-toggle>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Select</h2>
+        <p>
+            <code>&lt;juel-theme-select themes="..."&gt;</code> — an open-ended list of named themes,
+            using the same <code>key: value; ...</code> syntax as <code>juel-shape</code>'s
+            <code>args</code>.
+        </p>
+        <div class="example-demo">
+            <juel-theme-select themes="light: Light; dark: Dark; solarized: Solarized"></juel-theme-select>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Both stay in sync</h2>
+        <p>Both pickers above and this demo box all listen for <code>theme-changed</code> — change either picker and everything updates together.</p>
+        <div class="example-demo">
+            <div class="theme-demo-box">
+                This box's background/text/border are styled per <code>[data-theme]</code> via
+                plain CSS in this page — nothing juel-specific.
+            </div>
+        </div>
+        <div class="theme-log" id="theme-log"></div>
+    </section>
+
+    <section class="example-section">
+        <h2>Custom UI</h2>
+        <p>Any UI can drive the same mechanism directly — no picker component required.</p>
+        <div class="example-demo">
+            <juel-button type="primary" onclick="juel.theme.set('light')">☀️ Light</juel-button>
+            <juel-button type="secondary" onclick="juel.theme.set('dark')">🌙 Dark</juel-button>
+            <juel-button type="secondary" render-style="outline" onclick="juel.theme.set('solarized')">🌤️ Solarized</juel-button>
+        </div>
+    </section>
+
+    <script>
+        const log = document.getElementById('theme-log');
+        log.textContent = `current theme: ${juel.theme.get()}`;
+        document.addEventListener('theme-changed', (e) => {
+            log.textContent = `theme-changed event received — detail.theme: "${e.detail.theme}"`;
+        });
+    </script>
+</body>
+
+</html>

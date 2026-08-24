@@ -1,8 +1,32 @@
-<html>
+<!doctype html>
+<html lang="en">
+
 <head>
+    <meta charset="utf-8">
+    <title>Email — Juel Examples</title>
     <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-email label="Email address"></juel-email>    
-    </body>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Email</h1>
+        <p>
+            <code>&lt;juel-email label="..." value="..."&gt;</code> is a labelled
+            <code>type="email"</code> input (native browser email validation applies). Fires
+            <code>value-changed</code> as you type.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic</h2>
+        <div class="example-demo example-demo-column">
+            <juel-email label="Email address"></juel-email>
+            <juel-email label="Work email" value="ada@example.com"></juel-email>
+        </div>
+    </section>
+</body>
+
 </html>

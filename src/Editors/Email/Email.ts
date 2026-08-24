@@ -27,8 +27,9 @@ export class JuelEmail extends LitElement {
     }
 
     input:focus {
-      border-color: #0078d4;
-      outline: none;
+      border-color: var(--primary, #0078d4);
+      outline: 2px solid var(--primary, #0078d4);
+      outline-offset: 1px;
     }
   `;
 

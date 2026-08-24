@@ -67,7 +67,7 @@ export class JuelAlert extends LitElement {
           <slot></slot>
         </div>
         ${this.closeable
-          ? html`<button class="close-button" aria-label="Close" @click="${this._handleClose}"></button>`
+          ? html`<button type="button" class="close-button" aria-label="Close" @click="${this._handleClose}"></button>`
           : ''}
       </div>
     `;

@@ -1,8 +1,41 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-check label="Yes?"></juel-check>
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Check — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Check</h1>
+        <p>
+            <code>&lt;juel-check label="..."&gt;</code> is a custom-styled checkbox. It fires
+            <code>value-changed</code> on toggle, and <code>glyph</code> swaps the checkmark for a
+            different icon glyph.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic</h2>
+        <div class="example-demo">
+            <juel-check label="Yes?"></juel-check>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Glyph</h2>
+        <p><code>glyph</code> swaps the default checkmark for a different icon.</p>
+        <div class="example-demo">
+            <juel-check label="Question?" glyph="question"></juel-check>
+            <juel-check label="Error?" glyph="error"></juel-check>
+            <juel-check label="Happy?" glyph="smile"></juel-check>
+        </div>
+    </section>
+</body>
+
 </html>

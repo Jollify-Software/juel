@@ -13,3 +13,6 @@ import './PointSelector/PointSelector';
 import "./HtmlEditor/HtmlEditor";
 
 import "./MarkdownEditor/MarkdownEditor";
+
+import "./Theme/ThemeToggle";
+import "./Theme/ThemeSelect";

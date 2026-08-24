@@ -69,7 +69,7 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
                     ${hasPrepend ? html`<div class="${prependClass}"><slot name="prepend"></slot></div>` : ``}
                     ${inputTemplate(el, klass)}
                     ${hasDropdown ?
-            html`<button id="dropdown-toggle" class="${appendClass}" @click="${el.toggleDropdown}"></button>` :
+            html`<button type="button" id="dropdown-toggle" class="${appendClass}" @click="${el.toggleDropdown}"></button>` :
             html`<div class="${appendClass}"><slot name="append"></slot></div>`
         }
                     ${el.active == true && hasAppendActive ?

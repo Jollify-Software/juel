@@ -3,6 +3,7 @@ import { DeviceModule } from "./Device/DeviceModule";
 import { GuideModule } from "./Guide/GuideModule";
 import { IconsModule } from "./Icons/IconsModule";
 import { MessageBoxModule } from "./MessageBox/MessageBoxModule";
+import { ThemeModule } from "./Theme/ThemeModule";
 import { ToastModule } from "./Toast/ToastModule";
 
 export module JuelModule {
@@ -18,4 +19,6 @@ export module JuelModule {
     export var guide = GuideModule;
 
     export var device = DeviceModule;
+
+    export var theme = ThemeModule;
 }

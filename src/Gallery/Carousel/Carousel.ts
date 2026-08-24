@@ -26,8 +26,8 @@ export class JuelCarousel extends NavigationBase {
           ${this.showControls
                 ? html`
                 <div class="controls">
-                  <button class="control prev" @click="${this.prev}">&#9664;</button>
-                  <button class="control next" @click="${this.next}">&#9654;</button>
+                  <button type="button" class="control prev" @click="${this.prev}">&#9664;</button>
+                  <button type="button" class="control next" @click="${this.next}">&#9654;</button>
                 </div>
               `
                 : ''}

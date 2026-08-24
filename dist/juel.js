@@ -180,6 +180,7 @@ var _domReady = require("./_Utils/DomReady");
     document.head.append(style);
 })();
 window.juel = (0, _juelModule.JuelModule);
+(0, _juelModule.JuelModule).theme.init();
 window.$ = (0, _jqueryDefault.default);
 window.jQuery = (0, _jqueryDefault.default);
 (function() {
@@ -214,6 +215,7 @@ var _deviceModule = require("./Device/DeviceModule");
 var _guideModule = require("./Guide/GuideModule");
 var _iconsModule = require("./Icons/IconsModule");
 var _messageBoxModule = require("./MessageBox/MessageBoxModule");
+var _themeModule = require("./Theme/ThemeModule");
 var _toastModule = require("./Toast/ToastModule");
 var JuelModule;
 (function(JuelModule) {
@@ -226,9 +228,10 @@ var JuelModule;
     JuelModule.toast = (0, _toastModule.ToastModule);
     JuelModule.guide = (0, _guideModule.GuideModule);
     JuelModule.device = (0, _deviceModule.DeviceModule);
+    JuelModule.theme = (0, _themeModule.ThemeModule);
 })(JuelModule || (JuelModule = {}));
 
-},{"./AudioModule":"adeVw","./Device/DeviceModule":"camFn","./Guide/GuideModule":"aHHlY","./Icons/IconsModule":"56p6F","./MessageBox/MessageBoxModule":"a2kAi","./Toast/ToastModule":"6LI5Z","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"adeVw":[function(require,module,exports,__globalThis) {
+},{"./AudioModule":"adeVw","./Device/DeviceModule":"camFn","./Guide/GuideModule":"aHHlY","./Icons/IconsModule":"56p6F","./MessageBox/MessageBoxModule":"a2kAi","./Theme/ThemeModule":"5UDFm","./Toast/ToastModule":"6LI5Z","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"adeVw":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "AudioModule", ()=>AudioModule);
@@ -1173,7 +1176,49 @@ function upperFirst(str) {
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"azAXd":[function(require,module,exports,__globalThis) {
 module.exports = "#overlay {\n  pointer-events: none;\n  z-index: 101;\n  background-color: #3a474d42;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  position: fixed;\n  top: 0;\n  left: 0;\n}\n\n#dialog {\n  pointer-events: all;\n  z-index: 101;\n  background-color: #fff;\n  border-radius: 4px;\n  flex-direction: column;\n  max-height: 100%;\n  display: flex;\n  position: absolute;\n  overflow: hidden;\n  box-shadow: 0 22px 64px #00000038;\n}\n\n#dialog-title {\n  background-color: #f3f5f78f;\n  border-bottom: none;\n  padding: .6875rem 1.25rem;\n  font-size: 1.25rem;\n  line-height: 1.875rem;\n}\n\n#dialog-title .close {\n  float: right;\n  background-image: var(--icon-close);\n  background-position: center;\n  background-repeat: no-repeat;\n  width: 26px;\n  height: 26px;\n  margin-top: 3%;\n}\n\n#dialog-body, #dialog-body > form {\n  flex-wrap: wrap;\n  align-items: center;\n  padding: .5rem;\n  display: flex;\n}\n\n#dialog-body svg, #dialog-body > form svg {\n  flex: 1;\n  max-width: 64px;\n  max-height: 64px;\n  padding: .5rem;\n}\n";
 
-},{}],"6LI5Z":[function(require,module,exports,__globalThis) {
+},{}],"5UDFm":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ThemeModule", ()=>ThemeModule);
+var ThemeModule;
+(function(ThemeModule) {
+    const storageKey = "juel-theme";
+    ThemeModule.changedEvent = "theme-changed";
+    ThemeModule.set = (theme, options = {})=>{
+        const { persist = true, notify = true } = options;
+        document.documentElement.setAttribute("data-theme", theme);
+        if (persist) try {
+            localStorage.setItem(storageKey, theme);
+        } catch (e) {}
+        if (notify) document.dispatchEvent(new CustomEvent(ThemeModule.changedEvent, {
+            detail: {
+                theme
+            }
+        }));
+    };
+    ThemeModule.get = ()=>{
+        return document.documentElement.getAttribute("data-theme");
+    };
+    ThemeModule.getStored = ()=>{
+        try {
+            return localStorage.getItem(storageKey);
+        } catch (e) {
+            return null;
+        }
+    };
+    ThemeModule.systemPrefersDark = ()=>{
+        return typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    };
+    ThemeModule.init = (defaultTheme)=>{
+        const theme = ThemeModule.getStored() || defaultTheme || (ThemeModule.systemPrefersDark() ? "dark" : "light");
+        ThemeModule.set(theme, {
+            persist: false,
+            notify: false
+        });
+    };
+})(ThemeModule || (ThemeModule = {}));
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"6LI5Z":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "ToastModule", ()=>ToastModule);
@@ -15201,7 +15246,7 @@ class InputBase extends (0, _juelComponent.JuelComponent) {
         <div part="input-group" class="${(0, _classMap.classMap)(klass)}"> 
             <div><slot name="prepend"></slot>
                 ${this.renderInput()}
-            ${(0, _when.when)(this.hasDropdown, ()=>(0, _lit.html)`<button id="dropdown-toggle" @click="${this.toggleDropdown}"></button>`)}
+            ${(0, _when.when)(this.hasDropdown, ()=>(0, _lit.html)`<button type="button" id="dropdown-toggle" @click="${this.toggleDropdown}"></button>`)}
             <slot @slotchange="${this.dropdownSlotChange}" name="dropdown" style="display: none"></slot>
             <slot name="append"></slot></div>
         </div>`;
@@ -17395,7 +17440,7 @@ let CircleIconButton = class CircleIconButton extends (0, _inputBase.InputBase) 
         let klass = this.getInputClass();
         if (this.isIcon == true) klass = 'icon ' + klass;
         return (0, _lit.html)`
-      <button @click=${this._handleClick} style="${styles}" class="${klass}" aria-label="${this.label}">
+      <button type="button" @click=${this._handleClick} style="${styles}" class="${klass}" aria-label="${this.label}">
       ${(0, _when.when)(this.isIcon == false, ()=>(0, _lit.html)`<span class="icon empty">${this.icon}</span>`)}
       </button>
     `;
@@ -25630,7 +25675,7 @@ let JuelAlert = class JuelAlert extends (0, _lit.LitElement) {
           ${this.title ? (0, _lit.html)`<div class="title">${this.title}</div>` : ''}
           <slot></slot>
         </div>
-        ${this.closeable ? (0, _lit.html)`<button class="close-button" aria-label="Close" @click="${this._handleClose}"></button>` : ''}
+        ${this.closeable ? (0, _lit.html)`<button type="button" class="close-button" aria-label="Close" @click="${this._handleClose}"></button>` : ''}
       </div>
     `;
     }
@@ -33276,8 +33321,10 @@ var _form = require("./Form/Form");
 var _pointSelector = require("./PointSelector/PointSelector");
 var _htmlEditor = require("./HtmlEditor/HtmlEditor");
 var _markdownEditor = require("./MarkdownEditor/MarkdownEditor");
+var _themeToggle = require("./Theme/ThemeToggle");
+var _themeSelect = require("./Theme/ThemeSelect");
 
-},{"./Text/Text":"fY4wE","./Email/Email":"5MHUh","./Number/Number":"iLb8o","./Check/Check":"6ufe7","./Date/Date":"7B5ky","./Select/Select":"kOmxg","./Form/Form":"dJ7mt","./PointSelector/PointSelector":"lv78X","./HtmlEditor/HtmlEditor":"ic3R7","./MarkdownEditor/MarkdownEditor":"gJthw"}],"fY4wE":[function(require,module,exports,__globalThis) {
+},{"./Text/Text":"fY4wE","./Email/Email":"5MHUh","./Number/Number":"iLb8o","./Check/Check":"6ufe7","./Date/Date":"7B5ky","./Select/Select":"kOmxg","./Form/Form":"dJ7mt","./PointSelector/PointSelector":"lv78X","./HtmlEditor/HtmlEditor":"ic3R7","./MarkdownEditor/MarkdownEditor":"gJthw","./Theme/ThemeToggle":"cRYOs","./Theme/ThemeSelect":"ix2vv"}],"fY4wE":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "JuelText", ()=>JuelText);
@@ -33407,8 +33454,9 @@ JuelEmail.styles = (0, _lit.css)`
     }
 
     input:focus {
-      border-color: #0078d4;
-      outline: none;
+      border-color: var(--primary, #0078d4);
+      outline: 2px solid var(--primary, #0078d4);
+      outline-offset: 1px;
     }
   `;
 __decorate([
@@ -33556,15 +33604,19 @@ JuelCheck.styles = (0, _lit.css)`
       appearance: none;
       width: 24px;
       height: 24px;
-      border: 2px solid #007bff;
+      border: 2px solid var(--primary, #007bff);
       border-radius: 4px;
       outline: none;
       cursor: pointer;
       transition: background-color 0.2s, border-color 0.2s;
     }
     .checkbox-container input[type="checkbox"]:checked {
-      background-color: #007bff;
-      border-color: #007bff;
+      background-color: var(--primary, #007bff);
+      border-color: var(--primary, #007bff);
+    }
+    .checkbox-container input[type="checkbox"]:focus-visible {
+      outline: 2px solid var(--primary, #007bff);
+      outline-offset: 2px;
     }
     .checkbox-container input[type="checkbox"]:checked::after {
       content: '';
@@ -33578,7 +33630,7 @@ JuelCheck.styles = (0, _lit.css)`
     .checkbox-container label {
       margin-left: 8px;
       font-size: 14px;
-      color: #333;
+      color: inherit;
     }
   `;
 __decorate([
@@ -33796,7 +33848,7 @@ let JuelSelect = class JuelSelect extends (0, _lit.LitElement) {
           <option value="" ?selected="${!this.value}">${this.placeholder}</option>
           ${data.length > 0 ? this.renderOptionsList(data) : (0, _lit.html)`<option disabled>No matches found</option>`}
         </select>
-        <button class="clear-button" @click="${this.handleClear}">Clear</button>
+        <button type="button" class="clear-button" @click="${this.handleClear}">Clear</button>
       </div>
     `;
     }
@@ -106315,7 +106367,137 @@ function enterFragments(mounts, ranges) {
     return result;
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"iddXM":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"cRYOs":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "JuelThemeToggle", ()=>JuelThemeToggle);
+var _lit = require("lit");
+var _decorators = require("lit/decorators");
+var _themeModule = require("../../_Modules/Theme/ThemeModule");
+var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let JuelThemeToggle = class JuelThemeToggle extends (0, _lit.LitElement) {
+    connectedCallback() {
+        super.connectedCallback();
+        this._checked = (0, _themeModule.ThemeModule).get() === this.darkTheme;
+        document.addEventListener((0, _themeModule.ThemeModule).changedEvent, this._onThemeChanged);
+    }
+    disconnectedCallback() {
+        document.removeEventListener((0, _themeModule.ThemeModule).changedEvent, this._onThemeChanged);
+        super.disconnectedCallback();
+    }
+    _handleToggled(e) {
+        (0, _themeModule.ThemeModule).set(e.detail.value ? this.darkTheme : this.lightTheme);
+    }
+    render() {
+        return (0, _lit.html)`<juel-toggle
+            .checked=${this._checked}
+            @toggled=${this._handleToggled}
+        ></juel-toggle>`;
+    }
+    constructor(){
+        super(...arguments);
+        this.lightTheme = "light";
+        this.darkTheme = "dark";
+        this._checked = false;
+        this._onThemeChanged = (e)=>{
+            this._checked = e.detail.theme === this.darkTheme;
+        };
+    }
+};
+JuelThemeToggle.styles = (0, _lit.css)`
+        :host {
+            display: inline-block;
+        }
+    `;
+__decorate([
+    (0, _decorators.property)({
+        attribute: "light-theme"
+    })
+], JuelThemeToggle.prototype, "lightTheme", void 0);
+__decorate([
+    (0, _decorators.property)({
+        attribute: "dark-theme"
+    })
+], JuelThemeToggle.prototype, "darkTheme", void 0);
+__decorate([
+    (0, _decorators.state)()
+], JuelThemeToggle.prototype, "_checked", void 0);
+JuelThemeToggle = __decorate([
+    (0, _decorators.customElement)("juel-theme-toggle")
+], JuelThemeToggle);
+
+},{"lit":"6MR4h","lit/decorators":"iBjLb","../../_Modules/Theme/ThemeModule":"5UDFm","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"ix2vv":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "JuelThemeSelect", ()=>JuelThemeSelect);
+var _lit = require("lit");
+var _decorators = require("lit/decorators");
+var _domstringMapConvertor = require("../../_Converters/DOMStringMapConvertor");
+var _themeModule = require("../../_Modules/Theme/ThemeModule");
+var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let JuelThemeSelect = class JuelThemeSelect extends (0, _lit.LitElement) {
+    connectedCallback() {
+        super.connectedCallback();
+        this._value = (0, _themeModule.ThemeModule).get() || Object.keys(this.themes)[0] || "";
+        document.addEventListener((0, _themeModule.ThemeModule).changedEvent, this._onThemeChanged);
+    }
+    disconnectedCallback() {
+        document.removeEventListener((0, _themeModule.ThemeModule).changedEvent, this._onThemeChanged);
+        super.disconnectedCallback();
+    }
+    _handleChange(e) {
+        (0, _themeModule.ThemeModule).set(e.target.value);
+    }
+    render() {
+        return (0, _lit.html)`<select @change=${this._handleChange}>
+            ${Object.entries(this.themes).map(([value, label])=>(0, _lit.html)`
+                <option value=${value} ?selected=${value === this._value}>${label}</option>
+            `)}
+        </select>`;
+    }
+    constructor(){
+        super(...arguments);
+        this.themes = {
+            light: "Light",
+            dark: "Dark"
+        };
+        this._value = "";
+        this._onThemeChanged = (e)=>{
+            this._value = e.detail.theme;
+        };
+    }
+};
+JuelThemeSelect.styles = (0, _lit.css)`
+        :host {
+            display: inline-block;
+        }
+        select {
+            font: inherit;
+        }
+    `;
+__decorate([
+    (0, _decorators.property)({
+        converter: (0, _domstringMapConvertor.DOMStringMapConverter)
+    })
+], JuelThemeSelect.prototype, "themes", void 0);
+__decorate([
+    (0, _decorators.state)()
+], JuelThemeSelect.prototype, "_value", void 0);
+JuelThemeSelect = __decorate([
+    (0, _decorators.customElement)("juel-theme-select")
+], JuelThemeSelect);
+
+},{"lit":"6MR4h","lit/decorators":"iBjLb","../../_Converters/DOMStringMapConvertor":"iIZ1z","../../_Modules/Theme/ThemeModule":"5UDFm","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"iddXM":[function(require,module,exports,__globalThis) {
 var _gallery = require("./Gallery/Gallery");
 var _lightbox = require("./Lightbox/Lightbox");
 var _carousel = require("./Carousel/Carousel");
@@ -106553,8 +106735,8 @@ let JuelLightbox = class JuelLightbox extends (0, _juelComponent.JuelComponent) 
           <div class="close-btn" @click="${this.closeLightbox}"></div>
           ${this.items.length > 0 && this.isOpen ? (0, _lightboxItemTemplate.lightboxItemTemplate)(this.items[this.currentIndex]) : (0, _lit.html)`<p>No images available</p>`}
           <div class="controls">
-            <button @click="${this.prevImage}" ?disabled="${this.items.length <= 1}">Previous</button>
-            <button @click="${this.nextImage}" ?disabled="${this.items.length <= 1}">Next</button>
+            <button type="button" @click="${this.prevImage}" ?disabled="${this.items.length <= 1}">Previous</button>
+            <button type="button" @click="${this.nextImage}" ?disabled="${this.items.length <= 1}">Next</button>
           </div>
         </div>
       </div>
@@ -106672,8 +106854,8 @@ let JuelCarousel = class JuelCarousel extends (0, _navigationBase.NavigationBase
     
           ${this.showControls ? (0, _lit.html)`
                 <div class="controls">
-                  <button class="control prev" @click="${this.prev}">&#9664;</button>
-                  <button class="control next" @click="${this.next}">&#9654;</button>
+                  <button type="button" class="control prev" @click="${this.prev}">&#9664;</button>
+                  <button type="button" class="control next" @click="${this.next}">&#9654;</button>
                 </div>
               ` : ''}
         `;
@@ -107809,6 +107991,7 @@ let JuelTabs = class JuelTabs extends (0, _navigationBase.NavigationBase) {
                 ${tab.title}
                 ${hasSubTabs ? (0, _lit.html)`
                   <button
+                    type="button"
                     class="expand-collapse-button"
                     aria-expanded="${expanded}"
                     aria-label="${expanded ? 'Collapse' : 'Expand'} ${tab.title} sub-tabs"
@@ -107848,6 +108031,7 @@ let JuelTabs = class JuelTabs extends (0, _navigationBase.NavigationBase) {
             ${subTab.title}
             ${hasSubTabs ? (0, _lit.html)`
               <button
+                type="button"
                 class="expand-collapse-button"
                 aria-expanded="${subExpanded}"
                 aria-label="${subExpanded ? 'Collapse' : 'Expand'} ${subTab.title} sub-tabs"
@@ -147207,6 +147391,7 @@ let JuelScrollTop = class JuelScrollTop extends (0, _lit.LitElement) {
     render() {
         return (0, _lit.html)`
       <button
+        type="button"
         class="${this.visible ? 'visible' : ''}"
         @click="${this.handleClick}"
         title="Scroll to top"
@@ -147833,10 +148018,10 @@ let JuelScanner = class JuelScanner extends (0, _lit.LitElement) {
       <div class="scanner-container" part="container">
         <video id="video" autoplay part="video"></video>
         ${(0, _when.when)(!this.trigger, ()=>(0, _lit.html)`
-          <button @click="${this.toggleScanning}" part="toggle-button">
+          <button type="button" @click="${this.toggleScanning}" part="toggle-button">
             ${this.scanning ? 'Stop Scanning' : 'Start Scanning'}
           </button>`, ()=>(0, _lit.html)`
-          <button @click="${this.hideScanner}" part="hide-button">Hide Scanner</button>`)}
+          <button type="button" @click="${this.hideScanner}" part="hide-button">Hide Scanner</button>`)}
       </div>
     `;
     }

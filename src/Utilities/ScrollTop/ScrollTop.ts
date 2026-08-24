@@ -48,6 +48,7 @@ export class JuelScrollTop extends LitElement {
   render() {
     return html`
       <button
+        type="button"
         class="${this.visible ? 'visible' : ''}"
         @click="${this.handleClick}"
         title="Scroll to top"

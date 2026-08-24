@@ -111,8 +111,8 @@ export class JuelLightbox extends JuelComponent {
             ? lightboxItemTemplate(this.items[this.currentIndex])
             : html`<p>No images available</p>`}
           <div class="controls">
-            <button @click="${this.prevImage}" ?disabled="${this.items.length <= 1}">Previous</button>
-            <button @click="${this.nextImage}" ?disabled="${this.items.length <= 1}">Next</button>
+            <button type="button" @click="${this.prevImage}" ?disabled="${this.items.length <= 1}">Previous</button>
+            <button type="button" @click="${this.nextImage}" ?disabled="${this.items.length <= 1}">Next</button>
           </div>
         </div>
       </div>

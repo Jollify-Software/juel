@@ -37,7 +37,7 @@ export class CircleIconButton extends InputBase {
     }
 
     return html`
-      <button @click=${this._handleClick} style="${styles}" class="${klass}" aria-label="${this.label}">
+      <button type="button" @click=${this._handleClick} style="${styles}" class="${klass}" aria-label="${this.label}">
       ${when(this.isIcon == false, () => html`<span class="icon empty">${this.icon}</span>`)}
       </button>
     `;

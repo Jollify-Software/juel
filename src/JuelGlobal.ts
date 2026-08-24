@@ -20,6 +20,12 @@ import { Iconify } from "./_Modules/Icons/IconifyFunction";
 import { DomReady } from "./_Utils/DomReady";
 
 (<any>window).juel = JuelModule;
+
+// Applied synchronously (not deferred to DomReady) because juel.js is
+// typically a blocking <head> script — setting data-theme here, before
+// <body> exists, avoids a flash of the wrong theme on load.
+JuelModule.theme.init();
+
 // A large number of components (ListBase, Toggle, Lightbox, Modal, etc.) reference
 // the bare global `$`/`jQuery` with no local import of their own. jQuery does NOT
 // self-attach to window when bundled via a CommonJS-style import (Parcel), so this
