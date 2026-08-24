@@ -12,6 +12,18 @@
             font-size: 0.875rem;
             color: var(--secondary);
         }
+        .audio-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .audio-playing-list {
+            font-family: var(--font-monospace, monospace);
+            font-size: 0.8125rem;
+            color: var(--secondary, #6c757d);
+            margin: 0;
+        }
     </style>
 </head>
 
@@ -21,33 +33,63 @@
     <header class="example-header">
         <h1>Audio</h1>
         <p>
-            <code>window.juel.audio.play(src)</code> plays a sound by URL. It returns <code>true</code>
-            if playback started, or <code>false</code> if that same <code>src</code> is already playing —
-            calling it again on a still-playing sound is a no-op rather than restarting or layering it.
+            <code>window.juel.audio</code> tracks in-flight sounds by <code>src</code>.
+            <code>play(src)</code> starts a new sound, or resumes it if paused — returns
+            <code>false</code> only if that src is already actively playing.
+            <code>pause(src)</code> pauses in place (still tracked, so <code>play()</code> resumes
+            it); <code>stop(src)</code> pauses, rewinds, and forgets it entirely. <code>list()</code>
+            returns the currently-tracked src keys.
         </p>
     </header>
 
     <section class="example-section">
-        <h2>Play a sound</h2>
-        <p>Each button plays a different file. Click one twice quickly to see the dedup in action — the second call returns <code>false</code> until the first finishes.</p>
-        <div class="example-demo">
-            <juel-button type="primary" label="Click" id="play-click"></juel-button>
-            <juel-button type="secondary" render-style="outline" label="Shepherd's Hey" id="play-jig"></juel-button>
+        <h2>Play, pause, stop</h2>
+        <p>Each row controls one sound independently.</p>
+        <div class="example-demo example-demo-column">
+            <div class="audio-row" data-src="../_Assets/click-mech.mp3">
+                <juel-button type="primary" render-style="outline" data-action="play">Play</juel-button>
+                <juel-button type="secondary" render-style="outline" data-action="pause">Pause</juel-button>
+                <juel-button type="secondary" render-style="outline" data-action="stop">Stop</juel-button>
+                <span>Click</span>
+            </div>
+            <div class="audio-row" data-src="../_Assets/Shepherd_Hey.mp3">
+                <juel-button type="primary" render-style="outline" data-action="play">Play</juel-button>
+                <juel-button type="secondary" render-style="outline" data-action="pause">Pause</juel-button>
+                <juel-button type="secondary" render-style="outline" data-action="stop">Stop</juel-button>
+                <span>Shepherd's Hey</span>
+            </div>
         </div>
         <p class="audio-status" id="audio-status">Play a sound to see its return value here.</p>
     </section>
 
+    <section class="example-section">
+        <h2>Currently tracked</h2>
+        <p><code>juel.audio.list()</code> — playing or paused sources (a stopped source is forgotten, not listed).</p>
+        <p class="audio-playing-list" id="audio-list">(none)</p>
+    </section>
+
     <script>
-        function bind(buttonId, src) {
-            document.getElementById(buttonId).addEventListener('click', () => {
-                const started = juel.audio.play(src);
-                document.getElementById('audio-status').textContent =
-                    `juel.audio.play(${JSON.stringify(src)}) → ${started}` +
-                    (started ? '' : ' (already playing)');
+        document.querySelectorAll('.audio-row').forEach(row => {
+            const src = row.dataset.src;
+            row.querySelectorAll('juel-button').forEach(btn => {
+                btn.addEventListener('button-clicked', () => {
+                    const action = btn.dataset.action;
+                    const result = juel.audio[action](src);
+                    document.getElementById('audio-status').textContent =
+                        `juel.audio.${action}(${JSON.stringify(src)}) → ${result}`;
+                    refreshList();
+                });
             });
+        });
+
+        function refreshList() {
+            const list = juel.audio.list();
+            document.getElementById('audio-list').textContent = list.length
+                ? list.map(src => `${src} (${juel.audio.isPlaying(src) ? 'playing' : 'paused'})`).join('\n')
+                : '(none)';
         }
-        bind('play-click', '../_Assets/click-mech.mp3');
-        bind('play-jig', '../_Assets/Shepherd_Hey.mp3');
+        setInterval(refreshList, 400);
+        refreshList();
     </script>
 </body>
 

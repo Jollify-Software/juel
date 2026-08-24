@@ -239,19 +239,46 @@ var AudioModule;
 (function(AudioModule) {
     let audios;
     AudioModule.play = (src)=>{
-        if (!audios || !(src in audios)) {
-            let audio = new Audio(src);
-            if (!audios) audios = {};
-            audios[src] = audio;
-            const forget = ()=>{
-                delete audios[src];
-            };
-            audio.onended = forget;
-            audio.onerror = forget;
-            audio.play().catch(forget);
+        if (!audios) audios = {};
+        if (src in audios) {
+            const audio = audios[src];
+            if (!audio.paused) return false;
+            audio.play().catch((err)=>onPlayRejected(src, err));
             return true;
-        } else return false;
+        }
+        let audio = new Audio(src);
+        audios[src] = audio;
+        audio.onended = ()=>forget(src);
+        audio.onerror = ()=>forget(src);
+        audio.play().catch((err)=>onPlayRejected(src, err));
+        return true;
     };
+    AudioModule.pause = (src)=>{
+        if (!audios || !(src in audios)) return false;
+        audios[src].pause();
+        return true;
+    };
+    AudioModule.stop = (src)=>{
+        if (!audios || !(src in audios)) return false;
+        const audio = audios[src];
+        audio.pause();
+        audio.currentTime = 0;
+        forget(src);
+        return true;
+    };
+    AudioModule.list = ()=>{
+        return audios ? Object.keys(audios) : [];
+    };
+    AudioModule.isPlaying = (src)=>{
+        return !!(audios && src in audios && !audios[src].paused);
+    };
+    function forget(src) {
+        delete audios[src];
+    }
+    function onPlayRejected(src, err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        forget(src);
+    }
 })(AudioModule || (AudioModule = {}));
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"btttT":[function(require,module,exports,__globalThis) {
