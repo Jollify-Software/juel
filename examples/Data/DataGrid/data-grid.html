@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Data Grid — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-data-grid {
+            --item-width: 160px;
+            --item-height: 110px;
+        }
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            background: var(--primary, #007bff);
+            color: #fff;
+            text-align: center;
+        }
+        .card .name {
+            font-weight: bold;
+        }
+        .card .role {
+            font-size: 0.8rem;
+            opacity: 0.85;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Data Grid</h1>
+        <p>
+            <code>&lt;juel-data-grid&gt;</code> fetches and paginates a data set, rendering each
+            record through a Lit template string set on <code>.template</code> (with
+            <code>this</code> bound to the record — e.g. <code>${this.text}</code>). Point it at a
+            REST-style endpoint with <code>url</code>/<code>list</code> (GET, appending
+            <code>currentPage</code>/<code>pageSize</code> query params), or set
+            <code>.retrieve</code> to a <code>(pagination) =&gt; Promise&lt;{ data, count }&gt;</code>
+            function for any other data source &mdash; this page uses an in-memory data set via
+            <code>.retrieve</code> so it needs no backend. Set <code>input</code> to show a
+            built-in search box that filters by <code>text-field</code>.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Paginated, searchable grid</h2>
+        <div class="example-demo">
+            <juel-data-grid id="grid" page-size="6" input text-field="text"></juel-data-grid>
+        </div>
+    </section>
+
+    <script>
+        // A stand-in "backend" — 42 fake people, sliced per page. Any real
+        // async source (fetch, IndexedDB, etc) can go here instead; the grid
+        // only needs { data, count } back.
+        const roles = ['Engineer', 'Designer', 'Manager', 'Analyst', 'Support'];
+        const allRecords = Array.from({ length: 42 }, (_, i) => ({
+            id: i + 1,
+            text: `Person ${i + 1}`,
+            role: roles[i % roles.length],
+        }));
+
+        const grid = document.getElementById('grid');
+        grid.template = '<div class="card"><div class="name">${this.text}</div><div class="role">${this.role}</div></div>';
+        grid.retrieve = (pagination) => {
+            const page = pagination.currentPage || 1;
+            const pageSize = pagination.pageSize || 6;
+            const start = (page - 1) * pageSize;
+            return Promise.resolve({
+                data: allRecords.slice(start, start + pageSize),
+                count: allRecords.length,
+            });
+        };
+    </script>
+</body>
+
+</html>

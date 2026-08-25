@@ -17831,8 +17831,9 @@ parcelHelpers.exportAll(_directiveJs, exports);
 
 },{"lit-html/directive.js":"gaSgE","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"3kfbO":[function(require,module,exports,__globalThis) {
 var _table = require("./Table/Table");
+var _dataGrid = require("./DataGrid/DataGrid");
 
-},{"./Table/Table":"iytyP"}],"iytyP":[function(require,module,exports,__globalThis) {
+},{"./Table/Table":"iytyP","./DataGrid/DataGrid":"clPfO"}],"iytyP":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "SelectionMode", ()=>SelectionMode);
@@ -18049,7 +18050,607 @@ JuelColumn = __decorate([
     (0, _decoratorsJs.customElement)('juel-column')
 ], JuelColumn);
 
-},{"lit":"6MR4h","lit/decorators.js":"iBjLb","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"5lLgD":[function(require,module,exports,__globalThis) {
+},{"lit":"6MR4h","lit/decorators.js":"iBjLb","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"clPfO":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "JuelDataGrid", ()=>JuelDataGrid);
+var _lit = require("lit");
+var _decorators = require("lit/decorators");
+var _dataGridLess = require("bundle-text:./DataGrid.less");
+var _dataGridLessDefault = parcelHelpers.interopDefault(_dataGridLess);
+var _dataSource = require("../../_Core/Data/DataSource");
+var _youTubeDataSource = require("../../_Core/Data/YouTubeDataSource");
+var _when = require("lit/directives/when");
+var _until = require("lit/directives/until");
+var _childrenItemsTempate = require("../../_Templates/ChildrenItemsTempate");
+var _listItemsTemplate = require("../../_Templates/ListItemsTemplate");
+var _juelDataComponent = require("../../_Base/JuelDataComponent");
+var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let JuelDataGrid = class JuelDataGrid extends (0, _juelDataComponent.JuelDataComponent) {
+    ready() {
+        if (this.url || this.retrieve || this.provider) {
+            if (this.provider && this.provider == "youtube") this.dataSource = new (0, _youTubeDataSource.YouTubeDataSource)(this);
+            else this.dataSource = new (0, _dataSource.DataSource)();
+            if (this.url) {
+                this.dataSource.baseUrl = this.url;
+                if (this.list) this.dataSource.ListEndpoint = this.list;
+            } else if (!this.provider) this.dataSource.get = this.retrieve;
+            this.dataSource.pagination.pageSize = this.pageSize;
+            this.retrieveData();
+        }
+    }
+    refresh() {
+        this.retrieveData();
+    }
+    retrieveData() {
+        this.dataSource.retrieveData().then((data)=>{
+            this.data = data;
+            this.requestUpdate();
+            if (this.itemTemplate) {
+                this.retrievedDataStrings = [];
+                let p = [];
+                for (let value of data)p.push(this.itemTemplate(value).then((str)=>{
+                    this.retrievedDataStrings.push(str);
+                }));
+                Promise.all(p).then(()=>{
+                    this.requestUpdate();
+                });
+            } else this.requestUpdate();
+        });
+    }
+    get pageCount() {
+        if (!this.dataSource || !this.dataSource.pagination.recordCount) return 1;
+        return Math.max(1, Math.ceil(this.dataSource.pagination.recordCount / this.pageSize));
+    }
+    onPageChange(page) {
+        if (page < 1 || page > this.pageCount) return;
+        let pagination = this.dataSource.pagination;
+        if (page > pagination.currentPage && pagination.nextPageToken) pagination.currentPageToken = pagination.nextPageToken;
+        else if (page < pagination.currentPage && pagination.prevPageToken) pagination.currentPageToken = pagination.prevPageToken;
+        pagination.currentPage = page;
+        this.retrieveData();
+    }
+    render() {
+        let children = [
+            ...this.children
+        ];
+        let hasChildren = children.length > 0 && !children.some((el)=>el.matches('[slot="new"]') || el.matches('template'));
+        let newEl = this.querySelector('[slot="new"]');
+        let hasNew = newEl != null;
+        return (0, _lit.html)`${(0, _when.when)(this.input, ()=>(0, _lit.html)`<input type="text" @input="${(e)=>this.onInput(e)}" />`)}
+        <div class="items" part="items">
+        ${(0, _when.when)(hasNew, ()=>(0, _lit.html)`<div class="item"><slot name="new"></slot></div>`)}
+        ${(0, _when.when)(hasChildren, ()=>(0, _lit.html)`${(0, _until.until)((0, _childrenItemsTempate.ChildrenItemsTemplate)(this, [
+                ...this.children
+            ], 0, null, null, '[slot="new"]'))}`, ()=>(0, _until.until)((0, _listItemsTemplate.ListItemsTemplate)(this)))}
+        </div>${this.dataSource ? (0, _lit.html)`
+        <div class="pagination" part="pagination">
+            <button type="button" ?disabled=${this.dataSource.pagination.currentPage <= 1} @click=${()=>this.onPageChange(this.dataSource.pagination.currentPage - 1)}>&laquo; Prev</button>
+            <span class="page-info">Page ${this.dataSource.pagination.currentPage} of ${this.pageCount}</span>
+            <button type="button" ?disabled=${this.dataSource.pagination.currentPage >= this.pageCount} @click=${()=>this.onPageChange(this.dataSource.pagination.currentPage + 1)}>Next &raquo;</button>
+        </div>` : ``}`;
+    }
+    constructor(){
+        super();
+        this.pageSize = 40;
+    }
+};
+JuelDataGrid.styles = (0, _lit.unsafeCSS)((0, _dataGridLessDefault.default));
+__decorate([
+    (0, _decorators.property)()
+], JuelDataGrid.prototype, "url", void 0);
+__decorate([
+    (0, _decorators.property)()
+], JuelDataGrid.prototype, "list", void 0);
+__decorate([
+    (0, _decorators.property)()
+], JuelDataGrid.prototype, "provider", void 0);
+__decorate([
+    (0, _decorators.property)()
+], JuelDataGrid.prototype, "method", void 0);
+__decorate([
+    (0, _decorators.property)()
+], JuelDataGrid.prototype, "query", void 0);
+__decorate([
+    (0, _decorators.property)()
+], JuelDataGrid.prototype, "key", void 0);
+__decorate([
+    (0, _decorators.property)({
+        type: Number,
+        attribute: "page-size"
+    })
+], JuelDataGrid.prototype, "pageSize", void 0);
+__decorate([
+    (0, _decorators.property)({
+        type: Boolean
+    })
+], JuelDataGrid.prototype, "input", void 0);
+JuelDataGrid = __decorate([
+    (0, _decorators.customElement)("juel-data-grid")
+], JuelDataGrid);
+
+},{"lit":"6MR4h","lit/decorators":"iBjLb","bundle-text:./DataGrid.less":"c36wu","../../_Core/Data/DataSource":"i1UZn","../../_Core/Data/YouTubeDataSource":"9kIap","lit/directives/when":"isKig","lit/directives/until":"6wUkR","../../_Templates/ChildrenItemsTempate":"eItS6","../../_Templates/ListItemsTemplate":"bBHNi","../../_Base/JuelDataComponent":"hM8q2","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"c36wu":[function(require,module,exports,__globalThis) {
+module.exports = ":host {\n  flex-direction: column;\n  width: 100%;\n  display: inline-flex;\n}\n\n.items {\n  flex-wrap: wrap;\n  justify-content: center;\n  display: flex;\n}\n\n.items .item {\n  width: var(--item-width, 200px);\n  height: var(--item-height, 200px);\n  border: 1px solid #00000020;\n  border-radius: .25rem;\n  margin: 1rem;\n  padding: 1rem;\n}\n\n.pagination {\n  justify-content: center;\n  align-items: center;\n  gap: 1rem;\n  margin-top: 1rem;\n  display: flex;\n}\n\n.pagination button {\n  cursor: pointer;\n  background: #fff;\n  border: 1px solid #0003;\n  border-radius: .25rem;\n  padding: .4rem .9rem;\n}\n\n.pagination button:disabled {\n  opacity: .5;\n  cursor: default;\n}\n\n.pagination button:not(:disabled):hover {\n  background: #f1f3f5;\n}\n\n.pagination .page-info {\n  font-size: .875rem;\n}\n";
+
+},{}],"i1UZn":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "DataSource", ()=>DataSource);
+class DataSource {
+    buildListUrl() {
+        let url = `${this.baseUrl}${!this.baseUrl.includes('?') ? '?' : '&'}currentPage=${this.pagination.currentPage}&pageSize=${this.pagination.pageSize}`;
+        return url;
+    }
+    get(pagination) {
+        return fetch(this.buildListUrl()).then((response)=>{
+            return response.json();
+        });
+    }
+    retrieveData() {
+        return this.get(this.pagination).then((res)=>{
+            if (res.count) this.pagination.recordCount = res.count;
+            this.data = res.data;
+            return this.data;
+        });
+    }
+    constructor(){
+        this.pagination = {};
+        this.pagination = {
+            currentPage: 1,
+            pageSize: 40
+        };
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"9kIap":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "YouTubeDataSource", ()=>YouTubeDataSource);
+const Url_Playlist = "https://www.googleapis.com/youtube/v3/playlists";
+class YouTubeDataSource {
+    get(pagination) {
+        let query = `?key=${this.ele.key}&maxResults=${pagination.pageSize}`;
+        if (pagination.currentPageToken) query += `&pageToken=${pagination.currentPageToken}`;
+        if (this.ele.query) query += `&${this.ele.query.replace(';', '&')}`;
+        return fetch(`${this.ListEndpoint}${query ? query : ''}`).then((response)=>{
+            return new Promise((resolve)=>{
+                response.json().then((json)=>{
+                    var list = json;
+                    if ("nextPageToken" in json) this.pagination.nextPageToken = list.nextPageToken;
+                    if ("prevPageToken" in json) this.pagination.prevPageToken = list.prevPageToken;
+                    let res = {
+                        data: list.items,
+                        count: list.pageInfo.totalResults
+                    };
+                    resolve(res);
+                });
+            });
+        });
+    }
+    retrieveData() {
+        return this.get(this.pagination).then((res)=>{
+            if (res.count) this.pagination.recordCount = res.count;
+            this.data = res.data;
+            return this.data;
+        });
+    }
+    constructor(ele){
+        this.ele = ele;
+        this.pagination = {};
+        switch(ele.method){
+            case "playlist":
+                this.ListEndpoint = Url_Playlist;
+                break;
+        }
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"6wUkR":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _untilJs = require("lit-html/directives/until.js");
+parcelHelpers.exportAll(_untilJs, exports);
+
+},{"lit-html/directives/until.js":"3d1KM","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"3d1KM":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "UntilDirective", ()=>we);
+parcelHelpers.export(exports, "until", ()=>be);
+var _asyncToGenerator = require("@swc/helpers/_/_async_to_generator");
+var _litHtmlJs = require("../lit-html.js");
+var _directiveHelpersJs = require("../directive-helpers.js");
+var _asyncDirectiveJs = require("../async-directive.js");
+var _privateAsyncHelpersJs = require("./private-async-helpers.js");
+var _directiveJs = require("../directive.js");
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ const me = (t)=>!(0, _directiveHelpersJs.isPrimitive)(t) && "function" == typeof t.then, _e = 1073741823;
+class we extends (0, _asyncDirectiveJs.AsyncDirective) {
+    render(...t) {
+        var _t_find;
+        return (_t_find = t.find((t)=>!me(t))) !== null && _t_find !== void 0 ? _t_find : (0, _litHtmlJs.noChange);
+    }
+    update(t, s) {
+        const i = this.bt;
+        let e = i.length;
+        this.bt = s;
+        const r = this.K, o = this.X;
+        this.isConnected || this.disconnected();
+        for(let t = 0; t < s.length && !(t > this.wt); t++){
+            const n = s[t];
+            if (!me(n)) return this.wt = t, n;
+            t < e && n === i[t] || (this.wt = _e, e = 0, Promise.resolve(n).then(/*#__PURE__*/ function() {
+                var _ref = (0, _asyncToGenerator._)(function*(t) {
+                    for(; o.get();)yield o.get();
+                    const s = r.deref();
+                    if (void 0 !== s) {
+                        const i = s.bt.indexOf(n);
+                        i > -1 && i < s.wt && (s.wt = i, s.setValue(t));
+                    }
+                });
+                return function(t) {
+                    return _ref.apply(this, arguments);
+                };
+            }()));
+        }
+        return 0, _litHtmlJs.noChange;
+    }
+    disconnected() {
+        this.K.disconnect(), this.X.pause();
+    }
+    reconnected() {
+        this.K.reconnect(this), this.X.resume();
+    }
+    constructor(){
+        super(...arguments), this.wt = _e, this.bt = [], this.K = new (0, _privateAsyncHelpersJs.PseudoWeakRef)(this), this.X = new (0, _privateAsyncHelpersJs.Pauser);
+    }
+}
+const be = (0, _directiveJs.directive)(we);
+
+},{"@swc/helpers/_/_async_to_generator":"bp41a","../lit-html.js":"ih911","../directive-helpers.js":"9F42b","../async-directive.js":"ngk0V","./private-async-helpers.js":"2pgVX","../directive.js":"gaSgE","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"2pgVX":[function(require,module,exports,__globalThis) {
+/**
+ * @license
+ * Copyright 2021 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Pauser", ()=>Et);
+parcelHelpers.export(exports, "PseudoWeakRef", ()=>Tt);
+parcelHelpers.export(exports, "forAwaitOf", ()=>ti);
+var _asyncIterator = require("@swc/helpers/_/_async_iterator");
+var _asyncToGenerator = require("@swc/helpers/_/_async_to_generator");
+const ti = /*#__PURE__*/ function() {
+    var _ref = (0, _asyncToGenerator._)(function*(t, s) {
+        {
+            var _iteratorAbruptCompletion = false, _didIteratorError = false, _iteratorError;
+            try {
+                for(var _iterator = (0, _asyncIterator._)(t), _step; _iteratorAbruptCompletion = !(_step = yield _iterator.next()).done; _iteratorAbruptCompletion = false){
+                    let _value = _step.value;
+                    const i = _value;
+                    if (!1 === (yield s(i))) return;
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally{
+                try {
+                    if (_iteratorAbruptCompletion && _iterator.return != null) {
+                        yield _iterator.return();
+                    }
+                } finally{
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+        }
+    });
+    return function ti(t, s) {
+        return _ref.apply(this, arguments);
+    };
+}();
+class Tt {
+    disconnect() {
+        this.Y = void 0;
+    }
+    reconnect(t) {
+        this.Y = t;
+    }
+    deref() {
+        return this.Y;
+    }
+    constructor(t){
+        this.Y = t;
+    }
+}
+class Et {
+    get() {
+        return this.Z;
+    }
+    pause() {
+        var _this_Z;
+        (_this_Z = this.Z) !== null && _this_Z !== void 0 ? _this_Z : this.Z = new Promise((t)=>this.q = t);
+    }
+    resume() {
+        var _this_q, _this;
+        (_this_q = (_this = this).q) === null || _this_q === void 0 ? void 0 : _this_q.call(_this), this.Z = this.q = void 0;
+    }
+    constructor(){
+        this.Z = void 0, this.q = void 0;
+    }
+}
+
+},{"@swc/helpers/_/_async_iterator":"6jGHT","@swc/helpers/_/_async_to_generator":"bp41a","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"6jGHT":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "_", ()=>_async_iterator);
+function _async_iterator(iterable) {
+    var method, async, sync, retry = 2;
+    for("undefined" != typeof Symbol && (async = Symbol.asyncIterator, sync = Symbol.iterator); retry--;){
+        if (async && null != (method = iterable[async])) return method.call(iterable);
+        if (sync && null != (method = iterable[sync])) return new AsyncFromSyncIterator(method.call(iterable));
+        async = "@@asyncIterator", sync = "@@iterator";
+    }
+    throw new TypeError("Object is not async iterable");
+}
+function AsyncFromSyncIterator(s) {
+    function AsyncFromSyncIteratorContinuation(r) {
+        if (Object(r) !== r) return Promise.reject(new TypeError(r + " is not an object."));
+        var done = r.done;
+        return Promise.resolve(r.value).then(function(value) {
+            return {
+                value: value,
+                done: done
+            };
+        });
+    }
+    return AsyncFromSyncIterator = function(s) {
+        this.s = s, this.n = s.next;
+    }, AsyncFromSyncIterator.prototype = {
+        s: null,
+        n: null,
+        next: function() {
+            return AsyncFromSyncIteratorContinuation(this.n.apply(this.s, arguments));
+        },
+        return: function(value) {
+            var ret = this.s.return;
+            return void 0 === ret ? Promise.resolve({
+                value: value,
+                done: !0
+            }) : AsyncFromSyncIteratorContinuation(ret.apply(this.s, arguments));
+        },
+        throw: function(value) {
+            var thr = this.s.return;
+            return void 0 === thr ? Promise.reject(value) : AsyncFromSyncIteratorContinuation(thr.apply(this.s, arguments));
+        }
+    }, new AsyncFromSyncIterator(s);
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"eItS6":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ChildrenItemsTemplate", ()=>ChildrenItemsTemplate);
+var _asyncToGenerator = require("@swc/helpers/_/_async_to_generator");
+var _lit = require("lit");
+var _map = require("lit/directives/map");
+var _itemTemplate = require("./ItemTemplate");
+function isItem(el, level) {
+    if ((el.hasAttribute(`data-${this.titleAttrName}`) || el.classList.contains("item") || el.hasAttribute("slot") == false && level == 0) && [
+        'TEMPLATE',
+        'H1',
+        'H2',
+        'H3',
+        'H4',
+        'H5',
+        'H6'
+    ].every((h)=>h != el.nodeName)) return true;
+    else {
+        let titleEl = this.titleIsNext ? el.nextElementSibling : el.previousElementSibling;
+        if (titleEl && titleEl.matches(this.titleSlotSelector)) return true;
+    }
+    return false;
+}
+function ChildrenItemsTemplate(component, children) {
+    return _ChildrenItemsTemplate.apply(this, arguments);
+}
+function _ChildrenItemsTemplate() {
+    _ChildrenItemsTemplate = (0, _asyncToGenerator._)(function*(component, children, level = 0, idStr, posStr, ...exclude) {
+        yield component.readyPromise;
+        if (exclude && exclude.length > 0) for (let sel of exclude)children = children.filter((el)=>!el.matches(sel));
+        children = children.filter((el)=>isItem(el, level));
+        component.itemsCount = children.length;
+        component.style.setProperty("--items-count", children.length.toString());
+        setTimeout(()=>{
+            component.itemsCreated();
+        });
+        let position = -1;
+        return (0, _lit.html)`${(0, _map.map)(children, (ele, i)=>{
+            position++;
+            let res = (0, _itemTemplate.ItemTemplate)(component, ele, i, position, 0, null, null);
+            position = res.position;
+            return res.template;
+        })}`;
+    });
+    return _ChildrenItemsTemplate.apply(this, arguments);
+}
+
+},{"@swc/helpers/_/_async_to_generator":"bp41a","lit":"6MR4h","lit/directives/map":"88TQh","./ItemTemplate":"kFYl4","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"88TQh":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _mapJs = require("lit-html/directives/map.js");
+parcelHelpers.exportAll(_mapJs, exports);
+
+},{"lit-html/directives/map.js":"jcGEj","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"jcGEj":[function(require,module,exports,__globalThis) {
+/**
+ * @license
+ * Copyright 2021 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "map", ()=>oo);
+function* oo(o, f) {
+    if (void 0 !== o) {
+        let i = 0;
+        for (const t of o)yield f(t, i++);
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"kFYl4":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ItemTemplate", ()=>ItemTemplate);
+var _lit = require("lit");
+var _unsafeHtml = require("lit/directives/unsafe-html");
+var _when = require("lit/directives/when");
+var _listBase = require("../_Base/ListBase");
+var _dispatchFunction = require("../_Core/DispatchFunction");
+var _eventNames = require("../_Core/Events/EventNames");
+var _dataDirective = require("../_Directives/DataDirective");
+var _fillTemplate = require("../_Utils/FillTemplate");
+function ItemTemplate(component, item, index, position, level = 0, idStr, posStr) {
+    let el = null;
+    let list = null;
+    let template = null;
+    let isHeading = false;
+    if ('multiselect' in component) list = component;
+    if (typeof item == "object" && 'nodeName' in item) el = item;
+    let i = position;
+    let id = idStr ? `${idStr}-${position}` : `item-${position}`;
+    let nposStr = posStr ? `${posStr}-${position}` : `${position}`;
+    let klass = "item";
+    let hasTitle = el && el.hasAttribute(`data-${component.titleAttrName}`);
+    let containerIsList = component.itemsContainer.nodeName == "UL";
+    let titleElId = `${id}-${component.titleAttrName}`;
+    let titleEl = !el ? null : component.titleIsNext ? el.nextElementSibling : el.previousElementSibling;
+    if (list && (el && el.tagName.startsWith("H") || typeof item == "object" && item.heading)) isHeading = true;
+    if (titleEl && titleEl.matches(`${component.titleSlotSelector}, h1, h2, h3, h4, h5, h6`)) {
+        hasTitle = true;
+        titleEl.setAttribute('slot', titleElId);
+    }
+    let itemClick;
+    let titleClick;
+    if (hasTitle) {
+        titleClick = (e)=>{
+            (0, _dispatchFunction.Dispatch)(component, (0, _eventNames.EventNames).TitleClick, null);
+            component.selectItem(i);
+        };
+        itemClick = (e)=>{
+            (0, _dispatchFunction.Dispatch)(component, (0, _eventNames.EventNames).ItemClick, null);
+        };
+    } else itemClick = (e)=>{
+        (0, _dispatchFunction.Dispatch)(component, (0, _eventNames.EventNames).ItemClick, null);
+        component.selectItem(i);
+    };
+    if (el) {
+        el.setAttribute('slot', id);
+        el.classList.add("item");
+        if (component.itemsDraggable == false) {
+            el.setAttribute('draggable', 'false');
+            el.setAttribute('ondragstart', "event.preventDefault();");
+        }
+    }
+    if (level > 0) {
+        el.remove();
+        this.append(el);
+        if (component.titlesContainer) component.titlesContainer.classList.add("group");
+    }
+    let itemTitle = (0, _lit.html)``;
+    if (containerIsList) {
+        if (el) {
+            if (isHeading) template = (0, _lit.html)`<li class="${klass}" part="item">
+                <slot name="${id}"></slot>
+                </li>`;
+            else template = (0, _lit.html)`<li @click="${()=>list.selectItem(i)}" class="${klass}" data-index="${position}" part="item">
+                <slot name="${id}"></slot>
+                </li>`;
+        } else if (list.fields && list.fields.length > 0) template = (0, _lit.html)`<tr class="${klass}"><tr>`;
+        else template = (0, _lit.html)`<li @click="${()=>list.selectItem(i)}" class="${klass}" ${(0, _dataDirective.data)((0, _listBase.ListBase).ValueKey, item)} data-index="${index}" part="item">
+            ${list.searchResult ? component.template ? (0, _fillTemplate.FillTemplateUnsafe)(component.template, item) : (0, _unsafeHtml.unsafeHTML)(item[list.textField]) : (0, _fillTemplate.FillTemplate)(component.template, item)}
+            </li>`;
+    } else {
+        if (hasTitle) {
+            if (component.titlesContainer) {
+                let itemTitle = document.createElement("div");
+                itemTitle.className = component.titleAttrName;
+                let titleSlot = document.createElement("slot");
+                titleSlot.name = titleElId;
+                itemTitle.append(titleSlot);
+                itemTitle.setAttribute("data-index", nposStr);
+                itemTitle.onclick = titleClick;
+                component.titlesContainer.append(itemTitle);
+            } else itemTitle = (0, _lit.html)`<div class="${component.titleAttrName}" @click=${titleClick}>
+                ${(0, _when.when)(el.dataset[component.titleAttrName], ()=>(0, _lit.html)`${el.dataset[component.titleAttrName]}`, ()=>(0, _lit.html)`<slot name="${titleElId}"></slot>`)}
+            </div>`;
+            if (component.itemsContainer.nodeName == "UL") template = (0, _lit.html)`${itemTitle}`;
+        }
+        if (el) template = (0, _lit.html)`${(0, _when.when)(containerIsList, ()=>itemTitle)}
+            <div @click="${itemClick}" class="${klass}" data-index="${nposStr}" part="item">
+                ${(0, _when.when)(containerIsList == false && !component.titlesContainer, ()=>itemTitle)}
+                <div class="item-content"><slot name="${id}"></slot></div>
+                </div>`;
+        else template = (0, _lit.html)`<div class="${klass}" ${(0, _dataDirective.data)("data", item)} data-index="${index}" part="item">
+            ${(0, _fillTemplate.FillTemplate)(component.template, item)}
+            </div>`;
+    }
+    return {
+        position: position,
+        template: template
+    };
+}
+
+},{"lit":"6MR4h","lit/directives/unsafe-html":"4kGiw","lit/directives/when":"isKig","../_Base/ListBase":"cBfhL","../_Core/DispatchFunction":"5ggGD","../_Core/Events/EventNames":"c7wfQ","../_Directives/DataDirective":"ateky","../_Utils/FillTemplate":"8ObEk","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"ateky":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "data", ()=>data);
+var _lit = require("lit");
+var _directive = require("lit/directive");
+class DataDirective extends (0, _directive.Directive) {
+    update(part, [name, data]) {
+        let el = part.element;
+        if (el) $(el).data(name, data);
+        return this.render(name, data);
+    }
+    render(name, data) {
+        return 0, _lit.noChange;
+    }
+}
+const data = (0, _directive.directive)(DataDirective);
+
+},{"lit":"6MR4h","lit/directive":"42kQ0","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"bBHNi":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ListItemsTemplate", ()=>ListItemsTemplate);
+var _asyncToGenerator = require("@swc/helpers/_/_async_to_generator");
+var _lit = require("lit");
+var _itemTemplate = require("./ItemTemplate");
+function ListItemsTemplate(list) {
+    return _ListItemsTemplate.apply(this, arguments);
+}
+function _ListItemsTemplate() {
+    _ListItemsTemplate = (0, _asyncToGenerator._)(function*(list) {
+        yield list.templatePromise;
+        let position = -1;
+        return (0, _lit.html)`${list.searchResult ? (0, _lit.html)`${list.searchResult.data.map((value, index)=>{
+            let res = (0, _itemTemplate.ItemTemplate)(list, value, index, position, 0, null, null);
+            position = res.position;
+            return res.template;
+        })}` : list.data && list.data.length > 0 ? (0, _lit.html)`${list.data.map((value, index)=>{
+            let res = (0, _itemTemplate.ItemTemplate)(list, value, index, position, 0, null, null);
+            position = res.position;
+            return res.template;
+        })}` : (0, _lit.nothing)}`;
+    });
+    return _ListItemsTemplate.apply(this, arguments);
+}
+
+},{"@swc/helpers/_/_async_to_generator":"bp41a","lit":"6MR4h","./ItemTemplate":"kFYl4","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"5lLgD":[function(require,module,exports,__globalThis) {
 var _dialogManager = require("./DialogManager/DialogManager");
 var _dialog = require("./DialogManager/Dialog");
 var _modal = require("./Modal/Modal");
@@ -107593,28 +108194,7 @@ __decorate([
     (0, _decorators.property)()
 ], FilteredBase.prototype, "all", void 0);
 
-},{"lit/decorators":"iBjLb","lit":"6MR4h","lit/directives/map":"88TQh","../_Utils/ToTitle":"d36Ye","lit/directives/choose":"ioI4o","lit/directives/when":"isKig","./JuelComponent":"6km1i","../_Utils/data/parseDataset":"ku7Ob","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"88TQh":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _mapJs = require("lit-html/directives/map.js");
-parcelHelpers.exportAll(_mapJs, exports);
-
-},{"lit-html/directives/map.js":"jcGEj","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"jcGEj":[function(require,module,exports,__globalThis) {
-/**
- * @license
- * Copyright 2021 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "map", ()=>oo);
-function* oo(o, f) {
-    if (void 0 !== o) {
-        let i = 0;
-        for (const t of o)yield f(t, i++);
-    }
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"d36Ye":[function(require,module,exports,__globalThis) {
+},{"lit/decorators":"iBjLb","lit":"6MR4h","lit/directives/map":"88TQh","../_Utils/ToTitle":"d36Ye","lit/directives/choose":"ioI4o","lit/directives/when":"isKig","./JuelComponent":"6km1i","../_Utils/data/parseDataset":"ku7Ob","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"d36Ye":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "toTitle", ()=>toTitle);
@@ -123953,359 +124533,7 @@ function getDegreePos(angleDeg, length) {
     };
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"6wUkR":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _untilJs = require("lit-html/directives/until.js");
-parcelHelpers.exportAll(_untilJs, exports);
-
-},{"lit-html/directives/until.js":"3d1KM","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"3d1KM":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "UntilDirective", ()=>we);
-parcelHelpers.export(exports, "until", ()=>be);
-var _asyncToGenerator = require("@swc/helpers/_/_async_to_generator");
-var _litHtmlJs = require("../lit-html.js");
-var _directiveHelpersJs = require("../directive-helpers.js");
-var _asyncDirectiveJs = require("../async-directive.js");
-var _privateAsyncHelpersJs = require("./private-async-helpers.js");
-var _directiveJs = require("../directive.js");
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ const me = (t)=>!(0, _directiveHelpersJs.isPrimitive)(t) && "function" == typeof t.then, _e = 1073741823;
-class we extends (0, _asyncDirectiveJs.AsyncDirective) {
-    render(...t) {
-        var _t_find;
-        return (_t_find = t.find((t)=>!me(t))) !== null && _t_find !== void 0 ? _t_find : (0, _litHtmlJs.noChange);
-    }
-    update(t, s) {
-        const i = this.bt;
-        let e = i.length;
-        this.bt = s;
-        const r = this.K, o = this.X;
-        this.isConnected || this.disconnected();
-        for(let t = 0; t < s.length && !(t > this.wt); t++){
-            const n = s[t];
-            if (!me(n)) return this.wt = t, n;
-            t < e && n === i[t] || (this.wt = _e, e = 0, Promise.resolve(n).then(/*#__PURE__*/ function() {
-                var _ref = (0, _asyncToGenerator._)(function*(t) {
-                    for(; o.get();)yield o.get();
-                    const s = r.deref();
-                    if (void 0 !== s) {
-                        const i = s.bt.indexOf(n);
-                        i > -1 && i < s.wt && (s.wt = i, s.setValue(t));
-                    }
-                });
-                return function(t) {
-                    return _ref.apply(this, arguments);
-                };
-            }()));
-        }
-        return 0, _litHtmlJs.noChange;
-    }
-    disconnected() {
-        this.K.disconnect(), this.X.pause();
-    }
-    reconnected() {
-        this.K.reconnect(this), this.X.resume();
-    }
-    constructor(){
-        super(...arguments), this.wt = _e, this.bt = [], this.K = new (0, _privateAsyncHelpersJs.PseudoWeakRef)(this), this.X = new (0, _privateAsyncHelpersJs.Pauser);
-    }
-}
-const be = (0, _directiveJs.directive)(we);
-
-},{"@swc/helpers/_/_async_to_generator":"bp41a","../lit-html.js":"ih911","../directive-helpers.js":"9F42b","../async-directive.js":"ngk0V","./private-async-helpers.js":"2pgVX","../directive.js":"gaSgE","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"2pgVX":[function(require,module,exports,__globalThis) {
-/**
- * @license
- * Copyright 2021 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Pauser", ()=>Et);
-parcelHelpers.export(exports, "PseudoWeakRef", ()=>Tt);
-parcelHelpers.export(exports, "forAwaitOf", ()=>ti);
-var _asyncIterator = require("@swc/helpers/_/_async_iterator");
-var _asyncToGenerator = require("@swc/helpers/_/_async_to_generator");
-const ti = /*#__PURE__*/ function() {
-    var _ref = (0, _asyncToGenerator._)(function*(t, s) {
-        {
-            var _iteratorAbruptCompletion = false, _didIteratorError = false, _iteratorError;
-            try {
-                for(var _iterator = (0, _asyncIterator._)(t), _step; _iteratorAbruptCompletion = !(_step = yield _iterator.next()).done; _iteratorAbruptCompletion = false){
-                    let _value = _step.value;
-                    const i = _value;
-                    if (!1 === (yield s(i))) return;
-                }
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally{
-                try {
-                    if (_iteratorAbruptCompletion && _iterator.return != null) {
-                        yield _iterator.return();
-                    }
-                } finally{
-                    if (_didIteratorError) {
-                        throw _iteratorError;
-                    }
-                }
-            }
-        }
-    });
-    return function ti(t, s) {
-        return _ref.apply(this, arguments);
-    };
-}();
-class Tt {
-    disconnect() {
-        this.Y = void 0;
-    }
-    reconnect(t) {
-        this.Y = t;
-    }
-    deref() {
-        return this.Y;
-    }
-    constructor(t){
-        this.Y = t;
-    }
-}
-class Et {
-    get() {
-        return this.Z;
-    }
-    pause() {
-        var _this_Z;
-        (_this_Z = this.Z) !== null && _this_Z !== void 0 ? _this_Z : this.Z = new Promise((t)=>this.q = t);
-    }
-    resume() {
-        var _this_q, _this;
-        (_this_q = (_this = this).q) === null || _this_q === void 0 ? void 0 : _this_q.call(_this), this.Z = this.q = void 0;
-    }
-    constructor(){
-        this.Z = void 0, this.q = void 0;
-    }
-}
-
-},{"@swc/helpers/_/_async_iterator":"6jGHT","@swc/helpers/_/_async_to_generator":"bp41a","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"6jGHT":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "_", ()=>_async_iterator);
-function _async_iterator(iterable) {
-    var method, async, sync, retry = 2;
-    for("undefined" != typeof Symbol && (async = Symbol.asyncIterator, sync = Symbol.iterator); retry--;){
-        if (async && null != (method = iterable[async])) return method.call(iterable);
-        if (sync && null != (method = iterable[sync])) return new AsyncFromSyncIterator(method.call(iterable));
-        async = "@@asyncIterator", sync = "@@iterator";
-    }
-    throw new TypeError("Object is not async iterable");
-}
-function AsyncFromSyncIterator(s) {
-    function AsyncFromSyncIteratorContinuation(r) {
-        if (Object(r) !== r) return Promise.reject(new TypeError(r + " is not an object."));
-        var done = r.done;
-        return Promise.resolve(r.value).then(function(value) {
-            return {
-                value: value,
-                done: done
-            };
-        });
-    }
-    return AsyncFromSyncIterator = function(s) {
-        this.s = s, this.n = s.next;
-    }, AsyncFromSyncIterator.prototype = {
-        s: null,
-        n: null,
-        next: function() {
-            return AsyncFromSyncIteratorContinuation(this.n.apply(this.s, arguments));
-        },
-        return: function(value) {
-            var ret = this.s.return;
-            return void 0 === ret ? Promise.resolve({
-                value: value,
-                done: !0
-            }) : AsyncFromSyncIteratorContinuation(ret.apply(this.s, arguments));
-        },
-        throw: function(value) {
-            var thr = this.s.return;
-            return void 0 === thr ? Promise.reject(value) : AsyncFromSyncIteratorContinuation(thr.apply(this.s, arguments));
-        }
-    }, new AsyncFromSyncIterator(s);
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"eItS6":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ChildrenItemsTemplate", ()=>ChildrenItemsTemplate);
-var _asyncToGenerator = require("@swc/helpers/_/_async_to_generator");
-var _lit = require("lit");
-var _map = require("lit/directives/map");
-var _itemTemplate = require("./ItemTemplate");
-function isItem(el, level) {
-    if ((el.hasAttribute(`data-${this.titleAttrName}`) || el.classList.contains("item") || el.hasAttribute("slot") == false && level == 0) && [
-        'TEMPLATE',
-        'H1',
-        'H2',
-        'H3',
-        'H4',
-        'H5',
-        'H6'
-    ].every((h)=>h != el.nodeName)) return true;
-    else {
-        let titleEl = this.titleIsNext ? el.nextElementSibling : el.previousElementSibling;
-        if (titleEl && titleEl.matches(this.titleSlotSelector)) return true;
-    }
-    return false;
-}
-function ChildrenItemsTemplate(component, children) {
-    return _ChildrenItemsTemplate.apply(this, arguments);
-}
-function _ChildrenItemsTemplate() {
-    _ChildrenItemsTemplate = (0, _asyncToGenerator._)(function*(component, children, level = 0, idStr, posStr, ...exclude) {
-        yield component.readyPromise;
-        if (exclude && exclude.length > 0) for (let sel of exclude)children = children.filter((el)=>!el.matches(sel));
-        children = children.filter((el)=>isItem(el, level));
-        component.itemsCount = children.length;
-        component.style.setProperty("--items-count", children.length.toString());
-        setTimeout(()=>{
-            component.itemsCreated();
-        });
-        let position = -1;
-        return (0, _lit.html)`${(0, _map.map)(children, (ele, i)=>{
-            position++;
-            let res = (0, _itemTemplate.ItemTemplate)(component, ele, i, position, 0, null, null);
-            position = res.position;
-            return res.template;
-        })}`;
-    });
-    return _ChildrenItemsTemplate.apply(this, arguments);
-}
-
-},{"@swc/helpers/_/_async_to_generator":"bp41a","lit":"6MR4h","lit/directives/map":"88TQh","./ItemTemplate":"kFYl4","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"kFYl4":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ItemTemplate", ()=>ItemTemplate);
-var _lit = require("lit");
-var _unsafeHtml = require("lit/directives/unsafe-html");
-var _when = require("lit/directives/when");
-var _listBase = require("../_Base/ListBase");
-var _dispatchFunction = require("../_Core/DispatchFunction");
-var _eventNames = require("../_Core/Events/EventNames");
-var _dataDirective = require("../_Directives/DataDirective");
-var _fillTemplate = require("../_Utils/FillTemplate");
-function ItemTemplate(component, item, index, position, level = 0, idStr, posStr) {
-    let el = null;
-    let list = null;
-    let template = null;
-    let isHeading = false;
-    if ('multiselect' in component) list = component;
-    if (typeof item == "object" && 'nodeName' in item) el = item;
-    let i = position;
-    let id = idStr ? `${idStr}-${position}` : `item-${position}`;
-    let nposStr = posStr ? `${posStr}-${position}` : `${position}`;
-    let klass = "item";
-    let hasTitle = el && el.hasAttribute(`data-${component.titleAttrName}`);
-    let containerIsList = component.itemsContainer.nodeName == "UL";
-    let titleElId = `${id}-${component.titleAttrName}`;
-    let titleEl = !el ? null : component.titleIsNext ? el.nextElementSibling : el.previousElementSibling;
-    if (list && (el && el.tagName.startsWith("H") || typeof item == "object" && item.heading)) isHeading = true;
-    if (titleEl && titleEl.matches(`${component.titleSlotSelector}, h1, h2, h3, h4, h5, h6`)) {
-        hasTitle = true;
-        titleEl.setAttribute('slot', titleElId);
-    }
-    let itemClick;
-    let titleClick;
-    if (hasTitle) {
-        titleClick = (e)=>{
-            (0, _dispatchFunction.Dispatch)(component, (0, _eventNames.EventNames).TitleClick, null);
-            component.selectItem(i);
-        };
-        itemClick = (e)=>{
-            (0, _dispatchFunction.Dispatch)(component, (0, _eventNames.EventNames).ItemClick, null);
-        };
-    } else itemClick = (e)=>{
-        (0, _dispatchFunction.Dispatch)(component, (0, _eventNames.EventNames).ItemClick, null);
-        component.selectItem(i);
-    };
-    if (el) {
-        el.setAttribute('slot', id);
-        el.classList.add("item");
-        if (component.itemsDraggable == false) {
-            el.setAttribute('draggable', 'false');
-            el.setAttribute('ondragstart', "event.preventDefault();");
-        }
-    }
-    if (level > 0) {
-        el.remove();
-        this.append(el);
-        if (component.titlesContainer) component.titlesContainer.classList.add("group");
-    }
-    let itemTitle = (0, _lit.html)``;
-    if (containerIsList) {
-        if (el) {
-            if (isHeading) template = (0, _lit.html)`<li class="${klass}" part="item">
-                <slot name="${id}"></slot>
-                </li>`;
-            else template = (0, _lit.html)`<li @click="${()=>list.selectItem(i)}" class="${klass}" data-index="${position}" part="item">
-                <slot name="${id}"></slot>
-                </li>`;
-        } else if (list.fields && list.fields.length > 0) template = (0, _lit.html)`<tr class="${klass}"><tr>`;
-        else template = (0, _lit.html)`<li @click="${()=>list.selectItem(i)}" class="${klass}" ${(0, _dataDirective.data)((0, _listBase.ListBase).ValueKey, item)} data-index="${index}" part="item">
-            ${list.searchResult ? component.template ? (0, _fillTemplate.FillTemplateUnsafe)(component.template, item) : (0, _unsafeHtml.unsafeHTML)(item[list.textField]) : (0, _fillTemplate.FillTemplate)(component.template, item)}
-            </li>`;
-    } else {
-        if (hasTitle) {
-            if (component.titlesContainer) {
-                let itemTitle = document.createElement("div");
-                itemTitle.className = component.titleAttrName;
-                let titleSlot = document.createElement("slot");
-                titleSlot.name = titleElId;
-                itemTitle.append(titleSlot);
-                itemTitle.setAttribute("data-index", nposStr);
-                itemTitle.onclick = titleClick;
-                component.titlesContainer.append(itemTitle);
-            } else itemTitle = (0, _lit.html)`<div class="${component.titleAttrName}" @click=${titleClick}>
-                ${(0, _when.when)(el.dataset[component.titleAttrName], ()=>(0, _lit.html)`${el.dataset[component.titleAttrName]}`, ()=>(0, _lit.html)`<slot name="${titleElId}"></slot>`)}
-            </div>`;
-            if (component.itemsContainer.nodeName == "UL") template = (0, _lit.html)`${itemTitle}`;
-        }
-        if (el) template = (0, _lit.html)`${(0, _when.when)(containerIsList, ()=>itemTitle)}
-            <div @click="${itemClick}" class="${klass}" data-index="${nposStr}" part="item">
-                ${(0, _when.when)(containerIsList == false && !component.titlesContainer, ()=>itemTitle)}
-                <div class="item-content"><slot name="${id}"></slot></div>
-                </div>`;
-        else template = (0, _lit.html)`<div class="${klass}" ${(0, _dataDirective.data)("data", item)} data-index="${index}" part="item">
-            ${(0, _fillTemplate.FillTemplate)(component.template, item)}
-            </div>`;
-    }
-    return {
-        position: position,
-        template: template
-    };
-}
-
-},{"lit":"6MR4h","lit/directives/unsafe-html":"4kGiw","lit/directives/when":"isKig","../_Base/ListBase":"cBfhL","../_Core/DispatchFunction":"5ggGD","../_Core/Events/EventNames":"c7wfQ","../_Directives/DataDirective":"ateky","../_Utils/FillTemplate":"8ObEk","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"ateky":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "data", ()=>data);
-var _lit = require("lit");
-var _directive = require("lit/directive");
-class DataDirective extends (0, _directive.Directive) {
-    update(part, [name, data]) {
-        let el = part.element;
-        if (el) $(el).data(name, data);
-        return this.render(name, data);
-    }
-    render(name, data) {
-        return 0, _lit.noChange;
-    }
-}
-const data = (0, _directive.directive)(DataDirective);
-
-},{"lit":"6MR4h","lit/directive":"42kQ0","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"eHQq7":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"eHQq7":[function(require,module,exports,__globalThis) {
 var _nav = require("./Nav/Nav");
 var _breadcrumb = require("./Breadcrumb/Breadcrumb");
 var _breadcrumbItem = require("./Breadcrumb/BreadcrumbItem");

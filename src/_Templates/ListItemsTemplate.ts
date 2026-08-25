@@ -1,11 +1,10 @@
 import { html, nothing, TemplateResult } from "lit";
 import { JuelDataComponent } from "../_Base/JuelDataComponent";
-import { ListBase } from "../_Base/ListBase";
 import { ChildrenItemsTemplate } from "./ChildrenItemsTempate";
 import { ItemTemplate } from "./ItemTemplate";
 import { TableTemplate } from "./TableTemplate";
 
-export async function ListItemsTemplate(list: ListBase): Promise<TemplateResult> {
+export async function ListItemsTemplate(list: JuelDataComponent): Promise<TemplateResult> {
     await list.templatePromise
     // if (list.fields && list.fields.length > 0) {
     //     return TableTemplate(list);

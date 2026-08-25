@@ -1,4 +1,4 @@
-import { JuelGrid } from "../../Grid/Grid";
+import { JuelDataGrid } from "../../Data/DataGrid/DataGrid";
 import { IDataSource } from "./IDataSource";
 import { ListResponse } from "./ListResponse";
 import { PaginationInfo } from "./PaginationInfo";
@@ -15,7 +15,7 @@ export class YouTubeDataSource implements IDataSource {
 
     data: any[];
 
-    constructor(private ele: JuelGrid) {
+    constructor(private ele: JuelDataGrid) {
         switch (ele.method) {
             case "playlist":
                 this.ListEndpoint = Url_Playlist;
