@@ -1,10 +1,37 @@
 import { Options } from "./Options";
 import { Step } from "./Step";
 
+const stylesId = "juel-guide-styles";
+const defaultHighlightPadding = "8px";
+const styles = `
+  .visual-guide-highlight {
+    transition: top .3s ease, left .3s ease, width .3s ease, height .3s ease, border-radius .3s ease;
+    animation: visual-guide-pulse 1.8s ease-out infinite;
+  }
+  .visual-guide-tooltip {
+    transition: top .3s ease, left .3s ease;
+  }
+  @keyframes visual-guide-pulse {
+    0%   { box-shadow: 0 0 0 9999px rgba(0, 0, 0, .7), 0 0 0 2px #fff, 0 0 0 0 rgba(255, 255, 255, .5); }
+    70%  { box-shadow: 0 0 0 9999px rgba(0, 0, 0, .7), 0 0 0 2px #fff, 0 0 0 12px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, .7), 0 0 0 2px #fff, 0 0 0 12px rgba(255, 255, 255, 0); }
+  }
+`;
+
+function ensureStyles(): void {
+  if (document.getElementById(stylesId)) return;
+  const style = document.createElement("style");
+  style.id = stylesId;
+  style.textContent = styles;
+  document.head.append(style);
+}
+
 export class VisualGuide {
     private steps: Step[];
     private currentStepIndex: number = 0;
     private overlay: HTMLElement | null = null;
+    private highlight: HTMLElement | null = null;
+    private tooltip: HTMLElement | null = null;
     private options: Options;
 
     constructor(steps: Step[], options: Options = {}) {
@@ -30,28 +57,54 @@ export class VisualGuide {
     }
 
     private createOverlay(): void {
+      ensureStyles();
+
+      // A transparent, full-viewport pointer-catcher — it blocks interaction
+      // with the rest of the page during the tour. The dimmed backdrop
+      // itself is drawn by the highlight box's own huge-spread box-shadow
+      // (below), which leaves a genuine see-through "cutout" over the
+      // target rather than just drawing a border on top of a uniformly
+      // darkened layer.
       const overlay = document.createElement("div");
       overlay.className = "visual-guide-overlay";
-
-      const style = `
+      overlay.style.cssText = `
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.7);
         z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
         font-family: Arial, sans-serif;
       `;
-      overlay.style.cssText = style;
-
       document.body.appendChild(overlay);
       this.overlay = overlay;
+
+      // Created once and kept alive across steps (rather than rebuilt from
+      // scratch every showStep()) so the CSS transitions above actually
+      // have something persistent to animate between old and new values.
+      const highlight = document.createElement("div");
+      highlight.className = "visual-guide-highlight";
+      highlight.style.cssText = `
+        position: fixed;
+        pointer-events: none;
+      `;
+      overlay.appendChild(highlight);
+      this.highlight = highlight;
+
+      const tooltip = document.createElement("div");
+      tooltip.className = "visual-guide-tooltip";
+      tooltip.style.cssText = `
+        position: fixed;
+        background: #333;
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        max-width: 320px;
+      `;
+      overlay.appendChild(tooltip);
+      this.tooltip = tooltip;
     }
 
     private showStep(index: number): void {
-      if (!this.overlay || index < 0 || index >= this.steps.length) {
+      if (!this.overlay || !this.highlight || !this.tooltip || index < 0 || index >= this.steps.length) {
         return;
       }
 
@@ -62,44 +115,96 @@ export class VisualGuide {
         return;
       }
 
-      this.overlay.innerHTML = ""; // Clear previous content
       this.currentStepIndex = index;
 
+      // A step's target can easily be scrolled out of view — e.g. the tour
+      // was started from a button further down the page than the first
+      // target. Without this, the highlight/tooltip still get created and
+      // positioned correctly relative to the viewport, just somewhere the
+      // user can't see, which looks exactly like "nothing happened."
+      this.scrollIntoViewIfNeeded(element, () => {
+        // A newer showStep() call may have superseded this one while the
+        // scroll was still settling (e.g. the user clicked Next twice in a
+        // row) — currentStepIndex only ever reflects the latest call, so a
+        // mismatch here means this callback is stale.
+        if (this.currentStepIndex !== index) return;
+        this.renderStep(index, step, element!);
+      });
+    }
+
+    private scrollIntoViewIfNeeded(element: Element, then: () => void): void {
+      const isVisible = () => {
+        const r = element.getBoundingClientRect();
+        return r.top >= 0 && r.left >= 0 && r.bottom <= window.innerHeight && r.right <= window.innerWidth;
+      };
+      if (isVisible()) {
+        then();
+        return;
+      }
+
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        window.removeEventListener("scrollend", onScrollEnd);
+        clearTimeout(fallbackTimer);
+        then();
+      };
+      // Don't just take the first scrollend — something else on the page
+      // (in testing, even Playwright's own pre-click auto-scroll of the
+      // button being clicked) can fire one moments before our own
+      // scrollIntoView() above has actually moved anything, which would
+      // otherwise resolve `then()` using the target's still-off-screen
+      // pre-scroll position. Only treat it as settled once the target
+      // itself is actually where we expect it; the timeout is a safety net
+      // for browsers with no scrollend event (Safari, as of this writing)
+      // or if visibility is never quite achievable (e.g. a target taller
+      // than the viewport).
+      const onScrollEnd = () => {
+        if (isVisible()) finish();
+      };
+      window.addEventListener("scrollend", onScrollEnd);
+      const fallbackTimer = setTimeout(finish, 600);
+    }
+
+    private renderStep(index: number, step: Step, element: Element): void {
+      if (!this.highlight || !this.tooltip) {
+        return;
+      }
+
       const targetRect = element.getBoundingClientRect();
+      const targetRadius = getComputedStyle(element).borderRadius || "4px";
+      const padding = this.resolveHighlightPadding();
 
-      // Highlight box
-      const highlight = document.createElement("div");
-      highlight.className = "visual-guide-highlight";
-      const highlightStyle = `
-        position: absolute;
-        top: ${targetRect.top}px;
-        left: ${targetRect.left}px;
-        width: ${targetRect.width}px;
-        height: ${targetRect.height}px;
-        border: 2px solid #fff;
-        box-shadow: 0 0 10px #fff;
-        pointer-events: none;
-      `;
-      highlight.style.cssText = highlightStyle;
+      this.highlight.style.top = `${targetRect.top - padding}px`;
+      this.highlight.style.left = `${targetRect.left - padding}px`;
+      this.highlight.style.width = `${targetRect.width + padding * 2}px`;
+      this.highlight.style.height = `${targetRect.height + padding * 2}px`;
+      this.highlight.style.borderRadius = targetRadius;
 
-      // Tooltip box
-      const tooltip = document.createElement("div");
-      tooltip.className = "visual-guide-tooltip";
-      const tooltipStyle = `
-        position: absolute;
-        top: ${targetRect.bottom + 10}px;
-        left: ${targetRect.left}px;
-        background: #333;
-        padding: 10px 15px;
-        border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-        z-index: 10000;
-      `;
-      tooltip.style.cssText = tooltipStyle;
+      // Prefer below the (padded) highlight; flip above if there's not
+      // enough room, so the tooltip stays on-screen for targets near the
+      // bottom of the viewport (a real concern once step targets vary in
+      // size/position).
+      const highlightTop = targetRect.top - padding;
+      const highlightBottom = targetRect.bottom + padding;
+      const estimatedTooltipHeight = 140;
+      const showAbove = highlightBottom + estimatedTooltipHeight > window.innerHeight && highlightTop > estimatedTooltipHeight;
+      const tooltipTop = showAbove ? highlightTop - estimatedTooltipHeight : highlightBottom + 10;
+      const tooltipLeft = Math.max(10, Math.min(targetRect.left - padding, window.innerWidth - 330));
 
-      // Built via DOM APIs rather than an innerHTML template — step.title/
-      // description are author-supplied data (potentially from an API or
-      // other dynamic source), so they go in via textContent, not raw HTML.
+      this.tooltip.style.top = `${tooltipTop}px`;
+      this.tooltip.style.left = `${tooltipLeft}px`;
+
+      // Content is rebuilt each step (it's cheap, and simpler than diffing)
+      // — only the highlight/tooltip *position* needs to persist for the
+      // transition to animate. step.title/description are author-supplied
+      // data (potentially from an API or other dynamic source), so they go
+      // in via textContent, not raw HTML.
+      this.tooltip.innerHTML = "";
+
       const progress = document.createElement("p");
       progress.style.cssText = "margin: 0 0 8px; font-size: 12px; opacity: .75;";
       progress.textContent = `Step ${index + 1} of ${this.steps.length}`;
@@ -113,35 +218,55 @@ export class VisualGuide {
       description.textContent = step.description;
 
       const buttonRow = document.createElement("div");
+      buttonRow.style.cssText = "display: flex; gap: 8px; flex-wrap: wrap;";
       const isFirst = index === 0;
       const isLast = index === this.steps.length - 1;
 
       if (!isFirst) {
-        const prevButton = document.createElement("button");
-        prevButton.textContent = "Previous";
-        prevButton.addEventListener("click", () => this.prevStep());
-        buttonRow.appendChild(prevButton);
+        buttonRow.appendChild(this.createButton("Previous", "secondary", "outline", () => this.prevStep()));
       }
 
-      const nextButton = document.createElement("button");
-      nextButton.textContent = isLast ? "Finish" : "Next";
-      nextButton.addEventListener("click", () => isLast ? this.end() : this.nextStep());
-      buttonRow.appendChild(nextButton);
+      buttonRow.appendChild(this.createButton(isLast ? "Finish" : "Next", "primary", null, () => isLast ? this.end() : this.nextStep()));
 
       if (!isLast) {
-        const endButton = document.createElement("button");
-        endButton.textContent = "End";
-        endButton.addEventListener("click", () => this.end());
-        buttonRow.appendChild(endButton);
+        buttonRow.appendChild(this.createButton("End", "secondary", "outline", () => this.end()));
       }
 
-      tooltip.appendChild(progress);
-      tooltip.appendChild(heading);
-      tooltip.appendChild(description);
-      tooltip.appendChild(buttonRow);
+      this.tooltip.appendChild(progress);
+      this.tooltip.appendChild(heading);
+      this.tooltip.appendChild(description);
+      this.tooltip.appendChild(buttonRow);
+    }
 
-      this.overlay.appendChild(highlight);
-      this.overlay.appendChild(tooltip);
+    // Resolves --guide-highlight-padding to a pixel number, however it's
+    // specified (px, rem, %, ...) — via a probe element rather than parsing
+    // the string, so any valid CSS length "just works". Reads it off the
+    // highlight element itself so a page can override the custom property
+    // at :root or scope it more narrowly if it wants to. The default lives
+    // here in JS, not as a competing :root rule in our own injected
+    // stylesheet — that stylesheet is only added lazily on first start(),
+    // so a rule there would load (and, in a specificity tie, win over) a
+    // page's own :root override declared earlier in the document.
+    private resolveHighlightPadding(): number {
+      if (!this.highlight) return 0;
+      const raw = getComputedStyle(this.highlight).getPropertyValue("--guide-highlight-padding").trim() || defaultHighlightPadding;
+      const probe = document.createElement("div");
+      probe.style.cssText = `position: absolute; visibility: hidden; height: 0; width: ${raw};`;
+      document.body.appendChild(probe);
+      const px = probe.getBoundingClientRect().width;
+      probe.remove();
+      return px;
+    }
+
+    private createButton(label: string, type: string, renderStyle: string | null, onClick: () => void): HTMLElement {
+      const button = document.createElement("juel-button") as HTMLElement & { label: string; type: string; renderStyle?: string };
+      button.label = label;
+      button.type = type;
+      if (renderStyle) {
+        button.setAttribute("render-style", renderStyle);
+      }
+      button.addEventListener("button-clicked", onClick);
+      return button;
     }
 
     private nextStep(): void {
@@ -185,6 +310,8 @@ export class VisualGuide {
       if (this.overlay) {
         document.body.removeChild(this.overlay);
         this.overlay = null;
+        this.highlight = null;
+        this.tooltip = null;
       }
     }
   }

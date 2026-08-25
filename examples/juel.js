@@ -433,6 +433,29 @@ var GuideModule;
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "VisualGuide", ()=>VisualGuide);
+const stylesId = "juel-guide-styles";
+const defaultHighlightPadding = "8px";
+const styles = `
+  .visual-guide-highlight {
+    transition: top .3s ease, left .3s ease, width .3s ease, height .3s ease, border-radius .3s ease;
+    animation: visual-guide-pulse 1.8s ease-out infinite;
+  }
+  .visual-guide-tooltip {
+    transition: top .3s ease, left .3s ease;
+  }
+  @keyframes visual-guide-pulse {
+    0%   { box-shadow: 0 0 0 9999px rgba(0, 0, 0, .7), 0 0 0 2px #fff, 0 0 0 0 rgba(255, 255, 255, .5); }
+    70%  { box-shadow: 0 0 0 9999px rgba(0, 0, 0, .7), 0 0 0 2px #fff, 0 0 0 12px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, .7), 0 0 0 2px #fff, 0 0 0 12px rgba(255, 255, 255, 0); }
+  }
+`;
+function ensureStyles() {
+    if (document.getElementById(stylesId)) return;
+    const style = document.createElement("style");
+    style.id = stylesId;
+    style.textContent = styles;
+    document.head.append(style);
+}
 class VisualGuide {
     start() {
         var _this_options_onStart, _this_options;
@@ -452,60 +475,99 @@ class VisualGuide {
         this.unbindKeyboardEvents();
     }
     createOverlay() {
+        ensureStyles();
         const overlay = document.createElement("div");
         overlay.className = "visual-guide-overlay";
-        const style = `
+        overlay.style.cssText = `
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.7);
         z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
         font-family: Arial, sans-serif;
       `;
-        overlay.style.cssText = style;
         document.body.appendChild(overlay);
         this.overlay = overlay;
+        const highlight = document.createElement("div");
+        highlight.className = "visual-guide-highlight";
+        highlight.style.cssText = `
+        position: fixed;
+        pointer-events: none;
+      `;
+        overlay.appendChild(highlight);
+        this.highlight = highlight;
+        const tooltip = document.createElement("div");
+        tooltip.className = "visual-guide-tooltip";
+        tooltip.style.cssText = `
+        position: fixed;
+        background: #333;
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        max-width: 320px;
+      `;
+        overlay.appendChild(tooltip);
+        this.tooltip = tooltip;
     }
     showStep(index) {
-        if (!this.overlay || index < 0 || index >= this.steps.length) return;
+        if (!this.overlay || !this.highlight || !this.tooltip || index < 0 || index >= this.steps.length) return;
         const step = this.steps[index];
         let element = document.querySelector(step.selector);
         if (!element) {
             console.error(`VisualGuide: no element matches selector "${step.selector}" for step ${index + 1} \u{2014} leaving the guide where it was.`);
             return;
         }
-        this.overlay.innerHTML = "";
         this.currentStepIndex = index;
+        this.scrollIntoViewIfNeeded(element, ()=>{
+            if (this.currentStepIndex !== index) return;
+            this.renderStep(index, step, element);
+        });
+    }
+    scrollIntoViewIfNeeded(element, then) {
+        const isVisible = ()=>{
+            const r = element.getBoundingClientRect();
+            return r.top >= 0 && r.left >= 0 && r.bottom <= window.innerHeight && r.right <= window.innerWidth;
+        };
+        if (isVisible()) {
+            then();
+            return;
+        }
+        element.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+        let settled = false;
+        const finish = ()=>{
+            if (settled) return;
+            settled = true;
+            window.removeEventListener("scrollend", onScrollEnd);
+            clearTimeout(fallbackTimer);
+            then();
+        };
+        const onScrollEnd = ()=>{
+            if (isVisible()) finish();
+        };
+        window.addEventListener("scrollend", onScrollEnd);
+        const fallbackTimer = setTimeout(finish, 600);
+    }
+    renderStep(index, step, element) {
+        if (!this.highlight || !this.tooltip) return;
         const targetRect = element.getBoundingClientRect();
-        const highlight = document.createElement("div");
-        highlight.className = "visual-guide-highlight";
-        const highlightStyle = `
-        position: absolute;
-        top: ${targetRect.top}px;
-        left: ${targetRect.left}px;
-        width: ${targetRect.width}px;
-        height: ${targetRect.height}px;
-        border: 2px solid #fff;
-        box-shadow: 0 0 10px #fff;
-        pointer-events: none;
-      `;
-        highlight.style.cssText = highlightStyle;
-        const tooltip = document.createElement("div");
-        tooltip.className = "visual-guide-tooltip";
-        const tooltipStyle = `
-        position: absolute;
-        top: ${targetRect.bottom + 10}px;
-        left: ${targetRect.left}px;
-        background: #333;
-        padding: 10px 15px;
-        border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-        z-index: 10000;
-      `;
-        tooltip.style.cssText = tooltipStyle;
+        const targetRadius = getComputedStyle(element).borderRadius || "4px";
+        const padding = this.resolveHighlightPadding();
+        this.highlight.style.top = `${targetRect.top - padding}px`;
+        this.highlight.style.left = `${targetRect.left - padding}px`;
+        this.highlight.style.width = `${targetRect.width + padding * 2}px`;
+        this.highlight.style.height = `${targetRect.height + padding * 2}px`;
+        this.highlight.style.borderRadius = targetRadius;
+        const highlightTop = targetRect.top - padding;
+        const highlightBottom = targetRect.bottom + padding;
+        const estimatedTooltipHeight = 140;
+        const showAbove = highlightBottom + estimatedTooltipHeight > window.innerHeight && highlightTop > estimatedTooltipHeight;
+        const tooltipTop = showAbove ? highlightTop - estimatedTooltipHeight : highlightBottom + 10;
+        const tooltipLeft = Math.max(10, Math.min(targetRect.left - padding, window.innerWidth - 330));
+        this.tooltip.style.top = `${tooltipTop}px`;
+        this.tooltip.style.left = `${tooltipLeft}px`;
+        this.tooltip.innerHTML = "";
         const progress = document.createElement("p");
         progress.style.cssText = "margin: 0 0 8px; font-size: 12px; opacity: .75;";
         progress.textContent = `Step ${index + 1} of ${this.steps.length}`;
@@ -516,30 +578,34 @@ class VisualGuide {
         description.style.cssText = "margin: 0 0 10px;";
         description.textContent = step.description;
         const buttonRow = document.createElement("div");
+        buttonRow.style.cssText = "display: flex; gap: 8px; flex-wrap: wrap;";
         const isFirst = index === 0;
         const isLast = index === this.steps.length - 1;
-        if (!isFirst) {
-            const prevButton = document.createElement("button");
-            prevButton.textContent = "Previous";
-            prevButton.addEventListener("click", ()=>this.prevStep());
-            buttonRow.appendChild(prevButton);
-        }
-        const nextButton = document.createElement("button");
-        nextButton.textContent = isLast ? "Finish" : "Next";
-        nextButton.addEventListener("click", ()=>isLast ? this.end() : this.nextStep());
-        buttonRow.appendChild(nextButton);
-        if (!isLast) {
-            const endButton = document.createElement("button");
-            endButton.textContent = "End";
-            endButton.addEventListener("click", ()=>this.end());
-            buttonRow.appendChild(endButton);
-        }
-        tooltip.appendChild(progress);
-        tooltip.appendChild(heading);
-        tooltip.appendChild(description);
-        tooltip.appendChild(buttonRow);
-        this.overlay.appendChild(highlight);
-        this.overlay.appendChild(tooltip);
+        if (!isFirst) buttonRow.appendChild(this.createButton("Previous", "secondary", "outline", ()=>this.prevStep()));
+        buttonRow.appendChild(this.createButton(isLast ? "Finish" : "Next", "primary", null, ()=>isLast ? this.end() : this.nextStep()));
+        if (!isLast) buttonRow.appendChild(this.createButton("End", "secondary", "outline", ()=>this.end()));
+        this.tooltip.appendChild(progress);
+        this.tooltip.appendChild(heading);
+        this.tooltip.appendChild(description);
+        this.tooltip.appendChild(buttonRow);
+    }
+    resolveHighlightPadding() {
+        if (!this.highlight) return 0;
+        const raw = getComputedStyle(this.highlight).getPropertyValue("--guide-highlight-padding").trim() || defaultHighlightPadding;
+        const probe = document.createElement("div");
+        probe.style.cssText = `position: absolute; visibility: hidden; height: 0; width: ${raw};`;
+        document.body.appendChild(probe);
+        const px = probe.getBoundingClientRect().width;
+        probe.remove();
+        return px;
+    }
+    createButton(label, type, renderStyle, onClick) {
+        const button = document.createElement("juel-button");
+        button.label = label;
+        button.type = type;
+        if (renderStyle) button.setAttribute("render-style", renderStyle);
+        button.addEventListener("button-clicked", onClick);
+        return button;
     }
     nextStep() {
         var _this_options_onNext, _this_options;
@@ -561,11 +627,15 @@ class VisualGuide {
         if (this.overlay) {
             document.body.removeChild(this.overlay);
             this.overlay = null;
+            this.highlight = null;
+            this.tooltip = null;
         }
     }
     constructor(steps, options = {}){
         this.currentStepIndex = 0;
         this.overlay = null;
+        this.highlight = null;
+        this.tooltip = null;
         this.handleKeyboardNavigation = (e)=>{
             const target = e.target;
             const isEditingText = !!target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);

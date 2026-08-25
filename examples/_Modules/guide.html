@@ -14,6 +14,48 @@
             background: #fff;
             display: inline-block;
         }
+        .guide-sizes-stage {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            width: 100%;
+        }
+        .guide-small {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary, #007bff);
+            color: #fff;
+            border-radius: 50%;
+            font-size: 1.25rem;
+        }
+        .guide-wide {
+            grid-column: span 3;
+            padding: 1rem;
+            background: var(--success, #28a745);
+            color: #fff;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .guide-tall {
+            grid-row: span 2;
+            padding: 1rem;
+            background: var(--dark, #343a40);
+            color: #fff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .guide-card {
+            grid-column: span 2;
+            padding: 2rem;
+            background: var(--warning, #ffc107);
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -23,21 +65,43 @@
     <header class="example-header">
         <h1>Guide</h1>
         <p>
-            <code>window.juel.guide</code> walks visitors through a page with a dimmed overlay, a
-            highlight box around each step's target element, and a tooltip. <code>start(steps,
-            options)</code> takes an array of <code>{ selector, title, description }</code> steps;
-            arrow keys move between steps and Escape ends the tour early.
+            <code>window.juel.guide</code> walks visitors through a page with a dimmed spotlight
+            overlay (inspired by <a href="https://driverjs.com/">Driver.js</a>), a highlight box
+            around each step's target element, and a tooltip. <code>start(steps, options)</code>
+            takes an array of <code>{ selector, title, description }</code> steps; arrow keys move
+            between steps and Escape ends the tour early. The highlight box smoothly animates its
+            position, size, and corner radius between steps.
         </p>
     </header>
 
     <section class="example-section">
         <h2>Basic</h2>
-        <p>Highlights three elements on this page in turn.</p>
+        <p>Highlights three same-sized elements on this page in turn.</p>
         <div class="example-demo">
             <div id="guide-step-1" class="guide-target">Step one target</div>
             <div id="guide-step-2" class="guide-target">Step two target</div>
             <div id="guide-step-3" class="guide-target">Step three target</div>
             <juel-button type="primary" label="Start tour" id="start-basic-guide"></juel-button>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Different-sized targets</h2>
+        <p>
+            A tour through very differently sized and shaped targets — watch the highlight box
+            smoothly resize and reposition (and match each target's own corner radius) as it moves
+            between them, rather than jump-cutting.
+        </p>
+        <div class="example-demo">
+            <div class="guide-sizes-stage">
+                <div id="guide-size-small" class="guide-small">★</div>
+                <div id="guide-size-tall" class="guide-tall">A tall, narrow target</div>
+                <div id="guide-size-card" class="guide-card">A big square-ish card</div>
+                <div id="guide-size-wide" class="guide-wide">A wide banner spanning the full row</div>
+            </div>
+        </div>
+        <div class="example-demo">
+            <juel-button type="primary" label="Start sizes tour" id="start-sizes-guide"></juel-button>
         </div>
     </section>
 
@@ -57,10 +121,21 @@
             { selector: '#guide-step-3', title: 'Step three', description: "That's the whole tour." },
         ];
 
+        const sizeSteps = [
+            { selector: '#guide-size-small', title: 'Small', description: 'A tiny circular target — the highlight box shrinks right down to it.' },
+            { selector: '#guide-size-tall', title: 'Tall', description: 'A tall, narrow target — watch the highlight box stretch vertically.' },
+            { selector: '#guide-size-card', title: 'Card', description: 'A big, roughly square target.' },
+            { selector: '#guide-size-wide', title: 'Wide', description: 'A wide banner spanning the full row — the highlight box stretches horizontally to match.' },
+        ];
+
         document.getElementById('start-basic-guide').addEventListener('click', () => {
             juel.guide.start(steps, {
                 onEnd: () => console.log('guide ended'),
             });
+        });
+
+        document.getElementById('start-sizes-guide').addEventListener('click', () => {
+            juel.guide.start(sizeSteps, {});
         });
 
         document.getElementById('start-tour-a').addEventListener('click', () => {
