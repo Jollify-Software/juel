@@ -13,7 +13,6 @@ import Styles from "bundle-text:./_CommonStyles/juel.less";
 import { IsMobile } from './_Utils/IsMobile';
 import { Vh } from './_Utils/Vh';
 import { ReverseString } from "./_Utils/ReverseStringFunction";
-import { TransitionModule } from "./_Modules/TransistionModule";
 import { WindowModule } from "./_Modules/WindowModule";
 import { ColourClasses } from "./ColourClasses";
 import { Iconify } from "./_Modules/Icons/IconifyFunction";
@@ -57,5 +56,4 @@ DomReady().then(() => {
     ColourClasses();
     
     WindowModule.documentClick();
-    TransitionModule.initTransitions();
 });

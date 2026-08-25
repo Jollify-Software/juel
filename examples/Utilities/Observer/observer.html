@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Observer — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .observer-spacer {
+            height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary, #6c757d);
+            font-size: 0.875rem;
+        }
+
+        /* Pure-CSS reveal: style the "before" and "in-view" states yourself —
+           juel-observer only ever adds/removes the class. */
+        .reveal-card {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        juel-observer.in-view .reveal-card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* juel-observer only sets display:block on itself — it doesn't
+           otherwise constrain size, but as a flex item in .example-demo it
+           still shrinks to its content's natural width by default, same as
+           any other block-level flex item would. Widen it explicitly so
+           the flex-wrap content inside has real room. */
+        juel-observer {
+            width: 100%;
+        }
+
+        .reveal-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .reveal-card {
+            flex: 1 1 160px;
+            padding: 1.5rem;
+            border-radius: 8px;
+            background: var(--primary, #007bff);
+            color: #fff;
+            text-align: center;
+            font-weight: bold;
+        }
+        .reveal-card:nth-child(2) { background: var(--success, #28a745); transition-delay: 0.1s; }
+        .reveal-card:nth-child(3) { background: var(--warning, #ffc107); transition-delay: 0.2s; }
+
+        .observer-stage {
+            width: 100%;
+            height: 160px;
+            border: 3px solid var(--dark, #343a40);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .observer-square {
+            width: 100px;
+            height: 100px;
+            background: var(--primary, #007bff);
+            border-radius: 4px;
+        }
+
+        /* Effect gallery — every effect below is nothing but CSS keyed off
+           .in-view; juel-observer itself has no idea any of this exists.
+           A data-effect attribute (mirroring AOS's own data-aos="...") just
+           keeps the selectors readable — juel-observer doesn't read it. */
+        .effect-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            width: 100%;
+            perspective: 800px;
+        }
+        .effect-box {
+            padding: 1.5rem 1rem;
+            border-radius: 8px;
+            background: var(--primary, #007bff);
+            color: #fff;
+            text-align: center;
+            font-weight: 600;
+            transition: opacity 0.6s ease, transform 0.6s ease, filter 0.6s ease;
+        }
+
+        juel-observer[data-effect="fade"] .effect-box { opacity: 0; }
+        juel-observer[data-effect="fade"].in-view .effect-box { opacity: 1; }
+
+        juel-observer[data-effect="fade-up"] .effect-box { opacity: 0; transform: translateY(30px); }
+        juel-observer[data-effect="fade-up"].in-view .effect-box { opacity: 1; transform: translateY(0); }
+
+        juel-observer[data-effect="fade-down"] .effect-box { opacity: 0; transform: translateY(-30px); }
+        juel-observer[data-effect="fade-down"].in-view .effect-box { opacity: 1; transform: translateY(0); }
+
+        juel-observer[data-effect="slide-left"] .effect-box { opacity: 0; transform: translateX(-60px); }
+        juel-observer[data-effect="slide-left"].in-view .effect-box { opacity: 1; transform: translateX(0); }
+
+        juel-observer[data-effect="slide-right"] .effect-box { opacity: 0; transform: translateX(60px); }
+        juel-observer[data-effect="slide-right"].in-view .effect-box { opacity: 1; transform: translateX(0); }
+
+        juel-observer[data-effect="pop-up"] .effect-box { opacity: 0; transform: scale(0.5); }
+        juel-observer[data-effect="pop-up"].in-view .effect-box {
+            opacity: 1;
+            transform: scale(1);
+            transition-timing-function: cubic-bezier(.34, 1.56, .64, 1); /* slight overshoot */
+        }
+
+        juel-observer[data-effect="pop-down"] .effect-box { opacity: 0; transform: scale(1.6); }
+        juel-observer[data-effect="pop-down"].in-view .effect-box { opacity: 1; transform: scale(1); }
+
+        juel-observer[data-effect="flip"] .effect-box { opacity: 0; transform: rotateY(90deg); }
+        juel-observer[data-effect="flip"].in-view .effect-box { opacity: 1; transform: rotateY(0); }
+
+        juel-observer[data-effect="rotate"] .effect-box { opacity: 0; transform: rotate(-25deg) scale(0.8); }
+        juel-observer[data-effect="rotate"].in-view .effect-box { opacity: 1; transform: rotate(0) scale(1); }
+
+        juel-observer[data-effect="blur"] .effect-box { opacity: 0; filter: blur(10px); }
+        juel-observer[data-effect="blur"].in-view .effect-box { opacity: 1; filter: blur(0); }
+
+        /* Fade in/out — deliberately NOT once, so the box fades back out
+           the moment it leaves view, then back in when it re-enters. */
+        .fade-toggle-box {
+            width: 160px;
+            padding: 2rem 1rem;
+            margin: 0 auto;
+            border-radius: 8px;
+            background: var(--success, #28a745);
+            color: #fff;
+            text-align: center;
+            font-weight: 600;
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        juel-observer.in-view .fade-toggle-box {
+            opacity: 1;
+            transform: scale(1);
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Observer</h1>
+        <p>
+            <code>&lt;juel-observer&gt;</code> is a declarative
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API">IntersectionObserver</a>
+            — wrap anything in it and it toggles <code>in-view-class</code> (default
+            <code>in-view</code>) on itself, and fires <code>observer-enter</code>/
+            <code>observer-leave</code>, whenever it crosses <code>threshold</code>. It has no
+            opinion on what "in view" means: style the class yourself for a pure-CSS reveal, or
+            wire a <code>&lt;juel-trigger&gt;</code> to the events to drive anything else —
+            play a <code>juel-animate</code>, show a toast — no JS required. <code>once</code>
+            stops observing after the first entrance instead of toggling back and forth.
+        </p>
+    </header>
+
+    <div class="observer-spacer">↓ scroll down ↓</div>
+
+    <section class="example-section">
+        <h2>Pure-CSS reveal</h2>
+        <p>Each card fades and slides up once, the moment it's 20% visible.</p>
+        <div class="example-demo">
+            <juel-observer threshold="0.2" once>
+                <div class="reveal-cards">
+                    <div class="reveal-card">One</div>
+                    <div class="reveal-card">Two</div>
+                    <div class="reveal-card">Three</div>
+                </div>
+            </juel-observer>
+        </div>
+    </section>
+
+    <div class="observer-spacer">↓ keep scrolling ↓</div>
+
+    <section class="example-section">
+        <h2>Effect gallery</h2>
+        <p>
+            Every effect here is plain CSS keyed off <code>.in-view</code> — <code>juel-observer</code>
+            has no idea any of it exists. The <code>data-effect</code> attribute is just this page's
+            own naming convention (echoing AOS's <code>data-aos="..."</code>), not something the
+            component reads.
+        </p>
+        <div class="example-demo">
+            <div class="effect-gallery">
+                <juel-observer threshold="0.3" once data-effect="fade"><div class="effect-box">Fade</div></juel-observer>
+                <juel-observer threshold="0.3" once data-effect="fade-up"><div class="effect-box">Fade up</div></juel-observer>
+                <juel-observer threshold="0.3" once data-effect="fade-down"><div class="effect-box">Fade down</div></juel-observer>
+                <juel-observer threshold="0.3" once data-effect="slide-left"><div class="effect-box">Slide in from left</div></juel-observer>
+                <juel-observer threshold="0.3" once data-effect="slide-right"><div class="effect-box">Slide in from right</div></juel-observer>
+                <juel-observer threshold="0.3" once data-effect="pop-up"><div class="effect-box">Pop up</div></juel-observer>
+                <juel-observer threshold="0.3" once data-effect="pop-down"><div class="effect-box">Pop down</div></juel-observer>
+                <juel-observer threshold="0.3" once data-effect="flip"><div class="effect-box">Flip</div></juel-observer>
+                <juel-observer threshold="0.3" once data-effect="rotate"><div class="effect-box">Rotate</div></juel-observer>
+                <juel-observer threshold="0.3" once data-effect="blur"><div class="effect-box">Blur in</div></juel-observer>
+            </div>
+        </div>
+    </section>
+
+    <div class="observer-spacer">↓ keep scrolling ↓</div>
+
+    <section class="example-section">
+        <h2>Fade in/out (repeating)</h2>
+        <p>
+            This one isn't <code>once</code> — scroll it out of view and it fades back out, then
+            fades back in when it returns. Compare to the effect gallery above, which each only
+            ever plays once.
+        </p>
+        <div class="example-demo">
+            <juel-observer threshold="0.3">
+                <div class="fade-toggle-box">I fade in and out</div>
+            </juel-observer>
+        </div>
+    </section>
+
+    <div class="observer-spacer">↓ keep scrolling ↓</div>
+
+    <section class="example-section">
+        <h2>Triggering a juel-animate on scroll</h2>
+        <p>
+            No JS at all here — <code>juel-observer</code> fires <code>observer-enter</code>,
+            a <code>juel-trigger</code> listens for it and plays the animation. Scroll away and
+            back (this one isn't <code>once</code>) to replay it.
+        </p>
+        <div class="example-demo">
+            <juel-observer id="scroll-observer" threshold="0.5">
+                <div class="observer-stage">
+                    <div id="square" class="observer-square"></div>
+                </div>
+            </juel-observer>
+        </div>
+
+        <juel-trigger selector="#scroll-observer" event="observer-enter">
+            <juel-trigger-action selector="#scroll-animate" action="play"></juel-trigger-action>
+        </juel-trigger>
+
+        <juel-animate id="scroll-animate" selector="#square">
+            <juel-animate-frame duration="600" easing="easeOutQuad" properties="translateX: +=200px"></juel-animate-frame>
+            <juel-animate-frame duration="600" easing="easeOutQuad" properties="translateX: -=200px"></juel-animate-frame>
+        </juel-animate>
+    </section>
+
+    <div class="observer-spacer">(end)</div>
+</body>
+
+</html>

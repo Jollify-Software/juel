@@ -169,7 +169,6 @@ var _juelLessDefault = parcelHelpers.interopDefault(_juelLess);
 var _isMobile = require("./_Utils/IsMobile");
 var _vh = require("./_Utils/Vh");
 var _reverseStringFunction = require("./_Utils/ReverseStringFunction");
-var _transistionModule = require("./_Modules/TransistionModule");
 var _colourClasses = require("./ColourClasses");
 var _iconifyFunction = require("./_Modules/Icons/IconifyFunction");
 var _domReady = require("./_Utils/DomReady");
@@ -203,10 +202,9 @@ window.jQuery = (0, _jqueryDefault.default);
     (0, _iconifyFunction.Iconify)();
     (0, _colourClasses.ColourClasses)();
     (0, _windowModule.WindowModule).documentClick();
-    (0, _transistionModule.TransitionModule).initTransitions();
 });
 
-},{"./_Modules/JuelModule":"bmRSq","./_Modules/WindowModule":"9IFek","jquery":"gGPhp","bundle-text:./_CommonStyles/juel.less":"1WSqP","./_Utils/IsMobile":"ipVYv","./_Utils/Vh":"aZuXV","./_Utils/ReverseStringFunction":"YlXWU","./_Modules/TransistionModule":"gOoIR","./ColourClasses":"cOVyu","./_Modules/Icons/IconifyFunction":"NDD3h","./_Utils/DomReady":"b6Rbc","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"bmRSq":[function(require,module,exports,__globalThis) {
+},{"./_Modules/JuelModule":"bmRSq","./_Modules/WindowModule":"9IFek","jquery":"gGPhp","bundle-text:./_CommonStyles/juel.less":"1WSqP","./_Utils/IsMobile":"ipVYv","./_Utils/Vh":"aZuXV","./_Utils/ReverseStringFunction":"YlXWU","./ColourClasses":"cOVyu","./_Modules/Icons/IconifyFunction":"NDD3h","./_Utils/DomReady":"b6Rbc","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"bmRSq":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "JuelModule", ()=>JuelModule);
@@ -8251,74 +8249,6 @@ function Vh() {
     vhChangeEventTypes.forEach(function(type) {
         window.addEventListener(type, (event)=>updateRealViewportDimensions());
     });
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"gOoIR":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "TransitionModule", ()=>TransitionModule);
-var _copyComutedStyles = require("../_Utils/CopyComutedStyles");
-var TransitionModule;
-(function(TransitionModule) {
-    const transitionNameRegEx = /(transition-?[0-9a-z]*)/;
-    function restoreStyle(element, styles) {
-        if (styles === null) element.removeAttribute("style");
-        else element.setAttribute("style", styles);
-    }
-    TransitionModule.initTransitions = ()=>{
-        var elements = document.querySelectorAll('[class*="transition"]');
-        for(let i = 0; i < elements.length; i++){
-            if (i == 0) continue;
-            let element = elements[i];
-            let previous = elements[i - 1];
-            element.classList.remove("transition");
-            let styles = element.getAttribute("style");
-            (0, _copyComutedStyles.CopyComputedStyles)(previous, element);
-            setTimeout(()=>{
-                element.classList.add("transition");
-                restoreStyle(element, styles);
-            }, 10);
-        }
-    };
-    TransitionModule.transitionElement = (element)=>{
-        let result = transitionNameRegEx.exec(element.className);
-        if (result && result.length > 0) {
-            let lastMatch = result[result.length - 1];
-            let elements = Array.from(document.querySelectorAll(`.${lastMatch}`));
-            let index = elements.indexOf(element);
-            if (index == 0) return;
-            let previous = elements[index - 1];
-            element.classList.remove("transition");
-            let styles = element.getAttribute("style");
-            (0, _copyComutedStyles.CopyComputedStyles)(previous, element);
-            setTimeout(()=>{
-                element.classList.add("transition");
-                restoreStyle(element, styles);
-            }, 10);
-        }
-    };
-})(TransitionModule || (TransitionModule = {}));
-
-},{"../_Utils/CopyComutedStyles":"htqeJ","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"htqeJ":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "CopyComputedStyles", ()=>CopyComputedStyles);
-var _copyStyles = require("./CopyStyles");
-function CopyComputedStyles(sourceElement, targetElement) {
-    const computedStyles = window.getComputedStyle(sourceElement);
-    (0, _copyStyles.CopyStyles)(computedStyles, targetElement);
-}
-
-},{"./CopyStyles":"13Bkz","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"13Bkz":[function(require,module,exports,__globalThis) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "CopyStyles", ()=>CopyStyles);
-function CopyStyles(styles, element) {
-    for(let i = 0; i < styles.length; i++){
-        const property = styles[i];
-        if (property == 'visibility') continue;
-        element.style.setProperty(property, styles.getPropertyValue(property));
-    }
 }
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"cOVyu":[function(require,module,exports,__globalThis) {
@@ -147474,8 +147404,9 @@ var _animateFrame = require("./Animate/AnimateFrame");
 var _codeHighlight = require("./CodeHighlight/CodeHighlight");
 var _device = require("./Device/Device");
 var _preload = require("./Preload/Preload");
+var _observer = require("./Observer/Observer");
 
-},{"./ScrollTop/ScrollTop":"7WJBM","./CookieConsent/CookieConsent":"3panj","./Countdown/Countdown":"1rAji","./Trigger/Trigger":"i5xPL","./Trigger/TriggerAction":"k8u5j","./Scroll/Scroll":"63afA","./Scanner/Scanner":"5jOVu","./Embed/Embed":"8g55t","./Animate/Animate":"kS9tH","./Animate/AnimateFrame":"26jzA","./CodeHighlight/CodeHighlight":"8SDnU","./Device/Device":"97jLO","./Preload/Preload":"434tI"}],"7WJBM":[function(require,module,exports,__globalThis) {
+},{"./ScrollTop/ScrollTop":"7WJBM","./CookieConsent/CookieConsent":"3panj","./Countdown/Countdown":"1rAji","./Trigger/Trigger":"i5xPL","./Trigger/TriggerAction":"k8u5j","./Scroll/Scroll":"63afA","./Scanner/Scanner":"5jOVu","./Embed/Embed":"8g55t","./Animate/Animate":"kS9tH","./Animate/AnimateFrame":"26jzA","./CodeHighlight/CodeHighlight":"8SDnU","./Device/Device":"97jLO","./Preload/Preload":"434tI","./Observer/Observer":"7Uj5P"}],"7WJBM":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "JuelScrollTop", ()=>JuelScrollTop);
@@ -147888,7 +147819,6 @@ var _decorators = require("lit/decorators");
 var _commandComponent = require("../../_Base/CommandComponent");
 var _bindDecorator = require("bind-decorator");
 var _bindDecoratorDefault = parcelHelpers.interopDefault(_bindDecorator);
-var _transistionModule = require("../../_Modules/TransistionModule");
 var _evaluate = require("../../_Utils/Evaluate");
 var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -147926,7 +147856,6 @@ let JuelTrigger = class JuelTrigger extends (0, _commandComponent.CommandCompone
             if (action.action && this.element) switch(action.action){
                 case "addClass":
                     this.element.classList.add(action.arguments);
-                    if (action.arguments.startsWith("transition")) (0, _transistionModule.TransitionModule).transitionElement(this.element);
                     break;
                 default:
                     if (action.action in this.element) this.element[action.action]();
@@ -147953,7 +147882,7 @@ JuelTrigger = __decorate([
     (0, _decorators.customElement)("juel-trigger")
 ], JuelTrigger);
 
-},{"lit/decorators":"iBjLb","../../_Base/CommandComponent":"k3Cme","bind-decorator":"csgbz","../../_Modules/TransistionModule":"gOoIR","../../_Utils/Evaluate":"bwLmH","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"k3Cme":[function(require,module,exports,__globalThis) {
+},{"lit/decorators":"iBjLb","../../_Base/CommandComponent":"k3Cme","bind-decorator":"csgbz","../../_Utils/Evaluate":"bwLmH","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"k3Cme":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "CommandComponent", ()=>CommandComponent);
@@ -244666,6 +244595,110 @@ JuelPreload = __decorate([
     (0, _decorators.customElement)("juel-preload")
 ], JuelPreload);
 
-},{"bind-decorator":"csgbz","lit":"6MR4h","lit/decorators":"iBjLb","../../_Utils/DomReady":"b6Rbc","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}]},["liLLi"], "liLLi", "parcelRequire94c2")
+},{"bind-decorator":"csgbz","lit":"6MR4h","lit/decorators":"iBjLb","../../_Utils/DomReady":"b6Rbc","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"7Uj5P":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "JuelObserver", ()=>JuelObserver);
+var _lit = require("lit");
+var _decorators = require("lit/decorators");
+var _observerEvents = require("./ObserverEvents");
+var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let JuelObserver = class JuelObserver extends (0, _lit.LitElement) {
+    connectedCallback() {
+        super.connectedCallback();
+        this.observer = new IntersectionObserver((entries)=>this.handleIntersect(entries), {
+            threshold: this.threshold,
+            rootMargin: this.rootMargin
+        });
+        this.observer.observe(this);
+    }
+    disconnectedCallback() {
+        var _this_observer;
+        (_this_observer = this.observer) === null || _this_observer === void 0 ? void 0 : _this_observer.disconnect();
+        this.observer = null;
+        super.disconnectedCallback();
+    }
+    handleIntersect(entries) {
+        for (const entry of entries){
+            if (entry.isIntersecting) {
+                var _this_observer;
+                this.classList.add(this.inViewClass);
+                this.dispatchEvent(new CustomEvent((0, _observerEvents.ObserverEvents).Enter, {
+                    detail: {
+                        ratio: entry.intersectionRatio
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+                if (this.once) (_this_observer = this.observer) === null || _this_observer === void 0 ? void 0 : _this_observer.disconnect();
+            } else if (!this.once) {
+                this.classList.remove(this.inViewClass);
+                this.dispatchEvent(new CustomEvent((0, _observerEvents.ObserverEvents).Leave, {
+                    detail: {
+                        ratio: entry.intersectionRatio
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+        }
+    }
+    render() {
+        return (0, _lit.html)`<slot></slot>`;
+    }
+    constructor(){
+        super(...arguments);
+        this.threshold = 0;
+        this.rootMargin = "0px";
+        this.inViewClass = "in-view";
+        this.once = false;
+        this.observer = null;
+    }
+};
+JuelObserver.styles = (0, _lit.css)`
+        :host {
+            display: block;
+        }
+    `;
+__decorate([
+    (0, _decorators.property)({
+        type: Number
+    })
+], JuelObserver.prototype, "threshold", void 0);
+__decorate([
+    (0, _decorators.property)({
+        attribute: "root-margin"
+    })
+], JuelObserver.prototype, "rootMargin", void 0);
+__decorate([
+    (0, _decorators.property)({
+        attribute: "in-view-class"
+    })
+], JuelObserver.prototype, "inViewClass", void 0);
+__decorate([
+    (0, _decorators.property)({
+        type: Boolean
+    })
+], JuelObserver.prototype, "once", void 0);
+JuelObserver = __decorate([
+    (0, _decorators.customElement)("juel-observer")
+], JuelObserver);
+
+},{"lit":"6MR4h","lit/decorators":"iBjLb","./ObserverEvents":"2Hzao","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"2Hzao":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ObserverEvents", ()=>ObserverEvents);
+var ObserverEvents;
+(function(ObserverEvents) {
+    ObserverEvents["Enter"] = "observer-enter";
+    ObserverEvents["Leave"] = "observer-leave";
+})(ObserverEvents || (ObserverEvents = {}));
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}]},["liLLi"], "liLLi", "parcelRequire94c2")
 
 //# sourceMappingURL=juel.js.map

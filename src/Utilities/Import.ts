@@ -11,3 +11,4 @@ import './Animate/AnimateFrame';
 import './CodeHighlight/CodeHighlight';
 import './Device/Device';
 import './Preload/Preload';
+import './Observer/Observer';

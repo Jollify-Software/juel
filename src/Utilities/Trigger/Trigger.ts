@@ -2,7 +2,6 @@ import { customElement, property } from "lit/decorators";
 import { CommandComponent } from "../../_Base/CommandComponent";
 import { TriggerAction } from "./TriggerAction";
 import bind from "bind-decorator";
-import { TransitionModule } from "../../_Modules/TransistionModule";
 import { Evaluate } from "../../_Utils/Evaluate";
 
 @customElement("juel-trigger")
@@ -77,9 +76,6 @@ export class JuelTrigger extends CommandComponent {
                     switch (action.action) {
                         case "addClass":
                             this.element.classList.add(action.arguments);
-                            if (action.arguments.startsWith("transition")) {
-                                TransitionModule.transitionElement(this.element);
-                            }
                             break;
                         default:
                             if (action.action in this.element) {
