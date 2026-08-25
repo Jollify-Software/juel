@@ -1,0 +1,90 @@
+import { JuelComponent } from "../../_Base/JuelComponent";
+import { AppendStyle } from "../../_Utils/ElementHelpers";
+import { customElement, property } from "lit/decorators";
+import bind from "bind-decorator";
+import Styles from 'bundle-text:./Splitter.less';
+import { unsafeCSS } from "lit";
+
+// A dependency-free resizable-pane splitter (replaces the split.js integration
+// this component originally used) driven by pointer events over flex-basis.
+
+@customElement("juel-splitter")
+export class JuelSplitter extends JuelComponent {
+
+    static StyleName = "juel-split";
+    static styles = unsafeCSS(Styles);
+
+    @property({ type: Boolean }) vertical: boolean;
+    @property({ type: Number }) gutterSize: number = 8;
+    @property({ type: Number }) minPaneSize: number = 40;
+
+    private activeDrag: { prev: HTMLElement; next: HTMLElement } | null = null;
+
+    constructor() {
+        super();
+        this.vertical = false;
+    }
+
+    protected createRenderRoot(): HTMLElement | DocumentFragment {
+        return this;
+    }
+
+    firstLoad(): void {
+        let panes = [...this.children] as HTMLElement[];
+        if (!panes || panes.length < 2) {
+            return;
+        }
+
+        AppendStyle(JuelSplitter.StyleName, Styles);
+
+        let basis = 100 / panes.length;
+        for (let pane of panes) {
+            pane.style.flex = `1 1 ${basis}%`;
+            pane.classList.add('juel-split-pane');
+        }
+
+        for (let i = 0; i < panes.length - 1; i++) {
+            let gutter = document.createElement('div');
+            gutter.className = `gutter gutter-${this.vertical ? 'vertical' : 'horizontal'}`;
+            gutter.style.flex = `0 0 ${this.gutterSize}px`;
+            this.insertBefore(gutter, panes[i + 1]);
+            gutter.addEventListener('pointerdown', (e: PointerEvent) => this.startDrag(e, panes[i], panes[i + 1], gutter));
+        }
+    }
+
+    @bind
+    private startDrag(e: PointerEvent, prev: HTMLElement, next: HTMLElement, gutter: HTMLElement) {
+        e.preventDefault();
+        gutter.setPointerCapture(e.pointerId);
+        this.activeDrag = { prev, next };
+
+        const containerRect = this.getBoundingClientRect();
+        const containerSize = this.vertical ? containerRect.height : containerRect.width;
+        const prevRect = prev.getBoundingClientRect();
+        const nextRect = next.getBoundingClientRect();
+        const startPos = this.vertical ? e.clientY : e.clientX;
+        const prevStartSize = this.vertical ? prevRect.height : prevRect.width;
+        const nextStartSize = this.vertical ? nextRect.height : nextRect.width;
+
+        const onMove = (moveEvent: PointerEvent) => {
+            const pos = this.vertical ? moveEvent.clientY : moveEvent.clientX;
+            const delta = pos - startPos;
+            let prevSize = prevStartSize + delta;
+            let nextSize = nextStartSize - delta;
+            if (prevSize < this.minPaneSize || nextSize < this.minPaneSize) {
+                return;
+            }
+            prev.style.flex = `1 1 ${(prevSize / containerSize) * 100}%`;
+            next.style.flex = `1 1 ${(nextSize / containerSize) * 100}%`;
+            this.dispatchEvent(new CustomEvent('resize', { detail: { prev, next } }));
+        };
+        const onUp = (upEvent: PointerEvent) => {
+            gutter.releasePointerCapture(upEvent.pointerId);
+            this.activeDrag = null;
+            window.removeEventListener('pointermove', onMove);
+            window.removeEventListener('pointerup', onUp);
+        };
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+    }
+}

@@ -1,0 +1,30 @@
+:host {
+    display: block;
+    height: 100%;
+    overflow: auto;
+}
+
+juel-splitter {
+    height: 100%;
+}
+
+.pane {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.pane-title {
+    padding: 6px 10px;
+    font-weight: bold;
+    font-size: 0.875rem;
+    background: var(--secondary-background, #f1f3f5);
+    border-bottom: 1px solid var(--border-color, #dee2e6);
+}
+
+.pane-body {
+    flex: 1;
+    overflow: auto;
+    padding: 10px;
+}

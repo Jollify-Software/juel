@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Mdi — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-mdi {
+            height: 300px;
+            border: 1px solid var(--border-color, #dee2e6);
+            border-radius: 4px;
+        }
+        .panel-content {
+            padding: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Mdi</h1>
+        <p>
+            <code>&lt;juel-mdi&gt;</code> lays out its light-DOM children as separate panels, each
+            titled via a <code>data-title</code> attribute. <code>order="stack"</code> (the default)
+            shows them as tabs; <code>order="row"</code> or <code>order="column"</code> arranges
+            them side by side or stacked, resizable via <code>&lt;juel-splitter&gt;</code>. On a
+            mobile-sized viewport it always falls back to tabs, regardless of <code>order</code>.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Stacked (tabs)</h2>
+        <div class="example-demo">
+            <juel-mdi order="stack">
+                <div data-title="Overview"><div class="panel-content">Overview panel content.</div></div>
+                <div data-title="Details"><div class="panel-content">Details panel content.</div></div>
+                <div data-title="Settings"><div class="panel-content">Settings panel content.</div></div>
+            </juel-mdi>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Row (resizable, side by side)</h2>
+        <div class="example-demo">
+            <juel-mdi order="row">
+                <div data-title="Explorer"><div class="panel-content">File list goes here.</div></div>
+                <div data-title="Editor"><div class="panel-content">Editor content goes here.</div></div>
+            </juel-mdi>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Column (resizable, stacked)</h2>
+        <div class="example-demo">
+            <juel-mdi order="column">
+                <div data-title="Console"><div class="panel-content">Console output goes here.</div></div>
+                <div data-title="Problems"><div class="panel-content">Problems list goes here.</div></div>
+            </juel-mdi>
+        </div>
+    </section>
+</body>
+
+</html>

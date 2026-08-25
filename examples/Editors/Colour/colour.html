@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Colour — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .card {
+            padding: 1rem;
+            border-radius: 6px;
+            color: #fff;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Colour</h1>
+        <p>
+            <code>&lt;juel-colour value="#ff0000"&gt;</code> is a click-to-open colour picker
+            (native colour input, hex field, and preset swatches). It fires
+            <code>value-changed</code> whenever the colour changes, and its
+            <code>context</code>/<code>property</code> attributes optionally write the picked
+            value straight onto another object.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic</h2>
+        <div class="example-demo row">
+            <juel-colour id="picker" value="#007bff"></juel-colour>
+            <div class="card" id="card">Live preview</div>
+        </div>
+    </section>
+
+    <script>
+        const picker = document.getElementById('picker');
+        const card = document.getElementById('card');
+        card.style.background = picker.value;
+        picker.addEventListener('value-changed', (e) => {
+            card.style.background = e.detail.value;
+        });
+    </script>
+</body>
+
+</html>

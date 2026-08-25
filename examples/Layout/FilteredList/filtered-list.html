@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Filtered List — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        #filter-panel {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .item {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            background: var(--primary, #007bff);
+            color: #fff;
+            transition: opacity 0.2s;
+        }
+        .item.hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Filtered List</h1>
+        <p>
+            <code>&lt;filtered-list filters="panel-id"&gt;</code> watches a filter panel elsewhere
+            on the page (any element bearing a <code>data-filter</code> attribute inside the
+            container named by <code>filters</code>) and shows/hides its own children based on
+            matching <code>data-filter-*</code> attributes. Filters combine, and re-apply
+            automatically whenever a filter control changes.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Filter by category and size</h2>
+        <div class="example-demo">
+            <div id="filter-panel">
+                <label>Category:
+                    <select data-filter="category">
+                        <option value="*">All</option>
+                        <option value="fruit">Fruit</option>
+                        <option value="veg">Vegetable</option>
+                    </select>
+                </label>
+                <label>Size:
+                    <select data-filter="size">
+                        <option value="*">All</option>
+                        <option value="small">Small</option>
+                        <option value="large">Large</option>
+                    </select>
+                </label>
+            </div>
+            <filtered-list filters="filter-panel">
+                <div class="items">
+                    <div class="item" data-filter-category="fruit" data-filter-size="small">Grape</div>
+                    <div class="item" data-filter-category="fruit" data-filter-size="large">Watermelon</div>
+                    <div class="item" data-filter-category="veg" data-filter-size="small">Pea</div>
+                    <div class="item" data-filter-category="veg" data-filter-size="large">Pumpkin</div>
+                </div>
+            </filtered-list>
+        </div>
+    </section>
+</body>
+
+</html>

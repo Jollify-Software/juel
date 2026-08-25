@@ -6,6 +6,9 @@ import './Date/Date';
 
 import './Select/Select';
 
+import './Colour/Colour';
+import './Upload/Upload';
+
 import './Form/Form';
 
 import './PointSelector/PointSelector';

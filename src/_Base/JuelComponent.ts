@@ -23,9 +23,14 @@ export class JuelComponent extends LitElement {
             (<JuelComponent>this.parentElement).childFirstUpdated(this);
         }
         DomReady().then(() => {
+            this.firstLoad();
             this.ready();
         });
         super.firstUpdated(_changedProperties);
+    }
+
+    firstLoad() {
+
     }
 
     updateChildren() {

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Radial Menu — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .example-demo {
+            position: relative;
+            height: 420px;
+        }
+        juel-radial-menu {
+            top: 60px;
+            left: calc(50% - 200px);
+        }
+        .open-button {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Radial Menu</h1>
+        <p>
+            <code>&lt;juel-radial-menu&gt;</code> is a pie-shaped popup menu, driven by a
+            <code>menuItems</code> array (each with an <code>id</code>/<code>name</code>, and
+            optionally nested <code>items</code> for a sub-menu). Click the button, or call
+            <code>.open()</code>/<code>.close()</code> programmatically.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic menu</h2>
+        <div class="example-demo">
+            <juel-radial-menu id="menu"></juel-radial-menu>
+        </div>
+        <p>Last clicked: <code id="last-clicked">(none)</code></p>
+    </section>
+
+    <script>
+        const menu = document.getElementById('menu');
+        const lastClicked = document.getElementById('last-clicked');
+        menu.menuItems = [
+            { id: 'new', name: 'New' },
+            { id: 'open', name: 'Open' },
+            { id: 'save', name: 'Save' },
+            { id: 'print', name: 'Print' },
+            { id: 'more', name: 'More', items: [
+                { id: 'settings', name: 'Settings' },
+                { id: 'help', name: 'Help' },
+            ] },
+            { id: 'close', name: 'Close' },
+        ];
+        menu.onMenuItemClick = (item) => {
+            lastClicked.textContent = item.name;
+        };
+    </script>
+</body>
+
+</html>

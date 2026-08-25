@@ -12,7 +12,7 @@ interface FormDefinition {
   fields: FormField[];
 }
 
-@customElement('juel-form')
+@customElement('juel-form-layout')
 export class JuelForm extends LitElement {
   static styles = css`
     form {

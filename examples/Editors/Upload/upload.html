@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Upload — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-upload {
+            display: block;
+            width: 320px;
+            height: 140px;
+            border: 2px dashed var(--border-color, #ced4da);
+            border-radius: 6px;
+        }
+        juel-upload.dragged {
+            border-color: var(--primary, #007bff);
+            background: rgba(0, 123, 255, 0.06);
+        }
+        #file-list {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Upload</h1>
+        <p>
+            <code>&lt;juel-upload url="..." upload="..." multiple&gt;</code> is a click-to-browse
+            and drag-and-drop file picker. Selecting files fires <code>files-selected</code>; with
+            <code>auto</code> set, it immediately POSTs them as <code>FormData</code> to
+            <code>{url}/{upload}</code>, firing <code>upload-complete</code> or
+            <code>upload-error</code>. This page has no real backend, so it demonstrates selection
+            and the resulting error event rather than a successful upload.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Click or drag files here</h2>
+        <div class="example-demo">
+            <juel-upload id="up" label="Choose files&hellip;" multiple auto url="/api" upload="upload"></juel-upload>
+        </div>
+        <div id="file-list">No files selected yet.</div>
+    </section>
+
+    <script>
+        const up = document.getElementById('up');
+        const fileList = document.getElementById('file-list');
+        up.addEventListener('files-selected', (e) => {
+            fileList.textContent = 'Selected: ' + e.detail.map(f => f.name).join(', ');
+        });
+        up.addEventListener('upload-error', () => {
+            fileList.textContent += ' (upload failed — this page has no real server to receive it)';
+        });
+    </script>
+</body>
+
+</html>

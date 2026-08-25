@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Dock Container — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .example-demo {
+            position: relative;
+            height: 320px;
+            overflow: hidden;
+            border: 1px solid var(--border-color, #dee2e6);
+            border-radius: 4px;
+            background: repeating-linear-gradient(45deg, #fafafa, #fafafa 10px, #f0f0f0 10px, #f0f0f0 20px);
+        }
+        juel-dock-container {
+            /* the component positions itself absolute/fixed within the nearest
+               positioned ancestor, so scope it to the demo frame instead of
+               floating over the whole page */
+            position: absolute !important;
+        }
+        .panel {
+            width: 220px;
+            background: #fff;
+            border: 1px solid var(--border-color, #dee2e6);
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+        }
+        .handle {
+            padding: 8px 10px;
+            background: var(--primary, #007bff);
+            color: #fff;
+            font-weight: bold;
+            cursor: move;
+        }
+        .body {
+            padding: 10px;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Dock Container</h1>
+        <p>
+            <code>&lt;juel-dock-container&gt;</code> makes its content a draggable floating panel.
+            Drag by the <code>.handle</code> element (or a custom class named via the
+            <code>handle</code> attribute) &mdash; drop zones appear at each edge of the page while
+            dragging, and hovering one previews docking there.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Draggable panel</h2>
+        <div class="example-demo">
+            <juel-dock-container>
+                <div class="panel">
+                    <div class="handle">Drag me</div>
+                    <div class="body">Drag this panel by its title bar toward an edge of the frame.</div>
+                </div>
+            </juel-dock-container>
+        </div>
+    </section>
+</body>
+
+</html>

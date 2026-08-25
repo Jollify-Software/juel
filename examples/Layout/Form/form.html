@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Field Form — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-width: 320px;
+        }
+        juel-form .break {
+            flex-basis: 100%;
+            height: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Field Form</h1>
+        <p>
+            <code>&lt;juel-form&gt;</code> renders a set of editor fields from a plain
+            <code>.fields</code> array (<code>{ name, label, type, value }</code>), each backed by
+            the matching Juel editor (<code>juel-text</code>, <code>juel-number</code>,
+            <code>juel-email</code>) and writing back into the same field object's
+            <code>value</code> as the user types.
+            (For a schema-driven single form with its own submit button, see
+            <a href="../../Editors/Form/form.html">Editors &rsaquo; Form</a>, registered as
+            <code>&lt;juel-form-layout&gt;</code>.)
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Mixed field types</h2>
+        <div class="example-demo">
+            <juel-form id="profile-form"></juel-form>
+        </div>
+        <p>Live values: <code id="live-values"></code></p>
+    </section>
+
+    <script>
+        const form = document.getElementById('profile-form');
+        const fields = [
+            { name: 'name', label: 'Name', group: '', type: 'text', value: 'Ada Lovelace', break: true },
+            { name: 'email', label: 'Email', group: '', type: 'email', value: 'ada@example.com', break: true },
+            { name: 'age', label: 'Age', group: '', type: 'number', value: 30, break: false },
+        ];
+        form.fields = fields;
+
+        const liveValues = document.getElementById('live-values');
+        function refresh() {
+            liveValues.textContent = JSON.stringify(Object.fromEntries(fields.map(f => [f.name, f.value])));
+        }
+        refresh();
+        form.addEventListener('value-changed', refresh);
+    </script>
+</body>
+
+</html>
