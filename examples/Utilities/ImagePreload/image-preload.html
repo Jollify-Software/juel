@@ -1,13 +1,65 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-        <style>
-            nothing {
-                background: url(https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg);
-            }
-        </style>
-    </head>
-    <body>
-        <juel-image-preload></juel-image-preload>
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Preload — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .preload-frame {
+            position: relative;
+            min-height: 120px;
+        }
+        .preload-status {
+            font-weight: bold;
+        }
+        .preload-status.pending { color: var(--warning, #ffc107); }
+        .preload-status.ready { color: var(--success, #28a745); }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Preload</h1>
+        <p>
+            <code>&lt;juel-preload type="all"&gt;</code> waits for every image on the page to
+            finish loading &mdash; both real <code>&lt;img&gt;</code> elements
+            (<code>type="element"</code>) and CSS <code>background-image: url(...)</code>
+            references found in any <code>&lt;style&gt;</code> block (<code>type="css"</code>).
+            It exposes the result as <code>window.assetsReady</code>, a promise consumers can
+            await, plus a <code>window.waitAssetsReady()</code> helper.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Waiting for assets to load</h2>
+        <p>
+            The status below flips from "pending" to "ready" once every image on this page
+            (including the CSS background image below) has finished loading.
+        </p>
+        <div class="example-demo preload-frame">
+            <juel-preload type="all"></juel-preload>
+            <p>Status: <span id="preload-status" class="preload-status pending">pending&hellip;</span></p>
+            <img src="../../_Assets/bird.jpg" width="120" alt="A bird" />
+            <div class="preload-bg" style="width:120px;height:80px;"></div>
+            <style>
+                .preload-bg {
+                    background: url(../../_Assets/kitten.jpg) center/cover;
+                }
+            </style>
+        </div>
+    </section>
+
+    <script>
+        window.waitAssetsReady().then(() => {
+            const status = document.getElementById('preload-status');
+            status.textContent = 'ready';
+            status.classList.replace('pending', 'ready');
+        });
+    </script>
+</body>
+
 </html>

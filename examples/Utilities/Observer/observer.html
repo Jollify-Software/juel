@@ -71,8 +71,14 @@
 
         /* Effect gallery — every effect below is nothing but CSS keyed off
            .in-view; juel-observer itself has no idea any of this exists.
-           A data-effect attribute (mirroring AOS's own data-aos="...") just
-           keeps the selectors readable — juel-observer doesn't read it. */
+           A data-effect attribute just keeps the selectors readable —
+           juel-observer doesn't read it. --observer-duration is this page's
+           own single tunable default for how long each transition takes;
+           --effect-delay (set per card below) staggers them so they cascade
+           in one after another instead of all firing at once. */
+        :root {
+            --observer-duration: 400ms;
+        }
         .effect-gallery {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -87,7 +93,10 @@
             color: #fff;
             text-align: center;
             font-weight: 600;
-            transition: opacity 0.6s ease, transform 0.6s ease, filter 0.6s ease;
+            transition: opacity var(--observer-duration, 400ms) ease,
+                        transform var(--observer-duration, 400ms) ease,
+                        filter var(--observer-duration, 400ms) ease;
+            transition-delay: var(--effect-delay, 0ms);
         }
 
         juel-observer[data-effect="fade"] .effect-box { opacity: 0; }
@@ -123,26 +132,6 @@
 
         juel-observer[data-effect="blur"] .effect-box { opacity: 0; filter: blur(10px); }
         juel-observer[data-effect="blur"].in-view .effect-box { opacity: 1; filter: blur(0); }
-
-        /* Fade in/out — deliberately NOT once, so the box fades back out
-           the moment it leaves view, then back in when it re-enters. */
-        .fade-toggle-box {
-            width: 160px;
-            padding: 2rem 1rem;
-            margin: 0 auto;
-            border-radius: 8px;
-            background: var(--success, #28a745);
-            color: #fff;
-            text-align: center;
-            font-weight: 600;
-            opacity: 0;
-            transform: scale(0.85);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-        juel-observer.in-view .fade-toggle-box {
-            opacity: 1;
-            transform: scale(1);
-        }
     </style>
 </head>
 
@@ -187,38 +176,24 @@
         <p>
             Every effect here is plain CSS keyed off <code>.in-view</code> — <code>juel-observer</code>
             has no idea any of it exists. The <code>data-effect</code> attribute is just this page's
-            own naming convention (echoing AOS's <code>data-aos="..."</code>), not something the
-            component reads.
+            own naming convention, not something the component reads. None of these are
+            <code>once</code>: scroll away and each one reverses, then plays again on the way back
+            — each card is also staggered a little behind the one before it, so they cascade in
+            rather than all firing together.
         </p>
         <div class="example-demo">
             <div class="effect-gallery">
-                <juel-observer threshold="0.3" once data-effect="fade"><div class="effect-box">Fade</div></juel-observer>
-                <juel-observer threshold="0.3" once data-effect="fade-up"><div class="effect-box">Fade up</div></juel-observer>
-                <juel-observer threshold="0.3" once data-effect="fade-down"><div class="effect-box">Fade down</div></juel-observer>
-                <juel-observer threshold="0.3" once data-effect="slide-left"><div class="effect-box">Slide in from left</div></juel-observer>
-                <juel-observer threshold="0.3" once data-effect="slide-right"><div class="effect-box">Slide in from right</div></juel-observer>
-                <juel-observer threshold="0.3" once data-effect="pop-up"><div class="effect-box">Pop up</div></juel-observer>
-                <juel-observer threshold="0.3" once data-effect="pop-down"><div class="effect-box">Pop down</div></juel-observer>
-                <juel-observer threshold="0.3" once data-effect="flip"><div class="effect-box">Flip</div></juel-observer>
-                <juel-observer threshold="0.3" once data-effect="rotate"><div class="effect-box">Rotate</div></juel-observer>
-                <juel-observer threshold="0.3" once data-effect="blur"><div class="effect-box">Blur in</div></juel-observer>
+                <juel-observer threshold="0.3" data-effect="fade" style="--effect-delay: 0ms"><div class="effect-box">Fade</div></juel-observer>
+                <juel-observer threshold="0.3" data-effect="fade-up" style="--effect-delay: 60ms"><div class="effect-box">Fade up</div></juel-observer>
+                <juel-observer threshold="0.3" data-effect="fade-down" style="--effect-delay: 120ms"><div class="effect-box">Fade down</div></juel-observer>
+                <juel-observer threshold="0.3" data-effect="slide-left" style="--effect-delay: 180ms"><div class="effect-box">Slide in from left</div></juel-observer>
+                <juel-observer threshold="0.3" data-effect="slide-right" style="--effect-delay: 240ms"><div class="effect-box">Slide in from right</div></juel-observer>
+                <juel-observer threshold="0.3" data-effect="pop-up" style="--effect-delay: 300ms"><div class="effect-box">Pop up</div></juel-observer>
+                <juel-observer threshold="0.3" data-effect="pop-down" style="--effect-delay: 360ms"><div class="effect-box">Pop down</div></juel-observer>
+                <juel-observer threshold="0.3" data-effect="flip" style="--effect-delay: 420ms"><div class="effect-box">Flip</div></juel-observer>
+                <juel-observer threshold="0.3" data-effect="rotate" style="--effect-delay: 480ms"><div class="effect-box">Rotate</div></juel-observer>
+                <juel-observer threshold="0.3" data-effect="blur" style="--effect-delay: 540ms"><div class="effect-box">Blur in</div></juel-observer>
             </div>
-        </div>
-    </section>
-
-    <div class="observer-spacer">↓ keep scrolling ↓</div>
-
-    <section class="example-section">
-        <h2>Fade in/out (repeating)</h2>
-        <p>
-            This one isn't <code>once</code> — scroll it out of view and it fades back out, then
-            fades back in when it returns. Compare to the effect gallery above, which each only
-            ever plays once.
-        </p>
-        <div class="example-demo">
-            <juel-observer threshold="0.3">
-                <div class="fade-toggle-box">I fade in and out</div>
-            </juel-observer>
         </div>
     </section>
 

@@ -1,17 +1,67 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-select label="Select a Drink" value="tea">
-            <juel-select-group label="Hot Beverages">
-              <juel-select-option value="coffee">Coffee</juel-select-option>
-              <juel-select-option value="tea">Tea</juel-select-option>
-            </juel-select-group>
-            <juel-select-group label="Cold Beverages">
-              <juel-select-option value="soda">Soda</juel-select-option>
-              <juel-select-option value="water">Water</juel-select-option>
-            </juel-select-group>
-          </juel-select>          
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Select — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Select</h1>
+        <p>
+            <code>&lt;juel-select&gt;</code> is driven entirely by its <code>data</code> property
+            &mdash; an array of <code>{ text, value }</code> objects, or nested objects using a
+            <code>children</code> array for <code>&lt;optgroup&gt;</code>s. Set
+            <code>enable-search</code> to add a filter box above the dropdown.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Grouped options</h2>
+        <div class="example-demo">
+            <juel-select id="drink-select" label="Select a drink" value="tea" placeholder="-- Choose a drink --"></juel-select>
+        </div>
+        <p>Selected: <span id="drink-selected">tea</span></p>
+    </section>
+
+    <section class="example-section">
+        <h2>Searchable, flat options</h2>
+        <div class="example-demo">
+            <juel-select id="country-select" label="Select a country" enable-search placeholder="-- Choose a country --"></juel-select>
+        </div>
+    </section>
+
+    <script>
+        const drinkSelect = document.getElementById('drink-select');
+        drinkSelect.data = [
+            { text: 'Hot Beverages', children: [
+                { text: 'Coffee', value: 'coffee' },
+                { text: 'Tea', value: 'tea' },
+            ] },
+            { text: 'Cold Beverages', children: [
+                { text: 'Soda', value: 'soda' },
+                { text: 'Water', value: 'water' },
+            ] },
+        ];
+        drinkSelect.addEventListener('value-changed', (e) => {
+            document.getElementById('drink-selected').textContent = e.detail.value ?? '(none)';
+        });
+
+        const countrySelect = document.getElementById('country-select');
+        countrySelect.data = [
+            { text: 'Ireland', value: 'ie' },
+            { text: 'United Kingdom', value: 'gb' },
+            { text: 'France', value: 'fr' },
+            { text: 'Germany', value: 'de' },
+            { text: 'Spain', value: 'es' },
+            { text: 'Italy', value: 'it' },
+        ];
+    </script>
+</body>
+
 </html>

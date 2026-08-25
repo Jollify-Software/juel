@@ -147709,8 +147709,6 @@ let CountdownTimer = class CountdownTimer extends (0, _lit.LitElement) {
         this.interval = this.time / range;
         this.step = range / (this.time / this.interval);
         this.currentValue = this.start;
-        console.log('Interval:', this.interval);
-        console.log('Step:', this.step);
         this.timerId = window.setInterval(()=>{
             if (this.start > this.end && this.currentValue <= this.end || this.start < this.end && this.currentValue >= this.end) {
                 this.clearTimer();
@@ -147718,7 +147716,6 @@ let CountdownTimer = class CountdownTimer extends (0, _lit.LitElement) {
             }
             this.currentValue += this.start > this.end ? -this.step : this.step;
             this.currentValue = Math.round(this.currentValue);
-            console.log('Current Value:', this.currentValue);
             this.dispatchEvent(new CustomEvent('tick', {
                 detail: {
                     value: this.currentValue
@@ -244542,7 +244539,6 @@ let JuelPreload = class JuelPreload extends (0, _lit.LitElement) {
                 if (res) {
                     this.numOfAssets += res.length;
                     res.forEach((match)=>{
-                        console.log(match);
                         let img = new Image();
                         img.onload = ()=>this.assetLoad();
                         img.src = match;
@@ -244552,11 +244548,8 @@ let JuelPreload = class JuelPreload extends (0, _lit.LitElement) {
         }
         if (this.type == 'element' || this.type == 'all') {
             let els = Array.from(document.body.querySelectorAll('img'));
-            console.log(document.body.innerHTML);
-            console.log(els.length);
             this.numOfAssets += els.length;
             for (let el of els){
-                console.log(el.src);
                 let img = new Image();
                 img.onload = ()=>this.assetLoad();
                 img.src = el.src;
@@ -244566,7 +244559,6 @@ let JuelPreload = class JuelPreload extends (0, _lit.LitElement) {
     }
     assetLoad() {
         this.loadedAssetCount++;
-        console.log("Number of assets loaded: " + this.loadedAssetCount + " out of total: " + this.numOfAssets);
         if (this.loadedAssetCount == this.numOfAssets) this.assetsResolver(true);
     }
     createRenderRoot() {

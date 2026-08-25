@@ -63,9 +63,6 @@ export class CountdownTimer extends LitElement {
     this.step = range / (this.time / this.interval);
     this.currentValue = this.start;
 
-    console.log('Interval:', this.interval);
-    console.log('Step:', this.step);
-
     this.timerId = window.setInterval(() => {
       if (
         (this.start > this.end && this.currentValue <= this.end) ||
@@ -76,8 +73,7 @@ export class CountdownTimer extends LitElement {
       }
 
       this.currentValue += this.start > this.end ? -this.step : this.step;
-      this.currentValue = Math.round(this.currentValue); // Ensure integer 
-      console.log('Current Value:', this.currentValue);
+      this.currentValue = Math.round(this.currentValue); // Ensure integer
       this.dispatchEvent(new CustomEvent('tick', {
         detail: { value: this.currentValue },
       }));

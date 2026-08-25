@@ -1,17 +1,41 @@
-<html></html>
+<!doctype html>
+<html lang="en">
 
 <head>
-  <script src="../../../dist/juel.js"></script>
+    <meta charset="utf-8">
+    <title>Countdown — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
 </head>
 
 <body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
 
-  <juel-countdown>
-    Jan 5, 2030 15:37:25
-    </juel-countdown>
-    <juel-countdown from="10">
-      </juel-countdown>
+    <header class="example-header">
+        <h1>Countdown</h1>
+        <p>
+            <code>&lt;countdown-timer start="..." end="..." time="..."&gt;</code> ticks numerically
+            from <code>start</code> to <code>end</code> over <code>time</code> milliseconds, firing
+            a <code>tick</code> event on every step. Once the value crosses <code>threshold</code>,
+            it applies an <code>animation</code> CSS class (default <code>pulse</code>) each tick.
+        </p>
+    </header>
 
+    <section class="example-section">
+        <h2>Basic</h2>
+        <p>Counts down from 10 to 0 over 5 seconds; pulses once it reaches the threshold of 3.</p>
+        <div class="example-demo">
+            <countdown-timer start="10" end="0" time="5000" threshold="3"></countdown-timer>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Counting up</h2>
+        <p><code>start</code> &lt; <code>end</code> counts upward instead.</p>
+        <div class="example-demo">
+            <countdown-timer start="0" end="20" time="4000" threshold="15"></countdown-timer>
+        </div>
+    </section>
 </body>
 
 </html>

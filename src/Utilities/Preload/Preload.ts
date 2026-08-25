@@ -42,7 +42,6 @@ export class JuelPreload extends LitElement {
                 if (res) {
                     this.numOfAssets += res.length;
                     res.forEach(match => {
-                        console.log(match);
                         let img = new Image();
                         img.onload = () => this.assetLoad();
                         img.src = match;
@@ -52,11 +51,8 @@ export class JuelPreload extends LitElement {
         }
         if (this.type == 'element' || this.type == 'all') {
             let els: HTMLImageElement[] = Array.from(document.body.querySelectorAll('img'));
-            console.log(document.body.innerHTML)
-            console.log(els.length)
             this.numOfAssets += els.length;
             for (let el of els) {
-                console.log(el.src);
                 let img = new Image();
                 img.onload = () => this.assetLoad();
                 img.src = el.src;
@@ -70,7 +66,6 @@ export class JuelPreload extends LitElement {
     @bind
     assetLoad() {
         this.loadedAssetCount++;
-        console.log("Number of assets loaded: " + this.loadedAssetCount + " out of total: " +this.numOfAssets)
         if (this.loadedAssetCount == this.numOfAssets) {
             this.assetsResolver(true);
         }
