@@ -896,7 +896,6 @@ var MessageBoxModule;
         if (shown) return;
         shown = true;
         return new Promise((resolve, reject)=>{
-            var _msgBox_querySelector;
             const resolvePromise = (value)=>{
                 shown = false;
                 resolve(value);
@@ -908,10 +907,20 @@ var MessageBoxModule;
         <span>${(0, _escapeHtml.EscapeHtml)(args.title)}</span>
         </div>
         <div id="dialog-body">
+        <div id="dialog-content">
         ${args.text ? `<p>${(0, _escapeHtml.EscapeHtml)(args.text)}</p>` : ``}
         </div>
         </div>
+        <div id="dialog-footer"></div>
+        </div>
         </div>`);
+            msgBox.addEventListener("click", (e)=>{
+                if (e.target !== msgBox) return;
+                let dialog = msgBox.querySelector("#dialog");
+                dialog.classList.remove("pulse");
+                dialog.offsetWidth;
+                dialog.classList.add("pulse");
+            });
             let prompt = false;
             if ('icon' in args) {
                 if (args.icon in (0, _messageBoxIconStrategiesDefault.default)) (0, _messageBoxIconStrategiesDefault.default)[args.icon](args, msgBox);
@@ -927,7 +936,6 @@ var MessageBoxModule;
             if ('buttons' in args) {
                 if (args.buttons in (0, _messageBoxButtonStrategiesDefault.default)) (0, _messageBoxButtonStrategiesDefault.default)[args.buttons](args, msgBox, resolvePromise, reject);
             } else (0, _messageBoxButtonStrategiesDefault.default)[(0, _messageBoxButtons.MessageBoxButtons).OK](args, msgBox, resolvePromise, reject);
-            if (prompt == false) (_msgBox_querySelector = msgBox.querySelector("juel-button")) === null || _msgBox_querySelector === void 0 ? void 0 : _msgBox_querySelector.focus();
             if (args.close && args.close == true) {
                 let closeBtn = (0, _elementFromHtml.ElementFromHtml)(`<div class="close"></div>`);
                 closeBtn.addEventListener("click", ()=>{
@@ -937,6 +945,13 @@ var MessageBoxModule;
                 msgBox.querySelector("#dialog-title").append(closeBtn);
             }
             document.body.append(msgBox);
+            if (prompt == false) {
+                var _msgBox_querySelector;
+                let primaryButton = (_msgBox_querySelector = msgBox.querySelector('#dialog-footer juel-button[type="primary"], #dialog-footer juel-button[type="success"]')) !== null && _msgBox_querySelector !== void 0 ? _msgBox_querySelector : msgBox.querySelector("#dialog-footer juel-button");
+                let updateComplete = primaryButton === null || primaryButton === void 0 ? void 0 : primaryButton.updateComplete;
+                if (updateComplete) updateComplete.then(()=>primaryButton.focus());
+                else primaryButton === null || primaryButton === void 0 ? void 0 : primaryButton.focus();
+            }
         });
     };
 })(MessageBoxModule || (MessageBoxModule = {}));
@@ -970,7 +985,7 @@ function GetLabel(args, name, label) {
 }
 MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).OK] = function(args, msgBox, resolve, reject) {
     let lbl = GetLabel(args, "ok", "OK");
-    let okBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button label="${lbl}" style="flex-basis: 100%;padding: .25rem;"></juel-button>`);
+    let okBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button type="primary" label="${lbl}"></juel-button>`);
     let okClick = ()=>{
         resolve({
             status: (0, _messageBoxResultStatus.MessageBoxResultStatus).OK,
@@ -980,12 +995,13 @@ MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).OK] = funct
     };
     okBtn.addEventListener("button-clicked", okClick);
     okBtn.addEventListener("keyup", okClick);
-    msgBox.querySelector("#dialog-body").append(okBtn);
+    msgBox.querySelector("#dialog-footer").append(okBtn);
 };
 MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).OKCancel] = function(args, msgBox, resolve, reject) {
     let lbl = GetLabel(args, "ok", "OK");
     let lbl2 = GetLabel(args, "cancel", "Cancel");
-    let content = (0, _elementFromHtml.ElementFromHtml)(`<div style="flex-basis: 100%;padding: .25rem;"><juel-button id="ok" label="${lbl}"></juel-button><juel-button id="cancel" label="${lbl2}"></juel-button></div>`);
+    let cancelBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button id="cancel" type="secondary" render-style="outline" label="${lbl2}"></juel-button>`);
+    let okBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button id="ok" type="primary" label="${lbl}"></juel-button>`);
     let okClick = ()=>{
         resolve({
             status: (0, _messageBoxResultStatus.MessageBoxResultStatus).OK,
@@ -1002,13 +1018,13 @@ MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).OKCancel] =
     msgBox.querySelector('#dialog').addEventListener('keyup', (e)=>{
         if (e.key == "Escape") cancelClick();
     });
-    content.querySelector("#ok").addEventListener("button-clicked", okClick);
-    content.querySelector("#cancel").addEventListener("button-clicked", cancelClick);
-    msgBox.querySelector("#dialog-body").append(content);
+    okBtn.addEventListener("button-clicked", okClick);
+    cancelBtn.addEventListener("button-clicked", cancelClick);
+    msgBox.querySelector("#dialog-footer").append(cancelBtn, okBtn);
 };
 MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).Success] = function(args, msgBox, resolve, reject) {
     let lbl = GetLabel(args, "success", "Success");
-    let okBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button label="${lbl}" style="--background: var(--success);flex-basis: 100%;padding: .25rem;"></juel-button>`);
+    let okBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button type="success" label="${lbl}"></juel-button>`);
     let okClick = ()=>{
         resolve({
             status: (0, _messageBoxResultStatus.MessageBoxResultStatus).OK,
@@ -1017,12 +1033,13 @@ MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).Success] = 
         msgBox.remove();
     };
     okBtn.addEventListener("button-clicked", okClick);
-    msgBox.querySelector("#dialog-body").append(okBtn);
+    msgBox.querySelector("#dialog-footer").append(okBtn);
 };
 MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).YesNo] = function(args, msgBox, resolve, reject) {
     let lbl = GetLabel(args, "yes", "Yes");
     let lbl2 = GetLabel(args, "no", "No");
-    let content = (0, _elementFromHtml.ElementFromHtml)(`<div style="flex-basis: 100%;padding: .25rem;"><juel-button id="yes" style="--background: --success" label="${lbl}"></juel-button><juel-button id="no" style="--background: --danger" label="${lbl2}"></juel-button></div>`);
+    let noBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button id="no" type="danger" render-style="outline" label="${lbl2}"></juel-button>`);
+    let yesBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button id="yes" type="success" label="${lbl}"></juel-button>`);
     let yesClick = ()=>{
         resolve({
             status: (0, _messageBoxResultStatus.MessageBoxResultStatus).Yes,
@@ -1037,15 +1054,17 @@ MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).YesNo] = fu
         });
         msgBox.remove();
     };
-    content.querySelector("#yes").addEventListener("button-clicked", yesClick);
-    content.querySelector("#no").addEventListener("button-clicked", noClick);
-    msgBox.querySelector("#dialog-body").append(content);
+    yesBtn.addEventListener("button-clicked", yesClick);
+    noBtn.addEventListener("button-clicked", noClick);
+    msgBox.querySelector("#dialog-footer").append(noBtn, yesBtn);
 };
 MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).YesNoCancel] = function(args, msgBox, resolve, reject) {
     let lbl = GetLabel(args, "yes", "Yes");
     let lbl2 = GetLabel(args, "no", "No");
     let lbl3 = GetLabel(args, "cancel", "Cancel");
-    let content = (0, _elementFromHtml.ElementFromHtml)(`<div style="flex-basis: 100%;padding: .25rem;"><juel-button id="yes" style="--background: --success" label="${lbl}"></juel-button><juel-button id="no" style="--background: --danger" label="${lbl2}"></juel-button><juel-button id="cancel" label="${lbl3}"></juel-button></div>`);
+    let cancelBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button id="cancel" type="secondary" render-style="outline" label="${lbl3}"></juel-button>`);
+    let noBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button id="no" type="danger" render-style="outline" label="${lbl2}"></juel-button>`);
+    let yesBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button id="yes" type="success" label="${lbl}"></juel-button>`);
     let yesClick = ()=>{
         resolve({
             status: (0, _messageBoxResultStatus.MessageBoxResultStatus).Yes,
@@ -1060,20 +1079,21 @@ MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).YesNoCancel
         });
         msgBox.remove();
     };
-    content.querySelector("#yes").addEventListener("button-clicked", yesClick);
-    content.querySelector("#no").addEventListener("button-clicked", ()=>{
+    yesBtn.addEventListener("button-clicked", yesClick);
+    noBtn.addEventListener("button-clicked", ()=>{
         resolve({
             status: (0, _messageBoxResultStatus.MessageBoxResultStatus).No
         });
         msgBox.remove();
     });
-    content.querySelector("#cancel").addEventListener("button-clicked", cancelClick);
-    msgBox.querySelector("#dialog-body").append(content);
+    cancelBtn.addEventListener("button-clicked", cancelClick);
+    msgBox.querySelector("#dialog-footer").append(cancelBtn, noBtn, yesBtn);
 };
 MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).RetryCancel] = function(args, msgBox, resolve, reject) {
     let lbl = GetLabel(args, "retry", "Retry");
     let lbl2 = GetLabel(args, "cancel", "Cancel");
-    let content = (0, _elementFromHtml.ElementFromHtml)(`<div style="flex-basis: 100%;padding: .25rem;"><juel-button id="retry" style="--background: --success" label="${lbl}"></juel-button><juel-button id="cancel" label="${lbl2}"></juel-button></div>`);
+    let cancelBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button id="cancel" type="secondary" render-style="outline" label="${lbl2}"></juel-button>`);
+    let retryBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button id="retry" type="primary" label="${lbl}"></juel-button>`);
     let retryClick = ()=>{
         resolve({
             status: (0, _messageBoxResultStatus.MessageBoxResultStatus).Yes,
@@ -1088,15 +1108,17 @@ MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).RetryCancel
         });
         msgBox.remove();
     };
-    content.querySelector("#retry").addEventListener("button-clicked", retryClick);
-    content.querySelector("#cancel").addEventListener("button-clicked", cancelClick);
-    msgBox.querySelector("#dialog-body").append(content);
+    retryBtn.addEventListener("button-clicked", retryClick);
+    cancelBtn.addEventListener("button-clicked", cancelClick);
+    msgBox.querySelector("#dialog-footer").append(cancelBtn, retryBtn);
 };
 MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).AbortRetryIgnore] = function(args, msgBox, resolve, reject) {
     let lbl = GetLabel(args, "abort", "Abort");
     let lbl2 = GetLabel(args, "retry", "Retry");
     let lbl3 = GetLabel(args, "cancel", "Cancel");
-    let content = (0, _elementFromHtml.ElementFromHtml)(`<div style="flex-basis: 100%;padding: .25rem;"><juel-button id="abort" style="--background: --danger" label="${lbl}"></juel-button><juel-button id="retry" style="--background: --success" label="${lbl2}"></juel-button><juel-button id="cancel" label="${lbl3}"></juel-button></div>`);
+    let cancelBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button id="cancel" type="secondary" render-style="outline" label="${lbl3}"></juel-button>`);
+    let abortBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button id="abort" type="danger" render-style="outline" label="${lbl}"></juel-button>`);
+    let retryBtn = (0, _elementFromHtml.ElementFromHtml)(`<juel-button id="retry" type="primary" label="${lbl2}"></juel-button>`);
     let retryClick = ()=>{
         resolve({
             status: (0, _messageBoxResultStatus.MessageBoxResultStatus).Yes,
@@ -1111,15 +1133,15 @@ MessageBoxButtonStrategies[(0, _messageBoxButtons.MessageBoxButtons).AbortRetryI
         });
         msgBox.remove();
     };
-    content.querySelector("#abort").addEventListener("button-clicked", ()=>{
+    abortBtn.addEventListener("button-clicked", ()=>{
         resolve({
             status: (0, _messageBoxResultStatus.MessageBoxResultStatus).No
         });
         msgBox.remove();
     });
-    content.querySelector("#retry").addEventListener("button-clicked", retryClick);
-    content.querySelector("#cancel").addEventListener("button-clicked", cancelClick);
-    msgBox.querySelector("#dialog-body").append(content);
+    retryBtn.addEventListener("button-clicked", retryClick);
+    cancelBtn.addEventListener("button-clicked", cancelClick);
+    msgBox.querySelector("#dialog-footer").append(abortBtn, cancelBtn, retryBtn);
 };
 exports.default = MessageBoxButtonStrategies;
 
@@ -1203,7 +1225,7 @@ MessageBoxIconStrategies[(0, _messageBoxIcon.MessageBoxIcon).Question] = (ars, m
     if (icn) msgBox.querySelector("#dialog-body").append(icn);
 };
 MessageBoxIconStrategies[(0, _messageBoxIcon.MessageBoxIcon).Stop] = (ars, msgBox)=>{
-    let icn = (0, _elementFromHtml.ElementFromHtml)((0, _iconsModule.IconsModule).get("stop"));
+    let icn = (0, _elementFromHtml.ElementFromHtml)((0, _iconsModule.IconsModule).get("hand"));
     if (icn) msgBox.querySelector("#dialog-body").append(icn);
 };
 MessageBoxIconStrategies[(0, _messageBoxIcon.MessageBoxIcon).Success] = (ars, msgBox)=>{
@@ -1227,8 +1249,8 @@ var MessageBoxInputStrategies = {};
 MessageBoxInputStrategies["text"] = (args, msgBox, field)=>{
     let input;
     var _args_value, _field_value;
-    if (!field) input = (0, _elementFromHtml.ElementFromHtml)(`<juel-text style="flex-basis: 100%" value="${(0, _escapeHtml.EscapeHtml)((_args_value = args.value) !== null && _args_value !== void 0 ? _args_value : "")}"></juel-text>`);
-    else input = (0, _elementFromHtml.ElementFromHtml)(`<juel-text style="flex-basis: 100%" label="${(0, _escapeHtml.EscapeHtml)((0, _upperFirst.upperFirst)(field.name))}" value="${(0, _escapeHtml.EscapeHtml)((_field_value = field.value) !== null && _field_value !== void 0 ? _field_value : "")}"></juel-text>`);
+    if (!field) input = (0, _elementFromHtml.ElementFromHtml)(`<juel-text value="${(0, _escapeHtml.EscapeHtml)((_args_value = args.value) !== null && _args_value !== void 0 ? _args_value : "")}"></juel-text>`);
+    else input = (0, _elementFromHtml.ElementFromHtml)(`<juel-text label="${(0, _escapeHtml.EscapeHtml)((0, _upperFirst.upperFirst)(field.name))}" value="${(0, _escapeHtml.EscapeHtml)((_field_value = field.value) !== null && _field_value !== void 0 ? _field_value : "")}"></juel-text>`);
     input.addEventListener((0, _eventNames.EventNames).ValueChanged, (e)=>{
         if (field) {
             let obj = {};
@@ -1236,7 +1258,7 @@ MessageBoxInputStrategies["text"] = (args, msgBox, field)=>{
             args.value = Object.assign({}, args.value, obj);
         } else args.value = e.detail.value;
     });
-    msgBox.querySelector("#dialog-body").append(input);
+    msgBox.querySelector("#dialog-content").append(input);
 };
 exports.default = MessageBoxInputStrategies;
 
@@ -1271,7 +1293,7 @@ function upperFirst(str) {
 }
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"azAXd":[function(require,module,exports,__globalThis) {
-module.exports = "#overlay {\n  pointer-events: none;\n  z-index: 101;\n  background-color: #3a474d42;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  position: fixed;\n  top: 0;\n  left: 0;\n}\n\n#dialog {\n  pointer-events: all;\n  z-index: 101;\n  background-color: #fff;\n  border-radius: 4px;\n  flex-direction: column;\n  max-height: 100%;\n  display: flex;\n  position: absolute;\n  overflow: hidden;\n  box-shadow: 0 22px 64px #00000038;\n}\n\n#dialog-title {\n  background-color: #f3f5f78f;\n  border-bottom: none;\n  padding: .6875rem 1.25rem;\n  font-size: 1.25rem;\n  line-height: 1.875rem;\n}\n\n#dialog-title .close {\n  float: right;\n  background-image: var(--icon-close);\n  background-position: center;\n  background-repeat: no-repeat;\n  width: 26px;\n  height: 26px;\n  margin-top: 3%;\n}\n\n#dialog-body, #dialog-body > form {\n  flex-wrap: wrap;\n  align-items: center;\n  padding: .5rem;\n  display: flex;\n}\n\n#dialog-body svg, #dialog-body > form svg {\n  flex: 1;\n  max-width: 64px;\n  max-height: 64px;\n  padding: .5rem;\n}\n";
+module.exports = "#overlay {\n  pointer-events: all;\n  z-index: 101;\n  background-color: #00000080;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  position: fixed;\n  top: 0;\n  left: 0;\n}\n\n#dialog {\n  pointer-events: all;\n  z-index: 101;\n  background-color: var(--light, #fff);\n  color: var(--dark, #212529);\n  border-radius: .5rem;\n  flex-direction: column;\n  width: 100%;\n  min-width: 320px;\n  max-width: 480px;\n  max-height: calc(100% - 3.5rem);\n  margin: 1.75rem;\n  display: flex;\n  position: relative;\n  overflow: hidden;\n  box-shadow: 0 12px 40px #00000040;\n}\n\n#dialog.pulse {\n  animation: .3s ease-in-out dialog-pulse;\n}\n\n@keyframes dialog-pulse {\n  0% {\n    transform: scale(1);\n  }\n\n  50% {\n    transform: scale(1.03);\n  }\n\n  100% {\n    transform: scale(1);\n  }\n}\n\n#dialog-title {\n  border-bottom: 1px solid #00000014;\n  justify-content: space-between;\n  align-items: center;\n  gap: .75rem;\n  padding: 1rem 1.25rem;\n  font-size: 1.125rem;\n  font-weight: 600;\n  display: flex;\n}\n\n#dialog-title .close {\n  width: 20px;\n  height: 20px;\n  -webkit-mask-image: var(--icon-close);\n  mask-image: var(--icon-close);\n  -webkit-mask-image: var(--icon-close);\n  cursor: pointer;\n  opacity: .5;\n  background-color: currentColor;\n  flex-shrink: 0;\n  transition: opacity .15s;\n  -webkit-mask-position: center;\n  mask-position: center;\n  -webkit-mask-size: contain;\n  mask-size: contain;\n  -webkit-mask-repeat: no-repeat;\n  mask-repeat: no-repeat;\n}\n\n#dialog-title .close:hover {\n  opacity: 1;\n}\n\n#dialog-body {\n  align-items: flex-start;\n  gap: 1rem;\n  padding: 1.25rem;\n  display: flex;\n  overflow-y: auto;\n}\n\n#dialog-body svg {\n  flex-shrink: 0;\n  width: 2.5rem;\n  height: 2.5rem;\n}\n\n#dialog-content {\n  flex-direction: column;\n  flex: auto;\n  gap: .75rem;\n  min-width: 0;\n  display: flex;\n}\n\n#dialog-content p {\n  margin: 0;\n  line-height: 1.5;\n}\n\n#dialog-footer {\n  background: #00000004;\n  border-top: 1px solid #00000014;\n  justify-content: flex-end;\n  gap: .5rem;\n  padding: .875rem 1.25rem;\n  display: flex;\n}\n";
 
 },{}],"5UDFm":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -15178,6 +15200,7 @@ var _inputBase = require("../../_Base/InputBase");
 var _buttonEvents = require("./ButtonEvents");
 var _when = require("lit/directives/when");
 var _styleMap = require("lit/directives/style-map");
+var _ref = require("lit/directives/ref");
 var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -15205,7 +15228,7 @@ let JuelButton = class JuelButton extends (0, _inputBase.InputBase) {
         let iconStyle = this.getIconStyle();
         iconStyle["margin-right"] = "0.5rem";
         let klass = this.getInputClass();
-        return (0, _lit.html)`<button type="${this.submit ? "submit" : "button"}" part="button" class="${klass}"
+        return (0, _lit.html)`<button ${(0, _ref.ref)(this.input)} type="${this.submit ? "submit" : "button"}" part="button" class="${klass}"
                 part="button" @click="${this.onClick}"><slot>${(0, _when.when)(this.glyph, ()=>(0, _lit.html)`<div class="icon sm" style="${(0, _styleMap.styleMap)(iconStyle)}"></div>`)}${this.label}</slot></button>`;
     }
     constructor(){
@@ -15224,7 +15247,7 @@ JuelButton = __decorate([
     (0, _decorators.customElement)("juel-button")
 ], JuelButton);
 
-},{"lit":"6MR4h","lit/decorators":"iBjLb","bundle-text:./Button.less":"3hz9P","../../_Base/InputBase":"8SsnJ","./ButtonEvents":"iTOLw","lit/directives/when":"isKig","lit/directives/style-map":"2i7pi","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"3hz9P":[function(require,module,exports,__globalThis) {
+},{"lit":"6MR4h","lit/decorators":"iBjLb","bundle-text:./Button.less":"3hz9P","../../_Base/InputBase":"8SsnJ","./ButtonEvents":"iTOLw","lit/directives/when":"isKig","lit/directives/style-map":"2i7pi","lit/directives/ref":"dqTUo","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"3hz9P":[function(require,module,exports,__globalThis) {
 module.exports = ".icon {\n  background-color: currentColor;\n  display: inline-block;\n  -webkit-mask-position: center;\n  mask-position: center;\n  -webkit-mask-repeat: no-repeat;\n  mask-repeat: no-repeat;\n}\n\n.icon.lg {\n  width: 48px;\n  height: 48px;\n}\n\n.icon.sm {\n  width: 16px;\n  height: 16px;\n}\n\n.icon.md {\n  width: 32px;\n  height: 32px;\n}\n\n.primary {\n  background-color: var(--background-color, var(--primary));\n  color: var(--color, white);\n  border: 1px solid var(--background-color, var(--primary));\n}\n\n.primary.alert {\n  background-color: var(--background-color, #a3cfff);\n  color: var(--color, var(--primary)) !important;\n}\n\n.primary .icon:not(.empty) {\n  background-color: var(--color, white);\n}\n\n.primary:hover {\n  background-color: var(--hover-background-color, var(--color, #a3cfff));\n  color: var(--hover-color, white);\n  border-color: var(--hover-border-color, #a3cfff);\n}\n\n.primary:hover .icon:not(.empty) {\n  background-color: var(--hover-color, var(--color, white));\n}\n\n.primary:active {\n  box-shadow: 0 0 10px var(--background-color, var(--primary));\n}\n\n.primary.outline {\n  background-color: initial;\n  color: var(--background-color, var(--primary));\n  border-color: var(--background-color, var(--primary));\n}\n\n.primary.outline:hover {\n  background-color: var(--background-color, var(--primary));\n  color: var(--color, white);\n}\n\n.primary.right-rounded {\n  border-right: 1px solid var(--background-color, var(--primary));\n}\n\n.primary.left-rounded {\n  border-left: 1px solid var(--background-color, var(--primary));\n}\n\n.primary-border {\n  border: 1px solid var(--background-color, #004a99);\n}\n\n.secondary {\n  background-color: var(--background-color, var(--secondary));\n  color: var(--color, white);\n  border: 1px solid var(--background-color, var(--secondary));\n}\n\n.secondary.alert {\n  background-color: var(--background-color, #c2c6ca);\n  color: var(--color, var(--secondary)) !important;\n}\n\n.secondary .icon:not(.empty) {\n  background-color: var(--color, white);\n}\n\n.secondary:hover {\n  background-color: var(--hover-background-color, var(--color, #c2c6ca));\n  color: var(--hover-color, white);\n  border-color: var(--hover-border-color, #c2c6ca);\n}\n\n.secondary:hover .icon:not(.empty) {\n  background-color: var(--hover-color, var(--color, white));\n}\n\n.secondary:active {\n  box-shadow: 0 0 10px var(--background-color, var(--secondary));\n}\n\n.secondary.outline {\n  background-color: initial;\n  color: var(--background-color, var(--secondary));\n  border-color: var(--background-color, var(--secondary));\n}\n\n.secondary.outline:hover {\n  background-color: var(--background-color, var(--secondary));\n  color: var(--color, white);\n}\n\n.secondary.right-rounded {\n  border-right: 1px solid var(--background-color, var(--secondary));\n}\n\n.secondary.left-rounded {\n  border-left: 1px solid var(--background-color, var(--secondary));\n}\n\n.secondary-border {\n  border: 1px solid var(--background-color, #3d4246);\n}\n\n.tertiary {\n  background-color: var(--background-color, var(--tertiary));\n  color: var(--color, white);\n  border: 1px solid var(--background-color, var(--tertiary));\n}\n\n.tertiary.alert {\n  background-color: var(--background-color, #fff);\n  color: var(--color, var(--tertiary)) !important;\n}\n\n.tertiary .icon:not(.empty) {\n  background-color: var(--color, white);\n}\n\n.tertiary:hover {\n  background-color: var(--hover-background-color, var(--color, #fff));\n  color: var(--hover-color, white);\n  border-color: var(--hover-border-color, #fff);\n}\n\n.tertiary:hover .icon:not(.empty) {\n  background-color: var(--hover-color, var(--color, white));\n}\n\n.tertiary:active {\n  box-shadow: 0 0 10px var(--background-color, var(--tertiary));\n}\n\n.tertiary.outline {\n  background-color: initial;\n  color: var(--background-color, var(--tertiary));\n  border-color: var(--background-color, var(--tertiary));\n}\n\n.tertiary.outline:hover {\n  background-color: var(--background-color, var(--tertiary));\n  color: var(--color, white);\n}\n\n.tertiary.right-rounded {\n  border-right: 1px solid var(--background-color, var(--tertiary));\n}\n\n.tertiary.left-rounded {\n  border-left: 1px solid var(--background-color, var(--tertiary));\n}\n\n.tertiary-border {\n  border: 1px solid var(--background-color, #f7270f);\n}\n\n.light {\n  background-color: var(--background-color, var(--light));\n  color: var(--color, black);\n  border: 1px solid var(--background-color, var(--light));\n}\n\n.light.alert {\n  background-color: var(--background-color, #99a7b6);\n  color: var(--color, var(--light)) !important;\n}\n\n.light .icon:not(.empty) {\n  background-color: var(--color, black);\n}\n\n.light:hover {\n  background-color: var(--hover-background-color, var(--color, #99a7b6));\n  color: var(--hover-color, black);\n  border-color: var(--hover-border-color, #99a7b6);\n}\n\n.light:hover .icon:not(.empty) {\n  background-color: var(--hover-color, var(--color, black));\n}\n\n.light:active {\n  box-shadow: 0 0 10px var(--background-color, var(--light));\n}\n\n.light.outline {\n  background-color: initial;\n  color: var(--background-color, var(--light));\n  border-color: var(--background-color, var(--light));\n}\n\n.light.outline:hover {\n  background-color: var(--background-color, var(--light));\n  color: var(--color, black);\n}\n\n.light.right-rounded {\n  border-right: 1px solid var(--background-color, var(--light));\n}\n\n.light.left-rounded {\n  border-left: 1px solid var(--background-color, var(--light));\n}\n\n.light-border {\n  border: 1px solid var(--background-color, #bcc6cf);\n}\n\n.dark {\n  background-color: var(--background-color, var(--dark));\n  color: var(--color, white);\n  border: 1px solid var(--background-color, var(--dark));\n}\n\n.dark.alert {\n  background-color: var(--background-color, #808c98);\n  color: var(--color, var(--dark)) !important;\n}\n\n.dark .icon:not(.empty) {\n  background-color: var(--color, white);\n}\n\n.dark:hover {\n  background-color: var(--hover-background-color, var(--color, #808c98));\n  color: var(--hover-color, white);\n  border-color: var(--hover-border-color, #808c98);\n}\n\n.dark:hover .icon:not(.empty) {\n  background-color: var(--hover-color, var(--color, white));\n}\n\n.dark:active {\n  box-shadow: 0 0 10px var(--background-color, var(--dark));\n}\n\n.dark.outline {\n  background-color: initial;\n  color: var(--background-color, var(--dark));\n  border-color: var(--background-color, var(--dark));\n}\n\n.dark.outline:hover {\n  background-color: var(--background-color, var(--dark));\n  color: var(--color, white);\n}\n\n.dark.right-rounded {\n  border-right: 1px solid var(--background-color, var(--dark));\n}\n\n.dark.left-rounded {\n  border-left: 1px solid var(--background-color, var(--dark));\n}\n\n.dark-border {\n  border: 1px solid var(--background-color, #060708);\n}\n\n.success {\n  background-color: var(--background-color, var(--success));\n  color: var(--color, white);\n  border: 1px solid var(--background-color, var(--success));\n}\n\n.success.alert {\n  background-color: var(--background-color, #8ee4a2);\n  color: var(--color, var(--success)) !important;\n}\n\n.success .icon:not(.empty) {\n  background-color: var(--color, white);\n}\n\n.success:hover {\n  background-color: var(--hover-background-color, var(--color, #8ee4a2));\n  color: var(--hover-color, white);\n  border-color: var(--hover-border-color, #8ee4a2);\n}\n\n.success:hover .icon:not(.empty) {\n  background-color: var(--hover-color, var(--color, white));\n}\n\n.success:active {\n  box-shadow: 0 0 10px var(--background-color, var(--success));\n}\n\n.success.outline {\n  background-color: initial;\n  color: var(--background-color, var(--success));\n  border-color: var(--background-color, var(--success));\n}\n\n.success.outline:hover {\n  background-color: var(--background-color, var(--success));\n  color: var(--color, white);\n}\n\n.success.right-rounded {\n  border-right: 1px solid var(--background-color, var(--success));\n}\n\n.success.left-rounded {\n  border-left: 1px solid var(--background-color, var(--success));\n}\n\n.success-border {\n  border: 1px solid var(--background-color, #145523);\n}\n\n.info {\n  background-color: var(--background-color, var(--info));\n  color: var(--color, white);\n  border: 1px solid var(--background-color, var(--info));\n}\n\n.info.alert {\n  background-color: var(--background-color, #83e1ef);\n  color: var(--color, var(--info)) !important;\n}\n\n.info .icon:not(.empty) {\n  background-color: var(--color, white);\n}\n\n.info:hover {\n  background-color: var(--hover-background-color, var(--color, #83e1ef));\n  color: var(--hover-color, white);\n  border-color: var(--hover-border-color, #83e1ef);\n}\n\n.info:hover .icon:not(.empty) {\n  background-color: var(--hover-color, var(--color, white));\n}\n\n.info:active {\n  box-shadow: 0 0 10px var(--background-color, var(--info));\n}\n\n.info.outline {\n  background-color: initial;\n  color: var(--background-color, var(--info));\n  border-color: var(--background-color, var(--info));\n}\n\n.info.outline:hover {\n  background-color: var(--background-color, var(--info));\n  color: var(--color, white);\n}\n\n.info.right-rounded {\n  border-right: 1px solid var(--background-color, var(--info));\n}\n\n.info.left-rounded {\n  border-left: 1px solid var(--background-color, var(--info));\n}\n\n.info-border {\n  border: 1px solid var(--background-color, #0c525d);\n}\n\n.warning {\n  background-color: var(--background-color, var(--warning));\n  color: var(--color, black);\n  border: 1px solid var(--background-color, var(--warning));\n}\n\n.warning.alert {\n  background-color: var(--background-color, #634a00);\n  color: var(--color, var(--warning)) !important;\n}\n\n.warning .icon:not(.empty) {\n  background-color: var(--color, black);\n}\n\n.warning:hover {\n  background-color: var(--hover-background-color, var(--color, #634a00));\n  color: var(--hover-color, black);\n  border-color: var(--hover-border-color, #634a00);\n}\n\n.warning:hover .icon:not(.empty) {\n  background-color: var(--hover-color, var(--color, black));\n}\n\n.warning:active {\n  box-shadow: 0 0 10px var(--background-color, var(--warning));\n}\n\n.warning.outline {\n  background-color: initial;\n  color: var(--background-color, var(--warning));\n  border-color: var(--background-color, var(--warning));\n}\n\n.warning.outline:hover {\n  background-color: var(--background-color, var(--warning));\n  color: var(--color, black);\n}\n\n.warning.right-rounded {\n  border-right: 1px solid var(--background-color, var(--warning));\n}\n\n.warning.left-rounded {\n  border-left: 1px solid var(--background-color, var(--warning));\n}\n\n.warning-border {\n  border: 1px solid var(--background-color, #a07800);\n}\n\n.danger {\n  background-color: var(--background-color, var(--danger));\n  color: var(--color, white);\n  border: 1px solid var(--background-color, var(--danger));\n}\n\n.danger.alert {\n  background-color: var(--background-color, #f4c0c5);\n  color: var(--color, var(--danger)) !important;\n}\n\n.danger .icon:not(.empty) {\n  background-color: var(--color, white);\n}\n\n.danger:hover {\n  background-color: var(--hover-background-color, var(--color, #f4c0c5));\n  color: var(--hover-color, white);\n  border-color: var(--hover-border-color, #f4c0c5);\n}\n\n.danger:hover .icon:not(.empty) {\n  background-color: var(--hover-color, var(--color, white));\n}\n\n.danger:active {\n  box-shadow: 0 0 10px var(--background-color, var(--danger));\n}\n\n.danger.outline {\n  background-color: initial;\n  color: var(--background-color, var(--danger));\n  border-color: var(--background-color, var(--danger));\n}\n\n.danger.outline:hover {\n  background-color: var(--background-color, var(--danger));\n  color: var(--color, white);\n}\n\n.danger.right-rounded {\n  border-right: 1px solid var(--background-color, var(--danger));\n}\n\n.danger.left-rounded {\n  border-left: 1px solid var(--background-color, var(--danger));\n}\n\n.danger-border {\n  border: 1px solid var(--background-color, #921925);\n}\n\n#dropdown-toggle {\n  text-align: center;\n  vertical-align: middle;\n  cursor: pointer;\n  border: 1px solid #0000;\n  padding: .375rem .75rem;\n  font-size: 1rem;\n  font-weight: 400;\n  line-height: 1.5;\n  display: inline-block;\n}\n\n#dropdown-toggle:after {\n  vertical-align: .255em;\n  content: \"\";\n  border: .3em solid #0000;\n  border-top-color: currentColor;\n  border-bottom: 0;\n  display: inline-block;\n}\n\n:host {\n  display: inline-block;\n  position: relative;\n}\n\ninput.text {\n  width: 100%;\n}\n\n.input-group {\n  flex-direction: var(--direction, row);\n  margin: var(--margin);\n  border-radius: .25rem;\n  flex-wrap: wrap;\n  display: inline-flex;\n}\n\n.input-group div {\n  display: inline-flex;\n}\n\n.input-group.labels-vertical label {\n  flex-basis: 100%;\n}\n\n.rounded {\n  border-radius: var(--border-radius, .25rem);\n}\n\n.right-rounded {\n  border-top-right-radius: var(--border-top-right-radius, .25rem);\n  border-bottom-right-radius: var(--border-bottom-right-radius, .25rem);\n}\n\n.left-rounded {\n  border-top-left-radius: var(--border-top-left-radius, .25rem);\n  border-bottom-left-radius: var(--border-bottom-left-radius, .25rem);\n}\n\n.no-rounded {\n  border-radius: 0;\n}\n\nslot[name=\"dropdown\"] {\n  z-index: 1000;\n  color: #212529;\n  text-align: left;\n  background-color: #fff;\n  background-clip: padding-box;\n  border: 1px solid #00000026;\n  border-radius: .25rem;\n  width: 100%;\n  margin: 0;\n  font-size: 1rem;\n  display: none;\n  position: absolute;\n}\n\n::slotted(ul) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 1rem;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(ol) {\n  flex-direction: column;\n  margin: 0;\n  padding: .5rem 0;\n  list-style: none;\n  display: flex;\n}\n\n.btn {\n  position: relative;\n  overflow: hidden;\n}\n\n.btn-group {\n  vertical-align: middle;\n  display: inline-flex;\n  position: relative;\n}\n\nbutton {\n  font-weight: var(--font-weight, 400);\n  color: var(--color, #212529);\n  text-align: center;\n  text-transform: var(--text-transform);\n  vertical-align: middle;\n  cursor: pointer;\n  -webkit-user-select: none;\n  user-select: none;\n  padding: var(--padding, .375rem .75rem);\n  line-height: 1.5;\n  font-size: var(--font-size, 1rem);\n  align-items: center;\n  text-decoration: none;\n  display: inline-flex;\n  position: relative;\n}\n";
 
 },{}],"8SsnJ":[function(require,module,exports,__globalThis) {

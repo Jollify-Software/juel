@@ -25,7 +25,13 @@
 
     <section class="example-section">
         <h2>Icons</h2>
-        <p>The built-in icon/shorthand combinations.</p>
+        <p>
+            The built-in icon/shorthand combinations. <code>Stop</code> reuses the <code>Hand</code>
+            icon — there's no separate "stop" asset, matching how the classic Win32/VB6 MsgBox API
+            this mirrors treated <code>MB_ICONSTOP</code>/<code>MB_ICONHAND</code> as the same icon.
+            <code>Question</code> also shows a common pattern: chaining a <code>juel.toast</code>
+            onto the result once the dialog closes.
+        </p>
         <div class="example-demo">
             <juel-button type="secondary" render-style="outline" label="Asterisk" id="asterisk"></juel-button>
             <juel-button type="danger" label="Error" id="error"></juel-button>
@@ -82,7 +88,15 @@
             });
         });
         document.getElementById("question").addEventListener("click", () => {
-            juel.messageBox.question("This is an question");
+            juel.messageBox.question("This is an question").then(result => {
+                // MessageBoxResultStatus isn't exposed on window.juel, so
+                // consumers compare against its raw values: 3 = Yes, 4 = No.
+                if (result.status === 3) {
+                    juel.toast.success("You said yes!");
+                } else if (result.status === 4) {
+                    juel.toast.error("You said no.");
+                }
+            });
         });
         document.getElementById("stop").addEventListener("click", () => {
             juel.messageBox.show({

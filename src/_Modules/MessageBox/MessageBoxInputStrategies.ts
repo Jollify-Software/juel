@@ -13,9 +13,9 @@ var MessageBoxInputStrategies: {[id: string]: (args: MessageBoxArgs, msgBox: HTM
 MessageBoxInputStrategies["text"] = (args, msgBox, field) => {
     let input: HTMLElement;
     if (!field) {
-        input = ElementFromHtml(`<juel-text style="flex-basis: 100%" value="${EscapeHtml(args.value ?? "")}"></juel-text>`);
+        input = ElementFromHtml(`<juel-text value="${EscapeHtml(args.value ?? "")}"></juel-text>`);
     } else {
-        input = ElementFromHtml(`<juel-text style="flex-basis: 100%" label="${EscapeHtml(upperFirst(field.name))}" value="${EscapeHtml(field.value ?? "")}"></juel-text>`);
+        input = ElementFromHtml(`<juel-text label="${EscapeHtml(upperFirst(field.name))}" value="${EscapeHtml(field.value ?? "")}"></juel-text>`);
     }
     input.addEventListener(EventNames.ValueChanged as any, (e: CustomEvent<ChangedEventArgs>) => {
         if (field) {
@@ -26,7 +26,7 @@ MessageBoxInputStrategies["text"] = (args, msgBox, field) => {
             args.value = e.detail.value;
         }
     });
-    msgBox.querySelector("#dialog-body").append(input);
+    msgBox.querySelector("#dialog-content").append(input);
 };
 /*
 MessageBoxInputStrategies["markdown"] = (args, msgBox) => {

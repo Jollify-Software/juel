@@ -8,6 +8,7 @@ import { InputTypes } from "../../_Templates/InputTypes";
 import { ButtonEvents } from "./ButtonEvents";
 import { when } from "lit/directives/when";
 import { styleMap } from "lit/directives/style-map";
+import { ref } from "lit/directives/ref";
 
 @customElement("juel-button")
 export class JuelButton extends InputBase {
@@ -46,7 +47,7 @@ export class JuelButton extends InputBase {
         let iconStyle = this.getIconStyle();
         iconStyle["margin-right"] = "0.5rem";
         let klass = this.getInputClass();
-        return html`<button type="${this.submit ? "submit" : "button"}" part="button" class="${klass}"
+        return html`<button ${ref(this.input)} type="${this.submit ? "submit" : "button"}" part="button" class="${klass}"
                 part="button" @click="${this.onClick}"><slot>${when(this.glyph, () => html`<div class="icon sm" style="${styleMap(iconStyle)}"></div>`)}${this.label}</slot></button>`;
     }
 }

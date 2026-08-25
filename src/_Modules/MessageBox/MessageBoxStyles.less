@@ -7,52 +7,104 @@
     height          : 100%;
     top             : 0px;
     left            : 0px;
-    pointer-events  : none;
+    pointer-events  : all;
     z-index         : 101;
-    background-color: rgba(58, 71, 77, 0.259);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 #dialog {
-    max-height      : 100%;
     display         : flex;
     flex-direction  : column;
-    position        : absolute;
+    position        : relative;
     pointer-events  : all;
     z-index         : 101;
     overflow        : hidden;
-    background-color: rgb(255, 255, 255);
-    box-shadow      : rgb(0 0 0 / 22%) 0px 22px 64px 0px;
-    border-radius   : 4px;
+    background-color: var(--light, #fff);
+    color           : var(--dark, #212529);
+    box-shadow      : 0 12px 40px rgba(0, 0, 0, 0.25);
+    border-radius   : 0.5rem;
+    width           : 100%;
+    max-width       : 480px;
+    min-width       : 320px;
+    max-height      : calc(100% - 3.5rem);
+    margin          : 1.75rem;
+}
+
+#dialog.pulse {
+    animation: dialog-pulse 0.3s ease-in-out;
+}
+
+@keyframes dialog-pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.03); }
+    100% { transform: scale(1); }
 }
 
 #dialog-title {
-    background-color: rgba(243, 245, 247, 0.56);
-    padding         : 0.6875rem 1.25rem;
-    font-size       : 1.25rem;
-    line-height     : 1.875rem;
-    border-bottom   : none;
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    gap            : 0.75rem;
+    padding        : 1rem 1.25rem;
+    font-size      : 1.125rem;
+    font-weight    : 600;
+    border-bottom  : 1px solid rgba(0, 0, 0, 0.08);
 
     .close {
-        float              : right;
-        background-image   : var(--icon-close);
-        width              : 26px;
-        height             : 26px;
-        margin-top         : 3%;
-        background-repeat  : no-repeat;
-        background-position: center center;
+        flex-shrink        : 0;
+        width              : 20px;
+        height             : 20px;
+        background-color   : currentColor;
+        mask-image         : var(--icon-close);
+        -webkit-mask-image : var(--icon-close);
+        mask-repeat        : no-repeat;
+        -webkit-mask-repeat: no-repeat;
+        mask-position      : center;
+        -webkit-mask-position: center;
+        mask-size          : contain;
+        -webkit-mask-size  : contain;
+        cursor             : pointer;
+        opacity            : 0.5;
+        transition         : opacity 0.15s ease;
+
+        &:hover {
+            opacity: 1;
+        }
     }
 }
 
-#dialog-body, #dialog-body > form {
-    padding  : 0.5rem;
-    display  : flex;
-    align-items: center;
-    flex-wrap: wrap;
+#dialog-body {
+    padding    : 1.25rem;
+    display    : flex;
+    align-items: flex-start;
+    gap        : 1rem;
+    overflow-y : auto;
 
     svg {
-        flex: 1;
-        padding: 0.5rem;
-        max-width: 64px;
-        max-height: 64px;
+        flex-shrink: 0;
+        width      : 2.5rem;
+        height     : 2.5rem;
     }
+}
+
+#dialog-content {
+    display       : flex;
+    flex-direction: column;
+    gap           : 0.75rem;
+    flex          : 1 1 auto;
+    min-width     : 0;
+
+    p {
+        margin     : 0;
+        line-height: 1.5;
+    }
+}
+
+#dialog-footer {
+    display        : flex;
+    justify-content: flex-end;
+    gap            : 0.5rem;
+    padding        : 0.875rem 1.25rem;
+    border-top     : 1px solid rgba(0, 0, 0, 0.08);
+    background     : rgba(0, 0, 0, 0.015);
 }

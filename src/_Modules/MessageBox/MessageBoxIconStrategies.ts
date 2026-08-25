@@ -42,7 +42,12 @@ MessageBoxIconStrategies[MessageBoxIcon.Question] = (ars, msgBox) => {
     }
 }
 MessageBoxIconStrategies[MessageBoxIcon.Stop] = (ars, msgBox) => {
-    let icn = ElementFromHtml(IconsModule.get("stop"));
+    // No dedicated "stop" icon exists in the icon set — Stop/Hand/Error
+    // were historically the same icon in the Win32/VB6 MsgBox API this
+    // enum mirrors (MB_ICONSTOP, MB_ICONHAND, and MB_ICONERROR were
+    // literal aliases for one constant), so reuse "hand" rather than
+    // point at a nonexistent asset.
+    let icn = ElementFromHtml(IconsModule.get("hand"));
     if (icn) {
         msgBox.querySelector("#dialog-body").append(icn);
     }

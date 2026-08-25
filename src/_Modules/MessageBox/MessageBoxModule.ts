@@ -68,10 +68,29 @@ export module MessageBoxModule {
         <span>${EscapeHtml(args.title)}</span>
         </div>
         <div id="dialog-body">
+        <div id="dialog-content">
         ${args.text ? `<p>${EscapeHtml(args.text)}</p>` : ``}
         </div>
         </div>
+        <div id="dialog-footer"></div>
+        </div>
         </div>`);
+
+            // Clicking the dimmed backdrop doesn't dismiss the dialog (a
+            // message box always needs an explicit choice via its buttons)
+            // — but it shouldn't silently do nothing either, so pulse the
+            // dialog to draw attention back to it. e.target === msgBox
+            // (rather than some descendant) is exactly "clicked the
+            // backdrop, not the dialog or anything in it."
+            msgBox.addEventListener("click", (e: MouseEvent) => {
+                if (e.target !== msgBox) {
+                    return;
+                }
+                let dialog = msgBox.querySelector("#dialog") as HTMLElement;
+                dialog.classList.remove("pulse");
+                void dialog.offsetWidth; // restart the animation even if it's already mid-pulse
+                dialog.classList.add("pulse");
+            });
 
             let prompt: boolean = false;
             
@@ -104,9 +123,6 @@ export module MessageBoxModule {
             } else {
                 MessageBoxButtonStrategies[MessageBoxButtons.OK](args, msgBox, resolvePromise, reject);
             }
-            if (prompt == false) {
-                (msgBox.querySelector("juel-button") as HTMLElement)?.focus();
-            }
             if (args.close && args.close == true) {
                 let closeBtn = ElementFromHtml(`<div class="close"></div>`);
                 closeBtn.addEventListener("click", () => {
@@ -115,7 +131,31 @@ export module MessageBoxModule {
                 });
                 msgBox.querySelector("#dialog-title").append(closeBtn);
             }
+
+            // Appended before focusing — a disconnected element (or one of
+            // its descendants) can't receive focus at all, and this used to
+            // run in the opposite order.
             document.body.append(msgBox);
+
+            if (prompt == false) {
+                // The primary/confirm button isn't necessarily first in DOM
+                // order any more (footer buttons are ordered secondary-then-
+                // primary, left-to-right, to read naturally toward the
+                // right-aligned confirm action) — so focus by role, not by
+                // "whichever juel-button happens to come first."
+                let primaryButton = msgBox.querySelector('#dialog-footer juel-button[type="primary"], #dialog-footer juel-button[type="success"]')
+                    ?? msgBox.querySelector("#dialog-footer juel-button");
+                // juel-button only just connected (above), so Lit hasn't
+                // rendered its shadow DOM yet — its internal <button> (what
+                // focus() actually needs to reach) doesn't exist until that
+                // first render commits. updateComplete resolves exactly then.
+                let updateComplete = (primaryButton as unknown as { updateComplete?: Promise<boolean> })?.updateComplete;
+                if (updateComplete) {
+                    updateComplete.then(() => (primaryButton as HTMLElement).focus());
+                } else {
+                    (primaryButton as HTMLElement)?.focus();
+                }
+            }
         });
     }
 }
