@@ -17,8 +17,8 @@
             <code>window.juel.toast</code> shows a stack of dismissing-after-a-delay notifications in
             the bottom-right corner. <code>success()</code>, <code>error()</code>,
             <code>warning()</code> and <code>into()</code> are shorthands for
-            <code>show({ message, type, duration })</code>. Every call shares one stack, so multiple
-            toasts queue underneath each other instead of overlapping.
+            <code>show({ message, type, duration, html })</code>. Every call shares one stack, so
+            multiple toasts queue underneath each other instead of overlapping.
         </p>
     </header>
 
@@ -41,6 +41,18 @@
         </div>
     </section>
 
+    <section class="example-section">
+        <h2>HTML content</h2>
+        <p>
+            <code>show({ message, html: true })</code> renders <code>message</code> as HTML instead
+            of plain text — off by default (plain <code>innerText</code>), since it's rendered with
+            no sanitisation. Only opt in for markup you trust.
+        </p>
+        <div class="example-demo">
+            <juel-button type="info" label="HTML toast" id="toast-html"></juel-button>
+        </div>
+    </section>
+
     <script>
         document.getElementById('toast-success').addEventListener('click', () => juel.toast.success('Saved successfully.'));
         document.getElementById('toast-error').addEventListener('click', () => juel.toast.error('Something went wrong.'));
@@ -51,6 +63,15 @@
             juel.toast.success('First toast');
             juel.toast.warning('Second toast');
             juel.toast.error('Third toast');
+        });
+
+        document.getElementById('toast-html').addEventListener('click', () => {
+            juel.toast.show({
+                message: '<strong>👋 Hey there!</strong> This toast has <em>HTML</em> content.',
+                type: 'info',
+                html: true,
+                duration: 5000,
+            });
         });
     </script>
 </body>

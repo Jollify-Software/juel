@@ -1411,10 +1411,11 @@ class Toast {
             document.head.append(style);
         }
     }
-    show({ message, duration = 3000, type = "info" }) {
+    show({ message, duration = 3000, type = "info", html = false }) {
         var _this_container;
         const toastElement = document.createElement("div");
-        toastElement.innerText = message;
+        if (html) toastElement.innerHTML = message;
+        else toastElement.innerText = message;
         toastElement.style.padding = "10px 20px";
         toastElement.style.color = "#fff";
         toastElement.style.borderRadius = "5px";

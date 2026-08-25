@@ -38,9 +38,13 @@ export class Toast {
 
     }
   
-    public show({ message, duration = 3000, type = "info" }: ToastOptions): void {
+    public show({ message, duration = 3000, type = "info", html = false }: ToastOptions): void {
       const toastElement = document.createElement("div");
-      toastElement.innerText = message;
+      if (html) {
+        toastElement.innerHTML = message;
+      } else {
+        toastElement.innerText = message;
+      }
   
       // Apply styles based on type
       toastElement.style.padding = "10px 20px";
