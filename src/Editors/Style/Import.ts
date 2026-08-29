@@ -3,3 +3,4 @@
 // editors in the parent Editors module. See src/_Core/History/README.md.
 import './PositionEditor/PositionEditor';
 import './GradientEditor/GradientEditor';
+import './ShadowEditor/ShadowEditor';

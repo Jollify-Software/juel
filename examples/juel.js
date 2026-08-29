@@ -35464,8 +35464,9 @@ JuelPointSelector = __decorate([
 },{"lit":"6MR4h","lit/decorators.js":"iBjLb","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"hZzyn":[function(require,module,exports,__globalThis) {
 var _positionEditor = require("./PositionEditor/PositionEditor");
 var _gradientEditor = require("./GradientEditor/GradientEditor");
+var _shadowEditor = require("./ShadowEditor/ShadowEditor");
 
-},{"./PositionEditor/PositionEditor":"4VI1A","./GradientEditor/GradientEditor":"tNIo7"}],"4VI1A":[function(require,module,exports,__globalThis) {
+},{"./PositionEditor/PositionEditor":"4VI1A","./GradientEditor/GradientEditor":"tNIo7","./ShadowEditor/ShadowEditor":"bWR7H"}],"4VI1A":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "JuelPositionEditor", ()=>JuelPositionEditor);
@@ -37252,6 +37253,576 @@ function parsePercent(pos) {
 function round(n, places) {
     const f = Math.pow(10, places);
     return Math.round(n * f) / f;
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"bWR7H":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "JuelShadowEditor", ()=>JuelShadowEditor);
+var _objectSpread = require("@swc/helpers/_/_object_spread");
+var _objectSpreadProps = require("@swc/helpers/_/_object_spread_props");
+var _lit = require("lit");
+var _decoratorsJs = require("lit/decorators.js");
+var _stylePropertyEditorBase = require("../StylePropertyEditorBase");
+var _shadowEditorEvents = require("./ShadowEditorEvents");
+var _shadowValue = require("./ShadowValue");
+var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let JuelShadowEditor = class JuelShadowEditor extends (0, _stylePropertyEditorBase.StylePropertyEditorBase) {
+    get seedFallback() {
+        return '0px 4px 12px rgba(0, 0, 0, 0.25)';
+    }
+    get changeEventName() {
+        return (0, _shadowEditorEvents.ShadowEditorEvents).Changed;
+    }
+    parse(value) {
+        const m = (0, _shadowValue.parseShadowList)(value);
+        if (m) this.model = m;
+        this.active = Math.min(this.active, this.model.shadows.length - 1);
+        if (this.active < 0) this.active = 0;
+    }
+    serialize() {
+        return (0, _shadowValue.stringifyShadowList)(this.model);
+    }
+    emitChange(reason, detail = {}) {
+        const name = reason === 'preview' ? (0, _shadowEditorEvents.ShadowEditorEvents).Preview : reason === 'cancel' ? (0, _shadowEditorEvents.ShadowEditorEvents).Cancelled : (0, _shadowEditorEvents.ShadowEditorEvents).Changed;
+        this.dispatchEvent(new CustomEvent(name, {
+            detail: (0, _objectSpread._)({
+                value: this.value,
+                reason
+            }, detail),
+            bubbles: true,
+            composed: true
+        }));
+    }
+    onTeardown() {
+        this.endDrag();
+        this.flushColor();
+    }
+    cur() {
+        var _this_model_shadows_this_active;
+        return (_this_model_shadows_this_active = this.model.shadows[this.active]) !== null && _this_model_shadows_this_active !== void 0 ? _this_model_shadows_this_active : null;
+    }
+    touch() {
+        this.model = {
+            shadows: [
+                ...this.model.shadows
+            ]
+        };
+    }
+    edit(reason, fn) {
+        this.flushColor();
+        fn();
+        this.touch();
+        this.commit(reason);
+    }
+    flushColor() {
+        if (this.colorTimer) {
+            clearTimeout(this.colorTimer);
+            this.colorTimer = 0;
+            this.touch();
+            this.commit('color');
+        }
+    }
+    select(i) {
+        this.flushColor();
+        this.active = i;
+    }
+    addShadow() {
+        this.edit('add', ()=>{
+            this.model.shadows.push((0, _shadowValue.defaultShadow)());
+            this.active = this.model.shadows.length - 1;
+        });
+    }
+    removeShadow() {
+        if (this.model.shadows.length < 2) return;
+        this.edit('remove', ()=>{
+            this.model.shadows.splice(this.active, 1);
+            this.active = Math.max(0, this.active - 1);
+        });
+    }
+    moveShadow(dir) {
+        const j = this.active + dir;
+        if (j < 0 || j >= this.model.shadows.length) return;
+        this.edit('reorder', ()=>{
+            const [s] = this.model.shadows.splice(this.active, 1);
+            this.model.shadows.splice(j, 0, s);
+            this.active = j;
+        });
+    }
+    setLen(key, n, commit) {
+        const s = this.cur();
+        if (!s) return;
+        this.flushColor();
+        s[key] = `${n}px`;
+        this.touch();
+        if (commit) this.commit(key);
+        else this.previewChange();
+    }
+    toggleInset() {
+        const s = this.cur();
+        if (!s) return;
+        this.edit('inset', ()=>{
+            s.inset = !s.inset;
+        });
+    }
+    setColor(v) {
+        const s = this.cur();
+        if (!s) return;
+        const { alpha } = (0, _shadowValue.splitAlpha)(s.color || 'rgba(0,0,0,1)');
+        s.color = (0, _shadowValue.withAlpha)(v, alpha);
+        this.touch();
+        this.previewChange();
+        this.queueColorCommit();
+    }
+    setAlpha(a, commit) {
+        const s = this.cur();
+        if (!s) return;
+        const { base } = (0, _shadowValue.splitAlpha)(s.color || 'rgba(0,0,0,1)');
+        s.color = (0, _shadowValue.withAlpha)(base, a / 100);
+        this.touch();
+        if (commit) {
+            this.flushColor();
+            this.commit('opacity');
+        } else {
+            this.previewChange();
+            this.queueColorCommit();
+        }
+    }
+    queueColorCommit() {
+        clearTimeout(this.colorTimer);
+        this.colorTimer = window.setTimeout(()=>{
+            this.colorTimer = 0;
+            this.commit('color');
+        }, 250);
+    }
+    endDrag() {
+        window.removeEventListener('pointermove', this.onPreviewPointerMove);
+        window.removeEventListener('pointerup', this.onPreviewPointerUp);
+        window.removeEventListener('keydown', this.onDragKey, true);
+    }
+    slider(label, key, min, max) {
+        const s = this.cur();
+        const v = s ? (0, _shadowValue.num)(s[key]) : 0;
+        return (0, _lit.html)`
+      <div class="row">
+        <span class="lbl">${label}</span>
+        <input
+          type="range"
+          min=${min}
+          max=${max}
+          .value=${String(v)}
+          @input=${(e)=>this.setLen(key, +e.target.value, false)}
+          @change=${(e)=>this.setLen(key, +e.target.value, true)}
+        />
+        <input
+          type="number"
+          .value=${String(v)}
+          @change=${(e)=>this.setLen(key, +e.target.value, true)}
+        />
+      </div>
+    `;
+    }
+    renderControls() {
+        const s = this.cur();
+        const alphaPct = s ? Math.round((0, _shadowValue.splitAlpha)(s.color || 'rgba(0,0,0,1)').alpha * 100) : 100;
+        const base = s ? (0, _shadowValue.splitAlpha)(s.color || 'rgba(0,0,0,1)').base : '#000000';
+        return (0, _lit.html)`
+      <div class="list">
+        ${this.model.shadows.map((sh, i)=>(0, _lit.html)`<button
+            class="chip"
+            ?data-active=${i === this.active}
+            style="box-shadow:${(0, _shadowValue.shadowToString)((0, _objectSpreadProps._)((0, _objectSpread._)({}, sh), {
+                x: half(sh.x),
+                y: half(sh.y),
+                blur: half(sh.blur),
+                spread: half(sh.spread)
+            }))}"
+            title="Shadow ${i + 1}"
+            @click=${()=>this.select(i)}
+          ></button>`)}
+        <button class="mini" title="Move up" ?disabled=${this.active <= 0} @click=${()=>this.moveShadow(-1)}>▲</button>
+        <button class="mini" title="Move down" ?disabled=${this.active >= this.model.shadows.length - 1} @click=${()=>this.moveShadow(1)}>▼</button>
+        <button class="mini" title="Remove" ?disabled=${this.model.shadows.length < 2} @click=${()=>this.removeShadow()}>✕</button>
+        <span class="grow"></span>
+        <button class="mini" title="Add shadow" @click=${()=>this.addShadow()}>＋</button>
+      </div>
+
+      <div class="preview-wrap">
+        <div
+          class="preview"
+          style="box-shadow:${this.value === 'none' ? '' : this.value}"
+          @pointerdown=${this.onPreviewPointerDown}
+          title="Drag to set the offset"
+        ></div>
+      </div>
+
+      <label class="row" style="font-size:.8125rem">
+        <input type="checkbox" .checked=${!!(s === null || s === void 0 ? void 0 : s.inset)} @change=${()=>this.toggleInset()} />
+        inset
+      </label>
+
+      ${this.slider('Offset X', 'x', -50, 50)}
+      ${this.slider('Offset Y', 'y', -50, 50)}
+      ${this.slider('Blur', 'blur', 0, 100)}
+      ${this.slider('Spread', 'spread', -50, 50)}
+
+      <div class="row">
+        <span class="lbl">Colour</span>
+        <juel-colour .value=${base} @value-changed=${(e)=>this.setColor(e.detail.value)}></juel-colour>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          .value=${String(alphaPct)}
+          @input=${(e)=>this.setAlpha(+e.target.value, false)}
+          @change=${(e)=>this.setAlpha(+e.target.value, true)}
+        />
+        <span class="lbl" style="width:2.5rem">${alphaPct}%</span>
+      </div>
+
+      <div class="row">
+        <code class="se-readout" part="readout" style="flex:1">${this.value}</code>
+      </div>
+    `;
+    }
+    constructor(){
+        super();
+        this.model = {
+            shadows: [
+                (0, _shadowValue.defaultShadow)()
+            ]
+        };
+        this.active = 0;
+        this.dragAnchor = '';
+        this.dragStart = null;
+        this.colorTimer = 0;
+        this.onPreviewPointerDown = (e)=>{
+            if (e.button === 2) return;
+            const s = this.cur();
+            if (!s) return;
+            e.preventDefault();
+            this.flushColor();
+            this.dragAnchor = this.value;
+            this.dragStart = {
+                px: e.clientX,
+                py: e.clientY,
+                ox: (0, _shadowValue.num)(s.x),
+                oy: (0, _shadowValue.num)(s.y)
+            };
+            window.addEventListener('pointermove', this.onPreviewPointerMove);
+            window.addEventListener('pointerup', this.onPreviewPointerUp);
+            window.addEventListener('keydown', this.onDragKey, true);
+        };
+        this.onPreviewPointerMove = (e)=>{
+            const s = this.cur();
+            if (!s || !this.dragStart) return;
+            const nx = clamp(this.dragStart.ox + (e.clientX - this.dragStart.px), -100, 100);
+            const ny = clamp(this.dragStart.oy + (e.clientY - this.dragStart.py), -100, 100);
+            s.x = `${Math.round(nx)}px`;
+            s.y = `${Math.round(ny)}px`;
+            this.touch();
+            this.previewChange();
+        };
+        this.onPreviewPointerUp = ()=>{
+            this.endDrag();
+            if (this.dragStart) {
+                this.dragStart = null;
+                this.commit('offset');
+            }
+        };
+        this.onDragKey = (e)=>{
+            if (e.key === 'Escape' && this.dragStart) {
+                e.preventDefault();
+                this.endDrag();
+                this.dragStart = null;
+                this.cancelPreview(this.dragAnchor);
+            }
+        };
+        this.cssProperty = 'box-shadow';
+        this.property = 'shadow';
+    }
+};
+JuelShadowEditor.styles = [
+    (0, _stylePropertyEditorBase.StylePropertyEditorBase).baseStyles,
+    (0, _lit.css)`
+      :host {
+        display: block;
+        font-family: inherit;
+        --_border: var(--border-color, #ced4da);
+      }
+      .se-root {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        width: 300px;
+        max-width: 100%;
+        padding: 0.625rem;
+        border: 1px solid var(--_border);
+        border-radius: 8px;
+        background: var(--surface, #fff);
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .list {
+        display: flex;
+        gap: 0.25rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .chip {
+        width: 30px;
+        height: 20px;
+        border-radius: 4px;
+        border: 1px solid var(--_border);
+        background: #fff;
+        cursor: pointer;
+        padding: 0;
+      }
+      .chip[data-active] {
+        outline: 2px solid var(--primary, #4f46e5);
+        outline-offset: 1px;
+      }
+      .mini {
+        width: 1.5rem;
+        height: 1.5rem;
+        padding: 0;
+        font-size: 0.85rem;
+        line-height: 1;
+        border: 1px solid var(--_border);
+        border-radius: 4px;
+        background: var(--surface, #fff);
+        cursor: pointer;
+      }
+      .mini:disabled { opacity: 0.4; cursor: default; }
+      .grow { flex: 1; }
+      .lbl { font-size: 0.75rem; opacity: 0.7; width: 3.2rem; flex: none; }
+      input[type='range'] { flex: 1; min-width: 5rem; }
+      input[type='number'] {
+        width: 3.75rem;
+        font: inherit;
+        font-size: 0.8125rem;
+        padding: 0.12rem 0.3rem;
+        border: 1px solid var(--_border);
+        border-radius: 4px;
+      }
+      .preview-wrap {
+        display: grid;
+        place-items: center;
+        padding: 1.25rem;
+        border-radius: 6px;
+        background:
+          linear-gradient(45deg, #eee 25%, transparent 25%),
+          linear-gradient(-45deg, #eee 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #eee 75%),
+          linear-gradient(-45deg, transparent 75%, #eee 75%);
+        background-size: 14px 14px;
+        background-position: 0 0, 0 7px, 7px -7px, -7px 0;
+      }
+      .preview {
+        width: 90px;
+        height: 60px;
+        border-radius: 8px;
+        background: var(--surface, #fff);
+        cursor: grab;
+        touch-action: none;
+      }
+      .preview:active { cursor: grabbing; }
+    `
+];
+__decorate([
+    (0, _decoratorsJs.state)()
+], JuelShadowEditor.prototype, "model", void 0);
+__decorate([
+    (0, _decoratorsJs.state)()
+], JuelShadowEditor.prototype, "active", void 0);
+JuelShadowEditor = __decorate([
+    (0, _decoratorsJs.customElement)('juel-shadow-editor')
+], JuelShadowEditor);
+function clamp(n, lo, hi) {
+    return Math.min(hi, Math.max(lo, n));
+}
+function half(len) {
+    return `${(0, _shadowValue.num)(len) / 2}px`;
+}
+
+},{"@swc/helpers/_/_object_spread":"kbZU4","@swc/helpers/_/_object_spread_props":"gRdFM","lit":"6MR4h","lit/decorators.js":"iBjLb","../StylePropertyEditorBase":"bcNJ2","./ShadowEditorEvents":"bZweZ","./ShadowValue":"hcQmV","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"bZweZ":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ShadowEditorEvents", ()=>ShadowEditorEvents);
+var ShadowEditorEvents;
+(function(ShadowEditorEvents) {
+    ShadowEditorEvents["Changed"] = "shadow-changed";
+    ShadowEditorEvents["Preview"] = "shadow-preview";
+    ShadowEditorEvents["Cancelled"] = "shadow-cancelled";
+})(ShadowEditorEvents || (ShadowEditorEvents = {}));
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"hcQmV":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "splitTopLevel", ()=>splitTopLevel);
+parcelHelpers.export(exports, "parseShadowList", ()=>parseShadowList);
+parcelHelpers.export(exports, "num", ()=>num);
+parcelHelpers.export(exports, "shadowToString", ()=>shadowToString);
+parcelHelpers.export(exports, "stringifyShadowList", ()=>stringifyShadowList);
+parcelHelpers.export(exports, "defaultShadow", ()=>defaultShadow);
+parcelHelpers.export(exports, "defaultShadowList", ()=>defaultShadowList);
+parcelHelpers.export(exports, "splitAlpha", ()=>splitAlpha);
+parcelHelpers.export(exports, "withAlpha", ()=>withAlpha);
+function splitTopLevel(input, sep) {
+    const out = [];
+    let depth = 0;
+    let buf = '';
+    for(let i = 0; i < input.length; i++){
+        const ch = input[i];
+        if (ch === '(') depth++;
+        else if (ch === ')') depth--;
+        if (depth === 0 && (sep === ',' ? ch === ',' : /\s/.test(ch))) {
+            if (buf.trim()) out.push(buf.trim());
+            buf = '';
+            continue;
+        }
+        buf += ch;
+    }
+    if (buf.trim()) out.push(buf.trim());
+    return out;
+}
+const LENGTH_RE = /^-?(\d*\.?\d+)(px|em|rem|ex|ch|vw|vh|vmin|vmax|cm|mm|in|pt|pc|q)?$/i;
+function isLength(token) {
+    return token === '0' || LENGTH_RE.test(token);
+}
+function parseShadow(raw) {
+    const tokens = splitTopLevel(raw, ' ');
+    if (!tokens.length) return null;
+    let inset = false;
+    const lengths = [];
+    const colorParts = [];
+    for (const tk of tokens){
+        if (/^inset$/i.test(tk)) inset = true;
+        else if (isLength(tk)) lengths.push(tk);
+        else colorParts.push(tk);
+    }
+    if (lengths.length < 2) return null;
+    var _lengths_, _lengths_1;
+    return {
+        inset,
+        x: lengths[0],
+        y: lengths[1],
+        blur: (_lengths_ = lengths[2]) !== null && _lengths_ !== void 0 ? _lengths_ : '0',
+        spread: (_lengths_1 = lengths[3]) !== null && _lengths_1 !== void 0 ? _lengths_1 : '0',
+        color: colorParts.join(' ')
+    };
+}
+function parseShadowList(value) {
+    if (!value) return null;
+    const v = value.trim();
+    if (!v || v === 'none') return null;
+    const shadows = [];
+    for (const raw of splitTopLevel(v, ',')){
+        const s = parseShadow(raw);
+        if (s) shadows.push(s);
+    }
+    return shadows.length ? {
+        shadows
+    } : null;
+}
+function num(len) {
+    if (!len) return 0;
+    const n = parseFloat(len);
+    return Number.isFinite(n) ? n : 0;
+}
+function nonZero(len) {
+    return num(len) !== 0;
+}
+function shadowToString(s) {
+    const bits = [];
+    if (s.inset) bits.push('inset');
+    bits.push(s.x, s.y);
+    if (nonZero(s.blur) || nonZero(s.spread)) bits.push(s.blur);
+    if (nonZero(s.spread)) bits.push(s.spread);
+    if (s.color) bits.push(s.color);
+    return bits.join(' ');
+}
+function stringifyShadowList(model) {
+    return model.shadows.length ? model.shadows.map(shadowToString).join(', ') : 'none';
+}
+function defaultShadow() {
+    return {
+        inset: false,
+        x: '0px',
+        y: '4px',
+        blur: '12px',
+        spread: '0px',
+        color: 'rgba(0, 0, 0, 0.25)'
+    };
+}
+function defaultShadowList() {
+    return {
+        shadows: [
+            defaultShadow()
+        ]
+    };
+}
+function splitAlpha(color) {
+    const c = color.trim();
+    let m = c.match(/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,/]+([\d.]+%?))?\s*\)$/i);
+    if (m) {
+        const a = m[4] == null ? 1 : m[4].endsWith('%') ? parseFloat(m[4]) / 100 : parseFloat(m[4]);
+        return {
+            base: `rgb(${m[1]}, ${m[2]}, ${m[3]})`,
+            alpha: clamp01(a)
+        };
+    }
+    m = c.match(/^#([0-9a-f]{6})([0-9a-f]{2})$/i);
+    if (m) return {
+        base: `#${m[1]}`,
+        alpha: clamp01(parseInt(m[2], 16) / 255)
+    };
+    return {
+        base: c || '#000000',
+        alpha: 1
+    };
+}
+function withAlpha(base, alpha) {
+    const rgb = toRgb(base);
+    if (!rgb) return base;
+    const a = Math.round(clamp01(alpha) * 1000) / 1000;
+    return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${a})`;
+}
+function clamp01(n) {
+    return Math.min(1, Math.max(0, Number.isFinite(n) ? n : 0));
+}
+function toRgb(color) {
+    const h = color.trim();
+    let m = h.match(/^#([0-9a-f]{3})$/i);
+    if (m) {
+        const [r, g, b] = m[1].split('');
+        return [
+            parseInt(r + r, 16),
+            parseInt(g + g, 16),
+            parseInt(b + b, 16)
+        ];
+    }
+    m = h.match(/^#([0-9a-f]{6})$/i);
+    if (m) return [
+        parseInt(m[1].slice(0, 2), 16),
+        parseInt(m[1].slice(2, 4), 16),
+        parseInt(m[1].slice(4, 6), 16)
+    ];
+    m = h.match(/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i);
+    if (m) return [
+        Math.round(+m[1]),
+        Math.round(+m[2]),
+        Math.round(+m[3])
+    ];
+    return null;
 }
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"ic3R7":[function(require,module,exports,__globalThis) {

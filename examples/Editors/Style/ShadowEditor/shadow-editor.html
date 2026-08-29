@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Shadow Editor — Juel Examples</title>
+    <script src="../../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../../_Shared/examples.css" />
+    <style>
+        .stage {
+            display: flex;
+            gap: 2.5rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        #card {
+            width: 240px;
+            height: 150px;
+            border-radius: 14px;
+            background: #fff;
+            display: grid;
+            place-items: center;
+            font-weight: 600;
+            color: #334155;
+        }
+        #inset-box {
+            width: 240px;
+            height: 90px;
+            border-radius: 12px;
+            background: #eef2ff;
+            /* seeded from computed style — a layered inset + drop shadow */
+            box-shadow: inset 0 2px 6px rgba(79, 70, 229, 0.35), 0 6px 18px rgba(0, 0, 0, 0.12);
+            display: grid;
+            place-items: center;
+            color: #4338ca;
+            font-weight: 600;
+        }
+        .readback {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 0.8125rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            background: #f6f8fa;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 6px;
+            padding: 0.5rem 0.6rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Shadow Editor</h1>
+        <p>
+            <code>&lt;juel-shadow-editor for="#el"&gt;</code> visually edits a CSS
+            <code>box-shadow</code> — a stack of shadows, each with <code>inset</code>, X / Y offset,
+            blur, spread and a colour + opacity. <strong>Drag inside the preview</strong> to set the
+            offset; sliders do the rest. Every edit is one undo step
+            (<span aria-hidden="true">↶ ↷</span> or <code>.undo()</code> / <code>.redo()</code>),
+            applied to the target's inline style live.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Single shadow</h2>
+        <div class="stage">
+            <div id="card">box-shadow</div>
+            <div>
+                <juel-shadow-editor id="ed1" for="#card" value="0px 6px 16px rgba(15, 23, 42, 0.28)"></juel-shadow-editor>
+                <div class="readback" id="rb1"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Layered — seeded from computed style</h2>
+        <div class="stage">
+            <div id="inset-box">inset + drop</div>
+            <div>
+                <juel-shadow-editor id="ed2" for="#inset-box"></juel-shadow-editor>
+                <div class="readback" id="rb2"></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        for (const [edId, rbId] of [['ed1', 'rb1'], ['ed2', 'rb2']]) {
+            const ed = document.getElementById(edId);
+            const rb = document.getElementById(rbId);
+            const show = () => { rb.textContent = ed.value; };
+            ed.addEventListener('shadow-changed', show);
+            ed.addEventListener('shadow-preview', show);
+            ed.addEventListener('shadow-cancelled', show);
+            requestAnimationFrame(show);
+        }
+    </script>
+</body>
+
+</html>

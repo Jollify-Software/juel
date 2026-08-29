@@ -158,5 +158,5 @@ Style editors (visual editors for a CSS property of a target element) live under
 baseline-removal, and target/context resolution. A new style editor extends that base
 and implements `parse` / `serialize` / `renderControls` / `changeEventName`, driving
 history through the base's `commit()` / `previewChange()` / `cancelPreview()` helpers
-rather than touching `HistoryController` directly. `juel-position-editor` and
-`juel-gradient-editor` are the reference consumers.
+rather than touching `HistoryController` directly. `juel-position-editor`,
+`juel-gradient-editor` and `juel-shadow-editor` are the reference consumers.
