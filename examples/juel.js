@@ -33969,12 +33969,13 @@ var _colour = require("./Colour/Colour");
 var _upload = require("./Upload/Upload");
 var _form = require("./Form/Form");
 var _pointSelector = require("./PointSelector/PointSelector");
+var _positionEditor = require("./PositionEditor/PositionEditor");
 var _htmlEditor = require("./HtmlEditor/HtmlEditor");
 var _markdownEditor = require("./MarkdownEditor/MarkdownEditor");
 var _themeToggle = require("./Theme/ThemeToggle");
 var _themeSelect = require("./Theme/ThemeSelect");
 
-},{"./Text/Text":"fY4wE","./Email/Email":"5MHUh","./Number/Number":"iLb8o","./Check/Check":"6ufe7","./Date/Date":"7B5ky","./Select/Select":"kOmxg","./Colour/Colour":"ajcen","./Upload/Upload":"lu3p8","./Form/Form":"dJ7mt","./PointSelector/PointSelector":"lv78X","./HtmlEditor/HtmlEditor":"ic3R7","./MarkdownEditor/MarkdownEditor":"gJthw","./Theme/ThemeToggle":"cRYOs","./Theme/ThemeSelect":"ix2vv"}],"fY4wE":[function(require,module,exports,__globalThis) {
+},{"./Text/Text":"fY4wE","./Email/Email":"5MHUh","./Number/Number":"iLb8o","./Check/Check":"6ufe7","./Date/Date":"7B5ky","./Select/Select":"kOmxg","./Colour/Colour":"ajcen","./Upload/Upload":"lu3p8","./Form/Form":"dJ7mt","./PointSelector/PointSelector":"lv78X","./PositionEditor/PositionEditor":"7sryu","./HtmlEditor/HtmlEditor":"ic3R7","./MarkdownEditor/MarkdownEditor":"gJthw","./Theme/ThemeToggle":"cRYOs","./Theme/ThemeSelect":"ix2vv"}],"fY4wE":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "JuelText", ()=>JuelText);
@@ -35460,7 +35461,730 @@ JuelPointSelector = __decorate([
     (0, _decoratorsJs.customElement)('juel-point-selector')
 ], JuelPointSelector);
 
-},{"lit":"6MR4h","lit/decorators.js":"iBjLb","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"ic3R7":[function(require,module,exports,__globalThis) {
+},{"lit":"6MR4h","lit/decorators.js":"iBjLb","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"7sryu":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "JuelPositionEditor", ()=>JuelPositionEditor);
+var _lit = require("lit");
+var _decoratorsJs = require("lit/decorators.js");
+var _historyController = require("../../_Base/HistoryController");
+var _positionEditorEvents = require("./PositionEditorEvents");
+var _positionValue = require("./PositionValue");
+var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+let JuelPositionEditor = class JuelPositionEditor extends (0, _lit.LitElement) {
+    connectedCallback() {
+        super.connectedCallback();
+        this.resolveTarget();
+        if (typeof this.context === 'string' && this.context in window) this.context = window[this.context];
+        if (!this.history) requestAnimationFrame(()=>this.initHistory());
+    }
+    firstUpdated() {
+        this.initHistory();
+    }
+    initHistory() {
+        if (this.history || !this.isConnected) return;
+        this.resolveTarget();
+        const seed = this.seedValue();
+        const parsed = (0, _positionValue.parsePosition)(seed, this.getBox());
+        if (parsed) ({ fx: this.fx, fy: this.fy } = parsed);
+        this.value = this.format();
+        this.baselineFx = this.fx;
+        this.baselineFy = this.fy;
+        this.hadInlineValue = !!this.target && !!this.cssProperty && this.target.style.getPropertyValue(this.cssProperty).trim() !== '';
+        this.history = new (0, _historyController.HistoryController)(this, this.value, {
+            apply: (v)=>this.applyValue(v)
+        });
+        this.requestUpdate();
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        this.stopPicking(false);
+    }
+    updated(changed) {
+        if ((changed.has('for') || changed.has('target')) && !this.picking) this.resolveTarget();
+        if (changed.has('unit') && !this.picking && changed.get('unit') !== undefined) {
+            this.value = this.format();
+            this.liveApply(this.value);
+        }
+    }
+    get canUndo() {
+        var _this_history;
+        return !!((_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.canUndo);
+    }
+    get canRedo() {
+        var _this_history;
+        return !!((_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.canRedo);
+    }
+    undo() {
+        var _this_history;
+        (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.undo();
+        if (this.history) this.emitChanged('undo');
+    }
+    redo() {
+        var _this_history;
+        (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.redo();
+        if (this.history) this.emitChanged('redo');
+    }
+    reset() {
+        var _this_history;
+        (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.reset();
+        if (this.history) this.emitChanged('reset');
+    }
+    stopPicking(commit) {
+        if (this.rafId) {
+            cancelAnimationFrame(this.rafId);
+            this.rafId = 0;
+        }
+        if (this.overlay) {
+            this.overlay.removeEventListener('pointerdown', this.onPointerDown);
+            this.overlay.removeEventListener('pointermove', this.onPointerMove);
+            this.overlay.removeEventListener('pointerup', this.onPointerUp);
+            this.overlay.removeEventListener('contextmenu', this.onContextMenu);
+            this.overlay.remove();
+        }
+        document.removeEventListener('keydown', this.onKeydown, true);
+        this.overlay = null;
+        this.marker = null;
+        this.dragging = false;
+        this.picking = false;
+        if (!commit) {
+            var _this_history;
+            (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.discardPreview();
+            if (this.pickAnchorValue) this.applyValue(this.pickAnchorValue);
+        }
+    }
+    cancelPicking() {
+        this.stopPicking(false);
+        this.dispatchEvent(new CustomEvent((0, _positionEditorEvents.PositionEditorEvents).Cancelled, {
+            bubbles: true,
+            composed: true
+        }));
+    }
+    pointTo(e, commit) {
+        if (!this.overlay) return;
+        const rect = this.overlay.getBoundingClientRect();
+        let frac = {
+            fx: rect.width ? (e.clientX - rect.left) / rect.width : 0.5,
+            fy: rect.height ? (e.clientY - rect.top) / rect.height : 0.5
+        };
+        if (this.clamp) frac = (0, _positionValue.clampFraction)(frac);
+        this.fx = frac.fx;
+        this.fy = frac.fy;
+        if (this.marker) {
+            this.marker.style.left = `${this.fx * 100}%`;
+            this.marker.style.top = `${this.fy * 100}%`;
+        }
+        const v = this.format();
+        this.value = v;
+        this.liveApply(v);
+        this.pushContext();
+        if (commit) {
+            var _this_history;
+            (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.record(v);
+            this.emitChanged('pick');
+        } else {
+            var _this_history1;
+            (_this_history1 = this.history) === null || _this_history1 === void 0 ? void 0 : _this_history1.preview(v);
+            this.dispatchEvent(new CustomEvent((0, _positionEditorEvents.PositionEditorEvents).Preview, {
+                detail: {
+                    value: v,
+                    fx: this.fx,
+                    fy: this.fy,
+                    unit: this.unit
+                },
+                bubbles: true,
+                composed: true
+            }));
+        }
+    }
+    applyValue(v) {
+        const parsed = (0, _positionValue.parsePosition)(v, this.getBox());
+        if (parsed) {
+            this.fx = parsed.fx;
+            this.fy = parsed.fy;
+        }
+        this.value = v;
+        this.liveApply(v);
+        this.pushContext();
+    }
+    liveApply(v) {
+        if (!this.target || !this.cssProperty) return;
+        const atBaseline = !this.hadInlineValue && !this.canUndo && Math.abs(this.fx - this.baselineFx) < 1e-4 && Math.abs(this.fy - this.baselineFy) < 1e-4;
+        if (atBaseline) this.target.style.removeProperty(this.cssProperty);
+        else this.target.style.setProperty(this.cssProperty, v);
+    }
+    pushContext() {
+        if (this.context && typeof this.context === 'object' && this.property) this.context[this.property] = this.value;
+    }
+    emitChanged(reason) {
+        this.dispatchEvent(new CustomEvent((0, _positionEditorEvents.PositionEditorEvents).Changed, {
+            detail: {
+                value: this.value,
+                fx: this.fx,
+                fy: this.fy,
+                unit: this.unit,
+                reason
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+    resolveTarget() {
+        if (!this.target && this.for) {
+            var _root_querySelector;
+            const root = this.getRootNode();
+            var _root_querySelector1;
+            this.target = (_root_querySelector1 = (_root_querySelector = root.querySelector) === null || _root_querySelector === void 0 ? void 0 : _root_querySelector.call(root, this.for)) !== null && _root_querySelector1 !== void 0 ? _root_querySelector1 : document.querySelector(this.for);
+        }
+    }
+    referenceRect() {
+        const box = this.getBox();
+        if (this.target) {
+            const r = this.target.getBoundingClientRect();
+            return {
+                left: r.left,
+                top: r.top,
+                width: box.width,
+                height: box.height
+            };
+        }
+        return {
+            left: 0,
+            top: 0,
+            width: box.width,
+            height: box.height
+        };
+    }
+    getBox() {
+        if (this.target) {
+            const w = this.target.offsetWidth || this.target.getBoundingClientRect().width;
+            const h = this.target.offsetHeight || this.target.getBoundingClientRect().height;
+            return {
+                width: w,
+                height: h
+            };
+        }
+        return {
+            width: window.innerWidth,
+            height: window.innerHeight
+        };
+    }
+    seedValue() {
+        if (this.value && this.value !== '50% 50%') return this.value;
+        if (this.target && this.cssProperty) {
+            const computed = getComputedStyle(this.target).getPropertyValue(this.cssProperty).trim();
+            if (computed) return computed;
+        }
+        return this.value || '50% 50%';
+    }
+    format() {
+        return (0, _positionValue.formatPosition)({
+            fx: this.fx,
+            fy: this.fy
+        }, {
+            unit: this.unit,
+            box: this.getBox(),
+            precision: this.precision
+        });
+    }
+    render() {
+        return (0, _lit.html)`
+      <div class="toolbar">
+        <juel-button @button-clicked=${this.startPicking}>${this.label}</juel-button>
+        <button
+          type="button"
+          class="hist"
+          aria-label="Undo"
+          title="Undo"
+          ?disabled=${!this.canUndo}
+          @click=${()=>this.undo()}
+        >
+          &#8630;
+        </button>
+        <button
+          type="button"
+          class="hist"
+          aria-label="Redo"
+          title="Redo"
+          ?disabled=${!this.canRedo}
+          @click=${()=>this.redo()}
+        >
+          &#8631;
+        </button>
+        <code class="readout" part="readout">${this.value}</code>
+      </div>
+    `;
+    }
+    constructor(){
+        super(...arguments);
+        this.for = '';
+        this.target = null;
+        this.cssProperty = '';
+        this.unit = 'percent';
+        this.value = '50% 50%';
+        this.clamp = false;
+        this.label = 'Pick point';
+        this.property = 'position';
+        this.fx = 0.5;
+        this.fy = 0.5;
+        this.picking = false;
+        this.hadInlineValue = false;
+        this.baselineFx = 0.5;
+        this.baselineFy = 0.5;
+        this.pickAnchorValue = '';
+        this.overlay = null;
+        this.marker = null;
+        this.dragging = false;
+        this.rafId = 0;
+        this.startPicking = ()=>{
+            if (this.picking) return;
+            this.resolveTarget();
+            this.pickAnchorValue = this.value;
+            this.picking = true;
+            const overlay = document.createElement('div');
+            Object.assign(overlay.style, {
+                position: 'fixed',
+                zIndex: '2147483647',
+                background: 'rgba(0, 0, 0, 0.28)',
+                cursor: 'crosshair',
+                touchAction: 'none'
+            });
+            overlay.setAttribute('part', 'overlay');
+            const marker = document.createElement('div');
+            Object.assign(marker.style, {
+                position: 'absolute',
+                width: '0',
+                height: '0',
+                boxShadow: `0 0 0 1px #fff, 0 0 0 2px rgba(0,0,0,0.5)`,
+                outline: '9999px solid transparent'
+            });
+            marker.innerHTML = `<span style="position:absolute;left:-10px;top:0;width:20px;border-top:1px solid #fff;box-shadow:0 0 1px #000"></span>` + `<span style="position:absolute;top:-10px;left:0;height:20px;border-left:1px solid #fff;box-shadow:0 0 1px #000"></span>`;
+            overlay.appendChild(marker);
+            overlay.addEventListener('pointerdown', this.onPointerDown);
+            overlay.addEventListener('pointermove', this.onPointerMove);
+            overlay.addEventListener('pointerup', this.onPointerUp);
+            overlay.addEventListener('contextmenu', this.onContextMenu);
+            document.addEventListener('keydown', this.onKeydown, true);
+            document.body.appendChild(overlay);
+            this.overlay = overlay;
+            this.marker = marker;
+            this.trackGeometry();
+        };
+        this.trackGeometry = ()=>{
+            if (!this.overlay) return;
+            const rect = this.referenceRect();
+            const o = this.overlay.style;
+            o.left = `${rect.left}px`;
+            o.top = `${rect.top}px`;
+            o.width = `${rect.width}px`;
+            o.height = `${rect.height}px`;
+            if (this.marker && !this.dragging) {
+                this.marker.style.left = `${this.fx * 100}%`;
+                this.marker.style.top = `${this.fy * 100}%`;
+            }
+            this.rafId = requestAnimationFrame(this.trackGeometry);
+        };
+        this.onPointerDown = (e)=>{
+            var _e_target_setPointerCapture, _e_target;
+            if (e.button === 2) return;
+            e.preventDefault();
+            this.dragging = true;
+            (_e_target_setPointerCapture = (_e_target = e.target).setPointerCapture) === null || _e_target_setPointerCapture === void 0 ? void 0 : _e_target_setPointerCapture.call(_e_target, e.pointerId);
+            this.pointTo(e, false);
+        };
+        this.onPointerMove = (e)=>{
+            if (this.dragging) this.pointTo(e, false);
+        };
+        this.onPointerUp = (e)=>{
+            if (!this.dragging) return;
+            this.dragging = false;
+            this.pointTo(e, true);
+            this.stopPicking(true);
+        };
+        this.onContextMenu = (e)=>{
+            e.preventDefault();
+            this.cancelPicking();
+        };
+        this.onKeydown = (e)=>{
+            if (this.picking && e.key === 'Escape') {
+                e.preventDefault();
+                this.cancelPicking();
+            }
+        };
+    }
+};
+JuelPositionEditor.styles = (0, _lit.css)`
+    :host {
+      display: inline-flex;
+      font-family: inherit;
+    }
+    .toolbar {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+    button.hist {
+      width: 1.75rem;
+      height: 1.75rem;
+      padding: 0;
+      font-size: 1rem;
+      line-height: 1;
+      border: 1px solid var(--border-color, #ced4da);
+      border-radius: 4px;
+      background: var(--surface, #fff);
+      color: inherit;
+      cursor: pointer;
+    }
+    button.hist:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .readout {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.8125rem;
+      opacity: 0.75;
+      white-space: nowrap;
+    }
+  `;
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelPositionEditor.prototype, "for", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        attribute: false
+    })
+], JuelPositionEditor.prototype, "target", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String,
+        attribute: 'css-property'
+    })
+], JuelPositionEditor.prototype, "cssProperty", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelPositionEditor.prototype, "unit", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String,
+        reflect: true
+    })
+], JuelPositionEditor.prototype, "value", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: Boolean
+    })
+], JuelPositionEditor.prototype, "clamp", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: Number
+    })
+], JuelPositionEditor.prototype, "precision", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelPositionEditor.prototype, "label", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        attribute: false
+    })
+], JuelPositionEditor.prototype, "context", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelPositionEditor.prototype, "property", void 0);
+__decorate([
+    (0, _decoratorsJs.state)()
+], JuelPositionEditor.prototype, "fx", void 0);
+__decorate([
+    (0, _decoratorsJs.state)()
+], JuelPositionEditor.prototype, "fy", void 0);
+__decorate([
+    (0, _decoratorsJs.state)()
+], JuelPositionEditor.prototype, "picking", void 0);
+JuelPositionEditor = __decorate([
+    (0, _decoratorsJs.customElement)('juel-position-editor')
+], JuelPositionEditor);
+
+},{"lit":"6MR4h","lit/decorators.js":"iBjLb","../../_Base/HistoryController":"8N07M","./PositionEditorEvents":"6QM9f","./PositionValue":"2AQDC","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"8N07M":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "HistoryController", ()=>HistoryController);
+var _historyStack = require("../_Core/History/HistoryStack");
+class HistoryController {
+    hostConnected() {}
+    get present() {
+        return this.stack.present;
+    }
+    get canUndo() {
+        return this.stack.canUndo;
+    }
+    get canRedo() {
+        return this.stack.canRedo;
+    }
+    get size() {
+        return this.stack.size;
+    }
+    record(state) {
+        if (this.stack.push(state)) this.emit('record');
+    }
+    preview(state) {
+        this.stack.replace(state);
+        this.host.requestUpdate();
+    }
+    discardPreview() {
+        this.stack.discardPending();
+        this.host.requestUpdate();
+    }
+    undo() {
+        if (this.stack.canUndo) {
+            this.options.apply(this.stack.undo());
+            this.emit('undo');
+        }
+    }
+    redo() {
+        if (this.stack.canRedo) {
+            this.options.apply(this.stack.redo());
+            this.emit('redo');
+        }
+    }
+    reset() {
+        this.options.apply(this.stack.reset());
+        this.emit('reset');
+    }
+    rebase(initial) {
+        this.stack = new (0, _historyStack.HistoryStack)(initial, this.options);
+        this.emit('rebase');
+    }
+    emit(reason) {
+        this.host.requestUpdate();
+        const detail = {
+            reason,
+            present: this.present,
+            canUndo: this.canUndo,
+            canRedo: this.canRedo
+        };
+        var _this_options_eventName;
+        this.host.dispatchEvent(new CustomEvent((_this_options_eventName = this.options.eventName) !== null && _this_options_eventName !== void 0 ? _this_options_eventName : 'history-changed', {
+            detail,
+            bubbles: true,
+            composed: true
+        }));
+    }
+    constructor(host, initial, options){
+        this.host = host;
+        this.options = options;
+        this.stack = new (0, _historyStack.HistoryStack)(initial, options);
+        host.addController(this);
+    }
+}
+
+},{"../_Core/History/HistoryStack":"2xNs8","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"2xNs8":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "HistoryStack", ()=>HistoryStack);
+class HistoryStack {
+    get present() {
+        return this.pending ? this.pending.value : this.committed;
+    }
+    get initial() {
+        return this._initial;
+    }
+    get hasPending() {
+        return this.pending !== null;
+    }
+    get canUndo() {
+        return this.past.length > 0;
+    }
+    get canRedo() {
+        return this.future.length > 0;
+    }
+    get size() {
+        return this.past.length + 1 + this.future.length;
+    }
+    push(state) {
+        this.pending = null;
+        if (this.equals(state, this.committed)) return false;
+        this.past.push(this.committed);
+        if (this.limit > 0 && this.past.length > this.limit) this.past.shift();
+        this.committed = state;
+        this.future.length = 0;
+        return true;
+    }
+    replace(state) {
+        this.pending = {
+            value: state
+        };
+    }
+    discardPending() {
+        this.pending = null;
+    }
+    undo() {
+        this.pending = null;
+        if (this.canUndo) {
+            this.future.unshift(this.committed);
+            this.committed = this.past.pop();
+        }
+        return this.committed;
+    }
+    redo() {
+        this.pending = null;
+        if (this.canRedo) {
+            this.past.push(this.committed);
+            this.committed = this.future.shift();
+        }
+        return this.committed;
+    }
+    reset() {
+        this.past.length = 0;
+        this.future.length = 0;
+        this.pending = null;
+        this.committed = this._initial;
+        return this.committed;
+    }
+    clear() {
+        this.past.length = 0;
+        this.future.length = 0;
+    }
+    toArray() {
+        return [
+            ...this.past,
+            this.present,
+            ...this.future
+        ];
+    }
+    constructor(initial, options = {}){
+        this.past = [];
+        this.future = [];
+        this.pending = null;
+        this.committed = initial;
+        this._initial = initial;
+        var _options_limit;
+        this.limit = (_options_limit = options.limit) !== null && _options_limit !== void 0 ? _options_limit : 100;
+        var _options_equals;
+        this.equals = (_options_equals = options.equals) !== null && _options_equals !== void 0 ? _options_equals : (a, b)=>a === b;
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"6QM9f":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "PositionEditorEvents", ()=>PositionEditorEvents);
+var PositionEditorEvents;
+(function(PositionEditorEvents) {
+    PositionEditorEvents["Changed"] = "position-changed";
+    PositionEditorEvents["Preview"] = "position-preview";
+    PositionEditorEvents["Cancelled"] = "position-cancelled";
+})(PositionEditorEvents || (PositionEditorEvents = {}));
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"2AQDC":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "parsePosition", ()=>parsePosition);
+parcelHelpers.export(exports, "formatPosition", ()=>formatPosition);
+parcelHelpers.export(exports, "clampFraction", ()=>clampFraction);
+const X_KEYWORDS = {
+    left: 0,
+    center: 0.5,
+    right: 1
+};
+const Y_KEYWORDS = {
+    top: 0,
+    center: 0.5,
+    bottom: 1
+};
+function axisFromToken(token, keywords, size) {
+    const t = token.trim().toLowerCase();
+    if (t in keywords) return keywords[t];
+    if (t.endsWith('%')) {
+        const n = parseFloat(t);
+        return Number.isFinite(n) ? n / 100 : null;
+    }
+    const n = parseFloat(t);
+    if (!Number.isFinite(n)) return null;
+    return size > 0 ? n / size : 0;
+}
+function parsePosition(value, box) {
+    if (!value) return null;
+    const tokens = value.trim().split(/\s+/).filter(Boolean);
+    if (tokens.length === 0 || tokens.length > 2) return null;
+    if (tokens.length === 1) {
+        const only = tokens[0].toLowerCase();
+        if (only in Y_KEYWORDS && !(only in X_KEYWORDS)) return {
+            fx: 0.5,
+            fy: Y_KEYWORDS[only]
+        };
+        const fx = axisFromToken(tokens[0], X_KEYWORDS, box.width);
+        return fx === null ? null : {
+            fx,
+            fy: 0.5
+        };
+    }
+    let [xt, yt] = tokens;
+    if (xt.toLowerCase() in Y_KEYWORDS && yt.toLowerCase() in X_KEYWORDS) [xt, yt] = [
+        yt,
+        xt
+    ];
+    const fx = axisFromToken(xt, X_KEYWORDS, box.width);
+    const fy = axisFromToken(yt, Y_KEYWORDS, box.height);
+    if (fx === null || fy === null) return null;
+    return {
+        fx,
+        fy
+    };
+}
+function round(n, places) {
+    const f = Math.pow(10, places);
+    return Math.round(n * f) / f;
+}
+function keywordFor(fraction, names, threshold) {
+    if (Math.abs(fraction - 0) <= threshold) return names[0];
+    if (Math.abs(fraction - 0.5) <= threshold) return names[1];
+    if (Math.abs(fraction - 1) <= threshold) return names[2];
+    return null;
+}
+function formatPosition({ fx, fy }, { unit, box, precision, keywordThreshold = 0.02 }) {
+    if (unit === 'px') {
+        const p = precision !== null && precision !== void 0 ? precision : 0;
+        return `${round(fx * box.width, p)}px ${round(fy * box.height, p)}px`;
+    }
+    const p = precision !== null && precision !== void 0 ? precision : 2;
+    const xPct = `${round(fx * 100, p)}%`;
+    const yPct = `${round(fy * 100, p)}%`;
+    if (unit === 'keyword') {
+        const xk = keywordFor(fx, [
+            'left',
+            'center',
+            'right'
+        ], keywordThreshold);
+        const yk = keywordFor(fy, [
+            'top',
+            'center',
+            'bottom'
+        ], keywordThreshold);
+        if (xk === 'center' && yk === 'center') return 'center';
+        return `${xk !== null && xk !== void 0 ? xk : xPct} ${yk !== null && yk !== void 0 ? yk : yPct}`;
+    }
+    return `${xPct} ${yPct}`;
+}
+function clampFraction({ fx, fy }) {
+    return {
+        fx: Math.min(1, Math.max(0, fx)),
+        fy: Math.min(1, Math.max(0, fy))
+    };
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"ic3R7":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "HTMLEditor", ()=>HTMLEditor);

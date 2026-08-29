@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Position Editor — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .stage {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        #box {
+            width: 220px;
+            height: 160px;
+            background: linear-gradient(135deg, var(--primary, #007bff), #6610f2);
+            border-radius: 10px;
+            transition: transform 0.4s ease;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 600;
+        }
+        #box.spin {
+            transform: rotate(320deg) scale(0.85);
+        }
+        #photo {
+            width: 220px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 10px;
+            background: #eee;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .controls label {
+            font-size: 0.8125rem;
+            display: flex;
+            gap: 0.4rem;
+            align-items: center;
+        }
+        #log {
+            margin-top: 0.5rem;
+            font-size: 0.8125rem;
+            font-family: ui-monospace, Menlo, monospace;
+            white-space: pre-wrap;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Position Editor</h1>
+        <p>
+            <code>&lt;juel-position-editor&gt;</code> visually edits a two-axis CSS
+            <code>&lt;position&gt;</code> value — <code>transform-origin</code>,
+            <code>object-position</code>, <code>background-position</code>,
+            <code>perspective-origin</code>. Point it at an element with <code>for</code>; the picker
+            overlay then tracks that element's box and reports the click as a
+            <code>percent</code> / <code>px</code> / <code>keyword</code> position of it. With
+            <code>css-property</code> set it writes the value live while you drag. Every committed
+            pick is an undo step — the <kbd>&#8630;</kbd> / <kbd>&#8631;</kbd> arrows (or
+            <code>undo()</code> / <code>redo()</code>) walk the history. <kbd>Esc</kbd> or
+            right-click cancels a pick.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>transform-origin</h2>
+        <div class="stage">
+            <div id="box">origin</div>
+            <div class="controls">
+                <juel-position-editor id="origin-editor" for="#box" css-property="transform-origin"
+                    unit="percent"></juel-position-editor>
+                <label>
+                    <input type="radio" name="unit" value="percent" checked> percent
+                </label>
+                <label>
+                    <input type="radio" name="unit" value="keyword"> keyword
+                </label>
+                <label>
+                    <input type="radio" name="unit" value="px"> px
+                </label>
+                <button type="button" id="spin">Toggle spin</button>
+            </div>
+        </div>
+        <div id="log"></div>
+    </section>
+
+    <section class="example-section">
+        <h2>object-position</h2>
+        <div class="stage">
+            <img id="photo"
+                src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%23ffd166'/%3E%3Cstop offset='0.5' stop-color='%23ef476f'/%3E%3Cstop offset='1' stop-color='%23118ab2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='600' height='300' fill='url(%23g)'/%3E%3Ccircle cx='120' cy='90' r='40' fill='%23fff'/%3E%3C/svg%3E">
+            <div class="controls">
+                <juel-position-editor id="photo-editor" for="#photo" css-property="object-position"
+                    unit="keyword" clamp></juel-position-editor>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const originEditor = document.getElementById('origin-editor');
+        const log = document.getElementById('log');
+        const box = document.getElementById('box');
+
+        originEditor.addEventListener('position-changed', (e) => {
+            log.textContent = `changed (${e.detail.reason}): ${e.detail.value}`;
+        });
+        originEditor.addEventListener('position-preview', (e) => {
+            log.textContent = `preview: ${e.detail.value}`;
+        });
+        originEditor.addEventListener('position-cancelled', () => {
+            log.textContent = 'cancelled';
+        });
+
+        document.querySelectorAll('input[name=unit]').forEach((r) => {
+            r.addEventListener('change', () => { originEditor.unit = r.value; });
+        });
+
+        document.getElementById('spin').addEventListener('click', () => {
+            box.classList.toggle('spin');
+        });
+    </script>
+</body>
+
+</html>

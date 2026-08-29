@@ -18,7 +18,16 @@ Each component typically has a `Component.ts`, a `Component.less` (bundled in vi
 
 # Testing
 
-Jest + ts-jest is configured but test coverage is minimal (currently a single file, `tests/util/findUntilTests.ts`). Don't assume component behavior is protected by tests — the `examples/` directory (one HTML page per component/feature) is the primary manual verification surface.
+Jest + ts-jest is configured but test coverage is thin (`tests/util/`, `tests/MessageBox/`). Don't assume component behavior is protected by tests — the `examples/` directory (one HTML page per component/feature) is the primary manual verification surface. Pure logic (parsers, data structures like `_Core/History/HistoryStack`) is the exception — unit-test that in `tests/`.
+
+# Shared infrastructure worth knowing
+
+- **Undo / redo.** Any editor component that has discrete committed states (and optionally a
+  live drag/typing preview) should use `HistoryController` (`_Base/HistoryController.ts`), a Lit
+  Reactive Controller wrapping the pure `HistoryStack<T>` (`_Core/History/HistoryStack.ts`).
+  **Read `src/_Core/History/README.md` before wiring it into a component** — it has the
+  integration recipe, the `record` vs `preview` model, the `apply`-callback contract, and the
+  init-timing gotcha. Reference consumer: `src/Editors/PositionEditor/PositionEditor.ts`.
 
 # Known in-progress work / quirks
 

@@ -13,6 +13,8 @@ import './Form/Form';
 
 import './PointSelector/PointSelector';
 
+import './PositionEditor/PositionEditor';
+
 import "./HtmlEditor/HtmlEditor";
 
 import "./MarkdownEditor/MarkdownEditor";
