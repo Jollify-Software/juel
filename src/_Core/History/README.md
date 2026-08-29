@@ -148,6 +148,15 @@ the `examples/` page, per the repo's usual approach.
 
 ## Reference implementation
 
-`src/Editors/PositionEditor/PositionEditor.ts` — a full consumer: live drag preview,
+`src/Editors/Style/PositionEditor/PositionEditor.ts` — a full consumer: live drag preview,
 per-gesture `record`, toolbar arrows, `reset()`, cancel via `discardPreview`, baseline
 cleanup, `history-changed` plus its own `position-changed` event.
+
+Style editors (visual editors for a CSS property of a target element) live under
+`src/Editors/Style/` and share `StylePropertyEditorBase` there — it already wraps the
+`HistoryController` lifecycle (incl. the init-timing dance below), `applyLive` with
+baseline-removal, and target/context resolution. A new style editor extends that base
+and implements `parse` / `serialize` / `renderControls` / `changeEventName`, driving
+history through the base's `commit()` / `previewChange()` / `cancelPreview()` helpers
+rather than touching `HistoryController` directly. `juel-position-editor` and
+`juel-gradient-editor` are the reference consumers.

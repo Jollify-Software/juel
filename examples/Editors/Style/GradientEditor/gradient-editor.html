@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Gradient Editor — Juel Examples</title>
+    <script src="../../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../../_Shared/examples.css" />
+    <style>
+        .stage {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        #panel {
+            width: 340px;
+            height: 260px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color, #ced4da);
+            background-image: linear-gradient(90deg, #4f46e5 0%, #06b6d4 100%);
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 600;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+        }
+        #hero {
+            width: 340px;
+            min-height: 120px;
+            border-radius: 12px;
+            padding: 1rem;
+            color: #fff;
+            font-weight: 600;
+            /* starts with a layered stack so the editor seeds from computed style */
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,.35), transparent 40%),
+                linear-gradient(120deg, #e11d48, #7c3aed);
+        }
+        .readback {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 0.8125rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            background: #f6f8fa;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 6px;
+            padding: 0.5rem 0.6rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Gradient Editor</h1>
+        <p>
+            <code>&lt;juel-gradient-editor for="#el" css-property="background-image"&gt;</code> visually
+            edits a CSS gradient — a comma-separated <em>stack</em> of layers, each a
+            <code>linear</code> / <code>radial</code> / <code>conic</code> gradient
+            (incl. <code>repeating-*</code>) or a flat colour. Drag stops on the track, click the
+            track to add one, and use the geometry controls for angle / <code>to</code> side, radial
+            shape + size + centre, or conic <code>from</code> + centre. Every edit is one undo step
+            (the <span aria-hidden="true">↶ ↷</span> buttons, or <code>.undo()</code> /
+            <code>.redo()</code>). Changes are applied to the target's inline style live.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Single gradient — seeded from the attribute</h2>
+        <div class="stage">
+            <div id="panel">background-image</div>
+            <div>
+                <juel-gradient-editor
+                    id="ed1"
+                    for="#panel"
+                    css-property="background-image"
+                    value="linear-gradient(60deg, #f59e0b 0%, #ef4444 55%, #8b5cf6 100%)"
+                ></juel-gradient-editor>
+                <div class="readback" id="rb1"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Layered stack — seeded from computed style</h2>
+        <div class="stage">
+            <div id="hero">Layered background<br>radial glow over a linear base</div>
+            <div>
+                <juel-gradient-editor id="ed2" for="#hero" css-property="background-image"></juel-gradient-editor>
+                <div class="readback" id="rb2"></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        for (const [edId, rbId] of [['ed1', 'rb1'], ['ed2', 'rb2']]) {
+            const ed = document.getElementById(edId);
+            const rb = document.getElementById(rbId);
+            const show = () => { rb.textContent = ed.value; };
+            ed.addEventListener('gradient-changed', show);
+            ed.addEventListener('gradient-preview', show);
+            ed.addEventListener('gradient-cancelled', show);
+            requestAnimationFrame(show);
+        }
+    </script>
+</body>
+
+</html>

@@ -2,7 +2,7 @@ import {
   clampFraction,
   formatPosition,
   parsePosition,
-} from '../../src/Editors/PositionEditor/PositionValue';
+} from '../../src/Editors/Style/PositionEditor/PositionValue';
 
 const BOX = { width: 200, height: 100 };
 

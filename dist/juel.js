@@ -33969,13 +33969,13 @@ var _colour = require("./Colour/Colour");
 var _upload = require("./Upload/Upload");
 var _form = require("./Form/Form");
 var _pointSelector = require("./PointSelector/PointSelector");
-var _positionEditor = require("./PositionEditor/PositionEditor");
+var _import = require("./Style/Import");
 var _htmlEditor = require("./HtmlEditor/HtmlEditor");
 var _markdownEditor = require("./MarkdownEditor/MarkdownEditor");
 var _themeToggle = require("./Theme/ThemeToggle");
 var _themeSelect = require("./Theme/ThemeSelect");
 
-},{"./Text/Text":"fY4wE","./Email/Email":"5MHUh","./Number/Number":"iLb8o","./Check/Check":"6ufe7","./Date/Date":"7B5ky","./Select/Select":"kOmxg","./Colour/Colour":"ajcen","./Upload/Upload":"lu3p8","./Form/Form":"dJ7mt","./PointSelector/PointSelector":"lv78X","./PositionEditor/PositionEditor":"7sryu","./HtmlEditor/HtmlEditor":"ic3R7","./MarkdownEditor/MarkdownEditor":"gJthw","./Theme/ThemeToggle":"cRYOs","./Theme/ThemeSelect":"ix2vv"}],"fY4wE":[function(require,module,exports,__globalThis) {
+},{"./Text/Text":"fY4wE","./Email/Email":"5MHUh","./Number/Number":"iLb8o","./Check/Check":"6ufe7","./Date/Date":"7B5ky","./Select/Select":"kOmxg","./Colour/Colour":"ajcen","./Upload/Upload":"lu3p8","./Form/Form":"dJ7mt","./PointSelector/PointSelector":"lv78X","./Style/Import":"hZzyn","./HtmlEditor/HtmlEditor":"ic3R7","./MarkdownEditor/MarkdownEditor":"gJthw","./Theme/ThemeToggle":"cRYOs","./Theme/ThemeSelect":"ix2vv"}],"fY4wE":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "JuelText", ()=>JuelText);
@@ -35461,13 +35461,18 @@ JuelPointSelector = __decorate([
     (0, _decoratorsJs.customElement)('juel-point-selector')
 ], JuelPointSelector);
 
-},{"lit":"6MR4h","lit/decorators.js":"iBjLb","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"7sryu":[function(require,module,exports,__globalThis) {
+},{"lit":"6MR4h","lit/decorators.js":"iBjLb","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"hZzyn":[function(require,module,exports,__globalThis) {
+var _positionEditor = require("./PositionEditor/PositionEditor");
+var _gradientEditor = require("./GradientEditor/GradientEditor");
+
+},{"./PositionEditor/PositionEditor":"4VI1A","./GradientEditor/GradientEditor":"tNIo7"}],"4VI1A":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "JuelPositionEditor", ()=>JuelPositionEditor);
+var _objectSpread = require("@swc/helpers/_/_object_spread");
 var _lit = require("lit");
 var _decoratorsJs = require("lit/decorators.js");
-var _historyController = require("../../_Base/HistoryController");
+var _stylePropertyEditorBase = require("../StylePropertyEditorBase");
 var _positionEditorEvents = require("./PositionEditorEvents");
 var _positionValue = require("./PositionValue");
 var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
@@ -35476,66 +35481,60 @@ var __decorate = undefined && undefined.__decorate || function(decorators, targe
     else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-let JuelPositionEditor = class JuelPositionEditor extends (0, _lit.LitElement) {
-    connectedCallback() {
-        super.connectedCallback();
-        this.resolveTarget();
-        if (typeof this.context === 'string' && this.context in window) this.context = window[this.context];
-        if (!this.history) requestAnimationFrame(()=>this.initHistory());
+let JuelPositionEditor = class JuelPositionEditor extends (0, _stylePropertyEditorBase.StylePropertyEditorBase) {
+    get seedFallback() {
+        return '50% 50%';
     }
-    firstUpdated() {
-        this.initHistory();
+    get changeEventName() {
+        return (0, _positionEditorEvents.PositionEditorEvents).Changed;
     }
-    initHistory() {
-        if (this.history || !this.isConnected) return;
-        this.resolveTarget();
-        const seed = this.seedValue();
-        const parsed = (0, _positionValue.parsePosition)(seed, this.getBox());
-        if (parsed) ({ fx: this.fx, fy: this.fy } = parsed);
-        this.value = this.format();
-        this.baselineFx = this.fx;
-        this.baselineFy = this.fy;
-        this.hadInlineValue = !!this.target && !!this.cssProperty && this.target.style.getPropertyValue(this.cssProperty).trim() !== '';
-        this.history = new (0, _historyController.HistoryController)(this, this.value, {
-            apply: (v)=>this.applyValue(v)
-        });
-        this.requestUpdate();
-    }
-    disconnectedCallback() {
-        super.disconnectedCallback();
-        this.stopPicking(false);
-    }
-    updated(changed) {
-        if ((changed.has('for') || changed.has('target')) && !this.picking) this.resolveTarget();
-        if (changed.has('unit') && !this.picking && changed.get('unit') !== undefined) {
-            this.value = this.format();
-            this.liveApply(this.value);
+    parse(value) {
+        const parsed = (0, _positionValue.parsePosition)(value, this.getBox());
+        if (parsed) {
+            this.fx = parsed.fx;
+            this.fy = parsed.fy;
         }
     }
-    get canUndo() {
-        var _this_history;
-        return !!((_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.canUndo);
+    serialize() {
+        return (0, _positionValue.formatPosition)({
+            fx: this.fx,
+            fy: this.fy
+        }, {
+            unit: this.unit,
+            box: this.getBox(),
+            precision: this.precision
+        });
     }
-    get canRedo() {
-        var _this_history;
-        return !!((_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.canRedo);
+    onReady() {
+        this.baselineFx = this.fx;
+        this.baselineFy = this.fy;
     }
-    undo() {
-        var _this_history;
-        (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.undo();
-        if (this.history) this.emitChanged('undo');
+    onTeardown() {
+        this.stopPicking(false);
     }
-    redo() {
-        var _this_history;
-        (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.redo();
-        if (this.history) this.emitChanged('redo');
+    isAtBaseline() {
+        return Math.abs(this.fx - this.baselineFx) < 1e-4 && Math.abs(this.fy - this.baselineFy) < 1e-4;
     }
-    reset() {
-        var _this_history;
-        (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.reset();
-        if (this.history) this.emitChanged('reset');
+    emitChange(reason, detail = {}) {
+        const name = reason === 'preview' ? (0, _positionEditorEvents.PositionEditorEvents).Preview : reason === 'cancel' ? (0, _positionEditorEvents.PositionEditorEvents).Cancelled : (0, _positionEditorEvents.PositionEditorEvents).Changed;
+        this.dispatchEvent(new CustomEvent(name, {
+            detail: (0, _objectSpread._)({
+                value: this.value,
+                fx: this.fx,
+                fy: this.fy,
+                unit: this.unit,
+                reason
+            }, detail),
+            bubbles: true,
+            composed: true
+        }));
+    }
+    updated(changed) {
+        super.updated(changed);
+        if (changed.has('unit') && !this.picking && changed.get('unit') !== undefined) this.reserialize();
     }
     stopPicking(commit) {
+        if (!this.picking && !this.overlay) return;
         if (this.rafId) {
             cancelAnimationFrame(this.rafId);
             this.rafId = 0;
@@ -35553,17 +35552,13 @@ let JuelPositionEditor = class JuelPositionEditor extends (0, _lit.LitElement) {
         this.dragging = false;
         this.picking = false;
         if (!commit) {
-            var _this_history;
-            (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.discardPreview();
-            if (this.pickAnchorValue) this.applyValue(this.pickAnchorValue);
+            const parsed = (0, _positionValue.parsePosition)(this.pickAnchorValue, this.getBox());
+            if (parsed) {
+                this.fx = parsed.fx;
+                this.fy = parsed.fy;
+            }
+            this.cancelPreview(this.pickAnchorValue);
         }
-    }
-    cancelPicking() {
-        this.stopPicking(false);
-        this.dispatchEvent(new CustomEvent((0, _positionEditorEvents.PositionEditorEvents).Cancelled, {
-            bubbles: true,
-            composed: true
-        }));
     }
     pointTo(e, commit) {
         if (!this.overlay) return;
@@ -35579,68 +35574,8 @@ let JuelPositionEditor = class JuelPositionEditor extends (0, _lit.LitElement) {
             this.marker.style.left = `${this.fx * 100}%`;
             this.marker.style.top = `${this.fy * 100}%`;
         }
-        const v = this.format();
-        this.value = v;
-        this.liveApply(v);
-        this.pushContext();
-        if (commit) {
-            var _this_history;
-            (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.record(v);
-            this.emitChanged('pick');
-        } else {
-            var _this_history1;
-            (_this_history1 = this.history) === null || _this_history1 === void 0 ? void 0 : _this_history1.preview(v);
-            this.dispatchEvent(new CustomEvent((0, _positionEditorEvents.PositionEditorEvents).Preview, {
-                detail: {
-                    value: v,
-                    fx: this.fx,
-                    fy: this.fy,
-                    unit: this.unit
-                },
-                bubbles: true,
-                composed: true
-            }));
-        }
-    }
-    applyValue(v) {
-        const parsed = (0, _positionValue.parsePosition)(v, this.getBox());
-        if (parsed) {
-            this.fx = parsed.fx;
-            this.fy = parsed.fy;
-        }
-        this.value = v;
-        this.liveApply(v);
-        this.pushContext();
-    }
-    liveApply(v) {
-        if (!this.target || !this.cssProperty) return;
-        const atBaseline = !this.hadInlineValue && !this.canUndo && Math.abs(this.fx - this.baselineFx) < 1e-4 && Math.abs(this.fy - this.baselineFy) < 1e-4;
-        if (atBaseline) this.target.style.removeProperty(this.cssProperty);
-        else this.target.style.setProperty(this.cssProperty, v);
-    }
-    pushContext() {
-        if (this.context && typeof this.context === 'object' && this.property) this.context[this.property] = this.value;
-    }
-    emitChanged(reason) {
-        this.dispatchEvent(new CustomEvent((0, _positionEditorEvents.PositionEditorEvents).Changed, {
-            detail: {
-                value: this.value,
-                fx: this.fx,
-                fy: this.fy,
-                unit: this.unit,
-                reason
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-    resolveTarget() {
-        if (!this.target && this.for) {
-            var _root_querySelector;
-            const root = this.getRootNode();
-            var _root_querySelector1;
-            this.target = (_root_querySelector1 = (_root_querySelector = root.querySelector) === null || _root_querySelector === void 0 ? void 0 : _root_querySelector.call(root, this.for)) !== null && _root_querySelector1 !== void 0 ? _root_querySelector1 : document.querySelector(this.for);
-        }
+        if (commit) this.commit('pick');
+        else this.previewChange();
     }
     referenceRect() {
         const box = this.getBox();
@@ -35674,66 +35609,20 @@ let JuelPositionEditor = class JuelPositionEditor extends (0, _lit.LitElement) {
             height: window.innerHeight
         };
     }
-    seedValue() {
-        if (this.value && this.value !== '50% 50%') return this.value;
-        if (this.target && this.cssProperty) {
-            const computed = getComputedStyle(this.target).getPropertyValue(this.cssProperty).trim();
-            if (computed) return computed;
-        }
-        return this.value || '50% 50%';
-    }
-    format() {
-        return (0, _positionValue.formatPosition)({
-            fx: this.fx,
-            fy: this.fy
-        }, {
-            unit: this.unit,
-            box: this.getBox(),
-            precision: this.precision
-        });
-    }
-    render() {
+    renderControls() {
         return (0, _lit.html)`
-      <div class="toolbar">
-        <juel-button @button-clicked=${this.startPicking}>${this.label}</juel-button>
-        <button
-          type="button"
-          class="hist"
-          aria-label="Undo"
-          title="Undo"
-          ?disabled=${!this.canUndo}
-          @click=${()=>this.undo()}
-        >
-          &#8630;
-        </button>
-        <button
-          type="button"
-          class="hist"
-          aria-label="Redo"
-          title="Redo"
-          ?disabled=${!this.canRedo}
-          @click=${()=>this.redo()}
-        >
-          &#8631;
-        </button>
-        <code class="readout" part="readout">${this.value}</code>
-      </div>
+      <juel-button @button-clicked=${this.startPicking}>${this.label}</juel-button>
+      <code class="se-readout" part="readout">${this.value}</code>
     `;
     }
     constructor(){
-        super(...arguments);
-        this.for = '';
-        this.target = null;
-        this.cssProperty = '';
+        super();
         this.unit = 'percent';
-        this.value = '50% 50%';
         this.clamp = false;
         this.label = 'Pick point';
-        this.property = 'position';
         this.fx = 0.5;
         this.fy = 0.5;
         this.picking = false;
-        this.hadInlineValue = false;
         this.baselineFx = 0.5;
         this.baselineFy = 0.5;
         this.pickAnchorValue = '';
@@ -35808,76 +35697,32 @@ let JuelPositionEditor = class JuelPositionEditor extends (0, _lit.LitElement) {
         };
         this.onContextMenu = (e)=>{
             e.preventDefault();
-            this.cancelPicking();
+            this.stopPicking(false);
         };
         this.onKeydown = (e)=>{
             if (this.picking && e.key === 'Escape') {
                 e.preventDefault();
-                this.cancelPicking();
+                this.stopPicking(false);
             }
         };
+        this.value = '50% 50%';
+        this.property = 'position';
     }
 };
-JuelPositionEditor.styles = (0, _lit.css)`
-    :host {
-      display: inline-flex;
-      font-family: inherit;
-    }
-    .toolbar {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.375rem;
-    }
-    button.hist {
-      width: 1.75rem;
-      height: 1.75rem;
-      padding: 0;
-      font-size: 1rem;
-      line-height: 1;
-      border: 1px solid var(--border-color, #ced4da);
-      border-radius: 4px;
-      background: var(--surface, #fff);
-      color: inherit;
-      cursor: pointer;
-    }
-    button.hist:disabled {
-      opacity: 0.4;
-      cursor: default;
-    }
-    .readout {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 0.8125rem;
-      opacity: 0.75;
-      white-space: nowrap;
-    }
-  `;
-__decorate([
-    (0, _decoratorsJs.property)({
-        type: String
-    })
-], JuelPositionEditor.prototype, "for", void 0);
-__decorate([
-    (0, _decoratorsJs.property)({
-        attribute: false
-    })
-], JuelPositionEditor.prototype, "target", void 0);
-__decorate([
-    (0, _decoratorsJs.property)({
-        type: String,
-        attribute: 'css-property'
-    })
-], JuelPositionEditor.prototype, "cssProperty", void 0);
+JuelPositionEditor.styles = [
+    (0, _stylePropertyEditorBase.StylePropertyEditorBase).baseStyles,
+    (0, _lit.css)`
+      :host {
+        display: inline-flex;
+        font-family: inherit;
+      }
+    `
+];
 __decorate([
     (0, _decoratorsJs.property)({
         type: String
     })
 ], JuelPositionEditor.prototype, "unit", void 0);
-__decorate([
-    (0, _decoratorsJs.property)({
-        type: String,
-        reflect: true
-    })
-], JuelPositionEditor.prototype, "value", void 0);
 __decorate([
     (0, _decoratorsJs.property)({
         type: Boolean
@@ -35894,16 +35739,6 @@ __decorate([
     })
 ], JuelPositionEditor.prototype, "label", void 0);
 __decorate([
-    (0, _decoratorsJs.property)({
-        attribute: false
-    })
-], JuelPositionEditor.prototype, "context", void 0);
-__decorate([
-    (0, _decoratorsJs.property)({
-        type: String
-    })
-], JuelPositionEditor.prototype, "property", void 0);
-__decorate([
     (0, _decoratorsJs.state)()
 ], JuelPositionEditor.prototype, "fx", void 0);
 __decorate([
@@ -35916,7 +35751,273 @@ JuelPositionEditor = __decorate([
     (0, _decoratorsJs.customElement)('juel-position-editor')
 ], JuelPositionEditor);
 
-},{"lit":"6MR4h","lit/decorators.js":"iBjLb","../../_Base/HistoryController":"8N07M","./PositionEditorEvents":"6QM9f","./PositionValue":"2AQDC","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"8N07M":[function(require,module,exports,__globalThis) {
+},{"@swc/helpers/_/_object_spread":"kbZU4","lit":"6MR4h","lit/decorators.js":"iBjLb","../StylePropertyEditorBase":"bcNJ2","./PositionEditorEvents":"hM0iH","./PositionValue":"hsAtt","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"bcNJ2":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "StylePropertyEditorBase", ()=>StylePropertyEditorBase);
+var _objectSpread = require("@swc/helpers/_/_object_spread");
+var _lit = require("lit");
+var _decoratorsJs = require("lit/decorators.js");
+var _historyController = require("../../_Base/HistoryController");
+var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+class StylePropertyEditorBase extends (0, _lit.LitElement) {
+    connectedCallback() {
+        super.connectedCallback();
+        this.resolveTarget();
+        this.resolveContext();
+        if (!this.history) requestAnimationFrame(()=>this.initEditor());
+    }
+    firstUpdated(_changed) {
+        this.initEditor();
+    }
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        this.onTeardown();
+    }
+    updated(changed) {
+        if (changed.has('for') || changed.has('target')) this.resolveTarget();
+    }
+    initEditor() {
+        if (this.history || !this.isConnected) return;
+        this.resolveTarget();
+        this.resolveContext();
+        const seed = this.seedValue();
+        if (seed) this.parse(seed);
+        this.value = this.serialize();
+        this.baselineValue = this.value;
+        this.hadInlineValue = !!this.target && !!this.cssProperty && this.target.style.getPropertyValue(this.cssProperty).trim() !== '';
+        this.history = new (0, _historyController.HistoryController)(this, this.value, {
+            apply: (v)=>this.adopt(v)
+        });
+        this.onReady();
+        this.requestUpdate();
+    }
+    get seedFallback() {
+        return '';
+    }
+    onReady() {}
+    onTeardown() {}
+    isAtBaseline() {
+        return this.value === this.baselineValue;
+    }
+    adopt(value) {
+        this.parse(value);
+        this.value = this.serialize();
+        this.applyLive();
+        this.pushContext();
+        this.requestUpdate();
+    }
+    reserialize() {
+        this.value = this.serialize();
+        this.applyLive();
+        this.pushContext();
+    }
+    commit(reason = 'edit') {
+        var _this_history;
+        this.value = this.serialize();
+        this.applyLive();
+        this.pushContext();
+        (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.record(this.value);
+        this.emitChange(reason);
+    }
+    previewChange() {
+        var _this_history;
+        this.value = this.serialize();
+        this.applyLive();
+        this.pushContext();
+        (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.preview(this.value);
+        this.emitChange('preview');
+    }
+    cancelPreview(anchor) {
+        var _this_history;
+        (_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.discardPreview();
+        this.adopt(anchor);
+        this.emitChange('cancel');
+    }
+    get canUndo() {
+        var _this_history;
+        return !!((_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.canUndo);
+    }
+    get canRedo() {
+        var _this_history;
+        return !!((_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.canRedo);
+    }
+    undo() {
+        var _this_history;
+        if ((_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.canUndo) {
+            this.history.undo();
+            this.emitChange('undo');
+        }
+    }
+    redo() {
+        var _this_history;
+        if ((_this_history = this.history) === null || _this_history === void 0 ? void 0 : _this_history.canRedo) {
+            this.history.redo();
+            this.emitChange('redo');
+        }
+    }
+    reset() {
+        if (this.history) {
+            this.history.reset();
+            this.emitChange('reset');
+        }
+    }
+    applyLive() {
+        if (!this.target || !this.cssProperty) return;
+        if (!this.hadInlineValue && !this.canUndo && this.isAtBaseline()) this.target.style.removeProperty(this.cssProperty);
+        else this.target.style.setProperty(this.cssProperty, this.value);
+    }
+    pushContext() {
+        if (this.context && typeof this.context === 'object' && this.property) this.context[this.property] = this.value;
+    }
+    emitChange(reason, detail = {}) {
+        this.dispatchEvent(new CustomEvent(this.changeEventName, {
+            detail: (0, _objectSpread._)({
+                value: this.value,
+                reason
+            }, detail),
+            bubbles: true,
+            composed: true
+        }));
+    }
+    resolveTarget() {
+        if (!this.target && this.for) {
+            var _root_querySelector;
+            const root = this.getRootNode();
+            var _root_querySelector1;
+            this.target = (_root_querySelector1 = (_root_querySelector = root.querySelector) === null || _root_querySelector === void 0 ? void 0 : _root_querySelector.call(root, this.for)) !== null && _root_querySelector1 !== void 0 ? _root_querySelector1 : document.querySelector(this.for);
+        }
+    }
+    resolveContext() {
+        if (typeof this.context === 'string' && this.context in window) this.context = window[this.context];
+    }
+    seedValue() {
+        if (this.value && this.value !== this.seedFallback) return this.value;
+        if (this.target && this.cssProperty) {
+            const computed = getComputedStyle(this.target).getPropertyValue(this.cssProperty).trim();
+            if (computed && computed !== 'none') return computed;
+        }
+        return this.value || this.seedFallback;
+    }
+    renderHistoryButtons() {
+        return (0, _lit.html)`
+      <span class="se-history" part="history">
+        <button
+          type="button"
+          class="se-hist"
+          aria-label="Undo"
+          title="Undo"
+          ?disabled=${!this.canUndo}
+          @click=${()=>this.undo()}
+        >
+          &#8630;
+        </button>
+        <button
+          type="button"
+          class="se-hist"
+          aria-label="Redo"
+          title="Redo"
+          ?disabled=${!this.canRedo}
+          @click=${()=>this.redo()}
+        >
+          &#8631;
+        </button>
+      </span>
+    `;
+    }
+    render() {
+        return (0, _lit.html)`
+      <div class="se-root" part="root">
+        ${this.renderControls()}${this.renderHistoryButtons()}
+      </div>
+    `;
+    }
+    constructor(){
+        super(...arguments);
+        this.for = '';
+        this.target = null;
+        this.cssProperty = '';
+        this.value = '';
+        this.property = 'value';
+        this.baselineValue = '';
+        this.hadInlineValue = false;
+    }
+}
+StylePropertyEditorBase.baseStyles = (0, _lit.css)`
+    .se-root {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-family: inherit;
+    }
+    .se-history {
+      display: inline-flex;
+      gap: 0.25rem;
+    }
+    button.se-hist {
+      width: 1.75rem;
+      height: 1.75rem;
+      padding: 0;
+      font-size: 1rem;
+      line-height: 1;
+      border: 1px solid var(--border-color, #ced4da);
+      border-radius: 4px;
+      background: var(--surface, #fff);
+      color: inherit;
+      cursor: pointer;
+    }
+    button.se-hist:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .se-readout {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.8125rem;
+      opacity: 0.75;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  `;
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], StylePropertyEditorBase.prototype, "for", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        attribute: false
+    })
+], StylePropertyEditorBase.prototype, "target", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String,
+        attribute: 'css-property'
+    })
+], StylePropertyEditorBase.prototype, "cssProperty", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String,
+        reflect: true
+    })
+], StylePropertyEditorBase.prototype, "value", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        attribute: false
+    })
+], StylePropertyEditorBase.prototype, "context", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], StylePropertyEditorBase.prototype, "property", void 0);
+
+},{"@swc/helpers/_/_object_spread":"kbZU4","lit":"6MR4h","lit/decorators.js":"iBjLb","../../_Base/HistoryController":"8N07M","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"8N07M":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "HistoryController", ()=>HistoryController);
@@ -36076,7 +36177,7 @@ class HistoryStack {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"6QM9f":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"hM0iH":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "PositionEditorEvents", ()=>PositionEditorEvents);
@@ -36087,7 +36188,7 @@ var PositionEditorEvents;
     PositionEditorEvents["Cancelled"] = "position-cancelled";
 })(PositionEditorEvents || (PositionEditorEvents = {}));
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"2AQDC":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"hsAtt":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "parsePosition", ()=>parsePosition);
@@ -36182,6 +36283,975 @@ function clampFraction({ fx, fy }) {
         fx: Math.min(1, Math.max(0, fx)),
         fy: Math.min(1, Math.max(0, fy))
     };
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"tNIo7":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "JuelGradientEditor", ()=>JuelGradientEditor);
+var _objectSpread = require("@swc/helpers/_/_object_spread");
+var _objectSpreadProps = require("@swc/helpers/_/_object_spread_props");
+var _lit = require("lit");
+var _decoratorsJs = require("lit/decorators.js");
+var _stylePropertyEditorBase = require("../StylePropertyEditorBase");
+var _gradientEditorEvents = require("./GradientEditorEvents");
+var _gradientValue = require("./GradientValue");
+var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+const RADIAL_SIZES = [
+    'closest-side',
+    'closest-corner',
+    'farthest-side',
+    'farthest-corner'
+];
+const LINEAR_SIDES = [
+    'to top',
+    'to bottom',
+    'to left',
+    'to right',
+    'to top left',
+    'to top right',
+    'to bottom left',
+    'to bottom right'
+];
+const ANCHORS = [
+    [
+        'left top',
+        "\u2196"
+    ],
+    [
+        'center top',
+        "\u2191"
+    ],
+    [
+        'right top',
+        "\u2197"
+    ],
+    [
+        'left center',
+        "\u2190"
+    ],
+    [
+        'center',
+        "\u2022"
+    ],
+    [
+        'right center',
+        "\u2192"
+    ],
+    [
+        'left bottom',
+        "\u2199"
+    ],
+    [
+        'center bottom',
+        "\u2193"
+    ],
+    [
+        'right bottom',
+        "\u2198"
+    ]
+];
+let JuelGradientEditor = class JuelGradientEditor extends (0, _stylePropertyEditorBase.StylePropertyEditorBase) {
+    get seedFallback() {
+        return 'linear-gradient(90deg, #4f46e5 0%, #06b6d4 100%)';
+    }
+    get changeEventName() {
+        return (0, _gradientEditorEvents.GradientEditorEvents).Changed;
+    }
+    parse(value) {
+        const m = (0, _gradientValue.parseLayeredGradient)(value);
+        if (m) this.model = m;
+        this.activeLayer = Math.min(this.activeLayer, this.model.layers.length - 1);
+        const g = this.gLayer();
+        this.activeStop = g ? Math.min(this.activeStop, g.stops.length - 1) : -1;
+    }
+    serialize() {
+        return (0, _gradientValue.stringifyLayeredGradient)(this.model);
+    }
+    emitChange(reason, detail = {}) {
+        const name = reason === 'preview' ? (0, _gradientEditorEvents.GradientEditorEvents).Preview : reason === 'cancel' ? (0, _gradientEditorEvents.GradientEditorEvents).Cancelled : (0, _gradientEditorEvents.GradientEditorEvents).Changed;
+        this.dispatchEvent(new CustomEvent(name, {
+            detail: (0, _objectSpread._)({
+                value: this.value,
+                reason
+            }, detail),
+            bubbles: true,
+            composed: true
+        }));
+    }
+    onTeardown() {
+        this.endStopDrag();
+        this.flushColor();
+    }
+    gLayer() {
+        const l = this.model.layers[this.activeLayer];
+        return l && l.type === 'gradient' ? l : null;
+    }
+    edit(reason, fn) {
+        this.flushColor();
+        fn();
+        this.model = {
+            layers: [
+                ...this.model.layers
+            ]
+        };
+        this.commit(reason);
+    }
+    flushColor() {
+        if (this.colorTimer) {
+            clearTimeout(this.colorTimer);
+            this.colorTimer = 0;
+            this.model = {
+                layers: [
+                    ...this.model.layers
+                ]
+            };
+            this.commit('stop-color');
+        }
+    }
+    selectLayer(i) {
+        this.flushColor();
+        this.activeLayer = i;
+        this.activeStop = -1;
+    }
+    addLayer(kind) {
+        this.edit('layer-add', ()=>{
+            const layer = kind === 'solid' ? {
+                type: 'solid',
+                color: '#888888'
+            } : (0, _gradientValue.defaultGradientLayer)(kind);
+            this.model.layers.push(layer);
+            this.activeLayer = this.model.layers.length - 1;
+            this.activeStop = -1;
+        });
+    }
+    removeLayer() {
+        if (this.model.layers.length < 2) return;
+        this.edit('layer-remove', ()=>{
+            this.model.layers.splice(this.activeLayer, 1);
+            this.activeLayer = Math.max(0, this.activeLayer - 1);
+            this.activeStop = -1;
+        });
+    }
+    moveLayer(dir) {
+        const i = this.activeLayer;
+        const j = i + dir;
+        if (j < 0 || j >= this.model.layers.length) return;
+        this.edit('layer-move', ()=>{
+            const [l] = this.model.layers.splice(i, 1);
+            this.model.layers.splice(j, 0, l);
+            this.activeLayer = j;
+        });
+    }
+    stopUnit() {
+        var _this_gLayer;
+        return ((_this_gLayer = this.gLayer()) === null || _this_gLayer === void 0 ? void 0 : _this_gLayer.kind) === 'conic' ? 'deg' : '%';
+    }
+    handleLeft(s) {
+        var _s_pos;
+        const raw = (_s_pos = s.pos) !== null && _s_pos !== void 0 ? _s_pos : '';
+        if (raw.endsWith('%')) return Math.min(100, Math.max(0, parseFloat(raw)));
+        if (/deg$/.test(raw)) return Math.min(100, Math.max(0, parseFloat(raw) / 360 * 100));
+        const n = parseFloat(raw);
+        return Number.isFinite(n) ? Math.min(100, Math.max(0, n)) : 50;
+    }
+    barPercentFromEvent(e) {
+        const bar = this.renderRoot.querySelector('.bar');
+        const r = bar.getBoundingClientRect();
+        return Math.min(100, Math.max(0, (e.clientX - r.left) / r.width * 100));
+    }
+    onStopPointerDown(e, index) {
+        e.stopPropagation();
+        e.preventDefault();
+        if (e.button === 2) return;
+        this.flushColor();
+        this.activeStop = index;
+        this.dragStop = index;
+        this.dragAnchor = this.value;
+        window.addEventListener('pointermove', this.onStopPointerMove);
+        window.addEventListener('pointerup', this.onStopPointerUp);
+        window.addEventListener('keydown', this.onStopDragKey, true);
+    }
+    endStopDrag() {
+        window.removeEventListener('pointermove', this.onStopPointerMove);
+        window.removeEventListener('pointerup', this.onStopPointerUp);
+        window.removeEventListener('keydown', this.onStopDragKey, true);
+    }
+    sortKey(s) {
+        const raw = s.kind === 'hint' ? s.hint : s.pos;
+        if (!raw) return -1;
+        return /deg$/.test(raw) ? parseFloat(raw) / 3.6 : (0, _gradientValue.parsePercent)(raw);
+    }
+    onStopColor(v) {
+        const g = this.gLayer();
+        const s = g === null || g === void 0 ? void 0 : g.stops[this.activeStop];
+        if (!g || !s || s.kind !== 'stop') return;
+        s.color = v;
+        this.model = {
+            layers: [
+                ...this.model.layers
+            ]
+        };
+        this.previewChange();
+        clearTimeout(this.colorTimer);
+        this.colorTimer = window.setTimeout(()=>{
+            this.colorTimer = 0;
+            this.commit('stop-color');
+        }, 250);
+    }
+    onStopPos(e) {
+        const g = this.gLayer();
+        const s = g === null || g === void 0 ? void 0 : g.stops[this.activeStop];
+        if (!g || !s || s.kind !== 'stop') return;
+        const n = parseFloat(e.target.value);
+        if (!Number.isFinite(n)) return;
+        this.edit('stop-pos', ()=>{
+            s.pos = `${n}${this.stopUnit()}`;
+        });
+    }
+    deleteStop() {
+        const g = this.gLayer();
+        if (!g || this.activeStop < 0) return;
+        const stopsOnly = g.stops.filter((s)=>s.kind === 'stop');
+        if (stopsOnly.length < 3) return;
+        this.edit('stop-remove', ()=>{
+            g.stops.splice(this.activeStop, 1);
+            this.activeStop = -1;
+        });
+    }
+    setKind(kind) {
+        const g = this.gLayer();
+        if (!g || g.kind === kind) return;
+        this.edit('type', ()=>{
+            const wasConic = g.kind === 'conic';
+            g.kind = kind;
+            if (kind === 'conic' || wasConic) g.stops.forEach((s)=>{
+                if (s.kind === 'stop') {
+                    delete s.pos;
+                    delete s.pos2;
+                }
+            });
+            if (kind === 'linear') {
+                var _g_angle;
+                g.angle = (_g_angle = g.angle) !== null && _g_angle !== void 0 ? _g_angle : '90deg';
+                delete g.shape;
+                delete g.size;
+                delete g.from;
+            } else if (kind === 'radial') {
+                var _g_position;
+                g.position = (_g_position = g.position) !== null && _g_position !== void 0 ? _g_position : 'center';
+                var _g_size;
+                g.size = (_g_size = g.size) !== null && _g_size !== void 0 ? _g_size : 'farthest-corner';
+                delete g.angle;
+                delete g.from;
+            } else {
+                var _g_from;
+                g.from = (_g_from = g.from) !== null && _g_from !== void 0 ? _g_from : '0deg';
+                var _g_position1;
+                g.position = (_g_position1 = g.position) !== null && _g_position1 !== void 0 ? _g_position1 : 'center';
+                delete g.angle;
+                delete g.shape;
+                delete g.size;
+            }
+        });
+    }
+    toggleRepeating() {
+        const g = this.gLayer();
+        if (!g) return;
+        this.edit('repeating', ()=>{
+            g.repeating = !g.repeating;
+        });
+    }
+    setAngle(v, commit) {
+        const g = this.gLayer();
+        if (!g) return;
+        this.flushColor();
+        g.angle = v;
+        this.model = {
+            layers: [
+                ...this.model.layers
+            ]
+        };
+        if (commit) this.commit('angle');
+        else this.previewChange();
+    }
+    setFrom(v, commit) {
+        const g = this.gLayer();
+        if (!g) return;
+        this.flushColor();
+        g.from = v;
+        this.model = {
+            layers: [
+                ...this.model.layers
+            ]
+        };
+        if (commit) this.commit('from');
+        else this.previewChange();
+    }
+    setField(key, v) {
+        const g = this.gLayer();
+        if (!g) return;
+        this.edit(key, ()=>{
+            if (v) g[key] = v;
+            else delete g[key];
+        });
+    }
+    setSolidColor(v) {
+        const l = this.model.layers[this.activeLayer];
+        if (!l || l.type !== 'solid') return;
+        l.color = v;
+        this.model = {
+            layers: [
+                ...this.model.layers
+            ]
+        };
+        this.previewChange();
+        clearTimeout(this.colorTimer);
+        this.colorTimer = window.setTimeout(()=>{
+            this.colorTimer = 0;
+            this.commit('solid-color');
+        }, 250);
+    }
+    renderLayers() {
+        return (0, _lit.html)`
+      <div class="layers">
+        ${this.model.layers.map((l, i)=>(0, _lit.html)`<button
+            class="layer-swatch"
+            ?data-active=${i === this.activeLayer}
+            style="background-image:${l.type === 'solid' ? 'none' : (0, _gradientValue.layerToString)(l)};background-color:${l.type === 'solid' ? l.color : 'transparent'}"
+            title="Layer ${i + 1}"
+            @click=${()=>this.selectLayer(i)}
+          ></button>`)}
+        <button class="mini" title="Move layer up" ?disabled=${this.activeLayer <= 0} @click=${()=>this.moveLayer(-1)}>▲</button>
+        <button class="mini" title="Move layer down" ?disabled=${this.activeLayer >= this.model.layers.length - 1} @click=${()=>this.moveLayer(1)}>▼</button>
+        <button class="mini" title="Remove layer" ?disabled=${this.model.layers.length < 2} @click=${()=>this.removeLayer()}>✕</button>
+        <span class="grow"></span>
+        <button class="mini" style="width:auto;padding:0 .35rem" title="Add gradient layer" @click=${()=>this.addLayer('linear')}>＋▤</button>
+        <button class="mini" style="width:auto;padding:0 .35rem" title="Add solid layer" @click=${()=>this.addLayer('solid')}>＋■</button>
+      </div>
+    `;
+    }
+    renderStopTrack(g) {
+        const single = (0, _gradientValue.layerToString)((0, _objectSpreadProps._)((0, _objectSpread._)({}, g), {
+            repeating: false
+        }));
+        return (0, _lit.html)`
+      <div class="bar-wrap">
+        <div class="bar" @pointerdown=${this.onBarPointerDown}>
+          <div class="bar-fill" style="background-image:${single}"></div>
+        </div>
+        ${g.stops.map((s, i)=>{
+            var _s_pos;
+            return s.kind === 'stop' ? (0, _lit.html)`<button
+                class="stop-handle"
+                ?data-active=${i === this.activeStop}
+                style="left:${this.handleLeft(s)}%;background:${s.color}"
+                title=${s.color + ' ' + ((_s_pos = s.pos) !== null && _s_pos !== void 0 ? _s_pos : '')}
+                @pointerdown=${(e)=>this.onStopPointerDown(e, i)}
+                @click=${()=>this.activeStop = i}
+              ></button>` : null;
+        })}
+      </div>
+    `;
+    }
+    renderStopEditor(g) {
+        const s = g.stops[this.activeStop];
+        if (!s || s.kind !== 'stop') return (0, _lit.html)`<div class="lbl">Click the bar to add a stop, or a handle to edit it.</div>`;
+        const stopsOnly = g.stops.filter((x)=>x.kind === 'stop').length;
+        return (0, _lit.html)`
+      <div class="row">
+        <juel-colour .value=${s.color} @value-changed=${(e)=>this.onStopColor(e.detail.value)}></juel-colour>
+        <input
+          type="number"
+          .value=${String((0, _gradientValue.parsePercent)(s.pos))}
+          step="1"
+          @change=${(e)=>this.onStopPos(e)}
+        />
+        <span class="lbl">${this.stopUnit()}</span>
+        <button class="mini" style="width:auto;padding:0 .4rem" ?disabled=${stopsOnly < 3} @click=${()=>this.deleteStop()}>Delete</button>
+      </div>
+    `;
+    }
+    renderGeometry(g) {
+        const anchorGrid = (cur, set)=>(0, _lit.html)`
+      <div class="anchors">
+        ${ANCHORS.map(([v, glyph])=>(0, _lit.html)`<button
+            title=${v}
+            style=${cur === v ? 'outline:2px solid var(--primary,#4f46e5)' : ''}
+            @click=${()=>set(v)}
+          >${glyph}</button>`)}
+      </div>
+    `;
+        if (g.kind === 'linear') {
+            var _g_angle;
+            const deg = /deg$/.test((_g_angle = g.angle) !== null && _g_angle !== void 0 ? _g_angle : '') ? parseFloat(g.angle) : 90;
+            var _g_angle1;
+            return (0, _lit.html)`
+        <div class="row">
+          <span class="lbl">Angle</span>
+          <input type="range" min="0" max="360" .value=${String(deg)}
+            @input=${(e)=>this.setAngle(`${e.target.value}deg`, false)}
+            @change=${(e)=>this.setAngle(`${e.target.value}deg`, true)} />
+          <input type="number" min="0" max="360" .value=${String(deg)}
+            @change=${(e)=>this.setAngle(`${e.target.value}deg`, true)} />
+          <span class="lbl">deg</span>
+        </div>
+        <div class="row">
+          <span class="lbl">or</span>
+          <select @change=${(e)=>this.setAngle(e.target.value, true)}>
+            <option value="" ?selected=${!LINEAR_SIDES.includes((_g_angle1 = g.angle) !== null && _g_angle1 !== void 0 ? _g_angle1 : '')}>custom angle</option>
+            ${LINEAR_SIDES.map((v)=>(0, _lit.html)`<option value=${v} ?selected=${g.angle === v}>${v}</option>`)}
+          </select>
+        </div>
+      `;
+        }
+        if (g.kind === 'radial') {
+            var _g_size;
+            const customSize = !RADIAL_SIZES.includes((_g_size = g.size) !== null && _g_size !== void 0 ? _g_size : '');
+            var _g_shape, _g_size1, _g_position;
+            return (0, _lit.html)`
+        <div class="row">
+          <span class="lbl">Shape</span>
+          <button class="type-btn" ?data-active=${((_g_shape = g.shape) !== null && _g_shape !== void 0 ? _g_shape : 'ellipse') === 'ellipse'} @click=${()=>this.setField('shape', 'ellipse')}>ellipse</button>
+          <button class="type-btn" ?data-active=${g.shape === 'circle'} @click=${()=>this.setField('shape', 'circle')}>circle</button>
+        </div>
+        <div class="row">
+          <span class="lbl">Size</span>
+          <select @change=${(e)=>{
+                const v = e.target.value;
+                this.setField('size', v === '__custom' ? '50% 50%' : v);
+            }}>
+            ${RADIAL_SIZES.map((v)=>(0, _lit.html)`<option value=${v} ?selected=${g.size === v}>${v}</option>`)}
+            <option value="__custom" ?selected=${customSize}>custom…</option>
+          </select>
+          ${customSize ? (0, _lit.html)`<input type="text" .value=${(_g_size1 = g.size) !== null && _g_size1 !== void 0 ? _g_size1 : ''} placeholder="e.g. 60% 40%"
+                @change=${(e)=>this.setField('size', e.target.value)} />` : null}
+        </div>
+        <div class="row">
+          <span class="lbl">Center</span>
+          <input type="text" .value=${(_g_position = g.position) !== null && _g_position !== void 0 ? _g_position : 'center'} placeholder="at …"
+            @change=${(e)=>this.setField('position', e.target.value)} />
+          ${anchorGrid(g.position, (v)=>this.setField('position', v))}
+        </div>
+      `;
+        }
+        var _g_from;
+        const from = /deg$/.test((_g_from = g.from) !== null && _g_from !== void 0 ? _g_from : '') ? parseFloat(g.from) : 0;
+        var _g_position1;
+        return (0, _lit.html)`
+      <div class="row">
+        <span class="lbl">From</span>
+        <input type="range" min="0" max="360" .value=${String(from)}
+          @input=${(e)=>this.setFrom(`${e.target.value}deg`, false)}
+          @change=${(e)=>this.setFrom(`${e.target.value}deg`, true)} />
+        <input type="number" min="0" max="360" .value=${String(from)}
+          @change=${(e)=>this.setFrom(`${e.target.value}deg`, true)} />
+        <span class="lbl">deg</span>
+      </div>
+      <div class="row">
+        <span class="lbl">Center</span>
+        <input type="text" .value=${(_g_position1 = g.position) !== null && _g_position1 !== void 0 ? _g_position1 : 'center'} placeholder="at …"
+          @change=${(e)=>this.setField('position', e.target.value)} />
+        ${anchorGrid(g.position, (v)=>this.setField('position', v))}
+      </div>
+    `;
+    }
+    renderControls() {
+        const l = this.model.layers[this.activeLayer];
+        const g = this.gLayer();
+        return (0, _lit.html)`
+      ${this.renderLayers()}
+      ${l && l.type === 'solid' ? (0, _lit.html)`<div class="row">
+            <span class="lbl">Colour</span>
+            <juel-colour .value=${l.color} @value-changed=${(e)=>this.setSolidColor(e.detail.value)}></juel-colour>
+          </div>` : g ? (0, _lit.html)`
+              <div class="row">
+                <button class="type-btn" ?data-active=${g.kind === 'linear'} @click=${()=>this.setKind('linear')}>Linear</button>
+                <button class="type-btn" ?data-active=${g.kind === 'radial'} @click=${()=>this.setKind('radial')}>Radial</button>
+                <button class="type-btn" ?data-active=${g.kind === 'conic'} @click=${()=>this.setKind('conic')}>Conic</button>
+                <label class="lbl" style="display:flex;align-items:center;gap:.2rem;margin-left:.4rem">
+                  <input type="checkbox" .checked=${g.repeating} @change=${()=>this.toggleRepeating()} /> repeat
+                </label>
+              </div>
+              ${this.renderStopTrack(g)}
+              ${this.renderStopEditor(g)}
+              ${this.renderGeometry(g)}
+            ` : null}
+      <div class="row foot">
+        <code class="se-readout" part="readout" style="flex:1">${this.value}</code>
+      </div>
+    `;
+    }
+    constructor(){
+        super();
+        this.model = {
+            layers: [
+                (0, _gradientValue.defaultGradientLayer)('linear')
+            ]
+        };
+        this.activeLayer = 0;
+        this.activeStop = -1;
+        this.dragStop = -1;
+        this.dragAnchor = '';
+        this.colorTimer = 0;
+        this.onBarPointerDown = (e)=>{
+            if (e.button === 2) return;
+            const g = this.gLayer();
+            if (!g) return;
+            const pct = this.barPercentFromEvent(e);
+            const unit = this.stopUnit();
+            const val = unit === 'deg' ? `${(0, _gradientValue.round)(pct / 100 * 360, 1)}deg` : `${(0, _gradientValue.round)(pct, 2)}%`;
+            const near = g.stops.filter((s)=>s.kind === 'stop').sort((a, b)=>Math.abs(this.handleLeft(a) - pct) - Math.abs(this.handleLeft(b) - pct))[0];
+            this.edit('stop-add', ()=>{
+                const idx = (0, _gradientValue.insertStop)(g, pct, near ? near.color : '#ffffff');
+                g.stops[idx].pos = val;
+                this.activeStop = idx;
+            });
+        };
+        this.onStopPointerMove = (e)=>{
+            if (this.dragStop < 0) return;
+            const g = this.gLayer();
+            if (!g) return;
+            const pct = this.barPercentFromEvent(e);
+            const s = g.stops[this.dragStop];
+            s.pos = this.stopUnit() === 'deg' ? `${(0, _gradientValue.round)(pct / 100 * 360, 1)}deg` : `${(0, _gradientValue.round)(pct, 2)}%`;
+            this.model = {
+                layers: [
+                    ...this.model.layers
+                ]
+            };
+            this.previewChange();
+        };
+        this.onStopPointerUp = ()=>{
+            this.endStopDrag();
+            if (this.dragStop < 0) return;
+            const g = this.gLayer();
+            const moved = g === null || g === void 0 ? void 0 : g.stops[this.dragStop];
+            this.dragStop = -1;
+            if (!g || !moved) return;
+            this.edit('stop-move', ()=>{
+                g.stops.sort((a, b)=>this.sortKey(a) - this.sortKey(b));
+                this.activeStop = g.stops.indexOf(moved);
+            });
+        };
+        this.onStopDragKey = (e)=>{
+            if (e.key === 'Escape' && this.dragStop >= 0) {
+                e.preventDefault();
+                this.endStopDrag();
+                this.dragStop = -1;
+                this.cancelPreview(this.dragAnchor);
+            }
+        };
+        this.cssProperty = 'background-image';
+        this.property = 'gradient';
+    }
+};
+JuelGradientEditor.styles = [
+    (0, _stylePropertyEditorBase.StylePropertyEditorBase).baseStyles,
+    (0, _lit.css)`
+      :host {
+        display: block;
+        font-family: inherit;
+        --_border: var(--border-color, #ced4da);
+      }
+      .se-root {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        width: 320px;
+        max-width: 100%;
+        padding: 0.625rem;
+        border: 1px solid var(--_border);
+        border-radius: 8px;
+        background: var(--surface, #fff);
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        flex-wrap: wrap;
+      }
+      .layers {
+        display: flex;
+        gap: 0.25rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .layer-swatch {
+        width: 30px;
+        height: 22px;
+        border: 1px solid var(--_border);
+        border-radius: 4px;
+        padding: 0;
+        cursor: pointer;
+        background-color: #fff;
+      }
+      .layer-swatch[data-active] {
+        outline: 2px solid var(--primary, #4f46e5);
+        outline-offset: 1px;
+      }
+      .mini {
+        width: 1.5rem;
+        height: 1.5rem;
+        padding: 0;
+        font-size: 0.85rem;
+        line-height: 1;
+        border: 1px solid var(--_border);
+        border-radius: 4px;
+        background: var(--surface, #fff);
+        cursor: pointer;
+      }
+      .mini:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+      .bar-wrap {
+        position: relative;
+        padding-top: 12px;
+      }
+      .bar {
+        height: 28px;
+        border: 1px solid var(--_border);
+        border-radius: 4px;
+        background-image:
+          linear-gradient(45deg, #ccc 25%, transparent 25%),
+          linear-gradient(-45deg, #ccc 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #ccc 75%),
+          linear-gradient(-45deg, transparent 75%, #ccc 75%);
+        background-size: 12px 12px;
+        background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+        cursor: copy;
+      }
+      .bar-fill {
+        width: 100%;
+        height: 100%;
+        border-radius: 3px;
+      }
+      .stop-handle {
+        position: absolute;
+        top: 0;
+        width: 12px;
+        height: 12px;
+        margin-left: -6px;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+        padding: 0;
+        cursor: grab;
+      }
+      .stop-handle[data-active] {
+        transform: scale(1.25);
+        z-index: 2;
+      }
+      .type-btn {
+        flex: 1;
+        padding: 0.25rem 0;
+        font-size: 0.8125rem;
+        border: 1px solid var(--_border);
+        background: var(--surface, #fff);
+        cursor: pointer;
+      }
+      .type-btn:first-of-type { border-radius: 4px 0 0 4px; }
+      .type-btn:last-of-type { border-radius: 0 4px 4px 0; }
+      .type-btn + .type-btn { border-left: none; }
+      .type-btn[data-active] {
+        background: var(--primary, #4f46e5);
+        color: #fff;
+      }
+      input[type='number'], input[type='text'], select {
+        font: inherit;
+        font-size: 0.8125rem;
+        padding: 0.15rem 0.3rem;
+        border: 1px solid var(--_border);
+        border-radius: 4px;
+        min-width: 0;
+      }
+      input[type='number'] { width: 4.25rem; }
+      input[type='text'] { flex: 1; }
+      input[type='range'] { flex: 1; min-width: 6rem; }
+      .anchors {
+        display: grid;
+        grid-template-columns: repeat(3, 1.4rem);
+        gap: 2px;
+      }
+      .anchors button {
+        width: 1.4rem;
+        height: 1.4rem;
+        padding: 0;
+        border: 1px solid var(--_border);
+        background: var(--surface, #fff);
+        cursor: pointer;
+        font-size: 0.75rem;
+      }
+      .lbl { font-size: 0.75rem; opacity: 0.7; }
+      .grow { flex: 1; }
+      .foot { justify-content: space-between; }
+    `
+];
+__decorate([
+    (0, _decoratorsJs.state)()
+], JuelGradientEditor.prototype, "model", void 0);
+__decorate([
+    (0, _decoratorsJs.state)()
+], JuelGradientEditor.prototype, "activeLayer", void 0);
+__decorate([
+    (0, _decoratorsJs.state)()
+], JuelGradientEditor.prototype, "activeStop", void 0);
+JuelGradientEditor = __decorate([
+    (0, _decoratorsJs.customElement)('juel-gradient-editor')
+], JuelGradientEditor);
+
+},{"@swc/helpers/_/_object_spread":"kbZU4","@swc/helpers/_/_object_spread_props":"gRdFM","lit":"6MR4h","lit/decorators.js":"iBjLb","../StylePropertyEditorBase":"bcNJ2","./GradientEditorEvents":"5rpNh","./GradientValue":"9qteI","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"5rpNh":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "GradientEditorEvents", ()=>GradientEditorEvents);
+var GradientEditorEvents;
+(function(GradientEditorEvents) {
+    GradientEditorEvents["Changed"] = "gradient-changed";
+    GradientEditorEvents["Preview"] = "gradient-preview";
+    GradientEditorEvents["Cancelled"] = "gradient-cancelled";
+})(GradientEditorEvents || (GradientEditorEvents = {}));
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"9qteI":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "splitTopLevel", ()=>splitTopLevel);
+parcelHelpers.export(exports, "parseLayeredGradient", ()=>parseLayeredGradient);
+parcelHelpers.export(exports, "layerToString", ()=>layerToString);
+parcelHelpers.export(exports, "stringifyLayeredGradient", ()=>stringifyLayeredGradient);
+parcelHelpers.export(exports, "defaultGradientLayer", ()=>defaultGradientLayer);
+parcelHelpers.export(exports, "defaultLayeredGradient", ()=>defaultLayeredGradient);
+parcelHelpers.export(exports, "insertStop", ()=>insertStop);
+parcelHelpers.export(exports, "parsePercent", ()=>parsePercent);
+parcelHelpers.export(exports, "round", ()=>round);
+function splitTopLevel(input, sep) {
+    const out = [];
+    let depth = 0;
+    let buf = '';
+    for(let i = 0; i < input.length; i++){
+        const ch = input[i];
+        if (ch === '(') depth++;
+        else if (ch === ')') depth--;
+        if (depth === 0 && (sep === ',' ? ch === ',' : /\s/.test(ch))) {
+            if (buf.trim()) out.push(buf.trim());
+            buf = '';
+            continue;
+        }
+        buf += ch;
+    }
+    if (buf.trim()) out.push(buf.trim());
+    return out;
+}
+const LENGTH_RE = /^-?[\d.]+(px|%|em|rem|vw|vh|vmin|vmax|fr|ch|ex|cm|mm|in|pt|pc|q)?$/i;
+const ANGLE_RE = /^-?[\d.]+(deg|grad|rad|turn)$/i;
+const NUMBERISH_RE = /^-?[\d.]+(px|%|em|rem|vw|vh|vmin|vmax|fr|ch|ex|cm|mm|in|pt|pc|q|deg|grad|rad|turn)?$/i;
+function parseStops(parts) {
+    const stops = [];
+    for (const part of parts){
+        const tokens = splitTopLevel(part, ' ');
+        const positions = [];
+        while(tokens.length && NUMBERISH_RE.test(tokens[tokens.length - 1])){
+            positions.unshift(tokens.pop());
+            if (positions.length === 2) break;
+        }
+        const color = tokens.join(' ').trim();
+        if (!color) {
+            if (positions.length) stops.push({
+                kind: 'hint',
+                hint: positions.join(' ')
+            });
+            continue;
+        }
+        const stop = {
+            kind: 'stop',
+            color
+        };
+        if (positions[0]) stop.pos = positions[0];
+        if (positions[1]) stop.pos2 = positions[1];
+        stops.push(stop);
+    }
+    return stops;
+}
+function looksLikeConfig(kind, token) {
+    const t = token.toLowerCase().trim();
+    const t0 = splitTopLevel(t, ' ')[0] || '';
+    if (/^(to|at|from|in)$/.test(t0)) return true;
+    if (ANGLE_RE.test(t0)) return true;
+    if (/\bin\s+[a-z]/.test(t)) return true;
+    if (kind === 'radial') {
+        if (/^(circle|ellipse)$/.test(t0)) return true;
+        if (/^(closest|farthest)-(side|corner)$/.test(t0)) return true;
+        if (LENGTH_RE.test(t0)) return true;
+    }
+    return false;
+}
+function parseGradientConfig(kind, cfg, layer) {
+    let rest = cfg.trim();
+    const inMatch = rest.match(/\bin\s+([a-z0-9-]+(?:\s+(?:longer|shorter|increasing|decreasing)\s+hue)?)\s*$/i);
+    if (inMatch) {
+        layer.interpolation = `in ${inMatch[1]}`;
+        rest = rest.slice(0, inMatch.index).trim();
+    }
+    const atMatch = rest.match(/\bat\s+(.+)$/i);
+    if (atMatch) {
+        layer.position = atMatch[1].trim();
+        rest = rest.slice(0, atMatch.index).trim();
+    }
+    if (kind === 'linear') {
+        if (rest) layer.angle = rest;
+        return;
+    }
+    if (kind === 'conic') {
+        const fromMatch = rest.match(/\bfrom\s+(.+)$/i);
+        if (fromMatch) layer.from = fromMatch[1].trim();
+        return;
+    }
+    const toks = splitTopLevel(rest, ' ');
+    const sizeToks = [];
+    for (const tk of toks)if (/^(circle|ellipse)$/i.test(tk)) layer.shape = tk.toLowerCase();
+    else sizeToks.push(tk);
+    if (sizeToks.length) layer.size = sizeToks.join(' ');
+}
+function parseLayer(raw) {
+    const str = raw.trim();
+    const m = str.match(/^(repeating-)?(linear|radial|conic)-gradient\s*\(([\s\S]*)\)$/i);
+    if (!m) return null;
+    const repeating = !!m[1];
+    const kind = m[2].toLowerCase();
+    const parts = splitTopLevel(m[3], ',');
+    if (parts.length === 0) return null;
+    const layer = {
+        type: 'gradient',
+        kind,
+        repeating,
+        stops: []
+    };
+    let stopParts = parts;
+    if (looksLikeConfig(kind, parts[0])) {
+        parseGradientConfig(kind, parts[0], layer);
+        stopParts = parts.slice(1);
+    }
+    layer.stops = parseStops(stopParts);
+    if (kind === 'linear' && !repeating && !layer.angle && !layer.interpolation && layer.stops.length === 2 && layer.stops.every((s)=>s.kind === 'stop' && !s.pos) && layer.stops[0].color === layer.stops[1].color) return {
+        type: 'solid',
+        color: layer.stops[0].color
+    };
+    return layer;
+}
+function parseLayeredGradient(value) {
+    if (!value) return null;
+    const v = value.trim();
+    if (!v || v === 'none') return null;
+    const layers = [];
+    for (const raw of splitTopLevel(v, ',')){
+        const layer = parseLayer(raw);
+        if (layer) layers.push(layer);
+    }
+    return layers.length ? {
+        layers
+    } : null;
+}
+function stopToString(s) {
+    if (s.kind === 'hint') return s.hint;
+    return [
+        s.color,
+        s.pos,
+        s.pos2
+    ].filter(Boolean).join(' ');
+}
+function gradientConfigString(layer) {
+    const bits = [];
+    if (layer.kind === 'linear') {
+        if (layer.angle) bits.push(layer.angle);
+    } else if (layer.kind === 'radial') {
+        const geo = [
+            layer.shape,
+            layer.size
+        ].filter(Boolean).join(' ');
+        if (geo) bits.push(geo);
+        if (layer.position) bits.push(`at ${layer.position}`);
+    } else {
+        if (layer.from) bits.push(`from ${layer.from}`);
+        if (layer.position) bits.push(`at ${layer.position}`);
+    }
+    let cfg = bits.join(' ');
+    if (layer.interpolation) cfg = cfg ? `${cfg} ${layer.interpolation}` : layer.interpolation;
+    return cfg;
+}
+function layerToString(layer) {
+    if (layer.type === 'solid') return `linear-gradient(${layer.color}, ${layer.color})`;
+    const fn = `${layer.repeating ? 'repeating-' : ''}${layer.kind}-gradient`;
+    const cfg = gradientConfigString(layer);
+    const stops = layer.stops.map(stopToString).join(', ');
+    return `${fn}(${cfg ? `${cfg}, ` : ''}${stops})`;
+}
+function stringifyLayeredGradient(model) {
+    return model.layers.map(layerToString).join(', ');
+}
+function defaultGradientLayer(kind = 'linear') {
+    const base = {
+        type: 'gradient',
+        kind,
+        repeating: false,
+        stops: [
+            {
+                kind: 'stop',
+                color: '#4f46e5',
+                pos: '0%'
+            },
+            {
+                kind: 'stop',
+                color: '#06b6d4',
+                pos: '100%'
+            }
+        ]
+    };
+    if (kind === 'linear') base.angle = '90deg';
+    if (kind === 'radial') base.position = 'center';
+    if (kind === 'conic') {
+        base.from = '0deg';
+        base.position = 'center';
+    }
+    return base;
+}
+function defaultLayeredGradient() {
+    return {
+        layers: [
+            defaultGradientLayer('linear')
+        ]
+    };
+}
+function insertStop(layer, percent, color) {
+    const clamped = Math.min(100, Math.max(0, percent));
+    const stop = {
+        kind: 'stop',
+        color,
+        pos: `${round(clamped, 2)}%`
+    };
+    let idx = layer.stops.length;
+    for(let i = 0; i < layer.stops.length; i++){
+        const s = layer.stops[i];
+        if (s.kind === 'stop' && parsePercent(s.pos) > clamped) {
+            idx = i;
+            break;
+        }
+    }
+    layer.stops.splice(idx, 0, stop);
+    return idx;
+}
+function parsePercent(pos) {
+    if (!pos) return 0;
+    const n = parseFloat(pos);
+    return Number.isFinite(n) ? n : 0;
+}
+function round(n, places) {
+    const f = Math.pow(10, places);
+    return Math.round(n * f) / f;
 }
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"ic3R7":[function(require,module,exports,__globalThis) {

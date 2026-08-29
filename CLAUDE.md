@@ -8,6 +8,8 @@ Juel is a Lit 3 / TypeScript web component library (custom elements prefixed `ju
 
 Each component typically has a `Component.ts`, a `Component.less` (bundled in via Parcel's `bundle-text:` import), and often a `ComponentEvents.ts`. Modules are wired up via per-module `Import.ts` barrel files, all re-exported from the root `juel.ts` entry point (note: `Dialog` uses `Imports.ts`, plural — the one exception).
 
+`Editors/` splits value editors (form fields — `context[property]` model binding: Check, Date, Number, Select, Text, …) from **style editors** in `Editors/Style/` — components that visually edit a CSS property of a *target DOM element* with live preview + undo. They extend `Editors/Style/StylePropertyEditorBase.ts` (target resolution, `HistoryController` wiring, `applyLive` with baseline-removal; subclass hooks `parse`/`serialize`/`renderControls`/`changeEventName` and drives history via `commit`/`previewChange`/`cancelPreview`). Existing: `juel-position-editor`, `juel-gradient-editor`; more to come (shadow, transform, filter, clip-path, …). `Editors/Style/Import.ts` barrels them into `Editors/Import.ts`.
+
 # Build & dev
 
 - `npm run dev` — Parcel build (unoptimized) + copies `dist/*` into `examples/` for local browsing.
@@ -27,7 +29,7 @@ Jest + ts-jest is configured but test coverage is thin (`tests/util/`, `tests/Me
   Reactive Controller wrapping the pure `HistoryStack<T>` (`_Core/History/HistoryStack.ts`).
   **Read `src/_Core/History/README.md` before wiring it into a component** — it has the
   integration recipe, the `record` vs `preview` model, the `apply`-callback contract, and the
-  init-timing gotcha. Reference consumer: `src/Editors/PositionEditor/PositionEditor.ts`.
+  init-timing gotcha. Reference consumer: `src/Editors/Style/PositionEditor/PositionEditor.ts`.
 
 # Known in-progress work / quirks
 
