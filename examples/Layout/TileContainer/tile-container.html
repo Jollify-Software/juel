@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Tile Container — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-tile-container {
+            height: 320px;
+            border: 1px solid var(--border-color, #dee2e6);
+            border-radius: 4px;
+        }
+        #dom-tiles > div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            font-weight: bold;
+            color: #fff;
+            border-radius: 4px;
+        }
+        #dom-tiles > div:nth-child(6n+1) { background: var(--primary, #007bff); }
+        #dom-tiles > div:nth-child(6n+2) { background: var(--success, #28a745); }
+        #dom-tiles > div:nth-child(6n+3) { background: var(--warning, #ffc107); color: #212529; }
+        #dom-tiles > div:nth-child(6n+4) { background: var(--danger, #dc3545); }
+        #dom-tiles > div:nth-child(6n+5) { background: var(--info, #17a2b8); }
+        #dom-tiles > div:nth-child(6n+6) { background: var(--secondary, #6c757d); }
+        #data-tiles {
+            --tile-width: 160px;
+            --tile-height: 110px;
+        }
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+            background: var(--primary, #007bff);
+            color: #fff;
+            text-align: center;
+        }
+        .card .role {
+            font-size: 0.8rem;
+            opacity: 0.85;
+        }
+        .status {
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Tile Container</h1>
+        <p>
+            <code>&lt;juel-tile-container&gt;</code> lays out its tiles in a scrollable strip
+            or wrapping grid — either as light-DOM children, or bound to a <code>data</code> array
+            rendered through a <code>.template</code> string (with <code>this</code> bound to the
+            record, same convention as <code>juel-data-grid</code>). Set
+            <code>direction="horizontal"</code> for a single scrolling row instead of the default
+            wrapping grid. Drag with the mouse or a finger to scroll — powered by Hammer.js — or
+            set <code>touch="false"</code> to fall back to plain native scrolling. Listen for
+            <code>tile-click</code> to react to a tile being selected.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>DOM children, wrapping grid</h2>
+        <p>Vertical grid of light-DOM tiles that wraps and scrolls once it outgrows its height.</p>
+        <div class="example-demo">
+            <juel-tile-container id="dom-tiles">
+                <div>1</div>
+                <div>2</div>
+                <div>3</div>
+                <div>4</div>
+                <div>5</div>
+                <div>6</div>
+                <div>7</div>
+                <div>8</div>
+                <div>9</div>
+                <div>10</div>
+                <div>11</div>
+                <div>12</div>
+            </juel-tile-container>
+        </div>
+        <p class="status" id="dom-status">Click a tile&hellip;</p>
+    </section>
+
+    <section class="example-section">
+        <h2>Bound to data, horizontal scroll</h2>
+        <p>Single scrolling row rendered from a plain array via <code>.template</code>.</p>
+        <div class="example-demo">
+            <juel-tile-container id="data-tiles" direction="horizontal"></juel-tile-container>
+        </div>
+        <p class="status" id="data-status">Click a tile&hellip;</p>
+    </section>
+
+    <script>
+        const domTiles = document.getElementById('dom-tiles');
+        domTiles.addEventListener('tile-click', (e) => {
+            document.getElementById('dom-status').textContent = `Clicked tile index ${e.detail.index}`;
+        });
+
+        const roles = ['Engineer', 'Designer', 'Manager', 'Analyst', 'Support'];
+        const people = Array.from({ length: 20 }, (_, i) => ({
+            name: `Person ${i + 1}`,
+            role: roles[i % roles.length],
+        }));
+
+        const dataTiles = document.getElementById('data-tiles');
+        dataTiles.template = '<div class="card"><div class="name">${this.name}</div><div class="role">${this.role}</div></div>';
+        dataTiles.data = people;
+        dataTiles.addEventListener('tile-click', (e) => {
+            document.getElementById('data-status').textContent = `Clicked ${e.detail.value.name}`;
+        });
+    </script>
+</body>
+
+</html>

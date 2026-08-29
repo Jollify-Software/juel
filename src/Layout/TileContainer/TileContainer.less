@@ -1,0 +1,49 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+    // Lets the host shrink below its tiles' content size when it's a flex or
+    // grid item (the default min-width/min-height:auto otherwise forces the
+    // item — and everything laid out around it — to grow to fit every tile,
+    // especially in direction="horizontal" where .tiles never wraps).
+    min-width: 0;
+    min-height: 0;
+    box-sizing: border-box;
+}
+
+.tiles {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: var(--tile-gap, 1rem);
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    cursor: grab;
+
+    &.dragging {
+        cursor: grabbing;
+    }
+}
+
+.tile {
+    flex: 0 0 auto;
+    width: var(--tile-width, 200px);
+    height: var(--tile-height, 200px);
+    padding: 1rem;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
+    overflow: auto;
+    user-select: none;
+}
+
+:host([direction="horizontal"]) .tiles {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
