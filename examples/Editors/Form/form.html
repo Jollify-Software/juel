@@ -1,25 +1,71 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-form-layout id="form"></juel-form-layout>
+<!doctype html>
+<html lang="en">
 
-        <script>
-          const formElement = document.getElementById('form');
-          formElement.formDefinition = {
+<head>
+    <meta charset="utf-8">
+    <title>Schema Form — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-form-layout {
+            display: block;
+            max-width: 360px;
+        }
+        juel-form-layout input,
+        juel-form-layout select {
+            padding: 0.4rem 0.5rem;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 4px;
+            font: inherit;
+        }
+        #out {
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Schema Form</h1>
+        <p>
+            <code>&lt;juel-form-layout&gt;</code> renders a form from a plain
+            <code>formDefinition</code> object — <code>{ fields: [{ name, type, defaultValue, options }] }</code>.
+            Supported <code>type</code>s are <code>text</code>, <code>number</code>, <code>email</code>,
+            <code>password</code> and <code>select</code>. Submitting fires <code>form-submit</code> with
+            a <code>{ name: value }</code> map (number fields are coerced to numbers).
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Definition-driven form</h2>
+        <div class="example-demo">
+            <juel-form-layout id="form"></juel-form-layout>
+        </div>
+        <div id="out">Submit the form to see its result here.</div>
+    </section>
+
+    <script>
+        const form = document.getElementById('form');
+        const out = document.getElementById('out');
+
+        form.formDefinition = {
             fields: [
-              { name: 'username', type: 'text', defaultValue: 'JohnDoe' },
-              { name: 'email', type: 'email' },
-              { name: 'age', type: 'number', defaultValue: 25 },
-              { name: 'password', type: 'password' },
-              { name: 'gender', type: 'select', options: ['Male', 'Female', 'Other'] }
+                { name: 'username', type: 'text', defaultValue: 'JohnDoe' },
+                { name: 'email', type: 'email' },
+                { name: 'age', type: 'number', defaultValue: 25 },
+                { name: 'password', type: 'password' },
+                { name: 'gender', type: 'select', options: ['Male', 'Female', 'Other'], defaultValue: 'Female' }
             ]
-          };
-      
-          formElement.addEventListener('form-submit', (event) => {
-            console.log('Form submitted with:', event.detail);
-          });
-        </script>
-    </body>
+        };
+
+        form.addEventListener('form-submit', (event) => {
+            out.textContent = JSON.stringify(event.detail, null, 2);
+        });
+    </script>
+</body>
+
 </html>

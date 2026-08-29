@@ -35229,35 +35229,42 @@ let JuelForm = class JuelForm extends (0, _lit.LitElement) {
         const formData = new FormData(event.target);
         const result = {};
         this.formDefinition.fields.forEach((field)=>{
-            result[field.name] = formData.get(field.name);
+            var _formData_get;
+            const raw = (_formData_get = formData.get(field.name)) !== null && _formData_get !== void 0 ? _formData_get : '';
+            result[field.name] = field.type === 'number' && raw !== '' ? Number(raw) : raw;
         });
         this.dispatchEvent(new CustomEvent('form-submit', {
             detail: result
         }));
     }
     renderField(field) {
+        var _field_defaultValue;
+        const value = (_field_defaultValue = field.defaultValue) !== null && _field_defaultValue !== void 0 ? _field_defaultValue : '';
         return (0, _lit.html)`
       <label for="${field.name}">${field.name}</label>
       ${field.type === 'select' && field.options ? (0, _lit.html)`
         <select name="${field.name}" id="${field.name}">
-          ${field.options.map((option)=>(0, _lit.html)`<option value="${option}">${option}</option>`)}
+          ${field.options.map((option)=>(0, _lit.html)`<option value="${option}" ?selected="${String(value) === option}">${option}</option>`)}
         </select>
       ` : (0, _lit.html)`
-        <input 
-          type="${field.type}" 
-          name="${field.name}" 
-          id="${field.name}" 
-          .value="${field.defaultValue || ''}" 
+        <input
+          type="${field.type}"
+          name="${field.name}"
+          id="${field.name}"
+          .value="${String(value)}"
         />
       `}
     `;
     }
     render() {
+        var _this_formDefinition;
+        var _this_formDefinition_fields;
+        const fields = (_this_formDefinition_fields = (_this_formDefinition = this.formDefinition) === null || _this_formDefinition === void 0 ? void 0 : _this_formDefinition.fields) !== null && _this_formDefinition_fields !== void 0 ? _this_formDefinition_fields : [];
         return (0, _lit.html)`
       <form @submit="${this.handleSubmit}">
-        ${this.formDefinition && this.formDefinition.fields ? (0, _lit.html)`${this.formDefinition.fields.map((field)=>this.renderField(field))}
-        <button type="submit">Submit</button>
-      </form>` : ``}
+        ${fields.map((field)=>this.renderField(field))}
+        ${fields.length ? (0, _lit.html)`<button type="submit">Submit</button>` : ''}
+      </form>
     `;
     }
     constructor(){
@@ -35299,6 +35306,10 @@ var __decorate = undefined && undefined.__decorate || function(decorators, targe
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 let JuelPointSelector = class JuelPointSelector extends (0, _lit.LitElement) {
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        this.endSelection();
+    }
     render() {
         var _this_manualX, _this_manualY;
         return (0, _lit.html)`
@@ -35335,16 +35346,11 @@ let JuelPointSelector = class JuelPointSelector extends (0, _lit.LitElement) {
         this.input = false;
         this.manualX = null;
         this.manualY = null;
-        this.handleClickOutside = (event)=>{
-            if (!this.selecting) return;
-            if (event.button === 2) {
-                this.cancelSelection();
-                this.dispatchEvent(new CustomEvent('point-cancelled', {
-                    bubbles: true,
-                    composed: true
-                }));
-                return;
-            }
+        this.overlay = null;
+        this.handleOverlayClick = (event)=>{
+            if (event.button === 2) return;
+            event.preventDefault();
+            event.stopPropagation();
             const x = event.clientX;
             const y = event.clientY;
             this.manualX = x;
@@ -35353,71 +35359,75 @@ let JuelPointSelector = class JuelPointSelector extends (0, _lit.LitElement) {
             this.dispatchEvent(new CustomEvent('point-selected', {
                 detail: {
                     x,
-                    y
+                    y,
+                    pageX: event.pageX,
+                    pageY: event.pageY
                 },
                 bubbles: true,
                 composed: true
             }));
         };
+        this.handleOverlayContextMenu = (event)=>{
+            event.preventDefault();
+            event.stopPropagation();
+            this.cancelSelection();
+        };
         this.handleKeydown = (event)=>{
             if (!this.selecting) return;
             if (event.key === 'Escape') {
+                event.preventDefault();
                 this.cancelSelection();
-                this.dispatchEvent(new CustomEvent('point-cancelled', {
-                    bubbles: true,
-                    composed: true
-                }));
             }
         };
         this.startSelection = ()=>{
             if (this.selecting) return;
             this.selecting = true;
-            const styleElement = document.createElement('style');
-            styleElement.id = 'crosshair-cursor-style';
-            styleElement.textContent = `
-      .crosshair-cursor {
-        cursor: var(--icon-crosshair) 18 18, auto;
-      }
-      .selection-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.3);
-        z-index: 9999;
-        pointer-events: none;
-      }
-    `;
-            document.head.appendChild(styleElement);
             const overlay = document.createElement('div');
-            overlay.id = 'selection-overlay';
-            overlay.className = 'selection-overlay';
-            document.body.appendChild(overlay);
-            document.body.classList.add('crosshair-cursor');
-            document.addEventListener('click', this.handleClickOutside, true);
-            document.addEventListener('contextmenu', this.handleClickOutside, true);
+            overlay.setAttribute('part', 'selection-overlay');
+            Object.assign(overlay.style, {
+                position: 'fixed',
+                inset: '0',
+                zIndex: '2147483647',
+                background: 'rgba(0, 0, 0, 0.3)',
+                cursor: 'crosshair'
+            });
+            overlay.addEventListener('click', this.handleOverlayClick, true);
+            overlay.addEventListener('contextmenu', this.handleOverlayContextMenu, true);
             document.addEventListener('keydown', this.handleKeydown, true);
+            document.body.appendChild(overlay);
+            this.overlay = overlay;
         };
         this.endSelection = ()=>{
+            if (!this.selecting && !this.overlay) return;
             this.selecting = false;
-            const styleElement = document.getElementById('crosshair-cursor-style');
-            if (styleElement) styleElement.remove();
-            const overlay = document.getElementById('selection-overlay');
-            if (overlay) overlay.remove();
-            document.body.classList.remove('crosshair-cursor');
-            document.removeEventListener('click', this.handleClickOutside, true);
-            document.removeEventListener('contextmenu', this.handleClickOutside, true);
+            if (this.overlay) {
+                this.overlay.removeEventListener('click', this.handleOverlayClick, true);
+                this.overlay.removeEventListener('contextmenu', this.handleOverlayContextMenu, true);
+                this.overlay.remove();
+                this.overlay = null;
+            }
             document.removeEventListener('keydown', this.handleKeydown, true);
         };
         this.cancelSelection = ()=>{
             this.endSelection();
+            this.dispatchEvent(new CustomEvent('point-cancelled', {
+                bubbles: true,
+                composed: true
+            }));
         };
         this.handleInputChange = (event)=>{
             const target = event.target;
-            const value = target.value;
-            if (target.label === 'X') this.manualX = value;
-            else if (target.label === 'Y') this.manualY = value;
+            const value = target.value === '' ? null : Number(target.value);
+            if (target.name === 'x-coordinate') this.manualX = value;
+            else if (target.name === 'y-coordinate') this.manualY = value;
+            if (this.manualX !== null && this.manualY !== null) this.dispatchEvent(new CustomEvent('point-selected', {
+                detail: {
+                    x: this.manualX,
+                    y: this.manualY
+                },
+                bubbles: true,
+                composed: true
+            }));
         };
     }
 };
@@ -35440,6 +35450,12 @@ __decorate([
         type: Boolean
     })
 ], JuelPointSelector.prototype, "input", void 0);
+__decorate([
+    (0, _decoratorsJs.state)()
+], JuelPointSelector.prototype, "manualX", void 0);
+__decorate([
+    (0, _decoratorsJs.state)()
+], JuelPointSelector.prototype, "manualY", void 0);
 JuelPointSelector = __decorate([
     (0, _decoratorsJs.customElement)('juel-point-selector')
 ], JuelPointSelector);
@@ -35571,7 +35587,7 @@ __decorate([
     })
 ], HTMLEditor.prototype, "rootId", void 0);
 HTMLEditor = __decorate([
-    (0, _decorators.customElement)('html-editor')
+    (0, _decorators.customElement)('juel-html-editor')
 ], HTMLEditor);
 
 },{"lit":"6MR4h","lit/decorators":"iBjLb","bundle-text:quill/dist/quill.bubble.css":"81t3y","./HtmlEditorService":"46kR9","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"81t3y":[function(require,module,exports,__globalThis) {
@@ -35592,7 +35608,7 @@ var __decorate = undefined && undefined.__decorate || function(decorators, targe
 };
 class HtmlEditorService {
     initializeQuill(container, config) {
-        var _container_querySelector;
+        var _container_querySelector, _this_rotationButton;
         this.quill = new (0, _quillDefault.default)(container, {
             theme: config.theme,
             modules: {
@@ -35639,7 +35655,7 @@ class HtmlEditorService {
         });
         (_container_querySelector = container.querySelector('button.ql-drag-button')) === null || _container_querySelector === void 0 ? void 0 : _container_querySelector.addEventListener('mousedown', this.prepareDrag);
         this.rotationButton = container.querySelector('button.ql-rotate-button');
-        this.rotationButton.addEventListener('mousedown', this.prepareRotate);
+        (_this_rotationButton = this.rotationButton) === null || _this_rotationButton === void 0 ? void 0 : _this_rotationButton.addEventListener('mousedown', this.prepareRotate);
         this.quill.root.innerHTML = config.value;
         this.quill.on('text-change', ()=>{
             config.onValueChange(this.quill.root.innerHTML);
@@ -35698,10 +35714,9 @@ class HtmlEditorService {
             this.selectedElement.dataset.y = y.toString();
             const rotation = parseFloat(this.selectedElement.dataset.rotation || '0');
             this.selectedElement.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
-        } else if (this.isRotating && this.selectedElement) {
+        } else if (this.isRotating && this.selectedElement && this.rotationButton) {
             const x = parseFloat(this.selectedElement.dataset.x || '0');
             const y = parseFloat(this.selectedElement.dataset.y || '0');
-            const bb = this.rotationButton.getBoundingClientRect();
             const centerX = this.rotationButton.offsetLeft + this.rotationButton.offsetWidth / 2;
             const centerY = this.rotationButton.offsetTop + this.rotationButton.offsetHeight / 2;
             const angle = Math.atan2(event.clientY - centerY, event.clientX - centerX) * (180 / Math.PI);
@@ -52275,7 +52290,8 @@ let JuelMarkdownEditor = class JuelMarkdownEditor extends (0, _lit.LitElement) {
     }
     firstUpdated() {
         const editorContainer = this.querySelector('#editor-container');
-        if (editorContainer) this.editorView = new (0, _codemirror.EditorView)({
+        if (!editorContainer) return;
+        this.editorView = new (0, _codemirror.EditorView)({
             parent: editorContainer,
             state: (0, _state.EditorState).create({
                 doc: this.content,
@@ -52298,6 +52314,24 @@ let JuelMarkdownEditor = class JuelMarkdownEditor extends (0, _lit.LitElement) {
                 ]
             })
         });
+    }
+    updated(changed) {
+        if (changed.has('content') && this.editorView) {
+            const current = this.editorView.state.doc.toString();
+            if (current !== this.content) this.editorView.dispatch({
+                changes: {
+                    from: 0,
+                    to: current.length,
+                    insert: this.content
+                }
+            });
+        }
+    }
+    disconnectedCallback() {
+        var _this_editorView;
+        super.disconnectedCallback();
+        (_this_editorView = this.editorView) === null || _this_editorView === void 0 ? void 0 : _this_editorView.destroy();
+        this.editorView = undefined;
     }
     render() {
         return (0, _lit.html)`<div id="editor-container" style="height: 100%;"></div>`;

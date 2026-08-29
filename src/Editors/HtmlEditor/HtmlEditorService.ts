@@ -39,7 +39,7 @@ export class HtmlEditorService {
 
     container.querySelector('button.ql-drag-button')?.addEventListener('mousedown', this.prepareDrag);
     this.rotationButton = container.querySelector('button.ql-rotate-button');
-    this.rotationButton.addEventListener('mousedown', this.prepareRotate);
+    this.rotationButton?.addEventListener('mousedown', this.prepareRotate);
 
     this.quill.root.innerHTML = config.value;
 
@@ -134,11 +134,10 @@ export class HtmlEditorService {
 
       const rotation = parseFloat(this.selectedElement.dataset.rotation || '0');
       this.selectedElement.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
-    } else if (this.isRotating && this.selectedElement) {
+    } else if (this.isRotating && this.selectedElement && this.rotationButton) {
       const x = parseFloat(this.selectedElement.dataset.x || '0');
       const y = parseFloat(this.selectedElement.dataset.y || '0');
 
-      const bb = this.rotationButton.getBoundingClientRect();
       const centerX = this.rotationButton.offsetLeft + this.rotationButton.offsetWidth / 2;
       const centerY = this.rotationButton.offsetTop + this.rotationButton.offsetHeight / 2;
 

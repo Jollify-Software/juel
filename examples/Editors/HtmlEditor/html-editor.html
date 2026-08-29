@@ -1,8 +1,69 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <html-editor value="<p>Initial content</p>"></html-editor>
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>HTML Editor — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-html-editor {
+            display: block;
+            margin-top: 0.5rem;
+        }
+        juel-html-editor .editor-container {
+            min-height: 200px;
+        }
+        #out {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>HTML Editor</h1>
+        <p>
+            <code>&lt;juel-html-editor&gt;</code> wraps a Quill (bubble-theme) rich-text editor. Set the
+            starting markup with <code>value</code>; edits fire <code>value-changed</code> with
+            <code>{ value }</code>. <code>getValue()</code> / <code>setValue()</code> read and replace
+            the content imperatively.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Rich-text editing</h2>
+        <div class="example-demo">
+            <juel-html-editor id="ed" value="<h2>Welcome</h2><p>Select text to reveal the <strong>bubble</strong> toolbar.</p>"></juel-html-editor>
+        </div>
+        <p style="margin-top:0.5rem;">
+            <button type="button" id="replace">Replace content via setValue()</button>
+            <button type="button" id="read">Log getValue()</button>
+        </p>
+        <div id="out">value-changed output appears here&hellip;</div>
+    </section>
+
+    <script>
+        const ed = document.getElementById('ed');
+        const out = document.getElementById('out');
+
+        ed.addEventListener('value-changed', (e) => {
+            out.textContent = e.detail.value;
+        });
+        document.getElementById('replace').addEventListener('click', () => {
+            ed.setValue('<h2>Replaced</h2><p>Fresh content set from script.</p>');
+        });
+        document.getElementById('read').addEventListener('click', () => {
+            out.textContent = ed.getValue();
+        });
+    </script>
+</body>
+
 </html>

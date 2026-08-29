@@ -4,7 +4,7 @@ import Quill from 'quill';
 import QuillTheme from 'bundle-text:quill/dist/quill.bubble.css';
 import { HtmlEditorService } from './HtmlEditorService';
 
-@customElement('html-editor')
+@customElement('juel-html-editor')
 export class HTMLEditor extends LitElement {
   @property({ type: String })
   value: string = '';
@@ -125,6 +125,5 @@ export class HTMLEditor extends LitElement {
 }
 
 // Usage example in HTML
-// <html-editor rootId="custom-root-id">
-//   <p>Initial content</p>
-// </html-editor>
+// <juel-html-editor root-id="custom-root-id" value="<p>Initial content</p>">
+// </juel-html-editor>

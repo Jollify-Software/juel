@@ -33,35 +33,38 @@ export class JuelForm extends LitElement {
     const formData = new FormData(event.target as HTMLFormElement);
     const result: Record<string, string | number> = {};
     this.formDefinition.fields.forEach(field => {
-      result[field.name] = formData.get(field.name) as string;
+      const raw = (formData.get(field.name) as string) ?? '';
+      result[field.name] = field.type === 'number' && raw !== '' ? Number(raw) : raw;
     });
     this.dispatchEvent(new CustomEvent('form-submit', { detail: result }));
   }
 
   private renderField(field: FormField) {
+    const value = field.defaultValue ?? '';
     return html`
       <label for="${field.name}">${field.name}</label>
       ${field.type === 'select' && field.options ? html`
         <select name="${field.name}" id="${field.name}">
-          ${field.options.map(option => html`<option value="${option}">${option}</option>`) }
+          ${field.options.map(option => html`<option value="${option}" ?selected="${String(value) === option}">${option}</option>`) }
         </select>
       ` : html`
-        <input 
-          type="${field.type}" 
-          name="${field.name}" 
-          id="${field.name}" 
-          .value="${field.defaultValue || ''}" 
+        <input
+          type="${field.type}"
+          name="${field.name}"
+          id="${field.name}"
+          .value="${String(value)}"
         />
       `}
     `;
   }
 
   render() {
+    const fields = this.formDefinition?.fields ?? [];
     return html`
       <form @submit="${this.handleSubmit}">
-        ${this.formDefinition && this.formDefinition.fields ? html`${this.formDefinition.fields.map(field => this.renderField(field))}
-        <button type="submit">Submit</button>
-      </form>` : ``}
+        ${fields.map(field => this.renderField(field))}
+        ${fields.length ? html`<button type="submit">Submit</button>` : ''}
+      </form>
     `;
   }
 }

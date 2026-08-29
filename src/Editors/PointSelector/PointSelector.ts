@@ -1,6 +1,5 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { JuelNumber } from '../Number/Number';
 
 @customElement('juel-point-selector')
 export class JuelPointSelector extends LitElement {
@@ -10,45 +9,50 @@ export class JuelPointSelector extends LitElement {
   @property({ type: Boolean })
   private input: boolean = false; // New property to allow user input
 
+  @state()
   private manualX: number | null = null; // Store manual X coordinate
+  @state()
   private manualY: number | null = null; // Store manual Y coordinate
 
-  private handleClickOutside = (event: MouseEvent) => {
-    if (!this.selecting) return;
+  // Full-viewport overlay that captures the next click anywhere on screen. Because
+  // it sits above the page and takes pointer events, the pick does not also
+  // activate whatever is underneath (links, buttons, other components).
+  private overlay: HTMLDivElement | null = null;
 
-    if (event.button === 2) {
-      // Right click cancels
-      this.cancelSelection();
-      this.dispatchEvent(
-        new CustomEvent('point-cancelled', { bubbles: true, composed: true })
-      );
-      return;
-    }
+  private handleOverlayClick = (event: MouseEvent) => {
+    // Right button is handled via contextmenu; ignore it here.
+    if (event.button === 2) return;
+    event.preventDefault();
+    event.stopPropagation();
 
     const x = event.clientX;
     const y = event.clientY;
 
-    this.manualX = x; // Update manual X coordinate
-    this.manualY = y; // Update manual Y coordinate
+    this.manualX = x;
+    this.manualY = y;
 
     this.endSelection();
 
     this.dispatchEvent(
       new CustomEvent('point-selected', {
-        detail: { x, y },
+        detail: { x, y, pageX: event.pageX, pageY: event.pageY },
         bubbles: true,
         composed: true,
       })
     );
   };
 
+  private handleOverlayContextMenu = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    this.cancelSelection();
+  };
+
   private handleKeydown = (event: KeyboardEvent) => {
     if (!this.selecting) return;
     if (event.key === 'Escape') {
+      event.preventDefault();
       this.cancelSelection();
-      this.dispatchEvent(
-        new CustomEvent('point-cancelled', { bubbles: true, composed: true })
-      );
     }
   };
 
@@ -57,71 +61,67 @@ export class JuelPointSelector extends LitElement {
 
     this.selecting = true;
 
-    // Dynamically add global styles for crosshair-cursor
-    const styleElement = document.createElement('style');
-    styleElement.id = 'crosshair-cursor-style';
-    styleElement.textContent = `
-      .crosshair-cursor {
-        cursor: var(--icon-crosshair) 18 18, auto;
-      }
-      .selection-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.3);
-        z-index: 9999;
-        pointer-events: none;
-      }
-    `;
-    document.head.appendChild(styleElement);
-
-    // Add overlay to the body
     const overlay = document.createElement('div');
-    overlay.id = 'selection-overlay';
-    overlay.className = 'selection-overlay';
-    document.body.appendChild(overlay);
+    overlay.setAttribute('part', 'selection-overlay');
+    Object.assign(overlay.style, {
+      position: 'fixed',
+      inset: '0',
+      zIndex: '2147483647',
+      background: 'rgba(0, 0, 0, 0.3)',
+      cursor: 'crosshair',
+    } as Partial<CSSStyleDeclaration>);
 
-    document.body.classList.add('crosshair-cursor');
-    document.addEventListener('click', this.handleClickOutside, true);
-    document.addEventListener('contextmenu', this.handleClickOutside, true);
+    overlay.addEventListener('click', this.handleOverlayClick, true);
+    overlay.addEventListener('contextmenu', this.handleOverlayContextMenu, true);
     document.addEventListener('keydown', this.handleKeydown, true);
+
+    document.body.appendChild(overlay);
+    this.overlay = overlay;
   };
 
   private endSelection = () => {
+    if (!this.selecting && !this.overlay) return;
     this.selecting = false;
 
-    // Remove global styles for crosshair-cursor
-    const styleElement = document.getElementById('crosshair-cursor-style');
-    if (styleElement) {
-      styleElement.remove();
+    if (this.overlay) {
+      this.overlay.removeEventListener('click', this.handleOverlayClick, true);
+      this.overlay.removeEventListener('contextmenu', this.handleOverlayContextMenu, true);
+      this.overlay.remove();
+      this.overlay = null;
     }
-
-    // Remove overlay from the body
-    const overlay = document.getElementById('selection-overlay');
-    if (overlay) {
-      overlay.remove();
-    }
-
-    document.body.classList.remove('crosshair-cursor');
-    document.removeEventListener('click', this.handleClickOutside, true);
-    document.removeEventListener('contextmenu', this.handleClickOutside, true);
     document.removeEventListener('keydown', this.handleKeydown, true);
   };
 
   private cancelSelection = () => {
     this.endSelection();
+    this.dispatchEvent(
+      new CustomEvent('point-cancelled', { bubbles: true, composed: true })
+    );
   };
 
-  private handleInputChange = (event: Event) => {
-    const target = event.target as JuelNumber;
-    const value = target.value;
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.endSelection();
+  }
 
-    if (target.label === 'X') {
+  private handleInputChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const value = target.value === '' ? null : Number(target.value);
+
+    if (target.name === 'x-coordinate') {
       this.manualX = value;
-    } else if (target.label === 'Y') {
+    } else if (target.name === 'y-coordinate') {
       this.manualY = value;
+    }
+
+    if (this.manualX !== null && this.manualY !== null) {
+      this.dispatchEvent(
+        new CustomEvent('point-selected', {
+          detail: { x: this.manualX, y: this.manualY },
+          bubbles: true,
+          composed: true,
+        })
+      );
     }
   };
 

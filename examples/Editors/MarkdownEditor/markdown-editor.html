@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Markdown Editor — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-markdown-editor {
+            display: block;
+            height: 320px;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        #preview {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            min-height: 3rem;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Markdown Editor</h1>
+        <p>
+            <code>&lt;juel-markdown-editor&gt;</code> is a CodeMirror 6 editor with Markdown syntax
+            highlighting. Set the initial text with the <code>content</code> attribute/property; every
+            keystroke fires <code>ContentChanged</code> with <code>{ content }</code>, and setting
+            <code>content</code> from outside updates the editor in place.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Editor with a live mirror</h2>
+        <div class="example-demo">
+            <juel-markdown-editor id="md" content="# Hello Juel&#10;&#10;Type some **Markdown** here."></juel-markdown-editor>
+        </div>
+        <div id="preview"></div>
+        <p style="margin-top:0.5rem;">
+            <button type="button" id="load">Load sample from outside</button>
+        </p>
+    </section>
+
+    <script>
+        const md = document.getElementById('md');
+        const preview = document.getElementById('preview');
+
+        const sync = () => { preview.textContent = md.content; };
+        sync();
+
+        md.addEventListener('ContentChanged', sync);
+        document.getElementById('load').addEventListener('click', () => {
+            md.content = '## Loaded externally\n\n- one\n- two\n- three\n';
+            sync();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,54 +1,77 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body onload="load()">
-        <script>
-            function load() {
-                var select = document.getElementsByTagName("juel-select")[0];
-                let form1  = {
-                        fields: [
-                        { name: 'username', type: 'text', defaultValue: 'JohnDoe' },
-                        ]
-                    };
-                    let form2  = {
-                        fields: [
-                        { name: 'email', type: 'email' }
-                        ]
-                    };
-                    let form3  = {
-                        fields: [
-                        { name: 'age', type: 'number', defaultValue: 25 }
-                        ]
-                    };
-                    let form4  = {
-                        fields: [
-                        { name: 'password', type: 'password' }
-                        ]
-                    };
-                    let form5  = {
-                        fields: [
-                        { name: 'gender', type: 'select', options: ['Male', 'Female', 'Other'] }
-                        ]
-                    };
-                select.data = [
-                    { text: 'Citrus', children: [{ text: 'Orange', value: form1 }, { text: 'Lemon', value: form2 }] },
-                    { text: 'Berries', children: [{ text: 'Strawberry', value: form3 }, { text: 'Blueberry', value: form4 }] },
-                    { text: 'Tropical', children: [{ text: 'Mango', value: form5 }, { text: 'Pineapple', value: '6' }] },
-                ];
-                select.addEventListener('value-changed', (event) => {
-                    console.log('Selected value:', event.detail);
-                    const formElement = document.getElementById('form');
-                    formElement.formDefinition = event.detail.value;
-                });
-            }
-        </script>
-        <juel-select
-        label="Select a Fruit"
-        text-field="text"
-        value-field="value"
-        children-field="children"
-      ></juel-select>
-        <juel-form-layout id="form"></juel-form-layout>
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Schema Form + Select — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-form-layout {
+            display: block;
+            max-width: 360px;
+            margin-top: 0.75rem;
+        }
+        juel-form-layout input,
+        juel-form-layout select {
+            padding: 0.4rem 0.5rem;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 4px;
+            font: inherit;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Schema Form + Select</h1>
+        <p>
+            A <code>&lt;juel-select&gt;</code> drives a <code>&lt;juel-form-layout&gt;</code>: each
+            option carries a whole <code>formDefinition</code> as its value, and picking one swaps the
+            rendered form.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Pick a fruit to choose its form</h2>
+        <div class="example-demo">
+            <juel-select
+                label="Select a Fruit"
+                text-field="text"
+                value-field="value"
+                children-field="children"
+            ></juel-select>
+            <juel-form-layout id="form"></juel-form-layout>
+        </div>
+    </section>
+
+    <script>
+        const select = document.getElementsByTagName('juel-select')[0];
+        const form = document.getElementById('form');
+
+        const usernameForm = { fields: [{ name: 'username', type: 'text', defaultValue: 'JohnDoe' }] };
+        const emailForm = { fields: [{ name: 'email', type: 'email' }] };
+        const ageForm = { fields: [{ name: 'age', type: 'number', defaultValue: 25 }] };
+        const passwordForm = { fields: [{ name: 'password', type: 'password' }] };
+        const genderForm = { fields: [{ name: 'gender', type: 'select', options: ['Male', 'Female', 'Other'] }] };
+
+        select.data = [
+            { text: 'Citrus', children: [{ text: 'Orange', value: usernameForm }, { text: 'Lemon', value: emailForm }] },
+            { text: 'Berries', children: [{ text: 'Strawberry', value: ageForm }, { text: 'Blueberry', value: passwordForm }] },
+            { text: 'Tropical', children: [{ text: 'Mango', value: genderForm }] },
+        ];
+
+        select.addEventListener('value-changed', (event) => {
+            const def = event.detail && event.detail.value;
+            if (def && def.fields) form.formDefinition = def;
+        });
+
+        form.addEventListener('form-submit', (event) => {
+            console.log('Form submitted with:', event.detail);
+        });
+    </script>
+</body>
+
 </html>
