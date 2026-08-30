@@ -15,6 +15,12 @@
             border-radius: 4px;
             overflow: hidden;
         }
+        /* -webkit-box-reflect paints below the element without reserving
+           layout space, so give the demo box extra room for it. */
+        .reflection-demo {
+            padding-bottom: 6.5rem;
+            overflow: hidden;
+        }
     </style>
 </head>
 
@@ -29,6 +35,13 @@
             fill its (positioned) container muted/looping/autoplaying; <code>alt</code> sets image
             alt text; <code>blend</code> composites multiple space-separated image sources with a
             CSS <code>background-blend-mode</code>.
+        </p>
+        <p>
+            Three presentation effects can be layered on with boolean attributes:
+            <code>shadow</code> (a drop shadow that follows the media's alpha shape),
+            <code>reflection</code> (a fading mirror image below), and <code>feather</code>
+            (soften all edges, or just <code>feather="top left"</code>, with an inset glow).
+            Each is tuned with CSS custom properties.
         </p>
     </header>
 
@@ -68,6 +81,84 @@
                     src="https://picsum.photos/seed/juel-a/400/240 https://picsum.photos/seed/juel-b/400/240">
                 </juel-media>
             </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Shadow</h2>
+        <p>
+            <code>shadow</code> drops a shadow beneath the media with <code>drop-shadow()</code> —
+            on a transparent PNG or SVG it follows the actual shape, not the bounding box.
+            Override <code>--media-shadow</code> for a custom offset / blur / colour.
+        </p>
+        <div class="example-demo">
+            <juel-media shadow src="https://picsum.photos/seed/juel-shadow/240/160"
+                alt="A random placeholder photo with a drop shadow"></juel-media>
+            <juel-media shadow
+                style="--media-shadow: 0 4px 12px rgba(0, 120, 255, 0.7)"
+                src="https://picsum.photos/seed/juel-shadow2/240/160"
+                alt="A random placeholder photo with a blue glow"></juel-media>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Reflection</h2>
+        <p>
+            <code>reflection</code> adds a fading mirror image below the media (via
+            <code>-webkit-box-reflect</code>, supported in Chromium / WebKit). Tune it with
+            <code>--reflection-gap</code>, <code>--reflection-color</code> and
+            <code>--reflection-length</code>.
+        </p>
+        <div class="example-demo reflection-demo">
+            <juel-media reflection src="https://picsum.photos/seed/juel-reflect/320/200"
+                alt="A random placeholder photo with a reflection"></juel-media>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Feather</h2>
+        <p>
+            <code>feather</code> softens the edges with an inset glow —
+            <code>box-shadow: 0 0 8px 8px white inset</code>. Set <code>--feather-color</code>
+            to match the page background and <code>--feather-size</code> for the spread.
+        </p>
+        <div class="example-demo">
+            <juel-media feather src="https://picsum.photos/seed/juel-feather/320/200"
+                alt="A random placeholder photo with feathered edges"></juel-media>
+            <juel-media feather
+                style="--feather-color: #1e2330; --feather-size: 16px"
+                src="https://picsum.photos/seed/juel-feather2/320/200"
+                alt="A random placeholder photo feathered into a dark background"></juel-media>
+        </div>
+        <p style="margin-top: 1rem;">
+            Pass a list of edges to feather only some of them —
+            <code>feather="top left"</code> (any of <code>top</code> <code>right</code>
+            <code>bottom</code> <code>left</code>):
+        </p>
+        <div class="example-demo">
+            <juel-media feather="top left" src="https://picsum.photos/seed/juel-feather3/320/200"
+                alt="A random placeholder photo feathered on its top and left edges only"></juel-media>
+            <juel-media feather="bottom"
+                style="--feather-color: #101418; --feather-size: 26px"
+                src="https://picsum.photos/seed/juel-md-fb/320/200"
+                alt="A random placeholder photo feathered into dark on its bottom edge only"></juel-media>
+        </div>
+        <p style="margin-top: 1rem;"><code>feather</code> also works on a <code>background</code> image for a vignette:</p>
+        <div class="example-demo">
+            <div class="media-frame">
+                <juel-media background feather
+                    style="--feather-color: #000; --feather-size: 24px"
+                    src="https://picsum.photos/seed/juel-vignette/480/240"></juel-media>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Combined</h2>
+        <p>The effects layer together — here <code>shadow</code> and <code>reflection</code> on one image.</p>
+        <div class="example-demo reflection-demo">
+            <juel-media shadow reflection src="https://picsum.photos/seed/juel-combined/280/180"
+                alt="A random placeholder photo, shadowed and reflected"></juel-media>
         </div>
     </section>
 </body>

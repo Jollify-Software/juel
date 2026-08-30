@@ -1,8 +1,22 @@
+:host {
+    display: inline-block;
+    line-height: 0;
+}
 :host([background]) {
     position: absolute;
     width: 100%;
     height: 100%;
+    display: block;
 }
+
+#container {
+    position: relative;
+    border-radius: inherit;
+    img, video {
+        border-radius: inherit;
+    }
+}
+
 #container.background {
     position: absolute;
     top: 0;
@@ -22,3 +36,35 @@
     }
 }
 
+/* --- Effects -------------------------------------------------------------- */
+
+/* Drop shadow — follows the alpha shape of PNGs / transparent media. */
+#container.shadow img,
+#container.shadow video,
+#container.shadow > div {
+    filter: drop-shadow(var(--media-shadow, 0 8px 24px rgba(0, 0, 0, 0.35)));
+}
+
+/* Reflection — a fading mirror image below the media (WebKit/Blink). */
+#container.reflection img,
+#container.reflection video,
+#container.reflection > div {
+    -webkit-box-reflect: below var(--reflection-gap, 0px)
+        linear-gradient(to bottom,
+            var(--reflection-color, rgba(0, 0, 0, 0.55)) 0%,
+            transparent var(--reflection-length, 50%));
+}
+
+/* Feather — soften the edges with an inset glow, e.g.
+   box-shadow: 0 0 8px 8px white inset;
+   The component sets --feather-box-shadow (symmetric for all edges, or one
+   directional inset shadow per requested edge for e.g. feather="top left"). */
+#container.feather::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: var(--feather-box-shadow,
+        0 0 var(--feather-size, 8px) var(--feather-size, 8px) var(--feather-color, #fff) inset);
+}
