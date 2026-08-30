@@ -30,6 +30,11 @@ Jest + ts-jest is configured but test coverage is thin (`tests/util/`, `tests/Me
   **Read `src/_Core/History/README.md` before wiring it into a component** — it has the
   integration recipe, the `record` vs `preview` model, the `apply`-callback contract, and the
   init-timing gotcha. Reference consumer: `src/Editors/Style/PositionEditor/PositionEditor.ts`.
+- **`<juel-shape>` geometry.** Built-in shapes are CSS `clip-path`s in a percentage coordinate
+  space, defined in `src/Display/Shape/ClipShapes.ts` and registrable at runtime via
+  `window.juel.shape.registerShape`. The component has four render paths (`<template>` SVG /
+  geometric / icon glyph / image) and a `clip-path` hover-morph. **Read
+  `src/Display/Shape/README.md` before touching the component, `ClipShapes`, or the morph code.**
 
 # Known in-progress work / quirks
 

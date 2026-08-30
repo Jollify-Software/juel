@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Trigger — Audio — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-shape {
+            display: inline-block;
+            width: 130px;
+            height: 130px;
+            cursor: pointer;
+            --fill: #f5b301;
+            transition: transform 0.08s ease;
+        }
+        juel-shape:active {
+            transform: scale(0.94);
+        }
+
+        .trigger-hint {
+            font-size: 0.8125rem;
+            color: var(--secondary, #6c757d);
+        }
+        .trigger-status {
+            margin: 1rem 0 0;
+            font-family: var(--font-monospace, monospace);
+            font-size: 0.8125rem;
+            color: var(--secondary, #6c757d);
+        }
+        pre.trigger-markup {
+            margin: 1rem 0 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-size: 0.8125rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Trigger — Audio</h1>
+        <p>
+            <code>&lt;juel-trigger selector="..." event="click"&gt;</code> attaches a listener to the
+            element its <code>selector</code> matches. When the event fires it runs each child
+            <code>&lt;juel-trigger-action&gt;</code>: it looks up that action's own
+            <code>selector</code> and calls the method named by <code>action</code> on it. Point the
+            action at a plain <code>&lt;audio&gt;</code> element with <code>action="play"</code> and a
+            click on the shape plays the sound — no script.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Click the star</h2>
+        <p>
+            The <code>&lt;juel-shape&gt;</code> star has <code>id="star"</code>. The trigger listens
+            for <code>click</code> on it and calls <code>play()</code> on the
+            <code>&lt;audio id="star-chime"&gt;</code> element.
+        </p>
+        <div class="example-demo">
+            <juel-shape id="star" title="Click me">
+                <template>
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="var(--fill, #f5b301)" stroke="#d99a00" stroke-width="0.5"
+                            d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.786 1.401 8.169L12 18.896l-7.335 3.869 1.401-8.169L.132 9.21l8.2-1.192z" />
+                    </svg>
+                </template>
+            </juel-shape>
+            <span class="trigger-hint">&larr; click the star</span>
+        </div>
+
+        <!-- audio target: a plain <audio> element, played via its native play() method -->
+        <audio id="star-chime" src="../../_Assets/click-mech.mp3" preload="auto"></audio>
+
+        <!-- the wiring: no script -->
+        <juel-trigger selector="#star" event="click">
+            <juel-trigger-action selector="#star-chime" action="play"></juel-trigger-action>
+        </juel-trigger>
+
+        <p class="trigger-status" id="star-status">Waiting for a click…</p>
+
+        <pre class="trigger-markup">&lt;juel-shape id="star"&gt;
+    &lt;template&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M12 .587l3.668 …z"/&gt;&lt;/svg&gt;&lt;/template&gt;
+&lt;/juel-shape&gt;
+
+&lt;audio id="star-chime" src="click-mech.mp3" preload="auto"&gt;&lt;/audio&gt;
+
+&lt;juel-trigger selector="#star" event="click"&gt;
+    &lt;juel-trigger-action selector="#star-chime" action="play"&gt;&lt;/juel-trigger-action&gt;
+&lt;/juel-trigger&gt;</pre>
+    </section>
+
+    <section class="example-section">
+        <h2>Different shapes, different sounds</h2>
+        <p>
+            Each shape is an independent <code>&lt;juel-trigger&gt;</code> pointed at its own
+            <code>&lt;audio&gt;</code> element. A native <code>&lt;audio&gt;.play()</code> call is a
+            no-op while that clip is still playing, then rewinds and replays once it has ended.
+        </p>
+        <div class="example-demo">
+            <juel-shape id="tri" type="triangle" style="--fill: var(--primary, #007bff)" title="Click me"></juel-shape>
+            <juel-shape id="hex" type="hexagon" style="--fill: var(--danger, #dc3545)" title="Click me"></juel-shape>
+            <span class="trigger-hint">triangle → click; hexagon → Shepherd's Hey</span>
+        </div>
+
+        <audio id="tri-sound" src="../../_Assets/click-mech.mp3" preload="auto"></audio>
+        <audio id="hex-sound" src="../../_Assets/Shepherd_Hey.mp3" preload="auto"></audio>
+
+        <juel-trigger selector="#tri" event="click">
+            <juel-trigger-action selector="#tri-sound" action="play"></juel-trigger-action>
+        </juel-trigger>
+        <juel-trigger selector="#hex" event="click">
+            <juel-trigger-action selector="#hex-sound" action="play"></juel-trigger-action>
+        </juel-trigger>
+
+        <p class="trigger-status" id="shapes-status">Waiting for a click…</p>
+    </section>
+
+    <section class="example-section">
+        <h2>How it resolves</h2>
+        <p>
+            <code>juel-trigger</code> binds the listener in its <code>ready()</code> hook, so the
+            <code>selector</code> target only has to exist by the time the DOM is ready — order on the
+            page doesn't matter. <code>action</code> is any method name that exists on the resolved
+            element; <code>&lt;audio&gt;</code> gets <code>play</code>, <code>pause</code> and
+            <code>load</code> for free from <code>HTMLMediaElement</code>. There's also a built-in
+            <code>action="addClass"</code> that uses the action's <code>arguments</code> attribute as
+            the class name.
+        </p>
+    </section>
+
+    <script>
+        // Status readouts only — the shape → audio wiring above is fully declarative.
+        function wireStatus(shapeId, audioId, statusId, label) {
+            var audio = document.getElementById(audioId);
+            var status = document.getElementById(statusId);
+            document.getElementById(shapeId).addEventListener('click', function () {
+                if (!audio.paused && audio.currentTime > 0) {
+                    status.textContent = label + ': already playing (play() ignored)';
+                } else {
+                    status.textContent = label + ': play()';
+                }
+            });
+            audio.addEventListener('ended', function () {
+                status.textContent = label + ': ended — next click replays from the start';
+            });
+        }
+        wireStatus('star', 'star-chime', 'star-status', '#star-chime');
+        wireStatus('tri', 'tri-sound', 'shapes-status', '#tri-sound');
+        wireStatus('hex', 'hex-sound', 'shapes-status', '#hex-sound');
+    </script>
+</body>
+
+</html>

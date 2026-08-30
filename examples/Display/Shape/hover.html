@@ -1,11 +1,140 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body>
-        <juel-shape type="hexagon" hover="true">
-        </juel-shape>
-        <juel-shape type="hand" hover="true">
-        </juel-shape>
-    </body>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Shape — Hover Morph — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-shape {
+            --width: 120px;
+            --height: 120px;
+        }
+        .morph-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .morph-row figure {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .morph-row figcaption {
+            font-family: var(--font-monospace, monospace);
+            font-size: 0.8125rem;
+            color: var(--secondary, #6c757d);
+        }
+        .slow { --shape-morph-duration: 1.1s; }
+        .bouncy { --shape-morph-ease: cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Shape — Hover Morph</h1>
+        <p>
+            <code>hover</code> turns a <code>&lt;juel-shape&gt;</code> into a hover reveal. On its own
+            it morphs a plain rectangle into <code>type</code>; <code>hover="&lt;shape&gt;"</code>
+            morphs <code>type</code> into that shape. Two geometric shapes animate the
+            <code>clip-path</code> directly (the point lists are resampled to match, so it eases
+            around the perimeter instead of jumping); anything involving an icon or
+            <code>&lt;template&gt;</code> cross-fades instead. Tune it with
+            <code>--shape-morph-duration</code> and <code>--shape-morph-ease</code>.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Reveal <code>type</code> from a block</h2>
+        <p>Bare <code>hover</code> — rest is a rectangle, hover is <code>type</code>.</p>
+        <div class="example-demo morph-row">
+            <figure>
+                <juel-shape type="hexagon" hover style="--fill: var(--primary, #007bff)"></juel-shape>
+                <figcaption>hexagon</figcaption>
+            </figure>
+            <figure>
+                <juel-shape type="star" hover style="--fill: #f5b301"></juel-shape>
+                <figcaption>star</figcaption>
+            </figure>
+            <figure>
+                <juel-shape type="triangle" hover style="--fill: var(--danger, #dc3545)"></juel-shape>
+                <figcaption>triangle</figcaption>
+            </figure>
+            <figure>
+                <juel-shape type="plus" hover style="--fill: var(--success, #28a745)"></juel-shape>
+                <figcaption>plus</figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Morph between two shapes</h2>
+        <p><code>type</code> at rest, <code>hover="&lt;shape&gt;"</code> on hover.</p>
+        <div class="example-demo morph-row">
+            <figure>
+                <juel-shape type="circle" hover="star" style="--fill: #f5b301"></juel-shape>
+                <figcaption>circle → star</figcaption>
+            </figure>
+            <figure>
+                <juel-shape type="triangle" hover="hexagon" style="--fill: var(--primary, #007bff)"></juel-shape>
+                <figcaption>triangle → hexagon</figcaption>
+            </figure>
+            <figure>
+                <juel-shape type="square" hover="octagon" style="--fill: var(--danger, #dc3545)"></juel-shape>
+                <figcaption>square → octagon</figcaption>
+            </figure>
+            <figure>
+                <juel-shape type="pentagon" hover="star-6" style="--fill: #7b2ff7"></juel-shape>
+                <figcaption>pentagon → star-6</figcaption>
+            </figure>
+            <figure>
+                <juel-shape type="circle" hover="heart" style="--fill: var(--danger, #dc3545)"></juel-shape>
+                <figcaption>circle → heart</figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Timing</h2>
+        <p>Same morph, different <code>--shape-morph-duration</code> / <code>--shape-morph-ease</code>.</p>
+        <div class="example-demo morph-row">
+            <figure>
+                <juel-shape type="diamond" hover="star" style="--fill: var(--primary, #007bff)"></juel-shape>
+                <figcaption>default (0.35s)</figcaption>
+            </figure>
+            <figure>
+                <juel-shape class="slow" type="diamond" hover="star" style="--fill: var(--primary, #007bff)"></juel-shape>
+                <figcaption>slow (1.1s)</figcaption>
+            </figure>
+            <figure>
+                <juel-shape class="bouncy" type="diamond" hover="star" style="--fill: var(--primary, #007bff)"></juel-shape>
+                <figcaption>bouncy ease</figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Icon / template targets cross-fade</h2>
+        <p>
+            An icon or <code>&lt;template&gt;</code> can't be vertex-morphed, so the two states
+            cross-fade.
+        </p>
+        <div class="example-demo morph-row">
+            <figure>
+                <juel-shape type="hexagon" hover="hand" style="--fill: var(--primary, #007bff)"></juel-shape>
+                <figcaption>hexagon → hand (icon)</figcaption>
+            </figure>
+            <figure>
+                <juel-shape type="hand" hover="circle" style="--fill: var(--danger, #dc3545)"></juel-shape>
+                <figcaption>hand (icon) → circle</figcaption>
+            </figure>
+        </div>
+    </section>
+</body>
+
 </html>

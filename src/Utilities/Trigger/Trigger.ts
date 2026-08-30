@@ -16,20 +16,52 @@ export class JuelTrigger extends CommandComponent {
 
     element: HTMLElement;
 
+    private hasReadied = false;
+    // The element the listener is attached to. Tracked separately from
+    // `this.element` because performAction() reassigns that to an action target.
+    private boundTarget: HTMLElement;
+
     ready(): void {
+        this.hasReadied = true;
         if (this.selector) {
             this.element = document.querySelector(this.selector);
         } else {
             this.element = this.parentElement;
         }
-        if (this.event) {
-            this.element.addEventListener(this.event, this.onEvent);
+        this.bindEvent();
+    }
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        // A host may move this element in the DOM (e.g. wrapping a parent's
+        // children in a container). That fires disconnectedCallback, which
+        // tears the listener down, but ready() only runs once — so re-bind
+        // on every reconnect after the first ready().
+        if (this.hasReadied) {
+            this.bindEvent();
         }
     }
 
     disconnectedCallback(): void {
-        if (this.element) {
-            this.element.removeEventListener(this.event, this.onEvent);
+        super.disconnectedCallback();
+        this.unbindEvent();
+    }
+
+    private bindEvent(): void {
+        this.unbindEvent();
+        let target = this.selector
+            ? document.querySelector<HTMLElement>(this.selector)
+            : this.parentElement;
+        if (target && this.event) {
+            target.addEventListener(this.event, this.onEvent);
+            this.boundTarget = target;
+        }
+    }
+
+    private unbindEvent(): void {
+        if (this.boundTarget && this.event) {
+            this.boundTarget.removeEventListener(this.event, this.onEvent);
+            this.boundTarget = null;
         }
     }
 

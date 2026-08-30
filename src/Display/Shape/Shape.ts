@@ -1,254 +1,314 @@
 import { CSSResultGroup, html, LitElement, PropertyValues, unsafeCSS } from "lit";
-import { customElement, property } from "lit/decorators";
-import { DOMStringMapConverter } from "../../_Converters/DOMStringMapConvertor";
-import { Container, Path, Shape, Svg, SVG, Text } from "@svgdotjs/svg.js";
-import bind from "bind-decorator";
-import { ShapeTemplateService } from "./Services/ShapeTemplateService";
-import { ShapeStrategies, ShapeStrategy } from "./ShapeStrategies/ShapeStrategy";
-import { getSlottedElements } from "../../_Utils/dom/GetSlottedElements";
-import Styles from 'bundle-text:./Shape.less';
-import { IconsModule } from "../../_Modules/Icons/IconsModule";
-import { svgToClipPath } from "../../_Utils/draw/svgToClipPath";
-import { extractPoints } from "../../_Utils/draw/extractPoint";
-import { normalizePoints } from "../../_Utils/draw/normalizePoints";
-import { polygonStrToPath } from "../../_Utils/draw/polygonToPath";
-import { CompassPositions } from "../../_Core/CompassPositions";
+import { customElement, property, query } from "lit/decorators";
 import interact from "@interactjs/interactjs";
+import Styles from 'bundle-text:./Shape.less';
+import { DOMStringMapConverter } from "../../_Converters/DOMStringMapConvertor";
+import { getSlottedElements } from "../../_Utils/dom/GetSlottedElements";
 import { DomReady } from "../../_Utils/DomReady";
+import { CompassPositions } from "../../_Core/CompassPositions";
+import { IconsModule } from "../../_Modules/Icons/IconsModule";
+import { ShapeTemplateService } from "./Services/ShapeTemplateService";
+import {
+    ClipShape, getClipShape, matchShapes, shapeNames, ShapePoints,
+    registerShape as defineClipShape,
+} from "./ClipShapes";
 
+export { shapeNames } from "./ClipShapes";
+
+/** Every connected <juel-shape>, so a late `registerShape` can refresh them. */
+const instances = new Set<JuelShape>();
+
+/**
+ * Register a geometric shape, then re-resolve any already-mounted
+ * `<juel-shape>` that references it by name — so `registerShape(...)` followed
+ * by (or preceded by) `<juel-shape type="...">` works regardless of order.
+ */
+export function registerShape(name: string, shape: ClipShape | ShapePoints): void {
+    defineClipShape(name, shape);
+    for (const el of instances) {
+        if (el.type === name || el.hover === name) el.refreshShape();
+    }
+}
+
+// Public API surface, alongside window.juel.audio / .icon / .toast …
+//   window.juel.shape.registerShape(name, points)
+const g = globalThis as any;
+g.juel = g.juel || {};
+g.juel.shape = {
+    registerShape,
+    shapeNames,
+    has: (name: string) => !!getClipShape(name),
+};
+
+/** `hover` attribute values that mean "morph from a plain rect into `type`". */
+const HOVER_BOOLEAN = new Set(["", "true", "hover", "yes"]);
+
+/** Property changes that require re-resolving the shape layer. */
+const SHAPE_PROPS = ["type", "src", "hover", "fit", "args"];
+
+/**
+ * `<juel-shape type="…">` renders a shape layer behind its slotted content.
+ *
+ * `type` resolves, in order, to:
+ *  1. a slotted `<template>` — a fully custom SVG (see `ShapeTemplateService`);
+ *  2. a built-in geometric shape — a CSS `clip-path` on a plain box, so it
+ *     scales with no JavaScript (`src/Display/Shape/ClipShapes.ts`);
+ *  3. a matching icon glyph — the icon SVG injected into the shape layer;
+ *  4. `src` — an image, optionally clipped by a geometric `type`.
+ *
+ * Everything except the `<template>` path is reactive: changing `type`, `src`,
+ * `hover`, `fit` or `args` re-renders the shape layer in place.
+ *
+ * `hover` turns the shape into a hover reveal: `hover` on its own morphs a
+ * plain rectangle into `type`; `hover="<other-shape>"` morphs `type` into that
+ * shape. Geometric ↔ geometric animates the `clip-path`; anything involving an
+ * icon or template cross-fades instead.
+ *
+ * `label` makes the shape a labelled image for assistive tech
+ * (`role="img" aria-label`); without it the shape layer is `aria-hidden` and
+ * only slotted content is exposed.
+ */
 @customElement("juel-shape")
 export class JuelShape extends LitElement {
 
     static styles?: CSSResultGroup = unsafeCSS(Styles);
 
+    /** Geometric shape name, icon name, or (with a slotted `<template>`) unused. */
     @property() type: string;
+    /** Image source. Rendered in the shape layer; clipped if `type` is geometric. */
     @property() src: string;
+    /** Compass point to rotate the shape layer to (slotted content stays upright). */
     @property({ type: String }) direction: string = CompassPositions.North;
-    @property({ converter: DOMStringMapConverter }) args: object;
-    @property({ attribute: "text-attr", converter: DOMStringMapConverter }) textArgs: object;
+    /** Legacy `key: value; …` bag — only `fill` is still honoured (maps to `--fill`). */
+    @property({ converter: DOMStringMapConverter }) args: Record<string, string>;
+    /** Convenience text, layered over the shape (same as slotted text). */
     @property() text: string;
+    /** Hover reveal: bare = morph rect → `type`; a name = morph `type` → name. */
     @property() hover: string;
+    /** Accessible name; sets `role="img" aria-label` on the host when present. */
+    @property() label: string;
+    /** Show interact.js resize handles. */
     @property({ type: Boolean }) editable: boolean = false;
+    /** Force the host to a 1:1 box so regular polygons don't skew. */
+    @property({ type: Boolean }) regular: boolean = false;
+    /** `preserveAspectRatio` for injected icon / image SVGs. */
+    @property() fit: string = "xMidYMid meet";
 
-    draw: Svg;
-    container: Container;
-    textEl: Text;
-    shape: Shape;
-    initialShape: Shape;
-    initialShapeCopy: Shape;
-    svgContainerRef: HTMLDivElement;
-    isPath: boolean = false;
+    @query(".svg-container:not(.svg-container--hover)") private container: HTMLDivElement;
+    @query(".svg-container--hover") private hoverContainer: HTMLDivElement;
+    @query("slot") private slotEl: HTMLSlotElement;
 
-    sts: ShapeTemplateService;
-    private resizeObserver: ResizeObserver;
-
-    constructor() {
-        super();
-        this.type = "circle";
-        this.args = {
-            'fill': 'var(--fill, #E6904B)'
-        };
-        this.textArgs = {
-            'x': '50%',
-            'y': '50%',
-            'dominant-baseline': "middle",
-            'text-anchor': "middle"
-        }
-    }
-
+    private sts: ShapeTemplateService;
+    private interactable: ReturnType<typeof interact> | null = null;
+    private hasTemplate = false;
+    private paintedOnce = false;
 
     protected render(): unknown {
-        return html`<span class="content"><slot></slot></span><div part="shape" class="svg-container rotate ${this.direction}"></div>`;
+        const rot = `rotate ${this.direction || CompassPositions.North}`;
+        return html`
+            <span class="content" part="content"><slot></slot>${this.text ?? ""}</span>
+            <div part="shape" class="svg-container ${rot}" aria-hidden="true"></div>
+            ${this.hover != null
+                ? html`<div part="shape-hover" class="svg-container svg-container--hover ${rot}" aria-hidden="true"></div>`
+                : ""}
+        `;
     }
 
-    protected firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated(_changedProperties);
-        DomReady().then(this.ready);
+    protected firstUpdated(changed: PropertyValues): void {
+        super.firstUpdated(changed);
+        if (this.regular) this.classList.add("juel-shape--regular");
+        if (this.editable) this.addResizeHandles();
 
-        // Initialize ResizeObserver
-        this.resizeObserver = new ResizeObserver(() => this.handleResize());
-        this.resizeObserver.observe(this);
-
-        if (this.editable) {
-            this.addResizeHandles();
-        }
+        // A slotted <template> is a one-shot custom SVG. Detect it now; re-check
+        // once the DOM is fully parsed in case this element upgraded first.
+        this.checkTemplate();
+        if (!this.hasTemplate) DomReady().then(() => this.checkTemplate());
     }
 
-    @bind
-    ready() {
-        this.svgContainerRef = this.shadowRoot.querySelector("div.svg-container");
-        let slot = this.shadowRoot.querySelector("slot") as HTMLSlotElement;
-        let slottedElements = getSlottedElements(slot);
-        let templates = slottedElements.filter(x => x.nodeName.toLowerCase() == "template") as HTMLTemplateElement[];
-        if (templates.length > 0) {
-            // We do have templates
-            this.sts = new ShapeTemplateService(this, templates);
-        } else if ((!this.shape) && (!this.src)) {
-            this.setDefaultStyles();
-
-            if (!this.draw) {
-                this.draw = SVG();
-                this.draw.addTo(this.svgContainerRef)
-                    .viewbox(0, 0, this.clientWidth, this.clientHeight)
-                    .attr({
-                        preserveAspectRatio: "none",
-                        width: "100%",
-                        height: "100%",
-                    });
-            }
-            this.drawShape();
-
-            if (this.shape && this.args) {
-                this.shape.attr(this.args);
-            }
-            if (this.hover) {
-
-                    const [normalizedInitial, normalizedTarget] = normalizePoints(this.initialShape, this.shape);
-                    this.initialShape = normalizedInitial;
-                    this.shape = normalizedTarget;
-                
-                    this.addEventListener("mouseenter", () => {
-                        if (!this.initialShapeCopy) {
-                            this.initialShapeCopy = this.initialShape.clone();
-                        }
-                            const targetPoints = extractPoints(this.shape);
-                            this.initialShape.animate(1000).plot(targetPoints);
-                    });
-                    this.addEventListener("mouseleave", () => {
-                            const targetPoints = extractPoints(this.initialShapeCopy);
-                            this.initialShape.animate(1000).plot(targetPoints);
-                    });
-            }
-        }
-        if (this.src) {
-            if (this.draw) {
-                this.draw.image(this.src);
-            } else {
-                let img = new Image();
-                img.src = this.src;
-                this.shadowRoot.prepend(img);
-            }
-        }
-        if (this.text) {
-            if (!this.container) {
-                this.container = this.draw.group();
-            }
-            if (!this.textEl) {
-                this.textEl = this.container.add(this.shape).text(this.text);
-            }
-            this.textEl.attr(this.textArgs);
-        }
-
-        if (this.editable) {
-            this.addDraggablePoints();
+    protected updated(changed: PropertyValues): void {
+        super.updated(changed);
+        if (changed.has("label")) this.applyLabel();
+        if (this.hasTemplate) return;
+        if (!this.paintedOnce || SHAPE_PROPS.some((p) => changed.has(p))) {
+            this.applyShape();
+            this.paintedOnce = true;
         }
     }
 
-    private handleResize() {
-        if (this.shape) {
-            const width = this.clientWidth;
-            const height = this.clientHeight;
-
-            // Scale the shape to match the new dimensions
-            this.shape.size(width, height);
-        }
-        if (this.draw) {
-            this.draw.size(this.clientWidth, this.clientHeight);
-        }
+    connectedCallback(): void {
+        super.connectedCallback();
+        instances.add(this);
     }
 
     disconnectedCallback(): void {
         super.disconnectedCallback();
-        if (this.resizeObserver) {
-            this.resizeObserver.disconnect();
+        instances.delete(this);
+        this.interactable?.unset();
+        this.interactable = null;
+    }
+
+    /** Re-resolve the shape layer now (called when a referenced shape is registered). */
+    refreshShape(): void {
+        if (this.hasTemplate || !this.container) return;
+        this.applyShape();
+    }
+
+    // -- template path --------------------------------------------------------
+
+    private checkTemplate(): void {
+        if (this.hasTemplate) return;
+        const templates = getSlottedElements(this.slotEl).filter(
+            (x) => x.nodeName.toLowerCase() === "template"
+        ) as HTMLTemplateElement[];
+        if (templates.length === 0) return;
+
+        this.hasTemplate = true;
+        this.resetLayer(this.container);
+        this.style.removeProperty("--_shape-clip");
+        this.style.removeProperty("--_shape-clip-hover");
+        this.sts = new ShapeTemplateService(this, templates);
+    }
+
+    // -- shape layer --------------------------------------------------------
+
+    /** Resolve `type` / `hover` / `src` and (re)paint the shape layer(s). */
+    private applyShape(): void {
+        this.resetLayer(this.container);
+        if (this.hoverContainer) this.resetLayer(this.hoverContainer);
+        this.style.removeProperty("--_shape-clip");
+        this.style.removeProperty("--_shape-clip-hover");
+
+        if (this.args?.fill) this.style.setProperty("--fill", this.args.fill);
+
+        // A plain image: `src` with a non-geometric `type`.
+        if (this.src && !getClipShape(this.type)) {
+            this.renderImage(this.container, this.src);
+            return;
+        }
+
+        const restShape = this.resolveRestShape();
+        const hoverShape = this.resolveHoverShape();
+        this.paintLayer(this.container, restShape);
+
+        if (!hoverShape) return;
+
+        if (restShape.kind === "geometric" && hoverShape.kind === "geometric") {
+            // Animate the clip-path itself.
+            const matched = matchShapes(restShape.clip, hoverShape.clip);
+            this.style.setProperty("--_shape-clip", matched.from);
+            this.style.setProperty("--_shape-clip-hover", matched.to);
+            this.container.classList.add("morph");
+        } else if (this.hoverContainer) {
+            // Cross-fade a second layer holding the hover shape.
+            this.paintLayer(this.hoverContainer, hoverShape);
+            this.container.classList.add("crossfade");
+            this.hoverContainer.classList.add("crossfade", "crossfade--hover");
         }
     }
 
-    private setDefaultStyles() {
-        let fill = this.style.getPropertyValue("--fill");
-        if (!fill) {
-            this.style.setProperty("--fill", "#E6904B");
+    /** What `<juel-shape>` shows at rest. */
+    private resolveRestShape(): ResolvedShape {
+        // `hover` on its own => rest is a plain rectangle.
+        if (this.hover != null && HOVER_BOOLEAN.has(this.hover)) {
+            return { kind: "geometric", clip: getClipShape("rect")! };
         }
-        let stroke = this.style.getPropertyValue("--stroke");
-        if (!stroke) {
-            this.style.setProperty("--stroke", "black");
-        }
+        return this.resolveShape(this.type);
     }
 
-    private drawShape() {
-        if (this.draw && this.type) {
-            if (this.type in ShapeStrategies) {
-                let strategy = ShapeStrategies[this.type] as ShapeStrategy;
-                this.shape = strategy.draw(this.draw, this.clientWidth, this.clientHeight);
-            } else { // Type not in shapeStrategies
-                let svg = IconsModule.get(this.type);
-                if (svg) {
-                    this.shape = this.draw.svg(svg);
-                }
+    /** What it morphs to on hover, or `null` for a static shape. */
+    private resolveHoverShape(): ResolvedShape | null {
+        if (this.hover == null) return null;
+        if (HOVER_BOOLEAN.has(this.hover)) return this.resolveShape(this.type);
+        return this.resolveShape(this.hover);
+    }
+
+    private resolveShape(name: string): ResolvedShape {
+        const clip = getClipShape(name);
+        if (clip) return { kind: "geometric", clip };
+        const icon = name ? IconsModule.get(name) : "";
+        if (icon) return { kind: "icon", markup: icon };
+        // Unknown type, no icon: fall back to a circle so something shows.
+        return { kind: "geometric", clip: getClipShape("circle")! };
+    }
+
+    private resetLayer(layer: HTMLElement | null): void {
+        if (!layer) return;
+        layer.replaceChildren();
+        layer.classList.remove("filled", "morph", "crossfade", "crossfade--hover");
+        layer.style.removeProperty("clip-path");
+    }
+
+    private paintLayer(layer: HTMLDivElement, shape: ResolvedShape): void {
+        if (shape.kind === "geometric") {
+            layer.classList.add("filled");
+            // The rest layer defers to the --_shape-clip var (so :hover can swap
+            // it); extra layers get the value directly.
+            if (layer === this.container) {
+                this.style.setProperty("--_shape-clip", shape.clip.css);
+            } else {
+                layer.style.setProperty("clip-path", shape.clip.css);
             }
-            if (this.hover) {
-                if (this.shape.type !== "svg") {
-                    this.shape.remove();
-                } else {
-                    this.isPath = true;
-                }
-                // Initial shape: A rectangle covering the full SVG area
-                const initialShape = `${this.clientWidth},0 ${this.clientWidth},${this.clientHeight} 0,${this.clientHeight} 0,0`;
-                    this.initialShape = this.draw.polygon(initialShape).fill('#ffcc00');
-                
-            }
+            if (this.src) this.renderImage(layer, this.src);
+        } else {
+            this.injectSvg(layer, shape.markup);
         }
     }
 
-    private addResizeHandles() {
-        const resizeHandles = document.createElement('div');
-        resizeHandles.classList.add('resize-handles');
-        this.shadowRoot.appendChild(resizeHandles);
+    private injectSvg(layer: HTMLElement, markup: string): void {
+        layer.innerHTML = markup;
+        const svg = layer.querySelector("svg");
+        if (svg) {
+            svg.setAttribute("preserveAspectRatio", this.fit);
+            svg.setAttribute("width", "100%");
+            svg.setAttribute("height", "100%");
+            svg.setAttribute("aria-hidden", "true");
+            svg.setAttribute("focusable", "false");
+        }
+    }
 
-        interact(resizeHandles).resizable({
+    private renderImage(layer: HTMLElement, src: string): void {
+        const img = new Image();
+        img.src = src;
+        img.decoding = "async";
+        img.alt = "";
+        layer.appendChild(img);
+    }
+
+    // -- a11y --------------------------------------------------------------
+
+    private applyLabel(): void {
+        if (this.label) {
+            this.setAttribute("role", "img");
+            this.setAttribute("aria-label", this.label);
+        } else {
+            if (this.getAttribute("role") === "img") this.removeAttribute("role");
+            this.removeAttribute("aria-label");
+        }
+    }
+
+    // -- editable --------------------------------------------------------
+
+    private addResizeHandles(): void {
+        const handles = document.createElement("div");
+        handles.className = "resize-handles";
+        this.renderRoot.appendChild(handles);
+        this.interactable = interact(handles).resizable({
             edges: { left: true, right: true, bottom: true, top: true },
-        }).on('resizemove', (event) => {
-            const { width, height } = event.rect;
-            this.style.width = `${width}px`;
-            this.style.height = `${height}px`;
-            this.handleResize();
+            listeners: {
+                move: (event) => {
+                    this.style.width = `${event.rect.width}px`;
+                    this.style.height = `${event.rect.height}px`;
+                },
+            },
         });
     }
 
-    private addDraggablePoints() {
-        if (this.shape && this.shape.type === 'polygon') {
-            const points = extractPoints(this.shape);
-            points.forEach((point, index) => {
-                const circle = document.createElement('div');
-                circle.classList.add('draggable-point');
-                circle.style.position = 'absolute';
-                circle.style.left = `${point[0]}px`;
-                circle.style.top = `${point[1]}px`;
-                this.shadowRoot.appendChild(circle);
-
-                interact(circle).draggable({
-                    listeners: {
-                        move: (event) => {
-                            const dx = event.dx;
-                            const dy = event.dy;
-                            point[0] += dx;
-                            point[1] += dy;
-                            circle.style.left = `${point[0]}px`;
-                            circle.style.top = `${point[1]}px`;
-                            (<any>this.shape).plot(points);
-                        },
-                    },
-                });
-            });
-        }
-    }
-
-    addCenteredText() {
-        let size = Math.max(this.clientWidth, this.clientHeight);
-        const center = size / 2;
-        this.draw
-            .text(this.text)
-            .font({ size: 16, anchor: 'middle', fill: '#ffffff' })
-            .center(center, center);
+    /** All geometric shape names currently registered. */
+    static get shapes(): string[] {
+        return shapeNames();
     }
 }
+
+type ResolvedShape =
+    | { kind: "geometric"; clip: ClipShape }
+    | { kind: "icon"; markup: string };

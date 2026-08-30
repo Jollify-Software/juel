@@ -1,20 +1,87 @@
-<html>
-    <head>
-        <script src="../../../dist/juel.js"></script>
-    </head>
-    <body class="page a5">
-        <section class="sheet">
-        <header>
-        <juel-shape type="arrow" direction="e">North Folk</juel-shape>
-        </header>
+<!doctype html>
+<html lang="en">
 
-        <div class="vote">
-            <juel-shape type="arrow"></juel-shape><juel-shape type="arrow"></juel-shape>
+<head>
+    <meta charset="utf-8">
+    <title>Shape — Arrows &amp; Direction — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .arrow-stage juel-shape {
+            --width: 110px;
+            --height: 110px;
+            --fill: var(--primary, #007bff);
+            color: #fff;
+            font-weight: 700;
+        }
+        .arrow-compass {
+            display: grid;
+            grid-template-columns: repeat(3, 110px);
+            grid-auto-rows: 110px;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        .arrow-compass .c { grid-column: 2; grid-row: 2; }
+        .ballot {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .ballot juel-shape {
+            --width: 90px;
+            --height: 90px;
+            --fill: var(--secondary, #6c757d);
+            color: #fff;
+            font-weight: 700;
+        }
+        .ballot .yes { --fill: var(--success, #28a745); }
+        .ballot .no { --fill: var(--danger, #dc3545); }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Shape — Arrows &amp; Direction</h1>
+        <p>
+            The <code>arrow</code> shape points north by default. <code>direction</code> rotates the
+            shape layer to any compass point (<code>n ne e se s sw w nw</code>) while slotted text
+            stays upright.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Every compass point</h2>
+        <div class="example-demo arrow-stage">
+            <div class="arrow-compass">
+                <juel-shape type="arrow" direction="nw">NW</juel-shape>
+                <juel-shape type="arrow" direction="n">N</juel-shape>
+                <juel-shape type="arrow" direction="ne">NE</juel-shape>
+                <juel-shape type="arrow" direction="w">W</juel-shape>
+                <juel-shape class="c" type="octagon">•</juel-shape>
+                <juel-shape type="arrow" direction="e">E</juel-shape>
+                <juel-shape type="arrow" direction="sw">SW</juel-shape>
+                <juel-shape type="arrow" direction="s">S</juel-shape>
+                <juel-shape type="arrow" direction="se">SE</juel-shape>
+            </div>
         </div>
-
-        <footer>
-        <juel-shape type="arrow" direction="w">South Folk</juel-shape>
-        </footer>
     </section>
-    </body>
+
+    <section class="example-section">
+        <h2>A ballot</h2>
+        <p>Arrows pointing inward at the two options.</p>
+        <div class="example-demo ballot">
+            <juel-shape type="arrow" direction="e">North Folk</juel-shape>
+            <div style="display:flex; gap:1rem;">
+                <juel-shape class="yes" type="circle">Aye</juel-shape>
+                <juel-shape class="no" type="octagon">Nay</juel-shape>
+            </div>
+            <juel-shape type="arrow" direction="w">South Folk</juel-shape>
+        </div>
+    </section>
+</body>
+
 </html>

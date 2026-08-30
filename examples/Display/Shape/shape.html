@@ -8,10 +8,28 @@
     <link rel="stylesheet" href="../../_Shared/examples.css" />
     <style>
         juel-shape {
-            display: inline-block;
-            width: 140px;
-            height: 140px;
+            --width: 120px;
+            --height: 120px;
         }
+        .shape-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem 0.5rem;
+            width: 100%;
+        }
+        .shape-grid figure {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .shape-grid figcaption {
+            font-family: var(--font-monospace, monospace);
+            font-size: 0.8125rem;
+            color: var(--secondary, #6c757d);
+        }
+        .swatch juel-shape { --width: 96px; --height: 96px; }
     </style>
 </head>
 
@@ -21,83 +39,143 @@
     <header class="example-header">
         <h1>Shape</h1>
         <p>
-            <code>&lt;juel-shape type="..."&gt;</code> draws an SVG shape behind its slotted
-            content. <code>type</code> selects a built-in shape strategy (<code>circle</code>,
-            <code>triangle</code>, <code>arrow</code>, ...) or falls back to a matching icon
-            glyph; a slotted <code>&lt;template&gt;</code> can supply a fully custom SVG instead.
+            <code>&lt;juel-shape type="..."&gt;</code> paints a shape layer behind its slotted
+            content. <code>type</code> resolves to a built-in geometric shape (a CSS
+            <code>clip-path</code>, so it scales with no JavaScript), or a matching icon glyph, or
+            &mdash; with a slotted <code>&lt;template&gt;</code> &mdash; a fully custom SVG. Fill with
+            <code>--fill</code>; rotate the shape layer with <code>direction</code>; reveal it on
+            hover with <code>hover</code>.
         </p>
     </header>
 
     <section class="example-section">
-        <h2>Default (circle)</h2>
-        <p>With no <code>type</code>, a circle is drawn behind the slotted content.</p>
+        <h2>Default</h2>
+        <p>With no <code>type</code>, a circle sits behind the slotted content.</p>
         <div class="example-demo">
             <juel-shape>Hello there!</juel-shape>
-            <juel-shape>
-                <p>
-                    One <br />
-                    Two<br />
-                    Three <br />
-                    Four <br />
-                    Five
-                </p>
+            <juel-shape style="--fill: var(--primary, #007bff)">
+                <p>One<br />Two<br />Three<br />Four<br />Five</p>
             </juel-shape>
         </div>
     </section>
 
     <section class="example-section">
-        <h2>Built-in shape strategies</h2>
-        <p><code>type="triangle"</code> and <code>type="arrow"</code> use dedicated drawing strategies.</p>
+        <h2>Built-in geometric shapes</h2>
+        <p>
+            Each is a percentage-based <code>clip-path</code> on a plain filled box. Add your own at
+            runtime with <code>juel.shape.registerShape(name, points)</code>.
+        </p>
         <div class="example-demo">
-            <juel-shape type="triangle"></juel-shape>
-            <juel-shape type="arrow" editable></juel-shape>
+            <div class="shape-grid" id="shape-grid"></div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Fill</h2>
+        <p><code>--fill</code> takes any CSS <code>background</code> value &mdash; a colour, or a gradient.</p>
+        <div class="example-demo">
+            <juel-shape type="heart" style="--fill: var(--danger, #dc3545)"></juel-shape>
+            <juel-shape type="star" style="--fill: #f5b301"></juel-shape>
+            <juel-shape type="hexagon" style="--fill: radial-gradient(circle at 30% 30%, #38bdf8, #1e3a8a)"></juel-shape>
+            <juel-shape type="pentagon" style="--fill: linear-gradient(135deg, #7b2ff7, #f107a3)"></juel-shape>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Direction</h2>
+        <p>
+            <code>direction</code> rotates the shape layer to a compass point
+            (<code>n</code>, <code>ne</code>, <code>e</code>, …); slotted text stays upright.
+        </p>
+        <div class="example-demo">
+            <juel-shape type="arrow" style="--fill: var(--primary, #007bff)">N</juel-shape>
+            <juel-shape type="arrow" direction="e" style="--fill: var(--primary, #007bff)">E</juel-shape>
+            <juel-shape type="arrow" direction="s" style="--fill: var(--primary, #007bff)">S</juel-shape>
+            <juel-shape type="arrow" direction="w" style="--fill: var(--primary, #007bff)">W</juel-shape>
         </div>
     </section>
 
     <section class="example-section">
         <h2>Icon fallback</h2>
-        <p>A <code>type</code> that isn't a shape strategy falls back to a matching icon glyph.</p>
+        <p>A <code>type</code> that isn't a geometric shape falls back to a matching icon glyph.</p>
         <div class="example-demo">
             <juel-shape type="hand"></juel-shape>
             <juel-shape type="smile"></juel-shape>
+            <juel-shape type="info"></juel-shape>
         </div>
     </section>
 
     <section class="example-section">
         <h2>Custom SVG template</h2>
-        <p>A slotted <code>&lt;template&gt;</code> supplies a fully custom shape.</p>
+        <p>
+            A slotted <code>&lt;template&gt;</code> supplies a fully custom shape — themeable through
+            its own <code>var(--*)</code> hooks. See
+            <a href="keep-calm.html">keep-calm.html</a> for named sub-templates and
+            <code>foreignObject</code> text.
+        </p>
         <div class="example-demo">
-            <juel-shape>
-                Here is a duck!
+            <juel-shape style="--width: 140px; --height: 140px">
                 <template>
-                    <svg id="shape-animals-duck" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 49 49"
-                        xml:space="preserve">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 49 49">
                         <style>
-                            .body {
-                                fill: var(--fill-body, var(--fill, #F6C346));
-                            }
-
-                            .beak {
-                                fill: var(--fill-beak, var(--fill, #D77328));
-                            }
-
-                            .wing {
-                                fill: var(--fill-wing, var(--fill, #D77328));
-                            }
+                            .body { fill: var(--fill-body, #F6C346); }
+                            .beak, .wing { fill: var(--fill-beak, #D77328); }
                         </style>
-                        <path class="body"
-                            d="M37.19 26.375c-.999-1.983-2.486-3.818-4.687-5.119a.424.424 0 01-.123-.641c1.116-1.332 4.669-5.868 4.669-9.615 0-6.075-4.925-11-11-11s-11 4.925-11 11c0 6 5.008 9.048 5.873 9.88a.4.4 0 01.128.305c-.012 1.015-.342 5.794-5.532 3.985-1.398-.487-2.64-1.341-3.686-2.387L5.888 16.84a1.079 1.079 0 00-1.634.125C2.92 18.768.431 23.017 1.048 29c0 0 .366 16.187 11.604 19.514 1.209.358 2.474.486 3.734.486h6.858c2.854 0 5.645-.829 8.027-2.402l.25-.166c6.564-4.415 9.229-12.993 5.669-20.057z" />
-                        <path class="beak"
-                            d="M47.538 10H36.997c.03.33.05.662.05 1 0 2.351-1.398 5.011-2.716 6.997V18h5.871c.926 0 1.854-.218 2.632-.721 2.568-1.658 4.434-5.064 5.161-6.554a.504.504 0 00-.457-.725z" />
+                        <path class="body" d="M37.19 26.375c-.999-1.983-2.486-3.818-4.687-5.119a.424.424 0 01-.123-.641c1.116-1.332 4.669-5.868 4.669-9.615 0-6.075-4.925-11-11-11s-11 4.925-11 11c0 6 5.008 9.048 5.873 9.88a.4.4 0 01.128.305c-.012 1.015-.342 5.794-5.532 3.985-1.398-.487-2.64-1.341-3.686-2.387L5.888 16.84a1.079 1.079 0 00-1.634.125C2.92 18.768.431 23.017 1.048 29c0 0 .366 16.187 11.604 19.514 1.209.358 2.474.486 3.734.486h6.858c2.854 0 5.645-.829 8.027-2.402l.25-.166c6.564-4.415 9.229-12.993 5.669-20.057z" />
+                        <path class="beak" d="M47.538 10H36.997c.03.33.05.662.05 1 0 2.351-1.398 5.011-2.716 6.997V18h5.871c.926 0 1.854-.218 2.632-.721 2.568-1.658 4.434-5.064 5.161-6.554a.504.504 0 00-.457-.725z" />
                         <circle cx="28.048" cy="9" r="4" fill="#fff" />
                         <circle cx="30.048" cy="10" r="2" fill="#2c2f38" />
-                        <path class="wing"
-                            d="M20.515 29.887c6.723-3.413 7.533 4.125 7.533 4.125 0 8.75-7 8-7 8-5.947 0-8.933-6.269-9.758-8.343a.601.601 0 01.434-.808l.377-.084c2.905-.645 5.762-1.544 8.414-2.89z" />
+                        <path class="wing" d="M20.515 29.887c6.723-3.413 7.533 4.125 7.533 4.125 0 8.75-7 8-7 8-5.947 0-8.933-6.269-9.758-8.343a.601.601 0 01.434-.808l.377-.084c2.905-.645 5.762-1.544 8.414-2.89z" />
                     </svg>
                 </template>
             </juel-shape>
         </div>
     </section>
+
+    <section class="example-section">
+        <h2>Hover reveal</h2>
+        <p>
+            <code>hover</code> on its own morphs a plain rectangle into <code>type</code> on hover;
+            <code>hover="&lt;shape&gt;"</code> morphs <code>type</code> into that shape. Full demo:
+            <a href="hover.html">hover.html</a>.
+        </p>
+        <div class="example-demo">
+            <juel-shape type="hexagon" hover style="--fill: var(--primary, #007bff)">hover</juel-shape>
+            <juel-shape type="circle" hover="star" style="--fill: #f5b301">hover</juel-shape>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Custom shape via <code>registerShape</code></h2>
+        <p>The lightning bolt below is registered from page script, then used like any built-in.</p>
+        <div class="example-demo">
+            <juel-shape type="bolt" style="--fill: #f5b301"></juel-shape>
+        </div>
+    </section>
+
+    <script>
+        juel.shape.registerShape('bolt', [
+            [55, 0], [20, 55], [45, 55], [35, 100], [80, 40], [52, 40]
+        ]);
+
+        const names = [
+            'rect', 'circle', 'ellipse', 'triangle', 'triangle-down',
+            'diamond', 'kite', 'pentagon', 'hexagon', 'hexagon-flat',
+            'heptagon', 'octagon', 'star', 'star-4', 'star-6',
+            'star-8', 'burst', 'seal', 'arrow', 'chevron',
+            'tab', 'trapezoid', 'parallelogram', 'gem', 'shield',
+            'home', 'bookmark', 'heart', 'speech', 'plus'
+        ];
+        const grid = document.getElementById('shape-grid');
+        for (const name of names) {
+            const fig = document.createElement('figure');
+            fig.className = 'swatch';
+            fig.innerHTML =
+                `<juel-shape type="${name}" style="--fill: var(--primary, #007bff)"></juel-shape>` +
+                `<figcaption>${name}</figcaption>`;
+            grid.appendChild(fig);
+        }
+    </script>
 </body>
 
 </html>

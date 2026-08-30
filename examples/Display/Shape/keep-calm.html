@@ -1,10 +1,59 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <title>Shape — Keep Calm — Juel Examples</title>
     <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .keep-calm-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+        .keep-calm-row figure {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            max-width: 220px;
+        }
+        .keep-calm-row figcaption {
+            font-size: 0.8125rem;
+            color: var(--secondary, #6c757d);
+            text-align: center;
+        }
+        .keep-calm-row juel-shape {
+            --width: 200px;
+            --height: 281px;
+        }
+    </style>
 </head>
 
 <body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Shape — Keep Calm</h1>
+        <p>
+            Three <code>&lt;juel-shape&gt;</code>s driven entirely by a slotted
+            <code>&lt;template&gt;</code>: a full SVG poster with <code>foreignObject</code> text, and
+            two that add a named <code>&lt;template name="crown"&gt;</code> sub-template to swap the
+            crown motif. Every colour is a <code>var(--*)</code> hook.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Template-driven shapes</h2>
+        <p>
+            The <code>type</code> / <code>clip-path</code> machinery is bypassed entirely — the
+            shape <em>is</em> the slotted SVG.
+        </p>
+        <div class="example-demo keep-calm-row">
+            <figure>
    <juel-shape>
       <template>
          <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -369,6 +418,9 @@ class="text"><span>keep calm</span><small>and</small><span>carry on</span></div>
 
      </template>
       </juel-shape>
+                <figcaption><code>&lt;template&gt;</code> — poster + <code>foreignObject</code> text</figcaption>
+            </figure>
+            <figure>
     <juel-shape>
         <p>keep calm and quack!</p>
         <template>
@@ -754,7 +806,9 @@ font-size: 0.5em;
          </svg>
         </template>
     </juel-shape>
-
+                <figcaption><code>&lt;template name="crown"&gt;</code> — duck sub-template</figcaption>
+            </figure>
+            <figure>
     <juel-shape>
       keep calm and play games
       <template>
@@ -1264,6 +1318,10 @@ class="text"><span>keep calm</span><small>and</small><span>carry on</span></div>
 
      </template>
     </juel-shape>
+                <figcaption><code>&lt;template name="crown"&gt;</code> — gamepad sub-template</figcaption>
+            </figure>
+        </div>
+    </section>
 </body>
 
 </html>
