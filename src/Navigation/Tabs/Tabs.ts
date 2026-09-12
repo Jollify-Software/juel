@@ -1,12 +1,14 @@
-import { LitElement, html, css, TemplateResult } from 'lit';
+import { LitElement, html, css, TemplateResult, PropertyValues } from 'lit';
 import { customElement, property, queryAssignedElements } from 'lit/decorators.js';
 import { map } from 'lit/directives/map';
+import interact from '@interactjs/interactjs';
 import { NavigationBase } from '../NavigationBase';
 import { TabsEvents } from './TabsEvents';
 
 @customElement('juel-tab')
 export class JuelTab extends LitElement {
   @property({ type: String }) title = '';
+  @property({ type: Boolean }) closable = false;
 
   @queryAssignedElements({ selector: 'juel-tab' })
   subTabs?: NodeListOf<JuelTab>;
@@ -14,9 +16,12 @@ export class JuelTab extends LitElement {
   static styles = css`
     :host {
       display: none;
+      height: 100%;
       padding: 16px;
       border: 1px solid #ccc;
       border-top: none;
+      box-sizing: border-box;
+      overflow: auto;
     }
   `;
 
@@ -29,6 +34,9 @@ export class JuelTab extends LitElement {
 export class JuelTabs extends NavigationBase {
   @property({ type: Number }) selectedIndex = 0;
   @property({ type: String }) direction: 'horizontal' | 'vertical' = 'horizontal';
+  // Drag-to-reorder top-level tabs. Off by default so plain <juel-tabs> use
+  // (outside juel-mdi) doesn't pull in pointer-drag behavior unasked.
+  @property({ type: Boolean }) reorderable = false;
 
   @queryAssignedElements({ selector: 'juel-tab' })
   private _tabs?: NodeListOf<JuelTab>;
@@ -41,14 +49,23 @@ export class JuelTabs extends NavigationBase {
   private _subSelection = new Map<JuelTab, number>();
   private _subExpanded = new Map<JuelTab, boolean>();
 
+  // The actual selected <juel-tab> element, tracked alongside selectedIndex
+  // so that when a tab elsewhere in the list is added or removed — shifting
+  // every index after it — the same panel keeps showing instead of the
+  // selection silently following the now-stale index onto a different
+  // panel. See selectTab()/selectSubTab() and _handleSlotChange().
+  private _selectedTab?: JuelTab;
+
   static styles = css`
     :host {
       display: block;
+      height: 100%;
       font-family: Arial, sans-serif;
     }
     .tabs-container {
       display: flex;
       flex-direction: var(--container-direction, row);
+      height: 100%;
     }
     :host([direction="vertical"]) .tabs-container {
       flex-direction: row;
@@ -65,6 +82,8 @@ export class JuelTabs extends NavigationBase {
     }
     .tab {
       position: relative;
+      display: flex;
+      align-items: center;
       padding: 10px 16px;
       cursor: pointer;
       border: 1px solid transparent;
@@ -73,6 +92,7 @@ export class JuelTabs extends NavigationBase {
       background-color: #f8f9fa;
       margin-right: 4px;
       transition: background-color 0.2s, border-color 0.2s;
+      user-select: none;
     }
     :host([direction="vertical"]) .tab {
       border-bottom: 1px solid transparent;
@@ -103,9 +123,12 @@ export class JuelTabs extends NavigationBase {
     }
     .tab-content {
       flex: 1;
+      min-height: 0;
       padding: 16px;
       border: 1px solid #ccc;
       border-left: none;
+      overflow: auto;
+      box-sizing: border-box;
     }
     :host([direction="vertical"]) .tab-content {
       border-left: 1px solid #dee2e6;
@@ -169,9 +192,63 @@ export class JuelTabs extends NavigationBase {
     .expand-collapse-button:focus-visible {
       outline: 2px solid #0d6efd;
     }
+    .close-button {
+      width: 16px;
+      height: 16px;
+      margin-left: 8px;
+      padding: 0;
+      border: none;
+      border-radius: 50%;
+      background-color: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .close-button:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+    .close-button:focus-visible {
+      outline: 2px solid #0d6efd;
+    }
+    .close-button:after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 100%;
+      mask-image: var(--icon-close);
+      mask-size: 60%;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      -webkit-mask-image: var(--icon-close);
+      -webkit-mask-size: 60%;
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      background-color: currentColor;
+    }
+    .tab.dragging {
+      opacity: 0.6;
+      z-index: 1;
+    }
+    .tab.drop-target {
+      border-color: #0d6efd;
+    }
   `;
 
   private _handleSlotChange() {
+    // A tab added/removed at runtime (e.g. via a close button) can leave
+    // selectedIndex stale. Prefer keeping the same panel visible by
+    // identity — recomputing its (possibly shifted) index — over letting
+    // the selection silently follow the old index onto a different panel.
+    // Only fall back to positional clamping when the previously-selected
+    // tab itself is gone (or this is the first run).
+    const tabs = this._tabs ? Array.from(this._tabs) : [];
+    if (tabs.length === 0) {
+      this._selectedTab = undefined;
+    } else if (this._selectedTab && tabs.includes(this._selectedTab)) {
+      this.selectedIndex = tabs.indexOf(this._selectedTab);
+    } else {
+      if (this.selectedIndex >= tabs.length) this.selectedIndex = tabs.length - 1;
+      this._selectedTab = tabs[this.selectedIndex];
+    }
     this.requestUpdate();
   }
 
@@ -189,6 +266,7 @@ export class JuelTabs extends NavigationBase {
               class="tab"
               role="tab"
               id="tab-${index}"
+              data-index="${index}"
               tabindex="${selected ? '0' : '-1'}"
               aria-selected="${selected}"
               aria-controls="tab-content"
@@ -203,6 +281,13 @@ export class JuelTabs extends NavigationBase {
                     aria-expanded="${expanded}"
                     aria-label="${expanded ? 'Collapse' : 'Expand'} ${tab.title} sub-tabs"
                     @click=${this.toggleSubTabsFactory(tab)}></button>
+                ` : ''}
+                ${tab.closable ? html`
+                  <button
+                    type="button"
+                    class="close-button"
+                    aria-label="Close ${tab.title}"
+                    @click=${this.closeFactory(index)}></button>
                 ` : ''}
               ${hasSubTabs ? this.renderSubTabs(tab.subTabs!, tab, index, expanded) : ''}
             </div>
@@ -250,8 +335,83 @@ export class JuelTabs extends NavigationBase {
     `;
   }
 
-  updated() {
+  updated(changedProperties: PropertyValues) {
+    // Catches selectedIndex being set from outside (e.g. a controlling
+    // parent like juel-mdi binding .selectedIndex=), so identity tracking
+    // stays in sync even when selectTab()/selectSubTab() weren't the ones
+    // that changed it.
+    if (changedProperties.has('selectedIndex')) {
+      this._selectedTab = this._tabs?.[this.selectedIndex];
+    }
     this._updateTabs();
+    if (this.reorderable) {
+      this._wireReordering();
+    }
+  }
+
+  // Drag-to-reorder: each top-level .tab is both draggable and a dropzone
+  // for its siblings. Dropping tab A onto tab B moves A to B's index and
+  // dispatches TabReorder — reordering the underlying data is the
+  // consumer's job (the tabs re-render from that data on the next update),
+  // this component doesn't own tab order itself.
+  private _wireReordering() {
+    const tabElements = this.shadowRoot?.querySelectorAll('.tabs > .tab');
+    if (!tabElements) return;
+
+    tabElements.forEach((el) => {
+      const tab = el as HTMLElement;
+      interact(tab).unset();
+
+      interact(tab)
+        .draggable({
+          listeners: {
+            start: () => {
+              tab.classList.add('dragging');
+            },
+            move: (event) => {
+              const x = (parseFloat(tab.dataset.dragX || '0')) + event.dx;
+              const y = (parseFloat(tab.dataset.dragY || '0')) + event.dy;
+              tab.style.transform = `translate(${x}px, ${y}px)`;
+              tab.dataset.dragX = String(x);
+              tab.dataset.dragY = String(y);
+            },
+            end: (event) => {
+              tab.classList.remove('dragging');
+              tab.style.transform = '';
+              delete tab.dataset.dragX;
+              delete tab.dataset.dragY;
+              this.dispatchEvent(new CustomEvent(TabsEvents.TabDragEnd, {
+                detail: { index: Number(tab.dataset.index), client: { x: event.client.x, y: event.client.y } },
+                bubbles: true,
+                composed: true,
+              }));
+            },
+          },
+        })
+        .dropzone({
+          accept: '.tab',
+          overlap: 0.5,
+          ondragenter: (event) => {
+            (event.target as HTMLElement).classList.add('drop-target');
+          },
+          ondragleave: (event) => {
+            (event.target as HTMLElement).classList.remove('drop-target');
+          },
+          ondrop: (event) => {
+            const dropTarget = event.target as HTMLElement;
+            const dragged = event.relatedTarget as HTMLElement;
+            dropTarget.classList.remove('drop-target');
+            const from = Number(dragged.dataset.index);
+            const to = Number(dropTarget.dataset.index);
+            if (Number.isNaN(from) || Number.isNaN(to) || from === to) return;
+            this.dispatchEvent(new CustomEvent(TabsEvents.TabReorder, {
+              detail: { from, to },
+              bubbles: true,
+              composed: true,
+            }));
+          },
+        });
+    });
   }
 
   private _updateTabs() {
@@ -299,6 +459,7 @@ export class JuelTabs extends NavigationBase {
     if (index === this.selectedIndex) return;
     const previousIndex = this.selectedIndex;
     this.selectedIndex = index;
+    this._selectedTab = this._tabs?.[index];
     this.dispatchEvent(new CustomEvent(TabsEvents.TabChanged, {
       detail: { index, previousIndex },
     }));
@@ -311,6 +472,7 @@ export class JuelTabs extends NavigationBase {
 
     const previousIndex = this.selectedIndex;
     this.selectedIndex = parentIndex;
+    this._selectedTab = tab;
     this._subSelection.set(tab, subIndex);
     this._subExpanded.set(tab, true);
     // _subSelection is a plain Map, not a reactive property, and when the
@@ -322,6 +484,17 @@ export class JuelTabs extends NavigationBase {
     this.dispatchEvent(new CustomEvent(TabsEvents.TabChanged, {
       detail: { index: parentIndex, previousIndex, subIndex },
     }));
+  }
+
+  closeFactory(index: number) {
+    return (e: MouseEvent) => {
+      e.stopPropagation();
+      this.dispatchEvent(new CustomEvent(TabsEvents.TabClose, {
+        detail: { index },
+        bubbles: true,
+        composed: true,
+      }));
+    };
   }
 
   toggleSubTabsFactory(tab: JuelTab) {

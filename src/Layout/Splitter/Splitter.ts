@@ -36,10 +36,28 @@ export class JuelSplitter extends JuelComponent {
         }
 
         AppendStyle(JuelSplitter.StyleName, Styles);
+        // Since this component renders to the light DOM (see createRenderRoot
+        // above), the document-head stylesheet AppendStyle injects only
+        // reaches instances that live directly in page light DOM. An
+        // instance placed inside another component's shadow root (e.g.
+        // juel-mdi's row/column layout) sits behind that shadow boundary,
+        // which document.head styles can't cross — copy the stylesheet into
+        // that root too so nested usage lays out correctly.
+        const root = this.getRootNode();
+        if (root instanceof ShadowRoot && !root.querySelector(`#${JuelSplitter.StyleName}`)) {
+            let style = document.createElement('style');
+            style.id = JuelSplitter.StyleName;
+            style.textContent = Styles;
+            root.prepend(style);
+        }
 
+        // A pane may already carry an explicit flex-basis (e.g. juel-mdi
+        // rendering a saved layout's pane sizes) — only default the rest to
+        // an equal share, so a caller-supplied size survives this pass
+        // regardless of which mounts first.
         let basis = 100 / panes.length;
         for (let pane of panes) {
-            pane.style.flex = `1 1 ${basis}%`;
+            if (!pane.style.flex) pane.style.flex = `1 1 ${basis}%`;
             pane.classList.add('juel-split-pane');
         }
 

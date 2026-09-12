@@ -56,8 +56,12 @@ export class ProgressBar extends LitElement {
   }
 
   render() {
+    // Only pin the width inline when a value is actually in play. Left unset,
+    // the fill is governed by the `--juel-progress` custom property (see
+    // Progress.less) so a host can bind it to a CSS variable declaratively.
+    const style = (this.trackScroll || this.value > 0) ? `width: ${this.value}%;` : '';
     return html`
-      <div class="progress" style="width: ${this.value}%;"></div>
+      <div class="progress" part="bar" style=${style}></div>
     `;
   }
 }

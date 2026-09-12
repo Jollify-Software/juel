@@ -7,13 +7,240 @@
     <script src="../../../dist/juel.js"></script>
     <link rel="stylesheet" href="../../_Shared/examples.css" />
     <style>
-        juel-mdi {
-            height: 300px;
+        .mdi-demo {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 0.5rem;
+        }
+        .mdi-demo juel-mdi {
+            width: 100%;
             border: 1px solid var(--border-color, #dee2e6);
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        #flagship-demo { height: 420px; }
+        /* juel-mdi slots each panel's light-DOM element straight into a
+           flex pane-body (or, for a tab stack, juel-tabs' tab-content) —
+           an ordinary block div doesn't pick up that flex sizing on its
+           own, so without an explicit height the dark panels below just
+           shrink to fit their content instead of filling the pane. */
+        #explorer-panel, #editor-panel, #console-panel, #problems-panel, #output-panel {
+            height: 100%;
+            box-sizing: border-box;
+        }
+        #tabs-demo { height: 320px; }
+        #widgets-demo { height: 380px; }
+
+        .mdi-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .mdi-toolbar button {
+            font-size: 0.8125rem;
+        }
+        .mdi-toolbar .spacer {
+            flex: 1 1 auto;
+        }
+
+        /* --- Explorer --- */
+        .ide-explorer {
+            font-size: 0.8125rem;
+        }
+        .ide-tree-folder {
+            font-weight: 600;
+            padding: 3px 4px;
+            user-select: none;
+        }
+        .ide-tree-file {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 4px 3px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .ide-tree-file:hover {
+            background: rgba(0, 0, 0, 0.06);
+        }
+        .ide-tree-file.selected {
+            background: var(--primary, #0d6efd);
+            color: #fff;
+        }
+        .ide-file-badge {
+            flex: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            font-size: 0.5625rem;
+            font-weight: 700;
+            line-height: 15px;
+            text-align: center;
+            color: #fff;
+        }
+        .ide-file-badge.ts { background: #3178c6; }
+        .ide-file-badge.css { background: #8a3ffc; }
+        .ide-file-badge.md { background: #6c757d; }
+
+        /* --- Editor (dark, full-bleed within the 10px pane-body padding) --- */
+        .ide-editor {
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .ide-editor-tab {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            background: #2d2d2d;
+            border-bottom: 1px solid #3c3c3c;
+            color: #cfcfcf;
+        }
+        .ide-code {
+            flex: 1;
+            margin: 0;
+            padding: 10px 12px;
+            overflow: auto;
+            font-family: "Cascadia Code", Consolas, "SF Mono", monospace;
+            font-size: 0.8125rem;
+            line-height: 1.6;
+            white-space: pre;
+        }
+        .ide-doc {
+            flex: 1;
+            padding: 14px 16px;
+            overflow: auto;
+            font-family: Georgia, serif;
+            font-size: 0.875rem;
+            line-height: 1.7;
+        }
+        .tok-kw { color: #569cd6; }
+        .tok-str { color: #ce9178; }
+        .tok-com { color: #6a9955; }
+        .tok-type { color: #4ec9b0; }
+        .tok-fn { color: #dcdcaa; }
+
+        /* --- Console / Problems / Output (dark tool-panel family) ---
+           Full-bleed against juel-tab's own 16px padding stacked on top of
+           juel-tabs' 16px .tab-content padding (~34px combined, borders
+           included) — unlike the Editor pane's single 10px pane-body, a
+           tab-stack panel sits inside two nested paddings. */
+        .ide-tool-panel {
+            height: 100%;
+            box-sizing: border-box;
+            overflow: auto;
+            background: #1e1e1e;
+            color: #cfcfcf;
             border-radius: 4px;
         }
-        .panel-content {
-            padding: 1rem;
+        .ide-console-log {
+            margin: 0;
+            padding: 8px 10px;
+            font-family: Consolas, "SF Mono", monospace;
+            font-size: 0.75rem;
+            line-height: 1.6;
+        }
+        .ide-console-log .ok { color: #4ec9b0; }
+        .ide-console-log .err { color: #f14c4c; }
+        .ide-console-log .dim { color: #6a6a6a; }
+        .ide-problem {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            padding: 6px 10px;
+            font-size: 0.8125rem;
+            cursor: pointer;
+            border-bottom: 1px solid #2d2d2d;
+        }
+        .ide-problem:hover {
+            background: #2a2d2e;
+        }
+        .ide-problem-dot {
+            flex: none;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .ide-problem-dot.error { background: #f14c4c; }
+        .ide-problem-dot.warning { background: #dcdcaa; }
+        .ide-problem-loc { color: #6a6a6a; font-size: 0.75rem; }
+
+        /* --- Tabbed dashboard --- */
+        .dash-stats {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .dash-stat {
+            flex: 1 1 100px;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            background: var(--secondary-background, #f1f3f5);
+            border: 1px solid var(--border-color, #dee2e6);
+        }
+        .dash-stat .value {
+            font-size: 1.375rem;
+            font-weight: 700;
+        }
+        .dash-stat .label {
+            font-size: 0.75rem;
+            color: var(--secondary);
+        }
+        .dash-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+        }
+        .dash-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border-color, #dee2e6);
+        }
+        .dash-table td:first-child {
+            color: var(--secondary);
+            width: 40%;
+        }
+        .dash-form label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--secondary);
+            margin: 0.6rem 0 0.2rem;
+        }
+        .dash-form input, .dash-form select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.35rem 0.5rem;
+            font-size: 0.8125rem;
+        }
+
+        /* --- Stacked widgets --- */
+        .widget-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            font-size: 0.8125rem;
+        }
+        .widget-list li {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border-color, #dee2e6);
+        }
+        .widget-list li:last-child {
+            border-bottom: none;
+        }
+        .widget-list .when {
+            color: var(--secondary);
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -24,44 +251,312 @@
     <header class="example-header">
         <h1>Mdi</h1>
         <p>
-            <code>&lt;juel-mdi&gt;</code> lays out its light-DOM children as separate panels, each
-            titled via a <code>data-title</code> attribute. <code>order="stack"</code> (the default)
-            shows them as tabs; <code>order="row"</code> or <code>order="column"</code> arranges
-            them side by side or stacked, resizable via <code>&lt;juel-splitter&gt;</code>. On a
-            mobile-sized viewport it always falls back to tabs, regardless of <code>order</code>.
+            <code>&lt;juel-mdi&gt;</code> is a dependency-free docking layout, in the spirit of
+            <a href="https://golden-layout.com/examples/" target="_blank" rel="noopener">GoldenLayout</a>:
+            light-DOM children become panels, arranged as tabs (<code>order="stack"</code>, the
+            default) or side-by-side/stacked panes (<code>order="row"</code> /
+            <code>order="column"</code>), resizable via <code>&lt;juel-splitter&gt;</code> and
+            falling back to plain tabs on mobile regardless of <code>order</code>.
+        </p>
+        <p>
+            The workspace below is one <code>juel-mdi</code> instance wired up like a small IDE —
+            an Explorer, an Editor, and a Console/Problems/Output pane group. Click a file to open
+            it (this broadcasts a <code>select-file</code> message the Console listens for). Drag a
+            pane's title bar onto another pane's edge to split it off, or onto its middle to merge
+            it into that pane's tab stack — or drag it well clear of the whole layout to pop it
+            straight into its own window, the same way you can with the toolbar button below. Each
+            pane also has maximize and close buttons, and the whole layout can be saved/restored,
+            popped into its own window, or reset.
         </p>
     </header>
 
     <section class="example-section">
-        <h2>Stacked (tabs)</h2>
-        <div class="example-demo">
-            <juel-mdi order="stack">
-                <div data-title="Overview"><div class="panel-content">Overview panel content.</div></div>
-                <div data-title="Details"><div class="panel-content">Details panel content.</div></div>
-                <div data-title="Settings"><div class="panel-content">Settings panel content.</div></div>
+        <h2>IDE-style workspace (row, drag-to-dock, broadcast, popout, save/restore)</h2>
+        <div class="mdi-demo">
+            <juel-mdi id="flagship-demo" order="row">
+                <div id="explorer-panel" data-title="Explorer" data-closable="false">
+                    <div class="ide-explorer">
+                        <div class="ide-tree-folder">▾ src</div>
+                        <div class="ide-tree-file" data-file="App.ts">
+                            <span class="ide-file-badge ts">TS</span>App.ts
+                        </div>
+                        <div class="ide-tree-file" data-file="Button.ts">
+                            <span class="ide-file-badge ts">TS</span>Button.ts
+                        </div>
+                        <div class="ide-tree-file" data-file="styles.css">
+                            <span class="ide-file-badge css">CS</span>styles.css
+                        </div>
+                        <div class="ide-tree-folder" style="margin-top: 4px;">&nbsp;</div>
+                        <div class="ide-tree-file" data-file="README.md" style="padding-left: 4px;">
+                            <span class="ide-file-badge md">MD</span>README.md
+                        </div>
+                    </div>
+                </div>
+                <div id="editor-panel" data-title="Editor" data-closable="false">
+                    <div class="ide-editor">
+                        <div class="ide-editor-tab" id="editor-tab-label">Select a file to open it</div>
+                        <div class="ide-code" id="editor-body"></div>
+                    </div>
+                </div>
+                <div id="console-panel" data-title="Console">
+                    <div class="ide-tool-panel">
+                        <pre class="ide-console-log" id="console-log">&gt; <span class="dim">ready.</span></pre>
+                    </div>
+                </div>
+                <div id="problems-panel" data-title="Problems">
+                    <div class="ide-tool-panel" id="problems-list">
+                        <div class="ide-problem" data-file="Button.ts" data-line="9">
+                            <span class="ide-problem-dot warning"></span>
+                            <span>'label' is declared but its value is never read.</span>
+                            <span class="ide-problem-loc">Button.ts:9</span>
+                        </div>
+                        <div class="ide-problem" data-file="App.ts" data-line="4">
+                            <span class="ide-problem-dot error"></span>
+                            <span>Cannot find name 'root' outside constructor scope.</span>
+                            <span class="ide-problem-loc">App.ts:4</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="output-panel" data-title="Output">
+                    <div class="ide-tool-panel">
+                        <pre class="ide-console-log" id="output-log"><span class="dim">Nothing built yet — try "Run build".</span></pre>
+                    </div>
+                </div>
             </juel-mdi>
+            <div class="mdi-toolbar">
+                <button type="button" id="run-build">Run build</button>
+                <button type="button" id="pop-console">Pop out Console</button>
+                <button type="button" id="redock-console">Redock Console</button>
+                <span class="spacer"></span>
+                <button type="button" id="save-layout">Save layout</button>
+                <button type="button" id="restore-layout">Restore saved layout</button>
+                <button type="button" id="reset-layout">Reset workspace</button>
+            </div>
         </div>
     </section>
 
     <section class="example-section">
-        <h2>Row (resizable, side by side)</h2>
-        <div class="example-demo">
-            <juel-mdi order="row">
-                <div data-title="Explorer"><div class="panel-content">File list goes here.</div></div>
-                <div data-title="Editor"><div class="panel-content">Editor content goes here.</div></div>
+        <h2>Tabbed dashboard (stack, closable, runtime add/focus/replace)</h2>
+        <div class="mdi-demo">
+            <juel-mdi id="tabs-demo" order="stack">
+                <div id="overview-panel" data-title="Overview">
+                    <div class="dash-stats">
+                        <div class="dash-stat"><div class="value">128</div><div class="label">Active users</div></div>
+                        <div class="dash-stat"><div class="value">3</div><div class="label">Open errors</div></div>
+                        <div class="dash-stat"><div class="value">99.9%</div><div class="label">Uptime (30d)</div></div>
+                    </div>
+                </div>
+                <div data-title="Details">
+                    <table class="dash-table">
+                        <tr><td>Version</td><td>2.4.1</td></tr>
+                        <tr><td>Build</td><td>#1042 (main)</td></tr>
+                        <tr><td>Environment</td><td>Production</td></tr>
+                        <tr><td>Region</td><td>eu-west-1</td></tr>
+                    </table>
+                </div>
+                <div data-title="Settings" data-closable="false">
+                    <form class="dash-form">
+                        <label for="dash-name">Display name</label>
+                        <input id="dash-name" type="text" value="Demo Workspace">
+                        <label for="dash-theme">Theme</label>
+                        <select id="dash-theme"><option>Light</option><option>Dark</option><option>System</option></select>
+                    </form>
+                </div>
             </juel-mdi>
+            <div class="mdi-toolbar">
+                <button type="button" id="add-panel">Add panel</button>
+                <button type="button" id="focus-overview">Focus "Overview"</button>
+                <button type="button" id="replace-overview">Replace "Overview" content</button>
+            </div>
         </div>
     </section>
 
     <section class="example-section">
-        <h2>Column (resizable, stacked)</h2>
-        <div class="example-demo">
-            <juel-mdi order="column">
-                <div data-title="Console"><div class="panel-content">Console output goes here.</div></div>
-                <div data-title="Problems"><div class="panel-content">Problems list goes here.</div></div>
+        <h2>Stacked widgets (column, not closable, maximize)</h2>
+        <div class="mdi-demo">
+            <juel-mdi id="widgets-demo" order="column" default-closable="false">
+                <div data-title="Activity">
+                    <ul class="widget-list">
+                        <li><span>Deploy <strong>#1042</strong> succeeded</span><span class="when">2m ago</span></li>
+                        <li><span>Alice merged <strong>#318</strong> "Fix splitter drag"</span><span class="when">17m ago</span></li>
+                        <li><span>Nightly backup completed</span><span class="when">1h ago</span></li>
+                        <li><span>Ben commented on <strong>#312</strong></span><span class="when">3h ago</span></li>
+                    </ul>
+                </div>
+                <div data-title="Notifications">
+                    <ul class="widget-list">
+                        <li><span>3 dependencies have updates available</span><span class="when">today</span></li>
+                        <li><span>Storage at 72% of quota</span><span class="when">today</span></li>
+                    </ul>
+                </div>
             </juel-mdi>
         </div>
     </section>
+
+    <script>
+        // ---------------------------------------------------------------
+        // Flagship IDE-style workspace
+        // ---------------------------------------------------------------
+        const files = {
+            'App.ts': {
+                type: 'code',
+                html: '<span class="tok-kw">import</span> { Button } <span class="tok-kw">from</span> <span class="tok-str">\'./Button\'</span>;\n\n'
+                    + '<span class="tok-kw">export</span> <span class="tok-kw">class</span> <span class="tok-type">App</span> {\n'
+                    + '  <span class="tok-kw">private</span> button: <span class="tok-type">Button</span>;\n\n'
+                    + '  <span class="tok-fn">constructor</span>(root: HTMLElement) {\n'
+                    + '    <span class="tok-com">// root comes from the host page</span>\n'
+                    + '    <span class="tok-kw">this</span>.button = <span class="tok-kw">new</span> <span class="tok-fn">Button</span>(<span class="tok-str">\'Click me\'</span>);\n'
+                    + '    root.<span class="tok-fn">appendChild</span>(<span class="tok-kw">this</span>.button.<span class="tok-fn">render</span>());\n'
+                    + '  }\n'
+                    + '}',
+            },
+            'Button.ts': {
+                type: 'code',
+                html: '<span class="tok-kw">export</span> <span class="tok-kw">class</span> <span class="tok-type">Button</span> {\n'
+                    + '  <span class="tok-fn">constructor</span>(<span class="tok-kw">private</span> label: string) {}\n\n'
+                    + '  <span class="tok-fn">render</span>(): HTMLElement {\n'
+                    + '    <span class="tok-kw">const</span> el = document.<span class="tok-fn">createElement</span>(<span class="tok-str">\'button\'</span>);\n'
+                    + '    el.textContent = label;\n'
+                    + '    el.className = <span class="tok-str">\'btn\'</span>;\n'
+                    + '    <span class="tok-kw">return</span> el;\n'
+                    + '  }\n'
+                    + '}',
+            },
+            'styles.css': {
+                type: 'code',
+                html: '<span class="tok-type">.btn</span> {\n'
+                    + '  padding: <span class="tok-str">0.5rem</span> <span class="tok-str">1rem</span>;\n'
+                    + '  border-radius: <span class="tok-str">6px</span>;\n'
+                    + '  background: <span class="tok-fn">var</span>(<span class="tok-str">--primary</span>);\n'
+                    + '  color: <span class="tok-str">#fff</span>;\n'
+                    + '  border: <span class="tok-kw">none</span>;\n'
+                    + '}\n\n'
+                    + '<span class="tok-type">.btn:hover</span> {\n'
+                    + '  filter: <span class="tok-fn">brightness</span>(<span class="tok-str">1.1</span>);\n'
+                    + '}',
+            },
+            'README.md': {
+                type: 'doc',
+                html: '<p><strong>Demo App</strong></p>'
+                    + '<p>A tiny example app used to show off <code>juel-mdi</code> docking.</p>'
+                    + '<p>src/App.ts &ndash; entry point<br>src/Button.ts &ndash; button widget<br>src/styles.css &ndash; styles</p>',
+            },
+        };
+
+        const flagship = document.getElementById('flagship-demo');
+        const editorTabLabel = document.getElementById('editor-tab-label');
+        const editorBody = document.getElementById('editor-body');
+        const consoleLog = document.getElementById('console-log');
+        const outputLog = document.getElementById('output-log');
+
+        function logLine(el, html) {
+            el.insertAdjacentHTML('beforeend', '\n' + html);
+            el.scrollTop = el.scrollHeight;
+        }
+
+        function timestamp() {
+            return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+
+        function openFile(name) {
+            const file = files[name];
+            if (!file) return;
+
+            editorTabLabel.textContent = name;
+            editorBody.className = file.type === 'doc' ? 'ide-doc' : 'ide-code';
+            editorBody.innerHTML = file.html;
+
+            document.querySelectorAll('.ide-tree-file').forEach(row => {
+                row.classList.toggle('selected', row.dataset.file === name);
+            });
+
+            flagship.broadcast('select-file', { path: 'src/' + name });
+        }
+
+        // Explorer -> broadcast -> Console (works whether Console is docked or popped out).
+        document.querySelectorAll('.ide-tree-file').forEach(row => {
+            row.addEventListener('click', () => openFile(row.dataset.file));
+        });
+        document.querySelectorAll('.ide-problem').forEach(row => {
+            row.addEventListener('click', () => openFile(row.dataset.file));
+        });
+
+        flagship.addEventListener('mdi:select-file', (e) => {
+            logLine(consoleLog, '&gt; <span class="ok">opened</span> ' + e.detail.path + ' <span class="dim">[' + timestamp() + ']</span>');
+        });
+
+        document.getElementById('run-build').addEventListener('click', () => {
+            logLine(consoleLog, '&gt; <span class="dim">running build&hellip;</span>');
+            outputLog.innerHTML = '<span class="dim">Compiling 3 files&hellip;</span>';
+            flagship.broadcast('build-started', {});
+            setTimeout(() => {
+                const ms = 300 + Math.floor(Math.random() * 400);
+                logLine(outputLog, '<span class="ok">Build succeeded</span> in ' + ms + 'ms <span class="dim">(1 warning, 1 error)</span>');
+                logLine(consoleLog, '&gt; <span class="ok">build finished</span> <span class="dim">[' + timestamp() + ']</span>');
+                flagship.broadcast('build-finished', { ms });
+            }, 600);
+        });
+
+        document.getElementById('pop-console').addEventListener('click', () => {
+            if (!flagship.popPanel('console-panel')) {
+                alert('Popup blocked — allow popups for this page to try it.');
+            }
+        });
+        document.getElementById('redock-console').addEventListener('click', () => {
+            flagship.redockPanel('console-panel');
+        });
+
+        const initialLayout = {
+            order: 'row',
+            panes: [
+                { panelIds: ['explorer-panel'], selectedIndex: 0, size: 18 },
+                { panelIds: ['editor-panel'], selectedIndex: 0, size: 40 },
+                { panelIds: ['console-panel', 'problems-panel', 'output-panel'], selectedIndex: 0, size: 42 },
+            ],
+        };
+        flagship.updateComplete.then(() => flagship.setLayout(initialLayout));
+
+        let savedLayout = null;
+        document.getElementById('save-layout').addEventListener('click', () => {
+            savedLayout = flagship.getLayout();
+            console.log('Saved layout:', savedLayout);
+            alert('Layout saved (see console). Try dragging panes around, then restore it.');
+        });
+        document.getElementById('restore-layout').addEventListener('click', () => {
+            if (savedLayout) {
+                flagship.setLayout(savedLayout);
+            } else {
+                alert('Save a layout first.');
+            }
+        });
+        document.getElementById('reset-layout').addEventListener('click', () => {
+            flagship.setLayout(initialLayout);
+        });
+
+        // ---------------------------------------------------------------
+        // Tabbed dashboard
+        // ---------------------------------------------------------------
+        let addCount = 0;
+        let replaceCount = 0;
+        const tabsDemo = document.getElementById('tabs-demo');
+
+        document.getElementById('add-panel').addEventListener('click', () => {
+            const content = document.createElement('div');
+            content.innerHTML = '<div class="dash-stat"><div class="value">' + (++addCount) + '</div><div class="label">Added panel</div></div>';
+            tabsDemo.addPanel(content, { title: 'Added ' + addCount });
+        });
+
+        document.getElementById('focus-overview').addEventListener('click', () => {
+            tabsDemo.focusPanel('overview-panel');
+        });
+
+        document.getElementById('replace-overview').addEventListener('click', () => {
+            const content = document.createElement('div');
+            content.innerHTML = '<div class="dash-stats"><div class="dash-stat"><div class="value">'
+                + (++replaceCount) + '</div><div class="label">Replaced #' + replaceCount + '</div></div></div>';
+            tabsDemo.replacePanel('overview-panel', content);
+        });
+    </script>
 </body>
 
 </html>

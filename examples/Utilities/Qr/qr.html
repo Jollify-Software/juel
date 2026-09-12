@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>QR Code — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>QR Code</h1>
+        <p>
+            <code>&lt;juel-qr value="..."&gt;</code> encodes a string (byte mode, UTF-8)
+            and renders it as crisp, scalable SVG. <code>ecl</code> sets error-correction
+            (<code>L</code>/<code>M</code>/<code>Q</code>/<code>H</code>), <code>scale</code>
+            the pixels-per-module, <code>margin</code> the quiet-zone width. It fires
+            <code>qr-render</code> on success and <code>qr-error</code> if the payload is
+            empty or too large.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Basic</h2>
+        <p>A URL at the default error-correction level M.</p>
+        <div class="example-demo">
+            <juel-qr value="https://github.com/Jollify-Software/juel" scale="5"></juel-qr>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Error-correction levels</h2>
+        <p>Same text, <code>ecl</code> L → H. Higher levels survive more damage but pack denser.</p>
+        <div class="example-demo" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-start">
+            <figure><juel-qr value="Juel — a garden of jewels" ecl="L" scale="4"></juel-qr><figcaption>L</figcaption></figure>
+            <figure><juel-qr value="Juel — a garden of jewels" ecl="M" scale="4"></juel-qr><figcaption>M</figcaption></figure>
+            <figure><juel-qr value="Juel — a garden of jewels" ecl="Q" scale="4"></juel-qr><figcaption>Q</figcaption></figure>
+            <figure><juel-qr value="Juel — a garden of jewels" ecl="H" scale="4"></juel-qr><figcaption>H</figcaption></figure>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Colour</h2>
+        <p><code>foreground</code> / <code>background</code> — keep the contrast strong.</p>
+        <div class="example-demo">
+            <juel-qr value="https://jollify.software" scale="5"
+                     foreground="#1f2430" background="#eef1f7"></juel-qr>
+        </div>
+    </section>
+</body>
+
+</html>

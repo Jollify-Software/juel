@@ -5,6 +5,7 @@ import './Trigger/Trigger';
 import './Trigger/TriggerAction';
 import './Scroll/Scroll';
 import './Scanner/Scanner';
+import './Qr/Qr';
 import './Embed/Embed';
 import './Animate/Animate';
 import './Animate/AnimateFrame';

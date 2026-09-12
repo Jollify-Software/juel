@@ -1,6 +1,11 @@
+// Shared flex grid. Consumed by Juel components (see _CommonStyles/main.less)
+// and by sibling Jollify projects (e.g. Jetty decks) so the row/column layout
+// primitives are defined once. Keep additive: `--column-gap` / `--block-spacing`
+// have no default here, and the negative-margin gutter falls back to 0 when a
+// consumer hasn't set `--column-gap`, so importing this changes nothing until
+// a consumer opts in.
 .grid() {
     --block-spacing: 1.5rem;
-    --column-gap: 0.5rem;
     --column-gap: 0.5rem;
 }
 
@@ -8,9 +13,9 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    margin-inline-end: calc(var(--column-gap)* -1);
-    margin-inline-start: calc(var(--column-gap)* -1);
-    margin-top: calc(var(--column-gap)* -1);
+    margin-inline-end: calc(var(--column-gap, 0px) * -1);
+    margin-inline-start: calc(var(--column-gap, 0px) * -1);
+    margin-top: calc(var(--column-gap, 0px) * -1);
 }
 .columns {
     display: flex;
@@ -47,7 +52,7 @@
     flex-basis: 0;
     flex-grow: 1;
     flex-shrink: 1;
-    padding: var(--column-gap);
+    padding: var(--column-gap, 0px);
 }
 .column {
     flex-direction: column;
