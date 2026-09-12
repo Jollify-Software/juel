@@ -6,7 +6,7 @@ import { MessageBoxArgs } from "../../src/_Modules/MessageBox/MessageBoxArgs";
 function createMsgBox(): HTMLElement {
     let msgBox = document.createElement("div");
     msgBox.id = "overlay";
-    msgBox.innerHTML = `<div id="dialog"><div id="dialog-title"><span></span></div><div id="dialog-body"></div></div>`;
+    msgBox.innerHTML = `<div id="dialog"><div id="dialog-title"><span></span></div><div id="dialog-body"><div id="dialog-content"></div></div><div id="dialog-footer"></div></div>`;
     document.body.append(msgBox);
     return msgBox;
 }
@@ -32,7 +32,7 @@ describe("MessageBoxButtonStrategies", () => {
     test("OK renders a single button that resolves with OK status and removes the overlay", () => {
         MessageBoxButtonStrategies[MessageBoxButtons.OK](args, msgBox, resolve, reject);
 
-        let okBtn = msgBox.querySelector("#dialog-body juel-button");
+        let okBtn = msgBox.querySelector("#dialog-footer juel-button");
         expect(okBtn).not.toBeNull();
 
         click(okBtn);
@@ -87,7 +87,7 @@ describe("MessageBoxButtonStrategies", () => {
     test("YesNoCancel renders three distinct buttons that each resolve independently", () => {
         MessageBoxButtonStrategies[MessageBoxButtons.YesNoCancel](args, msgBox, resolve, reject);
 
-        expect(msgBox.querySelectorAll("#dialog-body juel-button").length).toBe(3);
+        expect(msgBox.querySelectorAll("#dialog-footer juel-button").length).toBe(3);
 
         click(msgBox.querySelector("#cancel"));
         expect(resolve).toHaveBeenCalledWith({ status: MessageBoxResultStatus.Cancel, value: "the-value" });

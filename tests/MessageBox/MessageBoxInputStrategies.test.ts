@@ -4,7 +4,7 @@ import { MessageBoxPromptField } from "../../src/_Modules/MessageBox/MessageBoxP
 
 function createMsgBox(): HTMLElement {
     let msgBox = document.createElement("div");
-    msgBox.innerHTML = `<div id="dialog-body"></div>`;
+    msgBox.innerHTML = `<div id="dialog-body"><div id="dialog-content"></div></div>`;
     document.body.append(msgBox);
     return msgBox;
 }
@@ -26,7 +26,7 @@ describe("MessageBoxInputStrategies", () => {
 
         MessageBoxInputStrategies["text"](args, msgBox);
 
-        let input = msgBox.querySelector("#dialog-body juel-text");
+        let input = msgBox.querySelector("#dialog-content juel-text");
         expect(input).not.toBeNull();
         expect(input.getAttribute("value")).toBe("initial");
 
@@ -41,7 +41,7 @@ describe("MessageBoxInputStrategies", () => {
 
         MessageBoxInputStrategies["text"](args, msgBox, field);
 
-        let input = msgBox.querySelector("#dialog-body juel-text");
+        let input = msgBox.querySelector("#dialog-content juel-text");
         expect(input.getAttribute("label")).toBe("Email");
 
         changeValue(input, "a@b.com");
@@ -55,11 +55,11 @@ describe("MessageBoxInputStrategies", () => {
         let emailField: MessageBoxPromptField = { name: "email", type: "text", value: "" };
 
         MessageBoxInputStrategies["text"](args, msgBox, nameField);
-        let nameInput = msgBox.querySelectorAll("#dialog-body juel-text")[0];
+        let nameInput = msgBox.querySelectorAll("#dialog-content juel-text")[0];
         changeValue(nameInput, "Ada");
 
         MessageBoxInputStrategies["text"](args, msgBox, emailField);
-        let emailInput = msgBox.querySelectorAll("#dialog-body juel-text")[1];
+        let emailInput = msgBox.querySelectorAll("#dialog-content juel-text")[1];
         changeValue(emailInput, "ada@example.com");
 
         expect(args.value).toEqual({ name: "Ada", email: "ada@example.com" });

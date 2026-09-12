@@ -295,8 +295,16 @@ count-up timer for now — if a second consumer wants one, promote it to a
   slot (needs `ecl="H"`).
 
 ## Known issues (pre-existing, not caused by the above)
-- `npx jest` (full) has **12 failing tests in `tests/MessageBox/*`** — present before this
-  work; worth a dedicated look.
+- ~~`npx jest` (full) has 12 failing tests in `tests/MessageBox/*`~~ — **fixed
+  (2026-09-12)**. Root cause: `MessageBoxButtonStrategies.test.ts` and
+  `MessageBoxInputStrategies.test.ts` hand-build a mock `msgBox` DOM that
+  predated the Bootbox-style redesign (commit history, ~2026-08-24) adding a
+  `#dialog-content`/`#dialog-footer` structure — the real strategies append
+  into those ids, the stale mocks didn't have them at all, so every
+  `querySelector(...).append(...)` threw on a null result. Updated both
+  mocks to match the real markup and fixed the handful of assertions that
+  were also still querying the old `#dialog-body juel-button`/`juel-text`
+  shape directly. All 130 tests pass now.
 - `MarkdownEditor` throws a CodeMirror `tags is not iterable` highlight crash on mount —
   a Parcel bundling issue (CM facet registry not shared between `basicSetup` and `markdown()`).
   Editing still works; only syntax highlighting is dead. Needs a package.json `alias` pass.
