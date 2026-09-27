@@ -17841,6 +17841,8 @@ parcelHelpers.export(exports, "JuelTable", ()=>JuelTable);
 parcelHelpers.export(exports, "JuelColumn", ()=>JuelColumn);
 var _lit = require("lit");
 var _decoratorsJs = require("lit/decorators.js");
+var _ifDefinedJs = require("lit/directives/if-defined.js");
+var _tableEvents = require("./TableEvents");
 var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -17855,8 +17857,11 @@ var SelectionMode;
     SelectionMode["Check"] = "check";
 })(SelectionMode || (SelectionMode = {}));
 let JuelTable = class JuelTable extends (0, _lit.LitElement) {
+    get interactive() {
+        return this.selection !== SelectionMode.None;
+    }
     handleCellClick(row, column, event) {
-        this.dispatchEvent(new CustomEvent('cell-clicked', {
+        this.dispatchEvent(new CustomEvent((0, _tableEvents.TableEvents).CellClicked, {
             detail: {
                 row,
                 column,
@@ -17874,7 +17879,7 @@ let JuelTable = class JuelTable extends (0, _lit.LitElement) {
             if (this.selectedRows.has(index)) this.selectedRows.delete(index);
             else this.selectedRows.add(index);
         }
-        this.dispatchEvent(new CustomEvent('row-selected', {
+        this.dispatchEvent(new CustomEvent((0, _tableEvents.TableEvents).RowSelected, {
             detail: {
                 selectedRows: Array.from(this.selectedRows)
             },
@@ -17883,11 +17888,67 @@ let JuelTable = class JuelTable extends (0, _lit.LitElement) {
         }));
         this.requestUpdate();
     }
+    activateRow(row, index) {
+        this.dispatchEvent(new CustomEvent((0, _tableEvents.TableEvents).RowActivated, {
+            detail: {
+                row,
+                index
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+    focusRow(index) {
+        const rows = this.renderRoot.querySelectorAll('tbody tr');
+        if (!rows.length) return;
+        const clamped = Math.max(0, Math.min(index, rows.length - 1));
+        this.focusedRow = clamped;
+        this.updateComplete.then(()=>{
+            var _this_renderRoot_querySelectorAll_clamped;
+            (_this_renderRoot_querySelectorAll_clamped = this.renderRoot.querySelectorAll('tbody tr')[clamped]) === null || _this_renderRoot_querySelectorAll_clamped === void 0 ? void 0 : _this_renderRoot_querySelectorAll_clamped.focus();
+        });
+    }
+    handleRowKeydown(row, index, event) {
+        switch(event.key){
+            case 'ArrowDown':
+                event.preventDefault();
+                this.focusRow(index + 1);
+                break;
+            case 'ArrowUp':
+                event.preventDefault();
+                this.focusRow(index - 1);
+                break;
+            case 'Home':
+                event.preventDefault();
+                this.focusRow(0);
+                break;
+            case 'End':
+                event.preventDefault();
+                this.focusRow(this.data.length - 1);
+                break;
+            case 'Enter':
+            case ' ':
+                event.preventDefault();
+                if (this.selection === SelectionMode.Check) {
+                    this.selectedRows.has(index) ? this.selectedRows.delete(index) : this.selectedRows.add(index);
+                    this.dispatchEvent(new CustomEvent((0, _tableEvents.TableEvents).RowSelected, {
+                        detail: {
+                            selectedRows: Array.from(this.selectedRows)
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                    this.requestUpdate();
+                } else this.handleRowClick(row, index, event);
+                this.activateRow(row, index);
+                break;
+        }
+    }
     handleCheckboxChange(index, event) {
         const checkbox = event.target;
         if (checkbox.checked) this.selectedRows.add(index);
         else this.selectedRows.delete(index);
-        this.dispatchEvent(new CustomEvent('row-selected', {
+        this.dispatchEvent(new CustomEvent((0, _tableEvents.TableEvents).RowSelected, {
             detail: {
                 selectedRows: Array.from(this.selectedRows)
             },
@@ -17921,6 +17982,8 @@ let JuelTable = class JuelTable extends (0, _lit.LitElement) {
     render() {
         const hasCustomColumns = this.columns && this.columns.length > 0;
         const columns = hasCustomColumns ? this.columns.map((el)=>el.field || '') : this.data.length > 0 ? Object.keys(this.data[0]) : [];
+        const interactive = this.interactive;
+        const roving = Math.max(0, Math.min(this.focusedRow, this.data.length - 1));
         return (0, _lit.html)`
       <table>
         <thead>
@@ -17931,12 +17994,22 @@ let JuelTable = class JuelTable extends (0, _lit.LitElement) {
         </thead>
         <tbody>
           ${this.data.map((row, index)=>(0, _lit.html)`
-            <tr class=${this.selectedRows.has(index) ? 'selected' : ''}>
+            <tr
+              class="${this.selectedRows.has(index) ? 'selected' : ''} ${interactive ? 'interactive' : ''}"
+              tabindex=${(0, _ifDefinedJs.ifDefined)(interactive ? index === roving ? 0 : -1 : undefined)}
+              aria-selected=${(0, _ifDefinedJs.ifDefined)(this.selection === SelectionMode.None ? undefined : this.selectedRows.has(index))}
+              @focus=${()=>{
+                if (interactive) this.focusedRow = index;
+            }}
+              @keydown=${(event)=>{
+                if (interactive) this.handleRowKeydown(row, index, event);
+            }}
+            >
               ${this.selection === SelectionMode.Check ? (0, _lit.html)`
                 <td>
-                  <input 
-                    type="checkbox" 
-                    .checked=${this.selectedRows.has(index)} 
+                  <input
+                    type="checkbox"
+                    .checked=${this.selectedRows.has(index)}
                     @change=${(event)=>this.handleCheckboxChange(index, event)}
                   />
                 </td>
@@ -17945,20 +18018,28 @@ let JuelTable = class JuelTable extends (0, _lit.LitElement) {
                 const template = columnEl.template;
                 const field = columnEl.field;
                 return (0, _lit.html)`
-                      <td 
+                      <td
                         @click=${(event)=>{
                     if (this.selection !== SelectionMode.Check && this.selection !== SelectionMode.None) this.handleRowClick(row, index, event);
                     this.handleCellClick(row, field, event);
+                    if (interactive) {
+                        this.focusedRow = index;
+                        this.activateRow(row, index);
+                    }
                 }}
                       >
                         ${template ? this.renderCellTemplate(template, row) : field ? row[field] : ''}
                       </td>
                     `;
             }) : columns.map((col, colIndex)=>(0, _lit.html)`
-                    <td 
+                    <td
                       @click=${(event)=>{
                     if (this.selection !== SelectionMode.Check && this.selection !== SelectionMode.None) this.handleRowClick(row, index, event);
                     this.handleCellClick(row, col, event);
+                    if (interactive) {
+                        this.focusedRow = index;
+                        this.activateRow(row, index);
+                    }
                 }}
                     >
                       ${row[col]}
@@ -17976,9 +18057,17 @@ let JuelTable = class JuelTable extends (0, _lit.LitElement) {
         this.data = [];
         this.selection = SelectionMode.None;
         this.selectedRows = new Set();
+        this.focusedRow = 0;
     }
 };
 JuelTable.styles = (0, _lit.css)`
+    /* The host defaulted to display:inline, so the block <table> inside it
+       overflowed rather than being laid out by it — a table can't be sized,
+       scrolled or margined predictably from a page that way. */
+    :host {
+      display: block;
+      overflow-x: auto;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -17991,9 +18080,16 @@ JuelTable.styles = (0, _lit.css)`
       background-color: #f4f4f4;
       text-align: left;
     }
-    tr:hover {
+    /* Only rows that actually do something get the affordance — a
+       display-only table used to show a pointer cursor and a hover highlight
+       that promised an interaction it didn't have. */
+    tr.interactive:hover {
       background-color: var(--hover-color, #f9f9f9);
       cursor: pointer;
+    }
+    tr.interactive:focus-visible {
+      outline: 2px solid var(--primary, #007bff);
+      outline-offset: -2px;
     }
     tr.selected {
       background-color: var(--selected-color, #d3e4ff);
@@ -18014,6 +18110,9 @@ __decorate([
         slot: 'columns'
     })
 ], JuelTable.prototype, "columns", void 0);
+__decorate([
+    (0, _decoratorsJs.state)()
+], JuelTable.prototype, "focusedRow", void 0);
 JuelTable = __decorate([
     (0, _decoratorsJs.customElement)('juel-table')
 ], JuelTable);
@@ -18050,7 +18149,35 @@ JuelColumn = __decorate([
     (0, _decoratorsJs.customElement)('juel-column')
 ], JuelColumn);
 
-},{"lit":"6MR4h","lit/decorators.js":"iBjLb","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"clPfO":[function(require,module,exports,__globalThis) {
+},{"lit":"6MR4h","lit/decorators.js":"iBjLb","lit/directives/if-defined.js":"5jxPm","./TableEvents":"cDYyl","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"5jxPm":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _ifDefinedJs = require("lit-html/directives/if-defined.js");
+parcelHelpers.exportAll(_ifDefinedJs, exports);
+
+},{"lit-html/directives/if-defined.js":"eq9Yd","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"eq9Yd":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ifDefined", ()=>to);
+var _litHtmlJs = require("../lit-html.js");
+/**
+ * @license
+ * Copyright 2018 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */ const to = (t)=>t !== null && t !== void 0 ? t : (0, _litHtmlJs.nothing);
+
+},{"../lit-html.js":"ih911","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"cDYyl":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "TableEvents", ()=>TableEvents);
+var TableEvents;
+(function(TableEvents) {
+    TableEvents["CellClicked"] = "cell-clicked";
+    TableEvents["RowSelected"] = "row-selected";
+    TableEvents["RowActivated"] = "row-activated";
+})(TableEvents || (TableEvents = {}));
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"clPfO":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "JuelDataGrid", ()=>JuelDataGrid);
@@ -124314,8 +124441,9 @@ var _tree = require("./Tree/Tree");
 var _scrollPane = require("./ScrollPane/ScrollPane");
 var _steps = require("./Steps/Steps");
 var _scrollSpy = require("./ScrollSpy/ScrollSpy");
+var _router = require("./Router/Router");
 
-},{"./Nav/Nav":"4IUyQ","./Breadcrumb/Breadcrumb":"7rvSV","./Breadcrumb/BreadcrumbItem":"1jiN0","./Tabs/Tabs":"jnYlh","./Toolbar/Toolbar":"3Uxif","./Accordion/Accordion":"aNGrR","./Tree/Tree":"fbmp8","./ScrollPane/ScrollPane":"9aoYH","./Steps/Steps":"jaKn0","./ScrollSpy/ScrollSpy":"jyjHO"}],"4IUyQ":[function(require,module,exports,__globalThis) {
+},{"./Nav/Nav":"4IUyQ","./Breadcrumb/Breadcrumb":"7rvSV","./Breadcrumb/BreadcrumbItem":"1jiN0","./Tabs/Tabs":"jnYlh","./Toolbar/Toolbar":"3Uxif","./Accordion/Accordion":"aNGrR","./Tree/Tree":"fbmp8","./ScrollPane/ScrollPane":"9aoYH","./Steps/Steps":"jaKn0","./ScrollSpy/ScrollSpy":"jyjHO","./Router/Router":"ise4I"}],"4IUyQ":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "JuelNav", ()=>JuelNav);
@@ -124445,7 +124573,7 @@ JuelBreadcrumb = __decorate([
 ], JuelBreadcrumb);
 
 },{"lit":"6MR4h","lit/decorators.js":"iBjLb","bundle-text:./Breadcrumb.less":"kJgUr","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"kJgUr":[function(require,module,exports,__globalThis) {
-module.exports = ":host {\n  display: block;\n}\n\nnav {\n  flex-wrap: wrap;\n  align-items: center;\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(breadcrumb-item:not(:last-child)):after {\n  content: var(--breadcrumb-separator, \"/\");\n  color: var(--breadcrumb-separator-color, #6c757d);\n  margin: 0 .5em;\n}\n";
+module.exports = ":host {\n  display: block;\n}\n\nnav {\n  flex-wrap: wrap;\n  align-items: center;\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  display: flex;\n}\n\n::slotted(juel-breadcrumb-item:not(:last-child)):after {\n  content: var(--breadcrumb-separator, \"/\");\n  color: var(--breadcrumb-separator-color, #6c757d);\n  margin: 0 .5em;\n}\n";
 
 },{}],"1jiN0":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -125926,6 +126054,968 @@ var ScrollSpyEvents;
 (function(ScrollSpyEvents) {
     ScrollSpyEvents["ActiveChanged"] = "active-changed";
 })(ScrollSpyEvents || (ScrollSpyEvents = {}));
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"ise4I":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "JuelRoute", ()=>JuelRoute);
+parcelHelpers.export(exports, "JuelRouter", ()=>JuelRouter);
+var _asyncToGenerator = require("@swc/helpers/_/_async_to_generator");
+var _objectSpread = require("@swc/helpers/_/_object_spread");
+var _objectSpreadProps = require("@swc/helpers/_/_object_spread_props");
+var _lit = require("lit");
+var _decoratorsJs = require("lit/decorators.js");
+var _navigationBase = require("../NavigationBase");
+var _domReady = require("../../_Utils/DomReady");
+var _routeMatcher = require("./RouteMatcher");
+var _routerLocation = require("./RouterLocation");
+var _routerEvents = require("./RouterEvents");
+var __decorate = undefined && undefined.__decorate || function(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var JuelRouter_1;
+const scrollPositions = new Map();
+const STATE_KEY = 'juelRouterKey';
+function newEntryKey() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+function entryKey() {
+    const state = history.state;
+    return state && typeof state === 'object' && typeof state[STATE_KEY] === 'string' ? state[STATE_KEY] : null;
+}
+function ensureEntryKey() {
+    const existing = entryKey();
+    if (existing) return existing;
+    const state = history.state;
+    if (state !== null && typeof state !== 'object') return null;
+    const key = newEntryKey();
+    history.replaceState((0, _objectSpreadProps._)((0, _objectSpread._)({}, state !== null && state !== void 0 ? state : {}), {
+        [STATE_KEY]: key
+    }), '');
+    return key;
+}
+const LOCATION_CHANGED = 'juel-router-location-changed';
+const MAX_REDIRECTS = 10;
+const DEFINE_TIMEOUT_MS = 3000;
+const SCROLL_RESTORE_MS = 1000;
+const modules = new Map();
+function loadModule(url) {
+    const href = new URL(url, document.baseURI).href;
+    let loading = modules.get(href);
+    if (!loading) {
+        loading = new Promise((resolve, reject)=>{
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.src = href;
+            script.onload = ()=>resolve();
+            script.onerror = ()=>{
+                modules.delete(href);
+                script.remove();
+                reject(new Error(`couldn't load module ${href}`));
+            };
+            document.head.appendChild(script);
+        });
+        modules.set(href, loading);
+    }
+    return loading;
+}
+let JuelRoute = class JuelRoute extends (0, _lit.LitElement) {
+    render() {
+        return (0, _lit.html)``;
+    }
+    constructor(){
+        super(...arguments);
+        this.path = '';
+        this.element = '';
+        this.redirect = '';
+        this.module = '';
+    }
+};
+JuelRoute.styles = (0, _lit.css)`:host { display: none; }`;
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelRoute.prototype, "path", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelRoute.prototype, "element", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelRoute.prototype, "redirect", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelRoute.prototype, "module", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        attribute: false
+    })
+], JuelRoute.prototype, "beforeEnter", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        attribute: false
+    })
+], JuelRoute.prototype, "load", void 0);
+JuelRoute = __decorate([
+    (0, _decoratorsJs.customElement)('juel-route')
+], JuelRoute);
+let JuelRouter = JuelRouter_1 = class JuelRouter extends (0, _navigationBase.NavigationBase) {
+    get currentElement() {
+        return this._mounted;
+    }
+    get currentRoute() {
+        return this._mountedRoute;
+    }
+    get _urlMode() {
+        return this.mode === 'hash' ? 'hash' : 'history';
+    }
+    get _base() {
+        const baseElement = document.querySelector('base[href]');
+        return (0, _routerLocation.resolveBase)(this.base, baseElement ? baseElement.getAttribute('href') : null, new URL(location.href));
+    }
+    get _linkScope() {
+        return this.mode === 'memory' ? this : document;
+    }
+    navigate(to, options = {}) {
+        const kind = options.replace ? 'replace' : 'push';
+        if (!this._connected || !this._domReady) {
+            this._writeLocation(to, kind);
+            return Promise.resolve(false);
+        }
+        return this._transition(to, kind, 0, 'navigate');
+    }
+    connectedCallback() {
+        super.connectedCallback();
+        this._connected = true;
+        window.addEventListener('popstate', this._onPopState);
+        window.addEventListener('hashchange', this._syncFromLocation);
+        window.addEventListener(LOCATION_CHANGED, this._syncFromLocation);
+        this._syncFromLocation();
+        this._entryKey = entryKey();
+        this._applyScrollRestoration();
+        this._bindDocument();
+        this._observer = new MutationObserver((mutations)=>{
+            if (mutations.some((m)=>this._affectsRouteTable(m))) this._resolve('refresh');
+            if (mutations.some((m)=>m.type === 'childList' ? m.addedNodes.length > 0 : m.target instanceof HTMLAnchorElement)) this._queueLinkUpdate();
+        });
+        this._observer.observe(this, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: [
+                'path',
+                'element',
+                'redirect',
+                'module',
+                'href',
+                'target',
+                'download',
+                'rel'
+            ]
+        });
+        (0, _domReady.DomReady)().then(()=>{
+            this._domReady = true;
+            this._resolve('refresh');
+        });
+    }
+    disconnectedCallback() {
+        var _this__observer;
+        this._connected = false;
+        this._transitionId++;
+        this._pending = null;
+        this.navigating = false;
+        window.removeEventListener('popstate', this._onPopState);
+        window.removeEventListener('hashchange', this._syncFromLocation);
+        window.removeEventListener(LOCATION_CHANGED, this._syncFromLocation);
+        (_this__observer = this._observer) === null || _this__observer === void 0 ? void 0 : _this__observer.disconnect();
+        this._observer = undefined;
+        this._applyScrollRestoration();
+        this._bindDocument();
+        this._clearLinks();
+        super.disconnectedCallback();
+    }
+    updated(changedProperties) {
+        super.updated(changedProperties);
+        if (changedProperties.has('navigating')) {
+            if (this.navigating) this.setAttribute('aria-busy', 'true');
+            else this.removeAttribute('aria-busy');
+        }
+        const initial = changedProperties.has('path') && changedProperties.get('path') === undefined;
+        if (!initial && (changedProperties.has('mode') || changedProperties.has('base'))) this._syncFromLocation();
+        if (changedProperties.has('mode') || changedProperties.has('scrollOnNavigate')) this._applyScrollRestoration();
+        if (changedProperties.has('mode')) {
+            this._bindDocument();
+            this._queueLinkUpdate();
+        }
+        if (!initial && changedProperties.has('path') && this.mode !== 'memory' && this._connected) {
+            const fromUrl = (0, _routerLocation.pathFromUrl)(new URL(location.href), this._urlMode, this._base);
+            if (fromUrl !== this.path) {
+                this.navigate(this.path);
+                return;
+            }
+        }
+        if (changedProperties.has('path')) {
+            const cause = initial ? 'refresh' : this._popstate ? 'popstate' : 'path';
+            this._popstate = false;
+            this._resolve(cause);
+        } else if ([
+            'routes',
+            'notFound',
+            'mode',
+            'base'
+        ].some((p)=>changedProperties.has(p))) this._resolve('refresh');
+    }
+    render() {
+        return (0, _lit.html)`<slot></slot><div class="sr-only" role="status" aria-live="polite">${this._announcement}</div>`;
+    }
+    _bindDocument() {
+        const wanted = this._connected && this.mode !== 'memory';
+        if (wanted === this._documentBound) return;
+        this._documentBound = wanted;
+        if (wanted) {
+            document.addEventListener('click', this._onDocumentClick);
+            this._documentObserver = new MutationObserver((mutations)=>{
+                if (mutations.some((m)=>m.type === 'childList' ? Array.from(m.addedNodes).some((n)=>n instanceof Element && (n.localName === 'a' || n.querySelector('a[href]') !== null)) : m.target instanceof HTMLAnchorElement)) this._queueLinkUpdate();
+            });
+            this._documentObserver.observe(document, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: [
+                    'href',
+                    'target',
+                    'download',
+                    'rel'
+                ]
+            });
+        } else {
+            var _this__documentObserver;
+            document.removeEventListener('click', this._onDocumentClick);
+            (_this__documentObserver = this._documentObserver) === null || _this__documentObserver === void 0 ? void 0 : _this__documentObserver.disconnect();
+            this._documentObserver = undefined;
+        }
+    }
+    _routeLinkPath(anchor) {
+        if (!anchor.hasAttribute('href') || anchor.hasAttribute('download')) return null;
+        if (anchor.target && anchor.target !== '_self') return null;
+        if (anchor.relList.contains('external')) return null;
+        if (this.mode !== 'hash' && anchor.getAttribute('href').startsWith('#')) return null;
+        try {
+            return (0, _routerLocation.linkTarget)(new URL(anchor.href), this._urlMode, this._base, new URL(location.href));
+        } catch (e) {
+            return null;
+        }
+    }
+    _queueLinkUpdate() {
+        if (this._linksQueued) return;
+        this._linksQueued = true;
+        queueMicrotask(()=>{
+            this._linksQueued = false;
+            this._updateLinks();
+        });
+    }
+    _updateLinks() {
+        if (!this._connected || !this._committed) return;
+        const table = this._routeTable();
+        const current = this.path;
+        const marked = new Set();
+        this._linkScope.querySelectorAll('a[href]').forEach((anchor)=>{
+            const to = this._routeLinkPath(anchor);
+            if (to === null || !(0, _routeMatcher.findRoute)(table, to) || this._claimedByInnerRouter(anchor)) return;
+            const state = (0, _routeMatcher.linkCurrent)(to, current);
+            if (!state) return;
+            if (anchor.getAttribute('aria-current') !== state) anchor.setAttribute('aria-current', state);
+            marked.add(anchor);
+        });
+        this._currentLinks.forEach((anchor)=>{
+            if (!marked.has(anchor)) anchor.removeAttribute('aria-current');
+        });
+        this._currentLinks.clear();
+        marked.forEach((anchor)=>this._currentLinks.add(anchor));
+    }
+    _claimedByInnerRouter(anchor) {
+        var _router_parentElement;
+        var _router_parentElement_closest;
+        for(let router = anchor.closest('juel-router'); router && router !== this; router = (_router_parentElement_closest = (_router_parentElement = router.parentElement) === null || _router_parentElement === void 0 ? void 0 : _router_parentElement.closest('juel-router')) !== null && _router_parentElement_closest !== void 0 ? _router_parentElement_closest : null)if (router instanceof JuelRouter_1 && router._connected) {
+            const to = router._routeLinkPath(anchor);
+            if (to !== null && (0, _routeMatcher.findRoute)(router._routeTable(), to)) return true;
+        }
+        return false;
+    }
+    _clearLinks() {
+        this._currentLinks.forEach((anchor)=>anchor.removeAttribute('aria-current'));
+        this._currentLinks.clear();
+    }
+    _applyScrollRestoration() {
+        const wanted = this._connected && this.scrollOnNavigate === 'top' && this.mode !== 'memory';
+        if (wanted && this._savedScrollRestoration === null) {
+            this._savedScrollRestoration = history.scrollRestoration;
+            history.scrollRestoration = 'manual';
+        } else if (!wanted && this._savedScrollRestoration !== null) {
+            history.scrollRestoration = this._savedScrollRestoration;
+            this._savedScrollRestoration = null;
+        }
+    }
+    _afterCommit(route, context, element, cause, firstView) {
+        const title = this._titleFor(route, context);
+        if (title !== null) document.title = title;
+        this._entryKey = this.mode === 'memory' ? null : entryKey();
+        this._updateLinks();
+        this._scrollAttempt++;
+        if (firstView || cause === 'refresh') return;
+        if (this.scrollOnNavigate === 'top') {
+            const saved = cause === 'popstate' && this._entryKey ? scrollPositions.get(this._entryKey) : undefined;
+            const hash = this.mode === 'history' ? location.hash.slice(1) : '';
+            if (saved) this._restoreScroll(saved);
+            else requestAnimationFrame(()=>{
+                const target = hash ? document.getElementById(decodeURIComponent(hash)) : null;
+                if (target) target.scrollIntoView();
+                else scrollTo(0, 0);
+            });
+        }
+        if (this.focusOnNavigate !== 'none' && element) {
+            if (!element.hasAttribute('tabindex')) element.setAttribute('tabindex', '-1');
+            element.focus({
+                preventScroll: true
+            });
+        }
+        if (this.announceNavigation !== 'none' && title) {
+            this._announcement = '';
+            this.updateComplete.then(()=>{
+                this._announcement = title;
+            });
+        }
+    }
+    _titleFor(route, context) {
+        if (!route) return this.notFoundTitle || null;
+        if (!route.title) return null;
+        try {
+            return typeof route.title === 'function' ? route.title(context) : (0, _routeMatcher.fillTitle)(route.title, context.params);
+        } catch (e) {
+            console.error(`juel-router: title for route "${route.path}" threw`, e);
+            return null;
+        }
+    }
+    _restoreScroll(saved) {
+        const attempt = ++this._scrollAttempt;
+        const deadline = Date.now() + SCROLL_RESTORE_MS;
+        let last = -1;
+        const abort = ()=>{
+            if (this._scrollAttempt === attempt) this._scrollAttempt++;
+        };
+        const options = {
+            passive: true,
+            once: true
+        };
+        addEventListener('wheel', abort, options);
+        addEventListener('touchstart', abort, options);
+        addEventListener('keydown', abort, options);
+        const done = ()=>{
+            removeEventListener('wheel', abort);
+            removeEventListener('touchstart', abort);
+            removeEventListener('keydown', abort);
+        };
+        const step = ()=>{
+            if (this._scrollAttempt !== attempt || !this._connected) return done();
+            if (scrollY !== last && last !== -1) return done();
+            scrollTo(saved.x, saved.y);
+            last = scrollY;
+            if (Math.abs(scrollY - saved.y) < 1 || Date.now() > deadline) return done();
+            requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+    }
+    _affectsRouteTable(m) {
+        if (this.routes) return false;
+        const isRoute = (n)=>n instanceof Element && n.localName === 'juel-route' && n.parentNode === this;
+        if (m.type === 'attributes') return isRoute(m.target);
+        if (m.target !== this) return false;
+        const wasRoute = (n)=>n instanceof Element && n.localName === 'juel-route';
+        return Array.from(m.addedNodes).some(isRoute) || Array.from(m.removedNodes).some(wasRoute);
+    }
+    _routeTable() {
+        var _this_routes;
+        const source = (_this_routes = this.routes) !== null && _this_routes !== void 0 ? _this_routes : Array.from(this.querySelectorAll(':scope > juel-route')).map((r)=>{
+            var _r_getAttribute;
+            return {
+                path: (_r_getAttribute = r.getAttribute('path')) !== null && _r_getAttribute !== void 0 ? _r_getAttribute : '',
+                element: r.getAttribute('element') || undefined,
+                redirect: r.getAttribute('redirect') || undefined,
+                module: r.getAttribute('module') || undefined,
+                title: r.getAttribute('title') || undefined,
+                beforeEnter: r.beforeEnter,
+                load: r.load
+            };
+        });
+        return source.filter((route)=>{
+            let inputs;
+            try {
+                inputs = (0, _routeMatcher.routeInputs)(route.path);
+            } catch (e) {
+                this._reportOnce(`juel-router: ignoring invalid route \u{2014} ${e.message}`);
+                return false;
+            }
+            if (route.redirect) {
+                try {
+                    const target = (0, _routeMatcher.routeInputs)(route.redirect);
+                    const missing = target.params.find((p)=>!inputs.params.includes(p));
+                    if (missing) throw new Error(`redirect "${route.redirect}" uses ":${missing}", which "${route.path}" doesn't capture`);
+                    if (target.wildcard && !inputs.wildcard) throw new Error(`redirect "${route.redirect}" uses "*", which "${route.path}" doesn't have`);
+                } catch (e) {
+                    this._reportOnce(`juel-router: ignoring route "${route.path}" \u{2014} ${e.message}`);
+                    return false;
+                }
+                return true;
+            }
+            if (!route.element) {
+                this._reportOnce(`juel-router: ignoring route "${route.path}" \u{2014} no element`);
+                return false;
+            }
+            return true;
+        });
+    }
+    _reportOnce(message) {
+        if (this._reported.has(message)) return;
+        this._reported.add(message);
+        console.error(message);
+    }
+    _resolve(cause) {
+        if (!this._connected || !this._domReady) return;
+        this._transition(this.path, 'sync', 0, cause);
+    }
+    _transition(to, kind, redirects, cause) {
+        const path = (0, _routeMatcher.normalizePath)(to);
+        const found = (0, _routeMatcher.findRoute)(this._routeTable(), path);
+        const key = found ? `${path}\n${found.index}\n${found.route.path}\n${found.route.element}` : `${path}\n-\n${this.notFound}`;
+        if (this._committed && key === this._committed.key) {
+            var _this__pending;
+            if (kind !== 'sync' || ((_this__pending = this._pending) === null || _this__pending === void 0 ? void 0 : _this__pending.kind) === 'sync') {
+                this._transitionId++;
+                this._pending = null;
+                this.navigating = false;
+            }
+            if (kind !== 'sync') this._writeLocation(to, kind);
+            this._committed.path = this.path;
+            this._committed.href = this.mode === 'memory' ? null : location.href;
+            return Promise.resolve(true);
+        }
+        if (this._pending && this._pending.key === key) return this._pending.promise;
+        const id = ++this._transitionId;
+        const pending = {
+            key,
+            kind,
+            promise: null
+        };
+        this._pending = pending;
+        const promise = this._enter(id, key, to, path, kind, found, redirects, cause);
+        pending.promise = promise;
+        promise.then(()=>{
+            if (this._pending === pending) this._pending = null;
+        });
+        return promise;
+    }
+    _enter(id, key, to, path, kind, found, redirects, cause) {
+        var _this = this;
+        return (0, _asyncToGenerator._)(function*() {
+            var _this__committed;
+            const stale = ()=>id !== _this._transitionId;
+            var _found_route;
+            const route = (_found_route = found === null || found === void 0 ? void 0 : found.route) !== null && _found_route !== void 0 ? _found_route : null;
+            const match = found ? found.match : {
+                params: {},
+                rest: path
+            };
+            var _this__committed_path;
+            const context = {
+                path: to,
+                params: match.params,
+                rest: match.rest,
+                from: (_this__committed_path = (_this__committed = _this._committed) === null || _this__committed === void 0 ? void 0 : _this__committed.path) !== null && _this__committed_path !== void 0 ? _this__committed_path : null
+            };
+            _this.navigating = true;
+            try {
+                let outcome = true;
+                if (route === null || route === void 0 ? void 0 : route.redirect) outcome = (0, _routeMatcher.buildPath)(route.redirect, match.params, match.rest);
+                else if (route === null || route === void 0 ? void 0 : route.beforeEnter) {
+                    outcome = yield route.beforeEnter(context);
+                    if (stale()) return false;
+                }
+                if (typeof outcome === 'string') {
+                    if (redirects >= MAX_REDIRECTS) throw new Error(`more than ${MAX_REDIRECTS} redirects, starting from "${path}" \u{2014} redirect loop?`);
+                    const next = _this._transition(outcome, kind === 'sync' ? 'replace' : kind, redirects + 1, cause);
+                    return yield next;
+                }
+                if (outcome === false) {
+                    _this.navigating = false;
+                    _this._revert();
+                    _this.dispatchEvent(new CustomEvent((0, _routerEvents.RouterEvents).RouteBlocked, {
+                        detail: {
+                            path: to,
+                            route: route,
+                            from: context.from
+                        }
+                    }));
+                    return false;
+                }
+                const tag = route ? route.element : _this.notFound;
+                if (route && (route.load || route.module)) {
+                    if (route.load) yield route.load();
+                    else yield loadModule(route.module);
+                    if (!customElements.get(tag)) {
+                        const defined = yield Promise.race([
+                            customElements.whenDefined(tag).then(()=>true),
+                            new Promise((resolve)=>setTimeout(()=>resolve(false), DEFINE_TIMEOUT_MS))
+                        ]);
+                        if (!defined) _this._reportOnce(`juel-router: route "${route.path}" loaded, but nothing defined <${tag}> within ${DEFINE_TIMEOUT_MS}ms`);
+                    }
+                    if (stale()) return false;
+                }
+                if (kind !== 'sync') _this._writeLocation(to, kind);
+                _this.navigating = false;
+                const firstView = _this._committed === null;
+                _this._mount(path, route, tag, match);
+                _this._committed = {
+                    key,
+                    path: _this.path,
+                    href: _this.mode === 'memory' ? null : location.href
+                };
+                _this._afterCommit(route, context, _this._mounted, cause, firstView);
+                return true;
+            } catch (error) {
+                if (stale()) return false;
+                _this.navigating = false;
+                console.error(`juel-router: couldn't enter "${to}"`, error);
+                _this._revert();
+                _this.dispatchEvent(new CustomEvent((0, _routerEvents.RouterEvents).RouteError, {
+                    detail: {
+                        path: to,
+                        route,
+                        error
+                    }
+                }));
+                return false;
+            }
+        })();
+    }
+    _writeLocation(to, kind) {
+        if (this.mode === 'memory') {
+            this.path = to;
+            return;
+        }
+        const current = new URL(location.href);
+        const href = (0, _routerLocation.urlForPath)(to, this._urlMode, this._base, current);
+        if (href !== current.href) {
+            if (kind === 'replace') history.replaceState(history.state, '', href);
+            else {
+                const leaving = ensureEntryKey();
+                if (leaving && this.scrollOnNavigate === 'top') scrollPositions.set(leaving, {
+                    x: scrollX,
+                    y: scrollY
+                });
+                history.pushState({
+                    [STATE_KEY]: newEntryKey()
+                }, '', href);
+            }
+            window.dispatchEvent(new Event(LOCATION_CHANGED));
+        }
+        this._syncFromLocation();
+    }
+    _revert() {
+        if (!this._committed) return;
+        if (this.mode === 'memory') {
+            if (this.path !== this._committed.path) this.path = this._committed.path;
+            return;
+        }
+        if (this._committed.href && location.href !== this._committed.href) {
+            history.replaceState(history.state, '', this._committed.href);
+            window.dispatchEvent(new Event(LOCATION_CHANGED));
+        }
+        this._syncFromLocation();
+    }
+    _mount(path, route, tag, match) {
+        var _this__mounted;
+        (_this__mounted = this._mounted) === null || _this__mounted === void 0 ? void 0 : _this__mounted.remove();
+        this._mounted = null;
+        this._mountedRoute = null;
+        let element = null;
+        if (tag) try {
+            element = document.createElement(tag);
+        } catch (e) {
+            console.error(`juel-router: can't create <${tag}>${route ? ` for route "${route.path}"` : ''}`, e);
+        }
+        if (element) {
+            element.params = match.params;
+            element.rest = match.rest;
+            this._mounted = element;
+            this._mountedRoute = route;
+            this.appendChild(element);
+        }
+        const detail = {
+            path,
+            route: element ? route : null,
+            element,
+            params: element ? match.params : {},
+            rest: element ? match.rest : '',
+            notFound: !route
+        };
+        this.dispatchEvent(new CustomEvent((0, _routerEvents.RouterEvents).RouteChanged, {
+            detail
+        }));
+    }
+    constructor(){
+        super();
+        this.path = '/';
+        this.mode = 'history';
+        this.base = null;
+        this.notFound = '';
+        this.notFoundTitle = '';
+        this.routes = null;
+        this.navigating = false;
+        this.focusOnNavigate = 'view';
+        this.scrollOnNavigate = 'none';
+        this.announceNavigation = 'title';
+        this._announcement = '';
+        this._mounted = null;
+        this._mountedRoute = null;
+        this._committed = null;
+        this._transitionId = 0;
+        this._pending = null;
+        this._documentBound = false;
+        this._connected = false;
+        this._domReady = false;
+        this._reported = new Set();
+        this._popstate = false;
+        this._entryKey = null;
+        this._savedScrollRestoration = null;
+        this._scrollAttempt = 0;
+        this._currentLinks = new Set();
+        this._linksQueued = false;
+        this._syncFromLocation = ()=>{
+            if (!this._connected || this.mode === 'memory') return;
+            const path = (0, _routerLocation.pathFromUrl)(new URL(location.href), this._urlMode, this._base);
+            if (path !== null && path !== this.path) this.path = path;
+        };
+        this._onPopState = ()=>{
+            if (!this._connected || this.mode === 'memory') return;
+            if (this.scrollOnNavigate === 'top' && this._entryKey) scrollPositions.set(this._entryKey, {
+                x: scrollX,
+                y: scrollY
+            });
+            this._entryKey = entryKey();
+            const before = this.path;
+            this._popstate = true;
+            this._syncFromLocation();
+            if (this.path === before) this._popstate = false;
+        };
+        this._onClick = (e)=>{
+            if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+            const anchor = e.composedPath().find((n)=>n instanceof HTMLAnchorElement);
+            if (!anchor) return;
+            const to = this._routeLinkPath(anchor);
+            if (to === null) return;
+            if (!(0, _routeMatcher.findRoute)(this._routeTable(), to)) return;
+            e.preventDefault();
+            this.navigate(to);
+        };
+        this._onDocumentClick = (e)=>{
+            if (e.composedPath().includes(this)) return;
+            this._onClick(e);
+        };
+        this.ripple = false;
+        this.addEventListener('click', this._onClick);
+    }
+};
+JuelRouter.styles = (0, _lit.css)`
+        :host {
+            display: block;
+        }
+        /* A view focused after navigation isn't interactive itself, so a
+           focus ring around the whole of it only adds noise. Page styles win
+           over ::slotted, so an app can put one back. */
+        ::slotted([tabindex="-1"]:focus) {
+            outline: none;
+        }
+        /* Visible to a screen reader, to nothing else. Not display:none and
+           not hidden — either would stop it being announced. */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            padding: 0;
+            border: 0;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            clip-path: inset(50%);
+            white-space: nowrap;
+        }
+    `;
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelRouter.prototype, "path", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelRouter.prototype, "mode", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String
+    })
+], JuelRouter.prototype, "base", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String,
+        attribute: 'not-found'
+    })
+], JuelRouter.prototype, "notFound", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String,
+        attribute: 'not-found-title'
+    })
+], JuelRouter.prototype, "notFoundTitle", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        attribute: false
+    })
+], JuelRouter.prototype, "routes", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: Boolean,
+        reflect: true
+    })
+], JuelRouter.prototype, "navigating", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String,
+        attribute: 'focus-on-navigate'
+    })
+], JuelRouter.prototype, "focusOnNavigate", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String,
+        attribute: 'scroll-on-navigate'
+    })
+], JuelRouter.prototype, "scrollOnNavigate", void 0);
+__decorate([
+    (0, _decoratorsJs.property)({
+        type: String,
+        attribute: 'announce-navigation'
+    })
+], JuelRouter.prototype, "announceNavigation", void 0);
+__decorate([
+    (0, _decoratorsJs.state)()
+], JuelRouter.prototype, "_announcement", void 0);
+JuelRouter = JuelRouter_1 = __decorate([
+    (0, _decoratorsJs.customElement)('juel-router')
+], JuelRouter);
+
+},{"@swc/helpers/_/_async_to_generator":"bp41a","@swc/helpers/_/_object_spread":"kbZU4","@swc/helpers/_/_object_spread_props":"gRdFM","lit":"6MR4h","lit/decorators.js":"iBjLb","../NavigationBase":"fFRwm","../../_Utils/DomReady":"b6Rbc","./RouteMatcher":"ctkSO","./RouterLocation":"6HJlO","./RouterEvents":"kqHV3","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"ctkSO":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "normalizePath", ()=>normalizePath);
+parcelHelpers.export(exports, "compileRoute", ()=>compileRoute);
+parcelHelpers.export(exports, "matchRoute", ()=>matchRoute);
+parcelHelpers.export(exports, "routeInputs", ()=>routeInputs);
+parcelHelpers.export(exports, "buildPath", ()=>buildPath);
+parcelHelpers.export(exports, "fillTitle", ()=>fillTitle);
+parcelHelpers.export(exports, "linkCurrent", ()=>linkCurrent);
+parcelHelpers.export(exports, "findRoute", ()=>findRoute);
+function splitPath(path) {
+    const end = path.search(/[?#]/);
+    const pathname = end === -1 ? path : path.slice(0, end);
+    return pathname.split('/').filter((s)=>s.length > 0);
+}
+function normalizePath(path) {
+    return '/' + splitPath(path !== null && path !== void 0 ? path : '').join('/');
+}
+function compileRoute(pattern) {
+    const parts = splitPath(pattern !== null && pattern !== void 0 ? pattern : '');
+    const names = new Set();
+    const segments = parts.map((part, i)=>{
+        if (part === '*') {
+            if (i !== parts.length - 1) throw new Error(`Route "${pattern}": "*" is only allowed as the last segment`);
+            return {
+                kind: 'wildcard'
+            };
+        }
+        if (part.startsWith(':')) {
+            const name = part.slice(1);
+            if (!name) throw new Error(`Route "${pattern}": a ":" param needs a name`);
+            if (names.has(name)) throw new Error(`Route "${pattern}": duplicate param ":${name}"`);
+            names.add(name);
+            return {
+                kind: 'param',
+                name
+            };
+        }
+        return {
+            kind: 'static',
+            value: part
+        };
+    });
+    return {
+        pattern,
+        segments
+    };
+}
+function decodeSegment(segment) {
+    try {
+        return decodeURIComponent(segment);
+    } catch (e) {
+        return null;
+    }
+}
+function matchRoute(route, path) {
+    const compiled = typeof route === 'string' ? compileRoute(route) : route;
+    const parts = splitPath(path !== null && path !== void 0 ? path : '');
+    const params = {};
+    for(let i = 0; i < compiled.segments.length; i++){
+        const segment = compiled.segments[i];
+        if (segment.kind === 'wildcard') return {
+            params,
+            rest: parts.length > i ? '/' + parts.slice(i).join('/') : ''
+        };
+        if (i >= parts.length) return null;
+        if (segment.kind === 'static') {
+            if (parts[i] !== segment.value) return null;
+        } else {
+            const value = decodeSegment(parts[i]);
+            if (value === null) return null;
+            params[segment.name] = value;
+        }
+    }
+    return parts.length === compiled.segments.length ? {
+        params,
+        rest: ''
+    } : null;
+}
+function routeInputs(route) {
+    const compiled = typeof route === 'string' ? compileRoute(route) : route;
+    return {
+        params: compiled.segments.flatMap((s)=>s.kind === 'param' ? [
+                s.name
+            ] : []),
+        wildcard: compiled.segments.some((s)=>s.kind === 'wildcard')
+    };
+}
+function buildPath(pattern, params, rest = '') {
+    const compiled = compileRoute(pattern);
+    const parts = compiled.segments.map((segment)=>{
+        if (segment.kind === 'static') return segment.value;
+        if (segment.kind === 'wildcard') return rest.replace(/^\/+/, '');
+        if (params[segment.name] === undefined) throw new Error(`Route "${pattern}": no value for ":${segment.name}"`);
+        return encodeURIComponent(params[segment.name]);
+    });
+    return normalizePath(parts.join('/'));
+}
+function fillTitle(template, params) {
+    return template.replace(/:([A-Za-z0-9_$]+)/g, (token, name)=>{
+        var _params_name;
+        return (_params_name = params[name]) !== null && _params_name !== void 0 ? _params_name : token;
+    });
+}
+function linkCurrent(linkPath, currentPath) {
+    const link = normalizePath(linkPath);
+    const current = normalizePath(currentPath);
+    if (link === current) return 'page';
+    if (link !== '/' && current.startsWith(link + '/')) return 'true';
+    return null;
+}
+function findRoute(routes, path) {
+    for(let index = 0; index < routes.length; index++){
+        const match = matchRoute(routes[index].path, path);
+        if (match) return {
+            route: routes[index],
+            index,
+            match
+        };
+    }
+    return null;
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"6HJlO":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "normalizeBase", ()=>normalizeBase);
+parcelHelpers.export(exports, "resolveBase", ()=>resolveBase);
+parcelHelpers.export(exports, "pathFromUrl", ()=>pathFromUrl);
+parcelHelpers.export(exports, "urlForPath", ()=>urlForPath);
+parcelHelpers.export(exports, "linkTarget", ()=>linkTarget);
+var _routeMatcher = require("./RouteMatcher");
+function normalizeBase(base) {
+    const normalized = (0, _routeMatcher.normalizePath)(base !== null && base !== void 0 ? base : '');
+    return normalized === '/' ? '' : normalized;
+}
+function resolveBase(explicit, baseHref, documentUrl) {
+    if (explicit !== null && explicit !== undefined) return normalizeBase(explicit);
+    if (!baseHref) return '';
+    let url;
+    try {
+        url = new URL(baseHref, documentUrl);
+    } catch (e) {
+        return '';
+    }
+    if (url.origin !== documentUrl.origin) return '';
+    return normalizeBase(url.pathname.slice(0, url.pathname.lastIndexOf('/') + 1));
+}
+function pathFromUrl(url, mode, base) {
+    if (mode === 'hash') {
+        if (url.hash === '' || url.hash === '#') return '/';
+        return url.hash.startsWith('#/') ? url.hash.slice(1) : null;
+    }
+    const prefix = normalizeBase(base);
+    let pathname = url.pathname;
+    if (prefix) {
+        if (pathname !== prefix && !pathname.startsWith(prefix + '/')) return null;
+        pathname = pathname.slice(prefix.length) || '/';
+    }
+    return pathname + url.search;
+}
+function urlForPath(to, mode, base, current) {
+    const target = '/' + (to !== null && to !== void 0 ? to : '').replace(/^[\/\\]+/, '');
+    let url;
+    if (mode === 'hash') {
+        url = new URL(current.href);
+        url.hash = target;
+    } else url = new URL(normalizeBase(base) + target, current.origin);
+    if (url.origin !== current.origin) throw new Error(`juel-router: refusing to navigate off-origin to "${to}"`);
+    return url.href;
+}
+function linkTarget(url, mode, base, current) {
+    if (url.origin !== current.origin) return null;
+    const sameDocument = url.pathname === current.pathname && url.search === current.search;
+    if (mode === 'hash') {
+        if (!sameDocument) return null;
+        return url.hash.startsWith('#/') ? url.hash.slice(1) : null;
+    }
+    if (sameDocument && url.hash) return null;
+    const path = pathFromUrl(url, 'history', base);
+    return path === null ? null : path + url.hash;
+}
+
+},{"./RouteMatcher":"ctkSO","@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"kqHV3":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "RouterEvents", ()=>RouterEvents);
+var RouterEvents;
+(function(RouterEvents) {
+    RouterEvents["RouteChanged"] = "route-changed";
+    RouterEvents["RouteBlocked"] = "route-blocked";
+    RouterEvents["RouteError"] = "route-error";
+})(RouterEvents || (RouterEvents = {}));
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"btttT"}],"1Ys6c":[function(require,module,exports,__globalThis) {
 var _chart = require("./Chart/Chart");
