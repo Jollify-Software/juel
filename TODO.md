@@ -294,6 +294,544 @@ count-up timer for now — if a second consumer wants one, promote it to a
   `render-as="canvas"` option for `toDataURL`/download, and a centre `logo`
   slot (needs `ecl="H"`).
 
+## Planned: `juel-router` — client-side routing (`src/Navigation/Router/`)
+
+No implementation exists yet — checked `README.md`, this file, memory, and
+`C:\Jollify_old\App` (the old Jollify.UI) for a prior routing approach;
+found nothing to port from. This plan exists because Jollify.UI's rewrite
+will need one: it's an app (dashboards, `juel-mdi`-hosted tool panels), not
+a content site, so its "pages" belong as ordinary Juel components rather
+than the plain-HTML-fragment model `juel-embed`/Jellyfish use for content.
+
+**Core decision**: a route's content is a **custom element tag name**, not
+markup or a template string. The router instantiates it and mounts it into
+an outlet; that element's own class is where its event handlers and HTTP
+calls live (`connectedCallback`/a route-enter hook triggers a `fetch()`,
+`@click=` bindings handle interaction) — exactly like every other Juel
+component, and exactly like a `juel-mdi` panel being an arbitrary element.
+No separate "code-behind" convention needed.
+
+**Progress (2026-09-13)**: steps 0 and 1 done — `src/Navigation/Router/`
+(`RouteMatcher.ts`, `Router.ts`, `RouterEvents.ts`), 36 matcher tests in
+`tests/util/routeMatcherTests.ts`, example at
+`examples/Navigation/Router/router.html` (+ gallery entry), click-through
+verified in real Chrome via Playwright. Decisions made along the way:
+- **First match in table order wins** (Express-style), not
+  most-specific-wins — so a `/*` catch-all goes last.
+- **A new path always mounts a fresh element**, even for the same route
+  (`/users/1` → `/users/2`), so a view that loads in `connectedCallback`
+  reloads without watching its own params. Re-setting an *equivalent*
+  path (`/users/1/`, `/users/1?x`) is a no-op.
+- Mounted element gets `params` and `rest` (the wildcard remainder) as
+  properties, set before it's appended.
+- `routes` JS property *and* `<juel-route>` children are both supported;
+  the property wins when set. Children are watched with a
+  `MutationObserver`, so adding/removing/editing routes re-resolves.
+- Outlet = the router's own light DOM (appended after the `<juel-route>`
+  children). If Jollify.UI wants the outlet somewhere other than "inside
+  the router element", that's a small follow-up (e.g. an `outlet`
+  selector), not yet built. ~~Related: links are only intercepted *inside*
+  the router's subtree~~ — changed to page-wide for URL-bound routers, see
+  the Blazor-style follow-up below.
+
+**Progress (2026-09-13, later)**: steps 2–4 done. Hosting question answered
+(Luke): **Jollify.UI's host can rewrite unknown paths to `index.html`**, so
+history mode is the default. URL↔path conversion is pure logic in
+`RouterLocation.ts` with 28 tests in `tests/util/routerLocationTests.ts`.
+Verified with 55 scripted Chrome checks: history mode on a scratch page
+behind a rewriting server, hash + memory mode on the example page.
+Decisions:
+- **`mode="history" | "hash" | "memory"`.** Hash exists anyway because the
+  examples server can't rewrite (so the live example page uses hash), and
+  memory (URL-free, `path` property only) is what lets several routers sit
+  on one page, or a router run inside a panel without owning the URL.
+  `base` = history-mode URL prefix.
+- In hash mode only `#/…` hashes are routes; a plain `#section` anchor is
+  ignored rather than emptying the outlet.
+- In URL modes `path` = base-relative pathname **+ search** (history) /
+  everything after `#` (hash). Matching and the remount key ignore the
+  query, so **a query-only change doesn't remount or fire `route-changed`**
+  — views read `location.search` themselves for now. Revisit if Jollify.UI
+  wants query changes to be reactive.
+- Setting `path` in a URL mode = `navigate(path)` (pushes an entry).
+  `navigate(to, { replace })`; navigating to the current URL is a no-op.
+  Multiple URL-bound routers stay in sync via an internal window event
+  (pushState doesn't fire `popstate`).
+- Link interception uses `composedPath()`, so links inside a mounted
+  view's **shadow DOM** work too. Left to the browser: modifier/non-left
+  clicks, `download`, non-`_self` `target`, `rel="external"`, cross-origin,
+  outside `base`, in-page `#anchors`, and **same-origin links that match
+  no route** (they may be real server pages — with the rewrite they reload
+  into the app's not-found view).
+- `not-found="tag"` gets `rest` = the whole unmatched path;
+  `route-changed` detail has `notFound: true` whether or not a not-found
+  element is set.
+- ~~Still not built: `document.title` / focus management / `aria-current`
+  on active links after navigation; scroll restoration~~ — done, see the
+  steps 5–6 progress note's follow-up below. Still not built: passing
+  `history.state` objects into views (the "param can be a real object"
+  idea in step 1).
+
+**Progress (2026-09-13, steps 5–6)**: guards/redirects and lazy loading
+done. Verified by 49 more scripted Chrome checks (history-mode scratch page
++ example page); earlier suites re-run green. Decisions:
+- **Navigation is one async pipeline**: match → `redirect` / `beforeEnter`
+  → lazy load → commit. The current view stays mounted meanwhile, with a
+  reflected `navigating` attribute for CSS. The newest navigation wins:
+  a slower guard/load that finishes later is dropped, not committed.
+  `navigate()` now returns `Promise<boolean>` (shown / not shown).
+- **Guards run before the URL is written** for `navigate()`, link clicks
+  and `path` set in a URL mode — so a blocked navigation leaves no dead
+  history entry. Back/forward or a typed URL can't be cancelled, so a
+  block overwrites the arrived-at entry with the still-shown URL
+  (`replaceState`). A redirect after a push pushes the target; after
+  back/forward/deep link it replaces.
+- `beforeEnter(ctx)` gets `{ path, params, rest, from }` and returns
+  true/undefined (go), false (stay, `route-blocked` event) or a path
+  (redirect). Sync or async. A throwing guard, a failed load or a redirect
+  loop (>10) stays put and fires `route-error`. Per-route only; no
+  router-wide `beforeEach` — share one guard function across routes, or
+  add `beforeEach` if Jollify.UI ends up gating most routes.
+- `redirect="/users/:id"` may reuse the route's own `:params` / `*`
+  (`buildPath` in `RouteMatcher.ts`, tested); a redirect using a param the
+  route doesn't capture is rejected when the table is read.
+- Declarative `<juel-route>` guards/loaders are JS properties on the
+  element (`routeEl.beforeEnter = fn`, `.load = fn`).
+- **Lazy loading, two forms**: `load: () => import('./View')` (bundled
+  apps — Jollify.UI) or `module="url"` (plain HTML). `module` is loaded via
+  a `<script type="module">` element, **not `import(url)`**: Parcel
+  rewrites a runtime `import()` inside juel.js into its own `require()`,
+  and `new Function` would need CSP `unsafe-eval`. A module script's
+  `load` fires *before* its top-level `await` settles, so after loading the
+  router waits for `customElements.whenDefined(tag)` (3s cap, then logs
+  and mounts anyway — the element upgrades if defined later). A failed
+  module is forgotten so a later navigation retries.
+- Known limitation: with several URL-bound routers on one page, a block
+  in one reverts the shared URL for all of them.
+
+**Progress (2026-09-13, a11y/UX follow-up)**: active links, focus, title,
+scroll. 34 more scripted Chrome checks (a second history-mode scratch
+fixture + example page); all earlier suites re-run green. Decisions:
+- **`aria-current`** on the router's light-DOM links to known routes:
+  `"page"` for the shown path, `"true"` for a section containing it (a
+  `/users` link on `/users/2`; `/` is never a section). Only links the
+  router would itself navigate — not `target="_blank"`, `download`,
+  `rel="external"`, unknown routes. It only removes `aria-current` it set.
+  Re-evaluated when links are added or their `href`/`target`/… change, so
+  links a view renders late are covered. Links in a view's *shadow* DOM
+  aren't reachable — the view marks its own.
+- **Focus** moves to the new view after a navigation
+  (`focus-on-navigate="view"`, the default; `"none"` opts out) — adds
+  `tabindex="-1"` if the view has no tabindex, `preventScroll`. Not on the
+  first view, and not on a route-table edit. The router's styles hide the
+  focus ring on such a view (`::slotted([tabindex="-1"]:focus)`), since a
+  ring round a whole non-interactive container is noise; page CSS can
+  restore it.
+- **`title`**: `<juel-route title="User :id">` (`:param` placeholders) or
+  `title: ctx => …` in JS routes. Routes without one leave
+  `document.title` alone. A throwing title function is logged, not fatal.
+- **`scroll-on-navigate="top"`** (opt-in, default `"none"` — a router
+  that isn't the whole page mustn't scroll it): navigations go to the top
+  or the history-mode `#hash` target; back/forward restore the saved
+  position (per-entry key in `history.state`, positions in memory only —
+  lost on reload). Takes `history.scrollRestoration = "manual"` while
+  active and gives it back on detach / turning off. Restores a frame
+  after mounting; a view that renders its height after an async fetch
+  can still be clamped short.
+- Internally transitions now carry a *cause* (navigate / popstate / path
+  / refresh), which is what gates focus and scroll.
+
+**Progress (2026-09-13, Blazor-style links + `<base href>`)**: Luke asked
+for Blazor's model. 21 more scripted Chrome checks (a `/app3` scratch
+fixture using `<base href>` and an app-shell nav outside the router); all
+earlier suites re-run green (one step-2 check deliberately flipped: a link
+outside any router is now intercepted). Decisions:
+- **URL-bound routers (history/hash) own links page-wide** — a document
+  click listener, like Blazor's runtime (Angular only intercepts
+  `routerLink`). Same exclusions as before (modifier clicks, `target`,
+  `download`, `rel="external"`, other origin, outside base, unknown
+  routes). **Memory routers stay subtree-only** — they don't own the URL.
+- **Innermost router first**: a click inside a router goes to that router;
+  only if it doesn't match there does it reach a page-level router
+  (event order + `defaultPrevented`; the document handler skips clicks in
+  its own subtree). `aria-current` marking follows the same rule — a
+  URL-bound router doesn't mark links a nested router would take.
+- `aria-current` marking is page-wide for URL-bound routers too (a
+  document `MutationObserver`, only reacting to added `<a>`s / anchor
+  attribute changes), and a router clears its marks on detach or on
+  switching to memory mode. Marks are tracked in a pruned `Set` now
+  (a `WeakSet` couldn't be iterated to clear them).
+- **`base` defaults from `<base href>`** when the attribute/property is
+  unset (`null`); `base=""` explicitly means none. The base is the base
+  href's *directory* (`"/app/"` and `"/app/index.html"` → `/app`; `"/app"`
+  without a slash → site root, matching how relative links resolve) — same
+  trailing-slash convention Blazor requires. Cross-origin `<base>` ignored.
+  `resolveBase` in `RouterLocation.ts`, unit-tested.
+- Known limitations: two *sibling* URL-bound routers with different route
+  tables/bases could disagree about a shared link's `aria-current` (last
+  update wins). Hash mode with a `<base href>` on another directory breaks
+  `href="#/…"` links (they resolve against the base, not the document) —
+  the usual `<base>` + fragment gotcha; history mode is the intended pairing.
+
+Phased, cheapest/highest-value first:
+
+0. ~~**Path matching**~~ ✅ — pure logic, unit-testable in isolation (`tests/util/`
+   per the testing convention). Static segments, `:param` segments, and a
+   trailing `*` wildcard; returns matched params + leftover path. No DOM,
+   no History API — this is the `HistoryStack`-style "extract the hard part
+   into pure, tested logic" piece.
+1. ~~**`<juel-router>` + outlet, static route table**~~ ✅ — `<juel-router>` takes
+   a route table (`[{ path, element }]`, `element` a tag name) either as a
+   JS property (simplest MVP) or declarative `<juel-route path="..." element="...">`
+   children (matches the light-DOM-children-as-config idiom `juel-tabs`/
+   `juel-mdi` already use — do this instead of the JS-property-only form
+   once step 0 is solid, not as a separate later step). On a route match,
+   instantiate the target element (`document.createElement(tag)`) and mount
+   it into an outlet (light DOM `<slot>`, matching how `juel-mdi` panels
+   work) — swapping out whatever was mounted before. Params get set as
+   properties on the mounted element (`el.params = matchedParams`) rather
+   than serialized attributes, so a param can be a real object/array when
+   the route was reached programmatically with one.
+2. ~~**Programmatic navigation**~~ ✅ — `router.navigate(path)`, plus reacting to
+   `popstate` for back/forward. History-mode (`pushState`) by default,
+   matching how a real app is normally hosted; **decide before starting
+   whether Jollify.UI's host can rewrite unknown paths to `index.html`** —
+   if not (e.g. a dumb static host with no server-side rewrite), a
+   hash-mode fallback (`#/path`) needs to exist from this step, not bolted
+   on later, since the two modes shape how links/route tables are written.
+3. ~~**Link interception**~~ ✅ — a plain `<a href="/foo">` inside a
+   `<juel-router>`'s subtree gets its click intercepted (preventDefault +
+   `navigate()`) when the href is same-origin and matches a known route;
+   falls through to a real navigation otherwise (external links, downloads,
+   `target="_blank"`, modifier-clicked opens-in-new-tab). This is what lets
+   page authors write ordinary links instead of calling `router.navigate()`
+   by hand everywhere.
+4. ~~**Not-found handling**~~ ✅ — an explicit `not-found` route/element, distinct
+   from silently rendering nothing.
+5. ~~**Guards / redirects**~~ ✅ — a `beforeEnter(params) => boolean | string`
+   hook per route (return `false` to block, a path string to redirect).
+   Needed for anything auth-gated; comes after the basics work rather than
+   being designed in from step 0, since guard semantics are easier to get
+   right once real navigation exists to test them against.
+6. ~~**Lazy loading**~~ ✅ — route table entries can point at a dynamic
+   `import()` instead of an already-registered tag name, so Jollify.UI
+   doesn't ship as one Parcel bundle. Straightforward once step 1's mount
+   path exists (await the import, then `customElements.whenDefined`,
+   *then* mount) — sequenced last because it's a pure optimization, not a
+   capability gap.
+7. **(Deliberately not planned yet) Nested/child routes and any direct
+   `juel-mdi` integration** — e.g. a route restoring a specific
+   `juel-mdi.setLayout()` arrangement, or routing *within* a panel rather
+   than swapping a whole page. This is the "genuinely hard, maybe not
+   needed" piece, same shape as `juel-mdi`'s deliberately-deferred
+   recursive nesting (see the `juel-mdi` section above) — don't design it
+   speculatively; revisit only once Jollify.UI's actual screens show a real
+   need for routing below the whole-page level. **Update (2026-09-17):** the
+   dashboard example tried flat `/customers/:id/*` routes for a tabbed detail
+   screen and they work; what they cost is a remount + re-fetch on every tab
+   switch. See the dashboard section below for the measurement — that's the
+   concrete case for step 7 when it's needed, and it isn't yet.
+
+**Testing**: step 0 (the matcher) is pure logic and should get real unit
+tests, per the repo's own testing convention (`CLAUDE.md` "Testing"
+section) — that's the one part of this whole feature that isn't just
+"verify by eye in a browser." Steps 1+ need the same real click-through
+verification (`npx serve` + Playwright, or the Chrome extension when
+available) every other interactive component in this repo has needed —
+see the `juel-mdi` section above for why "compiles clean" alone hasn't been
+a reliable signal for DOM/browser-API-dependent code in this codebase.
+
+## Router mock app — "Northwind Admin" dashboard ✅ (built 2026-09-17)
+
+**Why.** `router.html` is a feature tour: a router halfway down a page of
+other demos, views that are a few lines of `innerHTML`. It can't show the
+features that only make sense when the router *is* the app — page-wide link
+interception from a sidebar outside the router, `scroll-on-navigate`, focus
+moving to each view, `document.title` per route — and it never puts real Juel
+components inside a mounted view. A mock admin dashboard does both, and is the
+closest thing to Jollify.UI's actual shape.
+
+**Built.** `examples/Navigation/Router/dashboard.html` (hash mode, its own
+full-page app CSS rather than `_Shared/examples.css`), views in
+`examples/_TS/Navigation/Router/Dashboard/` (a `DashView` base, `data.ts` with
+seeded deterministic data — 40 customers, 150 orders — and `auth.ts` with the
+shared `requireSignIn` guard), plus the lazily-loaded
+`examples/Navigation/Router/dashboard-reports.js`. Linked from a callout at the
+top of `router.html` and from the gallery. Routes: `/` → redirect to
+`/overview`; `/overview` (stat tiles + line/doughnut `juel-chart` + recent
+orders); `/customers` (`juel-table` + text filter, row click navigates);
+`/customers/:id/*` (`juel-tabs`, tab in the URL); `/orders` (`?status=`
+filter); `/orders/:id`; `/reports` (`module=`); `/settings`; `/login`;
+`dash-not-found`.
+
+**Verified** with scripted Chrome (playwright-core + system Chrome + a plain
+Node static server at the repo root) and screenshots at 1280px and 400px: the
+sign-in redirect returns to the original target; deep link + reload on
+`#/customers/7/orders`; back/forward across sections; sidebar `aria-current`
+(`page` vs `true` on detail pages); per-route `document.title`; focus lands on
+the new view; three fast sidebar clicks commit only the last; ten mount/unmount
+cycles of the chart and table views leave the DOM node count and the chart's
+`<body>` tooltip count unchanged (no leaks); the lazy Reports module loads once,
+with the previous view still mounted and `navigating` driving the progress bar.
+
+### Answers to the questions it was built to settle
+
+1. **Query strings — the gap is worse than "the view reads `location.search`
+   itself".** A query-only change doesn't remount or fire `route-changed`, as
+   documented. But a view *cannot* fall back to watching the location either:
+   the router navigates with `history.pushState`, which fires neither
+   `hashchange` nor `popstate`, so the `hashchange` listener the plan imagined
+   never fires at all for a router-driven navigation. (There *is* a window
+   event — `juel-router-location-changed` — but it's a module-private const,
+   not exported and not in `RouterEvents`, so not public API.) What
+   `DashOrderList` does instead: `preventDefault()` on its own chip links, call
+   `navigate()` for the URL, and refilter itself; plus a `popstate` listener for
+   back/forward, and reading the query at render time for a reload or a pasted
+   URL. That covers everything except *another* part of the app navigating to
+   `/orders?status=…`, which this view would not notice. **Decision needed
+   (Luke):** make query changes reactive — cheapest version is a `query`
+   property set on the mounted element alongside `params`, plus a
+   `route-query-changed` event — or at minimum promote the location-changed
+   event into `RouterEvents`. Not changed unprompted.
+
+2. **Nested routes (step 7) — flat routes work, at a real cost.** The customer
+   tabs are `/customers/:id/*` with the view picking its tab from `rest`, and
+   that is genuinely clean to write: one route, one view, deep-linkable
+   (`#/customers/7/notes` reloads onto the Notes tab), and the sidebar still
+   shows `aria-current="true"` on Customers. The cost is exactly the one the
+   plan predicted: **every tab switch is a new path, so the view remounts and
+   re-fetches the customer** — measured, the element identity changes and the
+   "Loading customer…" state flashes back (~1.1s round trip here). For three
+   cheap tabs that's tolerable; for a detail screen whose header is an
+   expensive fetch it wouldn't be. So step 7 still isn't needed for *this*
+   shape, but the concrete case for it is "keep a parent view mounted while a
+   child segment changes" — build it if Jollify.UI hits that, not before.
+
+3. **Leave guards — feature skipped, the plan's option (a).** The router only
+   has `beforeEnter`, on the route being *entered*, so "unsaved changes on
+   Settings" has nothing to hang off. `dash-settings` says so in a note on the
+   page rather than hacking around it. **Decision needed (Luke):** whether to
+   add `beforeLeave(ctx)` on the route being left. It would have to run before
+   the URL is written, same as `beforeEnter`, and couldn't be honoured for
+   back/forward any more than a block can.
+
+4. **Links inside shadow DOM — clicks fine, marking not needed.** Row
+   navigation goes through `juel-table`'s `cell-clicked` event and
+   `router.navigate()`, so there are no links in shadow cells at all; the
+   cross-links that *are* in views (order → customer) are light DOM and get
+   marked normally. Nothing new beyond the known limitation.
+
+5. **Component bugs found and fixed** (in the components, not the example):
+   - `juel-breadcrumb`'s separator never rendered. `Breadcrumb.less` had
+     `::slotted(breadcrumb-item:not(:last-child))::after`, but the item element
+     is `<juel-breadcrumb-item>` (`BreadcrumbItem.ts`). Nothing has ever been
+     called `breadcrumb-item`, so the rule matched nothing. Fixed.
+     (`juel-breadcrumb` still has no example page of its own.)
+   - `juel-table`'s host was `display: inline`, so its block `<table>`
+     overflowed the host instead of being laid out by it — the table couldn't
+     be sized, scrolled or margined from the page. Now
+     `:host { display: block; overflow-x: auto; }`, which also makes it scroll
+     rather than overflow at phone width. Existing `table.html` re-checked,
+     unchanged.
+   - **`juel-table` rows were unreachable by keyboard** — **fixed
+     2026-09-17**, and the worst thing this example turned up. With
+     `selection="single"` rows respond to clicks and the dashboard navigates
+     on one, but every cell reported `tabIndex: -1`, rows carried no role or
+     `aria-selected`, and there was no Enter/Space handling: a keyboard or
+     screen-reader user could not open a customer at all. Rows in a table
+     with a selection mode are now a roving tab stop (one tab stop, Arrow
+     Up/Down/Home/End between rows), Enter/Space activates, and rows carry
+     `aria-selected`. New `row-activated` event (`{ row, index }`) fires for
+     both a click and a keypress — `cell-clicked` is mouse-only by nature, so
+     a consumer navigating on a row should listen to `row-activated`;
+     `DashCustomerList` now does. Events moved onto a `TableEvents` enum.
+     Also: `tr:hover { cursor: pointer }` used to apply to *every* table,
+     promising an interaction a `selection="none"` table doesn't have — the
+     hover highlight, pointer and focus ring are now limited to interactive
+     rows.
+   - No leaks: `juel-chart` cleans up its `<body>` tooltip div and resize
+     observer correctly across repeated mounts (the earlier Chart fix holds),
+     and `juel-tabs` is fine being rebuilt on every navigation.
+   - Nothing needed the recurring light-DOM-children race workaround.
+
+### Also found
+- **`scroll-on-navigate="top"` needed a retry for async views** — **fixed
+  2026-09-17**. Going back to a list, the restore ran a frame after mounting,
+  when the view was still its loading state (measured: document 800px tall
+  against a saved offset of 1400), so the browser clamped the scroll to 0 and
+  nothing put it right when the rows arrived a few hundred ms later. It now
+  keeps re-applying the saved position for up to a second, stopping as soon as
+  it lands, the user scrolls (wheel/touch/key), or another navigation starts.
+  A/B on a fixture with a synchronous and an asynchronous view: single-shot
+  leaves an async view at 0, the retry lands it at 1500.
+  *Correction to an earlier note here:* the first version of this finding said
+  scroll restore was broken outright, including for views that render
+  synchronously. That was wrong, and wrong for an avoidable reason —
+  `page.click()` in Playwright scrolls the target into view before clicking,
+  so every "scroll down then navigate away" step in the check was silently
+  saving a scroll offset of 0. Synchronous views always restored correctly.
+  Drive navigations with an in-page `element.click()` when scroll position is
+  part of what's under test.
+- **`not-found` took no title** — **fixed 2026-09-17**: `not-found="tag"` is
+  only a tag name, so there was no route element to put `title="…"` on and the
+  tab kept the title of wherever you came from. Added a `not-found-title`
+  attribute; the dashboard's shell workaround is gone.
+- **Navigations weren't announced to assistive tech** — **added
+  2026-09-17**. The router already moved focus to the new view, which is only
+  half the pattern: a screen-reader user landed in new content with nothing
+  saying the page had changed, and nothing said the still-mounted old view was
+  stale during a slow guard or lazy load. The router now sets `aria-busy` while
+  `navigating`, and puts the route's resolved title into a visually-hidden
+  `role="status" aria-live="polite"` region in its shadow root after each
+  navigation (`announce-navigation="title" | "none"`, default `"title"`; routes
+  without a `title` announce nothing). Verified that the region is present in
+  Chrome's accessibility tree with the right role and that its text updates per
+  navigation — **not** verified against a real screen reader, which this setup
+  can't do.
+- **One shared guard across ~8 routes is fine.** `dashboard.html` assigns
+  `requireSignIn` in a loop over its `<juel-route>` children. Nothing here makes
+  a case for a router-wide `beforeEach`.
+- **`juel-nav` can't be a sidebar.** Tried first, per the plan. Its shadow root
+  hard-codes a horizontal top bar (row `display:flex`, a fixed `--nav-height`,
+  an absolutely-positioned drop-down menu) and its own 768px breakpoint, with
+  no `direction` property and no exposed parts — a vertical full-height rail
+  would need shadow-DOM surgery. The dashboard uses plain markup plus a
+  hamburger button instead. Follow-up if wanted: give `juel-nav` a
+  `direction="vertical"`, the way `juel-tabs` and `juel-toolbar` already have.
+- **Two self-inflicted CSS traps worth remembering for any future example
+  page.** (a) `.rows` is a *global* Juel grid utility
+  (`src/_CommonStyles/Grid.less`: `display:flex; flex-flow: column wrap;
+  justify-content:center`), so a page class of that name silently centred and
+  shrink-wrapped every list row — renamed to `.list-rows`. A page-level class
+  name can collide with the Juel global sheet; generic words (`rows`,
+  `columns`, …) are the risk. (b) `.chip:hover` (0,2,0) beats `.chip-on`
+  (0,1,0), so the just-clicked filter chip repainted its label in `--primary`
+  on a `--primary` background — invisible. Both were found only by screenshot,
+  not by any scripted assertion.
+- **`juel-chart`'s legend overlaps the x-axis tick labels** on line and bar
+  charts (the "Revenue"/"Orders" swatch sits over Apr/May). Pre-existing,
+  visible on the existing `chart.html` examples too — not touched here.
+- **`examples/index.html` (the gallery) is stale and broken**, and has been for
+  a while — pre-existing, not caused by this work. It uses
+  `<juel-tabs vertical="true">` with `<div data-title="…">` children, but the
+  current `juel-tabs` takes `<juel-tab title="…">` and `direction="vertical"`.
+  Nothing tabs; all ~70 embedded pages render stacked down one enormous page.
+  The new entry follows the file's existing (broken) convention rather than
+  rewriting 70 entries unasked. Worth a dedicated pass.
+
+
+## Open questions for Luke — router, `juel-table`, dashboard example
+
+Everything here came out of building the dashboard example (2026-09-17). None
+of it has been changed unprompted; each one is a decision, not a bug.
+
+### Router
+
+**Q1. Should a query-string change be reactive?**
+Today a query-only change (`/orders` → `/orders?status=open`) doesn't remount
+the view or fire `route-changed` — matching and the remount key both ignore
+`?…`. That part is deliberate. What makes it awkward is that a view can't
+observe the change *itself* either: the router navigates with
+`history.pushState`, which fires neither `hashchange` nor `popstate`. There is
+an internal `juel-router-location-changed` window event, but it's a
+module-private const — not exported, not in `RouterEvents`.
+So today a view has to drive its own query changes (intercept the click, call
+`navigate()`, refilter by hand, plus a `popstate` listener for back/forward).
+`DashOrderList` does exactly that and it works, but it leaves one hole: if
+anything *else* in the app navigates to `/orders?status=…`, the view won't
+notice.
+Options, cheapest first:
+  a. Export the location-changed event in `RouterEvents` and document it. Small,
+     unblocks consumers, doesn't change any semantics.
+  b. Set a `query` property (a `URLSearchParams`) on the mounted element
+     alongside `params`, and fire `route-query-changed` when only the query
+     moved. Views stay declarative; no remount.
+  c. Leave it: query state is the view's business.
+Recommendation: (a) regardless, and (b) if Jollify.UI has filter/sort/paging
+state in the URL — which a dashboard normally does.
+
+**Q2. Add `beforeLeave`?**
+There's only `beforeEnter`, on the route being *entered*, so "you have unsaved
+changes — leave anyway?" has nothing to hang off. The Settings view in the
+example says so on the page rather than faking it.
+A `beforeLeave(ctx)` would have to run before the URL is written (same as
+`beforeEnter`), and couldn't be honoured for back/forward any more than a
+blocking `beforeEnter` can — a browser back can't be cancelled, only undone
+after the fact. Worth it only if Jollify.UI has forms people can lose work in.
+
+**Q3. Nested routes (step 7) — not yet, but here's the trigger.**
+Flat `/customers/:id/*` routes work well for a tabbed detail screen: one route,
+one view, deep-linkable. The cost, measured: every tab switch is a new path, so
+the view remounts and re-fetches its customer (~1.1s round trip, with the
+loading state flashing back). Fine for three cheap tabs; not fine for a detail
+screen with an expensive header fetch. The real requirement, when it comes, is
+"keep a parent view mounted while a child segment changes" — don't design it
+before something needs it.
+
+**Q4. Should `announce-navigation` default to on?**
+It currently defaults to `"title"`, i.e. on, matching `focus-on-navigate`
+defaulting to `"view"` — accessible by default. It only announces when the
+route has a `title`, so a route table with no titles is silent. Say if you'd
+rather it defaulted to `"none"`.
+
+### `juel-table`
+
+**Q5. How should a table say "my rows are interactive"?**
+Keyboard support (roving tabindex, Enter/Space, `aria-selected`, pointer
+cursor, focus ring) is currently tied to `selection !== "none"`. That covers
+the dashboard and any selectable table. It leaves one gap: a `selection="none"`
+table that uses `cell-clicked` for navigation is still mouse-only. Options: add
+an explicit `interactive` boolean, treat "has a `row-activated`/`cell-clicked`
+listener" as interactive (not really detectable), or leave it as is and
+document that interactive rows need a selection mode.
+Recommendation: leave it unless a real consumer hits the gap.
+
+**Q6. `cell-clicked` vs `row-activated`.**
+`cell-clicked` still fires on click, unchanged, for back-compat. `row-activated`
+is the new one that also fires for the keyboard. Worth deprecating
+`cell-clicked` for navigation use in the README, or leave both?
+
+**Q7. Other `juel-table` gaps found but not touched** — no empty state (an
+empty `data` renders a bare header row), no column sorting, no paging.
+`juel-data-grid` has paging but it's `DataSource`/URL-driven, so it isn't a
+drop-in for an in-memory array. Is an in-memory paged/sortable table wanted, or
+is that what `juel-data-grid` should grow into?
+
+### Other components
+
+**Q8. `juel-nav` `direction="vertical"`?**
+It can't currently be a sidebar: its shadow root hard-codes a horizontal top
+bar (row flex, fixed `--nav-height`, absolutely-positioned drop-down) and its
+own 768px breakpoint, with no exposed parts. The dashboard uses plain markup
+plus a hamburger button instead. `juel-tabs` and `juel-toolbar` both already
+have a `direction` — should `juel-nav` match?
+
+**Q9. `juel-chart`'s legend overlaps the x-axis tick labels** on line and bar
+charts. Pre-existing, visible on the existing `chart.html` examples too. Fix in
+the legend layout, or leave?
+
+**Q10. `breadcrumb-item` / `tree-*` naming.** `juel-breadcrumb`'s separator
+selector named a `breadcrumb-item` tag that has never existed (fixed to
+`juel-breadcrumb-item`). The same unprefixed-tag pattern was flagged earlier for
+`tree-*`. Worth a naming-consistency pass across the library?
+
+### The gallery (not a question so much as a decision)
+
+**Q11. `examples/index.html` is stale and broken** and has been for a while. It
+uses `<juel-tabs vertical="true">` with `<div data-title="…">` children, but the
+current `juel-tabs` takes `<juel-tab title="…">` and `direction="vertical"`.
+Nothing tabs — all ~70 embedded example pages render stacked down one enormous
+page. New entries have been following the broken convention. Worth a dedicated
+pass to rebuild it; it's mechanical but touches every entry.
+
+### Example polish, deliberately left
+
+Not questions, just the queue if you want it done: debounce the customer filter
+(re-renders 40 rows per keystroke), page the 150-row orders list, add a
+skip-to-content link, make one route actually *blocked* so `route-blocked` is
+demonstrated (the sign-in guard only ever redirects), and either use the
+Settings currency in `money()` or drop the field.
+
 ## Known issues (pre-existing, not caused by the above)
 - ~~`npx jest` (full) has 12 failing tests in `tests/MessageBox/*`~~ — **fixed
   (2026-09-12)**. Root cause: `MessageBoxButtonStrategies.test.ts` and

@@ -8,3 +8,4 @@ import './Tree/Tree';
 import './ScrollPane/ScrollPane';
 import './Steps/Steps';
 import './ScrollSpy/ScrollSpy';
+import './Router/Router';

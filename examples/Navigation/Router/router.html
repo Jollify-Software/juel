@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Router — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .router-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            width: 100%;
+        }
+        .router-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .router-bar input {
+            flex: 1 1 12rem;
+            min-width: 0;
+            padding: 0.375rem 0.5rem;
+            font-family: monospace;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
+        .router-url {
+            font-family: monospace;
+            font-size: 0.8125rem;
+            color: var(--secondary);
+            overflow-wrap: anywhere;
+        }
+        juel-router {
+            min-height: 7rem;
+            padding: 1rem;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        juel-router[mode="memory"]:not(:has(> :not(juel-route)))::before {
+            content: "Nothing matched — the outlet is empty.";
+            color: var(--secondary);
+            font-style: italic;
+        }
+        .app-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem 1rem;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .app-nav a {
+            color: var(--primary);
+        }
+        .outside-link[aria-current] {
+            font-weight: 600;
+        }
+        .app-nav a[aria-current] {
+            font-weight: 600;
+        }
+        .app-nav a[aria-current="page"] {
+            color: var(--dark);
+            text-decoration: none;
+        }
+        .app-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 1.25rem;
+        }
+        juel-router[navigating] > :not(nav):not(juel-route) {
+            opacity: 0.4;
+            transition: opacity 0.15s;
+        }
+        juel-router[navigating] .app-nav::after {
+            content: "Loading…";
+            margin-left: auto;
+            color: var(--secondary);
+            font-style: italic;
+        }
+        .view {
+            display: block;
+        }
+        .view h3 {
+            margin-top: 0;
+        }
+        .view ul {
+            padding-left: 1.25rem;
+        }
+        .router-log {
+            margin: 0;
+            max-height: 8rem;
+            overflow: auto;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+        }
+        .dashboard-callout {
+            border-left: 3px solid var(--primary);
+        }
+        .example-section pre.snippet {
+            margin: 0;
+            padding: 0.75rem 1rem;
+            overflow-x: auto;
+            font-size: 0.8125rem;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+        }
+        .example-section pre.snippet code {
+            padding: 0;
+            background: none;
+        }
+    </style>
+    <!-- The route views (demo-home, demo-user-detail, …) are custom elements
+         written in TypeScript under examples/_TS/Navigation/Router/. -->
+    <script src="../../example.js"></script>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Router</h1>
+        <p>
+            <code>&lt;juel-router&gt;</code> mounts the custom element of whichever route matches the
+            current path, replacing what was there before. Routes are
+            <code>&lt;juel-route path="…" element="tag-name"&gt;</code> children, checked in order —
+            first match wins. Patterns support static segments, <code>:param</code> segments and a
+            trailing <code>*</code>. The mounted element gets <code>params</code> (and
+            <code>rest</code> for a wildcard) set before it connects.
+        </p>
+        <p>
+            <code>mode</code> picks where the path comes from: <code>history</code> (default — real
+            URLs), <code>hash</code> (<code>#/path</code>) or <code>memory</code> (no URL, just the
+            <code>path</code> property). In the URL modes, same-origin links <em>anywhere on the
+            page</em> that match a route are handled without a page load (as in Blazor), and
+            back/forward work; a memory router only handles links inside itself, and a link inside a
+            router goes to that router first.
+            <code>router.navigate(path, { replace })</code> navigates from script.
+        </p>
+        <p>
+            A route can <code>redirect="/new/:id"</code>, run a <code>beforeEnter</code> guard (sync
+            or async; return <code>false</code> to block, a path to redirect), and lazy-load its
+            element with <code>module="url"</code> or a <code>load()</code> function. The router has
+            a <code>navigating</code> attribute while a guard or load is pending.
+        </p>
+    </header>
+
+    <section class="example-section dashboard-callout">
+        <h2>See it as a whole app</h2>
+        <p>
+            This page is a feature tour — a router halfway down a page of demos, with views a few
+            lines long. <a href="dashboard.html"><b>Northwind Admin</b></a> is the same router being
+            an <em>application</em>: a sidebar and top bar outside it, real
+            <code>&lt;juel-table&gt;</code> / <code>&lt;juel-chart&gt;</code> /
+            <code>&lt;juel-tabs&gt;</code> inside its views, a sign-in guard on every route, a lazily
+            loaded section and <code>scroll-on-navigate="top"</code>.
+        </p>
+    </section>
+
+    <section class="example-section">
+        <h2>Hash mode</h2>
+        <p>
+            Bound to this page's URL — watch the address bar, use back/forward, or reload on a
+            route. The nav is ordinary <code>&lt;a href="#/…"&gt;</code> links; the "Grace" link in
+            the bar above the router is outside it and works (and highlights) just the same.
+            <code>not-found</code> names the element shown when no route matches. The external link
+            and the <code>target="_blank"</code> link are left to the browser.
+        </p>
+        <p>
+            Guards and lazy loading: <b>Old link</b> is a <code>redirect</code> route
+            (<code>/people/:id</code> → <code>/users/:id</code>). <b>Admin</b>'s guard does a slow
+            fake auth check and redirects to a sign-in view unless "Signed in" is ticked.
+            <b>Settings</b>' guard blocks while "Lock settings" is ticked. <b>Reports</b> fetches its
+            view's module on first visit; <b>Broken lazy</b> points at a missing module and fires
+            <code>route-error</code>. A blocked or failed navigation leaves the URL where it was.
+        </p>
+        <p>
+            After each navigation the router sets <code>aria-current</code> on its links
+            (<code>"page"</code> for the current route, <code>"true"</code> for a section containing
+            it — Users while on Grace — styled in bold here), moves focus to the new view
+            (<code>focus-on-navigate="none"</code> turns that off), and sets
+            <code>document.title</code> from the route's <code>title="User :id"</code> — watch the tab
+            (<code>not-found-title</code> does the same for the not-found view, which has no route
+            element of its own). It also sets <code>aria-busy</code> while a guard or load is in
+            flight and puts the new title into a hidden live region, so a screen reader is told
+            where it has landed — <code>announce-navigation="none"</code> turns that off.
+            A router that is the whole page can add <code>scroll-on-navigate="top"</code> to start
+            each navigation at the top and restore scroll on back/forward; it's off here because this
+            router sits halfway down a page.
+        </p>
+        <div class="example-demo">
+            <div class="router-shell">
+                <div class="router-bar">
+                    <juel-button id="hash-back">&larr; Back</juel-button>
+                    <juel-button id="hash-forward">Forward &rarr;</juel-button>
+                    <juel-button id="hash-go-script" type="primary">navigate('/users/3')</juel-button>
+                    <a class="outside-link" href="#/users/2">Grace (outside the router)</a>
+                    <span class="router-url" id="hash-url"></span>
+                </div>
+                <div class="app-controls">
+                    <label><input type="checkbox" id="signed-in" /> Signed in</label>
+                    <label><input type="checkbox" id="lock-settings" /> Lock settings</label>
+                </div>
+                <juel-router id="hash-router" mode="hash" not-found="demo-not-found">
+                    <nav class="app-nav">
+                        <a href="#/">Home</a>
+                        <a href="#/users">Users</a>
+                        <a href="#/users/2">Grace</a>
+                        <a href="#/files/docs/readme.md">Files</a>
+                        <a href="#/people/1">Old link</a>
+                        <a href="#/admin">Admin</a>
+                        <a href="#/settings">Settings</a>
+                        <a href="#/reports">Reports</a>
+                        <a href="#/broken-lazy">Broken lazy</a>
+                        <a href="#/nowhere">Broken link</a>
+                        <a href="https://github.com/Jollify-Software/juel" rel="external">GitHub</a>
+                        <a href="#/users" target="_blank">Users (new tab)</a>
+                    </nav>
+                    <juel-route path="/" element="demo-home" title="Router — Juel Examples"></juel-route>
+                    <juel-route path="/users" element="demo-user-list" title="Users — Router — Juel Examples"></juel-route>
+                    <juel-route path="/users/:id" element="demo-user-detail" title="User :id — Router — Juel Examples"></juel-route>
+                    <juel-route path="/people/:id" redirect="/users/:id"></juel-route>
+                    <juel-route path="/files/*" element="demo-file-browser"></juel-route>
+                    <juel-route id="admin-route" path="/admin" element="demo-admin"></juel-route>
+                    <juel-route path="/login" element="demo-login"></juel-route>
+                    <juel-route id="settings-route" path="/settings" element="demo-settings"></juel-route>
+                    <juel-route path="/reports" element="demo-report" module="./lazy-report.js"></juel-route>
+                    <juel-route path="/broken-lazy" element="demo-missing" module="./does-not-exist.js"></juel-route>
+                </juel-router>
+                <pre class="router-log" id="hash-log" aria-label="route-changed events"></pre>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>History mode</h2>
+        <p>
+            The default. Routes are real URLs, so the server has to answer every route URL with the
+            app's page (a "rewrite to <code>index.html</code>" rule) — which this examples server
+            doesn't do, so there's no live demo here. The app's prefix comes from
+            <code>&lt;base href&gt;</code>, as in Blazor and Angular (or set <code>base</code> on the
+            router to override it). Links are plain paths — relative ones resolve against
+            <code>&lt;base&gt;</code> — and can sit anywhere, such as an app-shell nav outside the
+            router.
+        </p>
+        <pre class="snippet"><code>&lt;head&gt;
+    &lt;base href="/app/"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;nav&gt;
+        &lt;a href="./"&gt;Home&lt;/a&gt;
+        &lt;a href="users"&gt;Users&lt;/a&gt;
+    &lt;/nav&gt;
+    &lt;main&gt;
+        &lt;juel-router not-found="app-not-found" scroll-on-navigate="top"&gt;
+            &lt;juel-route path="/" element="app-home"&gt;&lt;/juel-route&gt;
+            &lt;juel-route path="/users" element="app-user-list" title="Users"&gt;&lt;/juel-route&gt;
+            &lt;juel-route path="/users/:id" element="app-user-detail" title="User :id"&gt;&lt;/juel-route&gt;
+        &lt;/juel-router&gt;
+    &lt;/main&gt;
+&lt;/body&gt;
+
+&lt;!-- https://site/app/users/2  →  &lt;app-user-detail&gt; with params = { id: "2" } --&gt;</code></pre>
+    </section>
+
+    <section class="example-section">
+        <h2>Memory mode</h2>
+        <p>
+            <code>mode="memory"</code> never touches the URL — the router follows its
+            <code>path</code> property alone, so several can live on one page. A new path always
+            mounts a fresh element, so <code>/users/1</code> → <code>/users/2</code> re-runs the
+            detail view's <code>connectedCallback</code> load. No <code>not-found</code> is set here,
+            so an unknown path empties the outlet.
+        </p>
+        <div class="example-demo">
+            <div class="router-shell">
+                <div class="router-bar" id="decl-bar">
+                    <juel-button data-path="/">/</juel-button>
+                    <juel-button data-path="/users">/users</juel-button>
+                    <juel-button data-path="/users/2">/users/2</juel-button>
+                    <juel-button data-path="/users/99">/users/99</juel-button>
+                    <juel-button data-path="/files/docs/readme.md">/files/docs/readme.md</juel-button>
+                    <juel-button data-path="/nowhere">/nowhere</juel-button>
+                </div>
+                <div class="router-bar">
+                    <input id="decl-input" value="/" aria-label="Router path" />
+                    <juel-button id="decl-go" type="primary">Go</juel-button>
+                </div>
+                <juel-router id="decl-router" mode="memory" path="/">
+                    <juel-route path="/" element="demo-home"></juel-route>
+                    <juel-route path="/users" element="demo-user-list"></juel-route>
+                    <juel-route path="/users/:id" element="demo-user-detail"></juel-route>
+                    <juel-route path="/files/*" element="demo-file-browser"></juel-route>
+                </juel-router>
+                <pre class="router-log" id="decl-log" aria-label="route-changed events"></pre>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>JS route table</h2>
+        <p>
+            Setting the <code>routes</code> property (<code>[{ path, element }]</code>) takes
+            precedence over <code>&lt;juel-route&gt;</code> children. This one ends in a
+            <code>/*</code> catch-all route, so every path renders something. Try
+            <code>/chart</code>: its element is defined by a lazy <code>load()</code> function.
+        </p>
+        <div class="example-demo">
+            <div class="router-shell">
+                <div class="router-bar">
+                    <input id="js-input" value="/users/3" aria-label="Router path" />
+                    <juel-button id="js-go" type="primary">Go</juel-button>
+                </div>
+                <juel-router id="js-router" mode="memory"></juel-router>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function logRouteChanges(router, log) {
+            router.addEventListener('route-changed', e => {
+                const { path, route, element, params, rest, notFound } = e.detail;
+                const line = route
+                    ? `${path} → <${route.element}> via "${route.path}" params=${JSON.stringify(params)}${rest ? ` rest="${rest}"` : ''}`
+                    : notFound && element
+                        ? `${path} → not found → <${element.localName}>`
+                        : `${path} → (no match)`;
+                log.textContent = line + '\n' + log.textContent;
+            });
+            router.addEventListener('route-blocked', e => {
+                log.textContent = `${e.detail.path} → blocked by guard, stayed on ${e.detail.from}\n` + log.textContent;
+            });
+            router.addEventListener('route-error', e => {
+                log.textContent = `${e.detail.path} → error: ${e.detail.error.message}\n` + log.textContent;
+            });
+        }
+
+        // Hash mode
+        const hashRouter = document.getElementById('hash-router');
+        const hashUrl = document.getElementById('hash-url');
+        const showUrl = () => hashUrl.textContent = location.hash || '(no hash)';
+        logRouteChanges(hashRouter, document.getElementById('hash-log'));
+        hashRouter.addEventListener('route-changed', showUrl);
+        showUrl();
+        document.getElementById('hash-back').addEventListener('click', () => history.back());
+        document.getElementById('hash-forward').addEventListener('click', () => history.forward());
+        document.getElementById('hash-go-script').addEventListener('click', () => hashRouter.navigate('/users/3'));
+
+        // Guards are plain properties on the <juel-route> elements.
+        document.getElementById('admin-route').beforeEnter = async () => {
+            // Stand-in for asking a server whether the session is valid.
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return document.getElementById('signed-in').checked || '/login';
+        };
+        document.getElementById('settings-route').beforeEnter = () =>
+            !document.getElementById('lock-settings').checked;
+
+        // Memory mode
+        const declRouter = document.getElementById('decl-router');
+        const declInput = document.getElementById('decl-input');
+        logRouteChanges(declRouter, document.getElementById('decl-log'));
+        declRouter.addEventListener('route-changed', e => declInput.value = e.detail.path);
+        document.getElementById('decl-bar').addEventListener('click', e => {
+            const button = e.target.closest('[data-path]');
+            if (button) declRouter.path = button.dataset.path;
+        });
+        document.getElementById('decl-go').addEventListener('click', () => declRouter.path = declInput.value);
+        declInput.addEventListener('keydown', e => { if (e.key === 'Enter') declRouter.path = declInput.value; });
+
+        // JS route table
+        const jsRouter = document.getElementById('js-router');
+        const jsInput = document.getElementById('js-input');
+        jsRouter.routes = [
+            { path: '/users', element: 'demo-user-list' },
+            { path: '/users/:id', element: 'demo-user-detail' },
+            {
+                path: '/chart',
+                element: 'demo-chart',
+                // In a bundled app: load: () => import('./views/Chart')
+                load: () => new Promise(resolve => setTimeout(resolve, 600))
+                    .then(examples.router.defineDemoChart),
+            },
+            { path: '/*', element: 'demo-catch-all' },
+        ];
+        jsRouter.path = jsInput.value;
+        jsRouter.addEventListener('route-changed', e => jsInput.value = e.detail.path);
+        document.getElementById('js-go').addEventListener('click', () => jsRouter.path = jsInput.value);
+        jsInput.addEventListener('keydown', e => { if (e.key === 'Enter') jsRouter.path = jsInput.value; });
+    </script>
+</body>
+
+</html>

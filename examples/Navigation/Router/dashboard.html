@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Northwind Admin</title>
+    <script src="../../../dist/juel.js"></script>
+    <!-- The dash-* views are custom elements written in TypeScript under
+         examples/_TS/Navigation/Router/Dashboard/. -->
+    <script src="../../example.js"></script>
+    <style>
+        /* Deliberately NOT the shared examples.css page template: this page is
+           a whole app, and a big "Juel Examples" header above it would defeat
+           the point of showing a router that owns the page. */
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+            color: var(--dark);
+            background: #eef1f5;
+        }
+
+        /* ---- shell -------------------------------------------------- */
+        .shell {
+            display: grid;
+            grid-template-columns: 15rem 1fr;
+            grid-template-rows: auto 1fr;
+            grid-template-areas: "brand topbar" "sidebar main";
+            min-height: 100vh;
+        }
+
+        .brand {
+            grid-area: brand;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0 1rem;
+            height: 3.5rem;
+            background: #1f2733;
+            color: #fff;
+            font-weight: 700;
+        }
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 0.375rem;
+            background: var(--primary);
+            font-size: 0.875rem;
+        }
+
+        .topbar {
+            grid-area: topbar;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            height: 3.5rem;
+            padding: 0 1.25rem;
+            background: #fff;
+            border-bottom: 1px solid #dde3ea;
+        }
+        .topbar .spacer { margin-left: auto; }
+        #crumbs { font-size: 0.9375rem; --breadcrumb-separator: "›"; }
+        #crumbs juel-breadcrumb-item[active] { color: var(--secondary); }
+        .whoami {
+            font-size: 0.875rem;
+            color: var(--secondary);
+            white-space: nowrap;
+        }
+        .whoami b { color: var(--dark); }
+        .back-link {
+            font-size: 0.8125rem;
+            color: var(--secondary);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        /* The hamburger only exists at phone width. */
+        .menu-button {
+            display: none;
+            width: 2.25rem;
+            height: 2.25rem;
+            padding: 0;
+            background: none;
+            border: 1px solid #dde3ea;
+            border-radius: 0.375rem;
+            cursor: pointer;
+        }
+        .menu-button span,
+        .menu-button span::before,
+        .menu-button span::after {
+            display: block;
+            width: 1rem;
+            height: 2px;
+            margin: 0 auto;
+            background: var(--dark);
+            content: "";
+        }
+        .menu-button span::before { transform: translateY(-5px); }
+        .menu-button span::after { transform: translateY(3px); }
+
+        /* ---- sidebar ------------------------------------------------ */
+        .sidebar {
+            grid-area: sidebar;
+            padding: 1rem 0.75rem;
+            background: #1f2733;
+        }
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+        }
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            color: #b6c2d1;
+            font-size: 0.9375rem;
+            text-decoration: none;
+            border-radius: 0.375rem;
+        }
+        .sidebar a:hover { background: #2a3442; color: #fff; }
+        /* The two aria-current values the router sets, styled differently:
+           "page" is the exact route, "true" a section that contains it — so
+           Customers stays lit on /customers/7. */
+        .sidebar a[aria-current="true"] { color: #fff; background: #2a3442; }
+        .sidebar a[aria-current="page"] {
+            color: #fff;
+            background: var(--primary);
+            font-weight: 600;
+        }
+        .sidebar-heading {
+            padding: 0.75rem 0.75rem 0.25rem;
+            color: #6f7f92;
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* ---- main / router ------------------------------------------ */
+        main {
+            grid-area: main;
+            position: relative;
+            padding: 1.5rem;
+            min-width: 0;
+        }
+        juel-router {
+            display: block;
+            max-width: 62rem;
+        }
+        /* `navigating` is on while a guard, a redirect or a lazy module is in
+           flight — the current view stays mounted meanwhile. Both the dimmed
+           outlet and the progress bar are pure CSS off that one attribute. */
+        juel-router[navigating] .view {
+            opacity: 0.45;
+            transition: opacity 0.2s;
+        }
+        #progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0;
+            background: var(--primary);
+            opacity: 0;
+            transition: width 1.2s ease-out, opacity 0.2s;
+            z-index: 10;
+        }
+        juel-router[navigating] ~ #progress { width: 90%; opacity: 1; }
+
+        /* ---- view furniture ----------------------------------------- */
+        .view { display: block; }
+        .view h1 {
+            margin: 0 0 1.25rem;
+            font-size: 1.5rem;
+        }
+        .view h1 .status { vertical-align: middle; }
+        .view h2 {
+            margin: 0 0 0.75rem;
+            font-size: 1rem;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+        .subtitle {
+            margin: -1rem 0 1.25rem;
+            color: var(--secondary);
+        }
+        .dash-loading { color: var(--secondary); font-style: italic; }
+        .hint {
+            padding: 0.625rem 0.875rem;
+            font-size: 0.8125rem;
+            color: var(--secondary);
+            background: #e7eef7;
+            border-left: 3px solid var(--primary);
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
+        .panel {
+            margin-bottom: 1.25rem;
+            padding: 1.125rem 1.25rem;
+            background: #fff;
+            border: 1px solid #dde3ea;
+            border-radius: 0.5rem;
+        }
+        .panels {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+        }
+        .panels > .panel { flex: 1 1 22rem; min-width: 0; }
+        .chart-box { height: 15rem; }
+        .chart-box juel-chart { width: 100%; height: 100%; }
+
+        .tiles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        .tile {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            padding: 1rem 1.125rem;
+            background: #fff;
+            border: 1px solid #dde3ea;
+            border-radius: 0.5rem;
+        }
+        .tile-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--secondary); }
+        .tile-value { font-size: 1.5rem; }
+        .tile-note { font-size: 0.75rem; color: var(--secondary); }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .toolbar .filter {
+            flex: 1 1 18rem;
+            min-width: 0;
+            padding: 0.5rem 0.625rem;
+            border: 1px solid #cfd8e3;
+            border-radius: 0.375rem;
+            font: inherit;
+        }
+        .toolbar .count { font-size: 0.8125rem; color: var(--secondary); }
+        .filters { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+        .chip {
+            padding: 0.3125rem 0.75rem;
+            font-size: 0.8125rem;
+            color: var(--secondary);
+            text-decoration: none;
+            background: #fff;
+            border: 1px solid #cfd8e3;
+            border-radius: 999px;
+        }
+        .chip:hover { border-color: var(--primary); color: var(--primary); }
+        /* After .chip:hover, or the pointer left on a just-clicked chip repaints
+           its label in --primary on a --primary background. */
+        .chip-on, .chip-on:hover { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+        .recent, .list-rows {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        .recent li, .list-rows li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eef1f5;
+            font-size: 0.875rem;
+        }
+        .recent li:last-child, .list-rows li:last-child { border-bottom: none; }
+        .recent-who { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .recent-date { color: var(--secondary); font-size: 0.8125rem; }
+        .recent-total { font-variant-numeric: tabular-nums; }
+
+        .status {
+            padding: 0.125rem 0.5rem;
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-radius: 999px;
+        }
+        .status-open { background: #e2edfb; color: #14508f; }
+        .status-shipped { background: #e3f5e8; color: #1c6b31; }
+        .status-cancelled { background: #fbe4e6; color: #94202c; }
+
+        .fields {
+            display: grid;
+            grid-template-columns: max-content 1fr;
+            gap: 0.375rem 1.25rem;
+            margin: 0;
+            font-size: 0.9375rem;
+        }
+        .fields dt { color: var(--secondary); }
+        .fields dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+
+        /* juel-tab draws its own border in its shadow root; inside a panel
+           that already has one, that reads as a double frame. A page rule
+           beats the component's :host rule, so this turns it off. */
+        .tabs-panel { padding: 0; overflow: hidden; }
+        .tabs-panel juel-tab { border: none; }
+
+        .settings-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.875rem;
+            max-width: 22rem;
+        }
+        .settings-form label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.875rem; color: var(--secondary); }
+        .settings-form label.checkbox { flex-direction: row; align-items: center; gap: 0.5rem; }
+        .settings-form input:not([type="checkbox"]), .settings-form select {
+            padding: 0.5rem 0.625rem;
+            border: 1px solid #cfd8e3;
+            border-radius: 0.375rem;
+            font: inherit;
+            color: var(--dark);
+        }
+        .form-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .saved { font-size: 0.8125rem; color: var(--success); }
+        .signin { max-width: 26rem; }
+
+        /* ---- phone --------------------------------------------------- */
+        @media (max-width: 720px) {
+            .shell {
+                /* minmax(0, …), not 1fr: a grid column's implicit floor is
+                   min-content, and the top bar's nowrap text would otherwise
+                   stretch the whole shell wider than the screen. */
+                grid-template-columns: minmax(0, 1fr);
+                /* Three rows now, and only `main` may take the slack — with
+                   the inherited `auto 1fr` the collapsed sidebar's row ate
+                   everything left over and pushed the view down the page. */
+                grid-template-rows: auto auto 1fr;
+                grid-template-areas: "topbar" "sidebar" "main";
+            }
+            .brand { display: none; }
+            .topbar { padding: 0 0.875rem; gap: 0.625rem; }
+            .menu-button { display: block; }
+            .brand-inline { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; }
+            .back-link, juel-breadcrumb, .whoami { display: none; }
+            .sidebar { display: none; padding: 0.5rem; }
+            .shell.menu-open .sidebar { display: block; }
+            main { padding: 1rem; }
+            .panels > .panel { flex-basis: 100%; }
+            .tiles { grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: 0.75rem; }
+            .view h1 { font-size: 1.25rem; }
+        }
+        @media (min-width: 721px) {
+            .brand-inline { display: none; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell" id="shell">
+        <div class="brand"><span class="brand-mark">N</span> Northwind Admin</div>
+
+        <header class="topbar">
+            <button class="menu-button" id="menu-button" type="button" aria-label="Toggle navigation"
+                aria-expanded="false" aria-controls="sidebar"><span></span></button>
+            <span class="brand-inline"><span class="brand-mark">N</span> Northwind</span>
+            <juel-breadcrumb id="crumbs"></juel-breadcrumb>
+            <span class="spacer"></span>
+            <a class="back-link" href="router.html">&larr; Router examples</a>
+            <span class="whoami" id="whoami"></span>
+            <juel-button id="signout" size="small">Sign out</juel-button>
+        </header>
+
+        <!-- The sidebar is OUTSIDE the router. Its links are ordinary
+             <a href="#/…"> — a URL-bound router intercepts matching links
+             anywhere on the page (as Blazor does) and marks them with
+             aria-current, so there's no routerLink-style directive to write. -->
+        <aside class="sidebar" id="sidebar">
+            <nav aria-label="Sections">
+                <div class="sidebar-heading">Dashboard</div>
+                <a href="#/overview">Overview</a>
+                <a href="#/customers">Customers</a>
+                <a href="#/orders">Orders</a>
+                <a href="#/reports">Reports</a>
+                <div class="sidebar-heading">Account</div>
+                <a href="#/settings">Settings</a>
+                <a href="#/nowhere">Broken link</a>
+            </nav>
+        </aside>
+
+        <main>
+            <juel-router id="router" mode="hash" not-found="dash-not-found"
+                not-found-title="Not found · Northwind Admin" scroll-on-navigate="top">
+                <juel-route path="/" redirect="/overview"></juel-route>
+                <juel-route path="/overview" element="dash-overview"
+                    title="Overview · Northwind Admin"></juel-route>
+                <juel-route path="/customers" element="dash-customer-list"
+                    title="Customers · Northwind Admin"></juel-route>
+                <!-- Flat, not nested: the customer's tabs are the wildcard
+                     remainder, which the view reads from `rest`. -->
+                <juel-route path="/customers/:id/*" element="dash-customer-detail"
+                    title="Customer :id · Northwind Admin"></juel-route>
+                <juel-route path="/orders" element="dash-order-list"
+                    title="Orders · Northwind Admin"></juel-route>
+                <juel-route path="/orders/:id" element="dash-order-detail"
+                    title="Order #:id · Northwind Admin"></juel-route>
+                <juel-route path="/reports" element="dash-reports" module="./dashboard-reports.js"
+                    title="Reports · Northwind Admin"></juel-route>
+                <juel-route path="/settings" element="dash-settings"
+                    title="Settings · Northwind Admin"></juel-route>
+                <juel-route path="/login" element="dash-login"
+                    title="Sign in · Northwind Admin"></juel-route>
+            </juel-router>
+            <div id="progress"></div>
+        </main>
+    </div>
+
+    <script>
+        const { requireSignIn, signedInAs, signOut } = window.examples.router.dashboard;
+        const router = document.getElementById('router');
+        const shell = document.getElementById('shell');
+
+        const escape = s => String(s).replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
+
+        // One shared guard on every route except /login — juel-router has no
+        // router-wide `beforeEach`, so the app wires the same function onto
+        // each <juel-route>. At this size a loop is perfectly comfortable.
+        for (const route of router.querySelectorAll('juel-route')) {
+            if (route.getAttribute('path') !== '/login' && !route.hasAttribute('redirect')) {
+                route.beforeEnter = requireSignIn;
+            }
+        }
+
+        // Top-bar identity.
+        const signoutButton = document.getElementById('signout');
+        function showUser() {
+            const name = signedInAs();
+            document.getElementById('whoami').innerHTML = name
+                ? `signed in as <b>${escape(name)}</b>`
+                : 'not signed in';
+            signoutButton.hidden = !name;
+        }
+        window.addEventListener('dash-auth-changed', showUser);
+        showUser();
+
+        signoutButton.addEventListener('click', () => {
+            signOut();
+            // The guard on the destination is what sends us to /login?next=.
+            router.navigate('/overview');
+        });
+
+        // Breadcrumb: views announce their trail, the shell renders it.
+        const crumbs = document.getElementById('crumbs');
+        document.addEventListener('dash-crumbs', e => {
+            crumbs.innerHTML = e.detail.map((c, i, all) =>
+                c.path && i < all.length - 1
+                    ? `<juel-breadcrumb-item href="#${escape(c.path)}">${escape(c.label)}</juel-breadcrumb-item>`
+                    : `<juel-breadcrumb-item active>${escape(c.label)}</juel-breadcrumb-item>`).join('');
+        });
+
+        router.addEventListener('route-error', e => console.error('route-error', e.detail));
+
+        // Phone: the sidebar becomes a drop-down, closed again once you pick a
+        // section (the router handles the link, so there's no page load to
+        // reset it).
+        const menuButton = document.getElementById('menu-button');
+        function setMenu(open) {
+            shell.classList.toggle('menu-open', open);
+            menuButton.setAttribute('aria-expanded', String(open));
+        }
+        menuButton.addEventListener('click', () => setMenu(!shell.classList.contains('menu-open')));
+        router.addEventListener('route-changed', () => setMenu(false));
+    </script>
+</body>
+
+</html>

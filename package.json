@@ -16,6 +16,7 @@
         "build": "del .parcel-cache && parcel build juel.ts",
         "debug": "node --inspect-brk ./node_modules/parcel/lib/cli.js build juel.ts",
         "serve": "npm run dev && live-server --open=examples",
+        "examples": "parcel build examples/_TS/example.ts --no-optimize --no-scope-hoist --no-cache && npx copyfiles dist/example.js* examples -f",
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "eslint .",
         "lint:fix": "eslint . --ext .ts,.tsx --fix"
