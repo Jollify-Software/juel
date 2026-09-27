@@ -9,7 +9,10 @@
     padding: 0;
     margin: 0;
   }
-  ::slotted(breadcrumb-item:not(:last-child))::after {
+  /* The item element is <juel-breadcrumb-item> (BreadcrumbItem.ts). This
+     selector named a "breadcrumb-item" tag that doesn't exist, so the
+     separator never rendered. */
+  ::slotted(juel-breadcrumb-item:not(:last-child))::after {
     content: var(--breadcrumb-separator, "/");
     margin: 0 0.5em;
     color: var(--breadcrumb-separator-color, #6c757d);
