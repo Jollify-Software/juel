@@ -720,6 +720,24 @@ with the previous view still mounted and `navigating` driving the progress bar.
   rewriting 70 entries unasked. Worth a dedicated pass.
 
 
+## Planned: components for the Jollify app rewrite
+
+Full plan: `C:\Jollify\APP-REWRITE-PLAN.md` ("Juel components the rewrite
+needs"). The Juel side, in short:
+- `juel-markdown-editor`:
+  - rename `ContentChanged` to `content-changed`;
+  - add a `cursor-changed` event, plus `setCursor`/`revealOffset` and
+    `insertAtCursor`;
+  - drop the fixed `#editor-container` id.
+- New `juel-frame`: a sandboxed `srcdoc` host with a `postMessage` bridge,
+  scale-to-fit aspect, and hash kept across reloads. Used for the live
+  Jetty preview.
+- `juel-router`: `beforeLeave` (Q2 below is now a yes — the editor has
+  unsaved work), plus Q1(a).
+- `juel-mdi`: a real-browser click-through before the app depends on it.
+- `juel-nav`: `direction="vertical"` (Q8). `juel-table`: empty state and
+  sorting (Q7).
+
 ## Open questions for Luke — router, `juel-table`, dashboard example
 
 Everything here came out of building the dashboard example (2026-09-17). None
