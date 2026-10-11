@@ -35,6 +35,8 @@
         "@codemirror/lang-markdown": "^6.3.2",
         "@floating-ui/dom": "^1.6.12",
         "@interactjs/interactjs": "^1.10.27",
+        "@lezer/common": "^1.5.3",
+        "@lezer/lr": "^1.4.11",
         "@popperjs/core": "^2.11.8",
         "@swc/helpers": "^0.5.15",
         "@types/toastr": "^2.1.43",
