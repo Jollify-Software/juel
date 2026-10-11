@@ -40,11 +40,32 @@ export class JuelMarkdownEditor extends LitElement {
   }
 
   firstUpdated() {
+    this.createView();
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (!this.hasUpdated) return;
+    if (!this.editorView) {
+      this.createView(); // removed earlier and destroyed, now back
+    } else if ((this.editorView.root as unknown) !== this.getRootNode()) {
+      // Moved (a juel-mdi reorder, a popout window): mount CodeMirror's
+      // styles in the new root.
+      this.editorView.setRoot(this.getRootNode() as Document | ShadowRoot);
+    }
+  }
+
+  private createView() {
     const editorContainer = this.querySelector<HTMLElement>(':scope > .juel-markdown-editor-container');
     if (!editorContainer) return;
 
     this.editorView = new EditorView({
       parent: editorContainer,
+      // The editor's own root, given explicitly: CodeMirror otherwise finds
+      // its root through assignedSlot, so when this element is slotted into
+      // a component's shadow root (a juel-mdi panel) it mounts its styles
+      // there, where they can't reach the editor's light-DOM nodes.
+      root: this.getRootNode() as Document | ShadowRoot,
       state: EditorState.create({
         doc: this.content,
         extensions: [
@@ -138,8 +159,13 @@ export class JuelMarkdownEditor extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.editorView?.destroy();
-    this.editorView = undefined;
+    // A move (remove + insert in one task) keeps the editor, its text and
+    // its undo history; only an element that stays removed is torn down.
+    queueMicrotask(() => {
+      if (this.isConnected) return;
+      this.editorView?.destroy();
+      this.editorView = undefined;
+    });
   }
 
   render() {
