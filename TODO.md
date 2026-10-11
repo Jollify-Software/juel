@@ -722,7 +722,7 @@ with the previous view still mounted and `navigating` driving the progress bar.
 
 ## Planned: components for the Jollify app rewrite
 
-Full plan: `C:\Jollify\APP-REWRITE-PLAN.md` ("Juel components the rewrite
+Full plan: `C:\Jollify\jollify\APP-REWRITE-PLAN.md` ("Juel components the rewrite
 needs"). The Juel side, in short:
 - ~~`juel-markdown-editor`~~ **done 2026-10-11**: `content-changed`
   (`ContentChanged` kept one release), `cursor-changed`, `setCursor` /
