@@ -739,6 +739,18 @@ needs"). The Juel side, in short:
 - ~~`juel-nav` vertical (Q8), `juel-table` empty state and sorting (Q7)~~
   **done 2026-10-11.**
 
+## Next: `juel-mdi` minimise and maximise on every panel (requested 2026-10-11)
+
+- **Every panel** gets **minimise** and **maximise**. Today maximise/restore
+  is on row/column panes only, not stack mode.
+- **A minimised panel collapses to a tab on a top bar**, and clicking the tab
+  restores it. The old Jollify app opened with the Designer maximised and the
+  Editor minimised to a tab like this.
+- **`getLayout()`/`setLayout()` must round-trip the minimised and maximised
+  state**, so an app can save the user's layout. The Jollify app already
+  saves and restores the layout in localStorage.
+- **Add an example** to `examples/Layout/Mdi/mdi.html`.
+
 ## Open questions for Luke — router, `juel-table`, dashboard example
 
 Everything here came out of building the dashboard example (2026-09-17). None
