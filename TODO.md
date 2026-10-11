@@ -736,8 +736,8 @@ needs"). The Juel side, in short:
 - ~~`juel-router`~~ **done 2026-10-11**: `beforeLeave` (Q2) and Q1(a).
 - ~~`juel-mdi` click-through~~ **done**: verified 2026-09-12, and again
   2026-10-11 with an editor + frame workspace (split, resize, pop out, redock).
-- `juel-nav`: `direction="vertical"` (Q8). `juel-table`: empty state and
-  sorting (Q7).
+- ~~`juel-nav` vertical (Q8), `juel-table` empty state and sorting (Q7)~~
+  **done 2026-10-11.**
 
 ## Open questions for Luke — router, `juel-table`, dashboard example
 
@@ -810,7 +810,7 @@ Recommendation: leave it unless a real consumer hits the gap.
 is the new one that also fires for the keyboard. Worth deprecating
 `cell-clicked` for navigation use in the README, or leave both?
 
-**Q7. Other `juel-table` gaps found but not touched** — no empty state (an
+**Q7. Other `juel-table` gaps found but not touched** **Sorting and the empty state done 2026-10-11** (`sortable`, `sort-changed`, `external-sort`, `empty-text` / `empty` slot); paging is still open. — no empty state (an
 empty `data` renders a bare header row), no column sorting, no paging.
 `juel-data-grid` has paging but it's `DataSource`/URL-driven, so it isn't a
 drop-in for an in-memory array. Is an in-memory paged/sortable table wanted, or
@@ -818,7 +818,7 @@ is that what `juel-data-grid` should grow into?
 
 ### Other components
 
-**Q8. `juel-nav` `direction="vertical"`?**
+**Q8. `juel-nav` `direction="vertical"`?** **Done 2026-10-11:** `direction="vertical"` is a sidebar (stacked, fills its height, never sticky, folds to the menu-button bar below 768px), `aria-current="page"` links are highlighted, and `nav`/`title`/`toggle`/`menu` parts are exposed. Original question:
 It can't currently be a sidebar: its shadow root hard-codes a horizontal top
 bar (row flex, fixed `--nav-height`, absolutely-positioned drop-down) and its
 own 768px breakpoint, with no exposed parts. The dashboard uses plain markup

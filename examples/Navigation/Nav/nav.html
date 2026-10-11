@@ -51,6 +51,27 @@
     </section>
 
     <section class="example-section">
+        <h2>Vertical (a sidebar)</h2>
+        <p>
+            <code>direction="vertical"</code> stacks the title and links and fills the height it's given.
+            It's never sticky, and below 768px it folds to the same top bar and menu button. A link with
+            <code>aria-current="page"</code> (which <code>juel-router</code> sets) is highlighted.
+        </p>
+        <div class="example-demo">
+            <div id="sidebar-demo" style="display: flex; width: 100%; height: 260px; border: 1px solid rgba(0,0,0,.1);">
+                <juel-nav direction="vertical" style="width: 200px; flex: none;">
+                    <strong slot="title">Jollify</strong>
+                    <a href="#documents" aria-current="page">Documents</a>
+                    <a href="#templates">Templates</a>
+                    <a href="#assets">Assets</a>
+                    <a href="#settings">Settings</a>
+                </juel-nav>
+                <div style="padding: 1rem;">Page content</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
         <h2>Dropdown submenu</h2>
         <p>A <code>&lt;juel-item&gt;</code> with content in its <code>items</code> slot opens a floating dropdown on hover.</p>
         <div class="example-demo">

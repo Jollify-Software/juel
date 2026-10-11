@@ -39,6 +39,38 @@
     color: var(--color, var(--dark));
   }
 
+  ::slotted([aria-current="page"]) {
+    font-weight: bold;
+    background-color: var(--current-background, rgba(0, 0, 0, 0.06));
+  }
+
+  // A sidebar: title on top, links stacked, filling the given height.
+  :host([direction="vertical"]) {
+    height: 100%;
+  }
+  :host([direction="vertical"]) nav {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 16px 0;
+    &.fixed {
+      position: relative;
+      box-shadow: none;
+    }
+  }
+  :host([direction="vertical"]) .logo {
+    padding: 0 16px 12px;
+  }
+  :host([direction="vertical"]) .menu {
+    flex-direction: column;
+  }
+  :host([direction="vertical"]) ::slotted(*) {
+    display: block;
+    padding: var(--padding, 10px 16px);
+  }
+
   .menu-toggle {
     display: none;
     flex-direction: column;
@@ -93,5 +125,20 @@
 
     .menu-toggle {
       display: flex;
+    }
+
+    // A sidebar folds to the same top bar and menu button.
+    :host([direction="vertical"]) {
+      height: auto;
+    }
+    :host([direction="vertical"]) nav {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      height: var(--nav-height);
+      padding: 10px 20px;
+    }
+    :host([direction="vertical"]) .logo {
+      padding: 0;
     }
   }

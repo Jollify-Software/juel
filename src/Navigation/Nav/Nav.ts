@@ -5,6 +5,17 @@ import { classMap } from "lit/directives/class-map";
 import { createRef, ref, Ref } from "lit/directives/ref";
 import { DomReady } from "../../_Utils/DomReady";
 
+/**
+ * A site or app navigation bar. Slot the links (or `<li>`s) in; `slot="title"`
+ * for a brand/logo. Below 768px the links fold behind a menu button.
+ *
+ * `direction="vertical"` makes it a sidebar: title on top, links stacked,
+ * filling the height it's given (and never sticky). It still folds to the
+ * top bar and menu button on a narrow screen. Links marked
+ * `aria-current="page"` (juel-router does this) are highlighted.
+ *
+ * Parts: `nav`, `title`, `toggle`, `menu`.
+ */
 @customElement('juel-nav')
 export class JuelNav extends LitElement {
 
@@ -17,12 +28,15 @@ export class JuelNav extends LitElement {
   open: boolean = false;
   @property({ type: Boolean })
   sticky: boolean = true;
+  /** `horizontal` (a top bar, the default) or `vertical` (a sidebar). */
+  @property({ type: String, reflect: true })
+  direction: 'horizontal' | 'vertical' = 'horizontal';
 
   private readonly _boundHandleScroll = this._handleScroll.bind(this);
   private _navbarOffset = 0;
 
   protected firstUpdated(_changedProperties: PropertyValues): void {
-    if (this.sticky) {
+    if (this.sticky && this.direction !== 'vertical') {
       this.stickNavbar();
     }
   }
@@ -45,7 +59,7 @@ export class JuelNav extends LitElement {
 
   private _handleScroll() {
     const navbar = this.nav.value as HTMLElement;
-    if (window.scrollY > this._navbarOffset) {
+    if (this.direction !== 'vertical' && window.scrollY > this._navbarOffset) {
       navbar.classList.add('fixed');
     } else {
       navbar.classList.remove('fixed');
@@ -77,9 +91,10 @@ export class JuelNav extends LitElement {
     let menuClass = { open: this.open };
 
     return html`
-      <nav ${ref(this.nav)}>
-        <div class="logo"><slot name="title"></slot></div>
+      <nav ${ref(this.nav)} part="nav">
+        <div class="logo" part="title"><slot name="title"></slot></div>
         <div
+          part="toggle"
           class="menu-toggle ${classMap(menuClass)}"
           role="button"
           tabindex="0"
@@ -91,7 +106,7 @@ export class JuelNav extends LitElement {
           <div></div>
           <div></div>
         </div>
-        <ul class="menu ${classMap(menuClass)}" @click="${this._onMenuClick}">
+        <ul part="menu" class="menu ${classMap(menuClass)}" @click="${this._onMenuClick}">
           <slot></slot>
         </ul>
       </nav>
