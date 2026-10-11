@@ -8,3 +8,4 @@ import './Tooltip/Tooltip';
 import './Media/Media';
 import './Parallax/Parallax';
 import './Card/Card';
+import './Frame/Frame';

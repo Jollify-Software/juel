@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Frame — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-frame {
+            height: 320px;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 6px;
+            background: #222;
+        }
+        #log { font: 12px ui-monospace, monospace; white-space: pre; max-height: 8rem; overflow: auto; }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Frame</h1>
+        <p>
+            <code>&lt;juel-frame&gt;</code> hosts a page in a sandboxed iframe (<code>sandbox="allow-scripts"</code>
+            by default) — a live preview of a Jetty deck, a Jellyfish page or a Juel Garden scene. Set
+            <code>srcdoc</code> or <code>src</code>. With <code>aspect="16:9"</code> the page is laid out at
+            <code>design-width</code> (1280) and scaled to fit. With <code>buffered</code>, new content loads
+            behind and swaps in when ready (on <code>load</code>, or on the first message whose
+            <code>type</code> is <code>ready-type</code>), so reloading never flashes.
+        </p>
+        <p>
+            <code>send(data)</code> posts to the page; its messages arrive as <code>frame-message</code>
+            <code>{ data, pending, reply(data) }</code>. <code>frame-load</code> fires when a page is shown.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>A buffered 16:9 preview</h2>
+        <div class="example-demo">
+            <juel-frame id="frame" aspect="16:9" buffered ready-type="ready"></juel-frame>
+        </div>
+        <p style="margin-top:0.5rem;">
+            <button type="button" id="reload">New content</button>
+            <button type="button" id="ping">send({ type: 'ping' })</button>
+            <label><input type="checkbox" id="buffered" checked> buffered</label>
+            <select id="aspect">
+                <option value="16:9">16:9</option>
+                <option value="4:3">4:3</option>
+                <option value="">fill</option>
+            </select>
+        </p>
+        <div id="log"></div>
+    </section>
+
+    <script>
+        const frame = document.getElementById('frame');
+        const log = (text) => {
+            const el = document.getElementById('log');
+            el.textContent = `${text}\n${el.textContent}`.slice(0, 2000);
+        };
+        let version = 0;
+
+        // The framed page takes 400 ms to get "ready", then answers pings.
+        const page = (n) => `<!doctype html><html><body style="margin:0;display:grid;place-items:center;
+            height:100vh;font:96px system-ui;color:#fff;background:hsl(${n * 47 % 360} 50% 35%)">
+            <div>Version ${n}</div>
+            <script>
+                setTimeout(() => parent.postMessage({ type: 'ready', version: ${n} }, '*'), 400);
+                addEventListener('message', (e) => {
+                    if (e.data?.type === 'ping') parent.postMessage({ type: 'pong', version: ${n} }, '*');
+                });
+            <\/script></body></html>`;
+
+        const next = () => { frame.srcdoc = page(++version); };
+        next();
+
+        frame.addEventListener('frame-message', (e) => {
+            log(`frame-message ${JSON.stringify(e.detail.data)}${e.detail.pending ? ' (pending)' : ''}`);
+        });
+        frame.addEventListener('frame-load', () => log('frame-load'));
+        document.getElementById('reload').onclick = next;
+        document.getElementById('ping').onclick = () => frame.send({ type: 'ping' });
+        document.getElementById('buffered').onchange = (e) => { frame.buffered = e.target.checked; };
+        document.getElementById('aspect').onchange = (e) => { frame.aspect = e.target.value || null; };
+    </script>
+</body>
+
+</html>
