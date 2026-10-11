@@ -1102,6 +1102,9 @@ function load() {
     }
 }
 class DashSettings extends (0, _dashView.DashView) {
+    beforeLeave() {
+        return !this.dirty || confirm('You have unsaved changes. Leave anyway?');
+    }
     render() {
         this.crumbs([
             {
@@ -1136,12 +1139,18 @@ class DashSettings extends (0, _dashView.DashView) {
                 </form>
             </div>
             <p class="hint">
-                <b>Known gap.</b> "You have unsaved changes \u{2014} leave anyway?" would need a guard on
-                <em>leaving</em> a route. <code>juel-router</code> only has <code>beforeEnter</code>,
-                on the route being entered, so there's nothing to hang it on and this form doesn't
-                try. See the router section of <code>TODO.md</code>.
+                Change something and leave without saving: the view's <code>beforeLeave</code> asks
+                first. <code>juel-router</code> calls a mounted view's <code>beforeLeave(context)</code>
+                (and a route's) before replacing it; <code>false</code> stays. Back/forward can't be
+                cancelled, only undone, so the URL is put back.
             </p>`;
         const form = this.querySelector('form');
+        form.addEventListener('input', ()=>{
+            this.dirty = true;
+        });
+        form.addEventListener('change', ()=>{
+            this.dirty = true;
+        });
         this.querySelector('#save').addEventListener('click', ()=>{
             const data = new FormData(form);
             try {
@@ -1152,12 +1161,17 @@ class DashSettings extends (0, _dashView.DashView) {
                     emailDigest: data.get('emailDigest') != null
                 }));
             } catch (e) {}
+            this.dirty = false;
             const saved = this.querySelector('.saved');
             saved.hidden = false;
             setTimeout(()=>{
                 saved.hidden = true;
             }, 1500);
         });
+    }
+    constructor(){
+        super(...arguments);
+        this.dirty = false;
     }
 }
 customElements.define('dash-settings', DashSettings);
