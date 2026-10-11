@@ -6,5 +6,10 @@ export enum RouterEvents {
     RouteBlocked = "route-blocked",
     // Entering a route threw — a guard or lazy load failed, or redirects
     // looped. The router stayed where it was.
-    RouteError = "route-error"
+    RouteError = "route-error",
+    // On `window`, whenever a juel-router writes the URL (pushState and
+    // replaceState don't fire popstate). Listen for it plus `popstate` to
+    // see every location change, including query-only ones, which don't fire
+    // route-changed.
+    LocationChanged = "juel-router-location-changed"
 }

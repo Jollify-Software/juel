@@ -20,6 +20,14 @@ export interface RouteContext {
 export type RouteGuardResult = boolean | string | void;
 export type RouteGuard = (context: RouteContext) => RouteGuardResult | Promise<RouteGuardResult>;
 
+// Asked before the shown view is replaced — "you have unsaved changes, leave
+// anyway?". false stays where you are; anything else leaves. The context is
+// the destination (`path`, `params`, `rest`) and the path being left
+// (`from`). A route's `beforeLeave` runs first, then the mounted view's own
+// `beforeLeave(context)` method if it has one. Like a blocking beforeEnter, a
+// block can't stop back/forward, only undo it: the URL is put back.
+export type LeaveGuard = (context: RouteContext) => boolean | void | Promise<boolean | void>;
+
 export interface RouteDefinition {
     // Pattern — see RouteMatcher.ts for the syntax.
     path: string;
@@ -31,6 +39,9 @@ export interface RouteDefinition {
     redirect?: string;
     // Runs before entering the route; see RouteGuardResult.
     beforeEnter?: RouteGuard;
+    // Runs before leaving the route for another one: false stays. See
+    // LeaveGuard.
+    beforeLeave?: LeaveGuard;
     // Lazy loading: called (and awaited) before mounting, to define
     // `element` — typically `() => import('./views/Admin')`.
     load?: () => Promise<unknown>;
@@ -47,6 +58,8 @@ export interface RouteDefinition {
 export interface RoutedElement extends HTMLElement {
     params?: RouteParams;
     rest?: string;
+    // Optional: see LeaveGuard.
+    beforeLeave?: LeaveGuard;
 }
 
 export interface RouteChangedDetail {
@@ -62,8 +75,12 @@ export interface RouteChangedDetail {
 
 export interface RouteBlockedDetail {
     path: string;
-    route: RouteDefinition;
+    // The route being entered (phase "enter"), or the one being left
+    // ("leave"; null if the shown view is the not-found element).
+    route: RouteDefinition | null;
     from: string | null;
+    // Which guard said no: the destination's beforeEnter, or a beforeLeave.
+    phase: 'enter' | 'leave';
 }
 
 export interface RouteErrorDetail {
@@ -131,7 +148,7 @@ function ensureEntryKey(): string | null {
 
 // pushState/replaceState don't fire popstate, so a router that changes the URL
 // announces it for any other URL-bound routers on the page to resync.
-const LOCATION_CHANGED = 'juel-router-location-changed';
+const LOCATION_CHANGED = RouterEvents.LocationChanged;
 
 const MAX_REDIRECTS = 10;
 const DEFINE_TIMEOUT_MS = 3000;
@@ -179,6 +196,7 @@ export class JuelRoute extends LitElement {
     @property({ type: String }) redirect = '';
     @property({ type: String }) module = '';
     @property({ attribute: false }) beforeEnter?: RouteGuard;
+    @property({ attribute: false }) beforeLeave?: LeaveGuard;
     @property({ attribute: false }) load?: () => Promise<unknown>;
 
     static styles = css`:host { display: none; }`;
@@ -723,7 +741,7 @@ export class JuelRouter extends NavigationBase {
         const source: RouteDefinition[] = this.routes
             ?? Array.from(this.querySelectorAll<JuelRoute>(':scope > juel-route')).map(r => ({
                 // Read attributes rather than properties: the children may not
-                // have upgraded yet. (beforeEnter/load are plain properties
+                // have upgraded yet. (beforeEnter/beforeLeave/load are plain properties
                 // either way — Lit keeps pre-upgrade values.)
                 path: r.getAttribute('path') ?? '',
                 element: r.getAttribute('element') || undefined,
@@ -731,6 +749,7 @@ export class JuelRouter extends NavigationBase {
                 module: r.getAttribute('module') || undefined,
                 title: r.getAttribute('title') || undefined,
                 beforeEnter: r.beforeEnter,
+                beforeLeave: r.beforeLeave,
                 load: r.load,
             }));
 
@@ -836,6 +855,23 @@ export class JuelRouter extends NavigationBase {
 
         this.navigating = true;
         try {
+            // Leaving the shown view: once per navigation (not again for each
+            // redirect), and only awaited when there's a guard, so an
+            // unguarded transition still completes synchronously.
+            const leaveGuards = redirects === 0 ? this._leaveGuards() : [];
+            for (const guard of leaveGuards) {
+                const allowed = await guard(context);
+                if (stale()) return false;
+                if (allowed === false) {
+                    this.navigating = false;
+                    this._revert();
+                    this.dispatchEvent(new CustomEvent<RouteBlockedDetail>(RouterEvents.RouteBlocked, {
+                        detail: { path: to, route: this._mountedRoute, from: context.from, phase: 'leave' },
+                    }));
+                    return false;
+                }
+            }
+
             let outcome: RouteGuardResult = true;
             if (route?.redirect) {
                 outcome = buildPath(route.redirect, match.params, match.rest);
@@ -858,7 +894,7 @@ export class JuelRouter extends NavigationBase {
                 this.navigating = false;
                 this._revert();
                 this.dispatchEvent(new CustomEvent<RouteBlockedDetail>(RouterEvents.RouteBlocked, {
-                    detail: { path: to, route: route!, from: context.from },
+                    detail: { path: to, route: route!, from: context.from, phase: 'enter' },
                 }));
                 return false;
             }
@@ -907,6 +943,16 @@ export class JuelRouter extends NavigationBase {
             }));
             return false;
         }
+    }
+
+    // The shown view's leave guards: its route's, then its own method.
+    private _leaveGuards(): LeaveGuard[] {
+        if (!this._committed) return [];
+        const guards: LeaveGuard[] = [];
+        if (this._mountedRoute?.beforeLeave) guards.push(this._mountedRoute.beforeLeave);
+        const view = this._mounted;
+        if (view && typeof view.beforeLeave === 'function') guards.push(context => view.beforeLeave!(context));
+        return guards;
     }
 
     // Write a navigation's destination: the URL in URL modes, `path` in

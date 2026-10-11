@@ -150,6 +150,15 @@
             element with <code>module="url"</code> or a <code>load()</code> function. The router has
             a <code>navigating</code> attribute while a guard or load is pending.
         </p>
+        <p>
+            Before the shown view is replaced, a route's <code>beforeLeave</code> and the view's own
+            <code>beforeLeave(context)</code> method can say <code>false</code> to stay — "unsaved
+            changes, leave anyway?" (the dashboard's Settings form does this). <code>route-blocked</code>
+            says which guard it was in <code>phase</code> (<code>"enter"</code> or <code>"leave"</code>).
+            <code>juel-router-location-changed</code> (<code>RouterEvents.LocationChanged</code>) fires on
+            <code>window</code> whenever a router writes the URL; with <code>popstate</code> it sees every
+            location change, query-only ones included.
+        </p>
     </header>
 
     <section class="example-section dashboard-callout">

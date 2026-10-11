@@ -724,17 +724,18 @@ with the previous view still mounted and `navigating` driving the progress bar.
 
 Full plan: `C:\Jollify\APP-REWRITE-PLAN.md` ("Juel components the rewrite
 needs"). The Juel side, in short:
-- `juel-markdown-editor`:
-  - rename `ContentChanged` to `content-changed`;
-  - add a `cursor-changed` event, plus `setCursor`/`revealOffset` and
-    `insertAtCursor`;
-  - drop the fixed `#editor-container` id.
-- New `juel-frame`: a sandboxed `srcdoc` host with a `postMessage` bridge,
-  scale-to-fit aspect, and hash kept across reloads. Used for the live
-  Jetty preview.
-- `juel-router`: `beforeLeave` (Q2 below is now a yes — the editor has
-  unsaved work), plus Q1(a).
-- `juel-mdi`: a real-browser click-through before the app depends on it.
+- ~~`juel-markdown-editor`~~ **done 2026-10-11**: `content-changed`
+  (`ContentChanged` kept one release), `cursor-changed`, `setCursor` /
+  `revealOffset` / `insertAtCursor` / `setWarnings`, `readonly`, no fixed id.
+  Also fixed: styles when slotted (juel-mdi), surviving moves/popouts, and
+  the duplicate `@lezer/common` that broke highlighting.
+- ~~New `juel-frame`~~ **done 2026-10-11** (`src/Display/Frame`): sandboxed
+  `srcdoc`/`src`, `aspect` scale-to-fit, `buffered` swap on load or a
+  `ready-type` message, `send()` / `frame-message` with `reply`. The slide is
+  kept across reloads by Jetty's `data-start-slide` rather than the frame.
+- ~~`juel-router`~~ **done 2026-10-11**: `beforeLeave` (Q2) and Q1(a).
+- ~~`juel-mdi` click-through~~ **done**: verified 2026-09-12, and again
+  2026-10-11 with an editor + frame workspace (split, resize, pop out, redock).
 - `juel-nav`: `direction="vertical"` (Q8). `juel-table`: empty state and
   sorting (Q7).
 
@@ -759,7 +760,7 @@ So today a view has to drive its own query changes (intercept the click, call
 anything *else* in the app navigates to `/orders?status=…`, the view won't
 notice.
 Options, cheapest first:
-  a. Export the location-changed event in `RouterEvents` and document it. Small,
+  a. **Done 2026-10-11:** `RouterEvents.LocationChanged` (on `window`). Export the location-changed event in `RouterEvents` and document it. Small,
      unblocks consumers, doesn't change any semantics.
   b. Set a `query` property (a `URLSearchParams`) on the mounted element
      alongside `params`, and fire `route-query-changed` when only the query
@@ -768,7 +769,7 @@ Options, cheapest first:
 Recommendation: (a) regardless, and (b) if Jollify.UI has filter/sort/paging
 state in the URL — which a dashboard normally does.
 
-**Q2. Add `beforeLeave`?**
+**Q2. Add `beforeLeave`?** **Answered yes; done 2026-10-11.** A route's `beforeLeave` and the mounted view's own `beforeLeave(context)` method run before the view is replaced (false stays); `route-blocked` carries `phase: 'leave'`. The dashboard's Settings form uses it. Original question:
 There's only `beforeEnter`, on the route being *entered*, so "you have unsaved
 changes — leave anyway?" has nothing to hang off. The Settings view in the
 example says so on the page rather than faking it.
