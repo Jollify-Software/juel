@@ -57,13 +57,19 @@
         <p>
             <code>setCursor(offset)</code> moves the cursor and scrolls to it;
             <code>revealOffset(offset)</code> only scrolls; <code>insertAtCursor(text)</code> inserts as the
-            user's own (undoable) edit; <code>setWarnings([{ message, from, to? }])</code> underlines problems;
+            user's own (undoable) edit; <code>wrapSelection</code> toggles a wrapper round the selection;
+            <code>toggleLinePrefix</code> toggles a list or quote prefix on the selected lines;
+            <code>insertBlock</code> inserts a block on its own lines; <code>setWarnings([{ message, from, to? }])</code> underlines problems;
             the <code>readonly</code> attribute stops edits.
         </p>
         <p>
             <button type="button" id="to-start">setCursor(0)</button>
             <button type="button" id="to-end">setCursor(end)</button>
             <button type="button" id="insert">insertAtCursor("**bold**")</button>
+            <button type="button" id="wrap">wrapSelection("**")</button>
+            <button type="button" id="bullets">toggleLinePrefix("- ")</button>
+            <button type="button" id="numbers">toggleLinePrefix("", true)</button>
+            <button type="button" id="block">insertBlock(table)</button>
             <button type="button" id="warn">setWarnings on line 1</button>
             <button type="button" id="clear">Clear warnings</button>
             <label><input type="checkbox" id="ro"> readonly</label>
@@ -89,6 +95,10 @@
         document.getElementById('to-start').onclick = () => md.setCursor(0);
         document.getElementById('to-end').onclick = () => md.setCursor(md.content.length);
         document.getElementById('insert').onclick = () => md.insertAtCursor('**bold**');
+        document.getElementById('wrap').onclick = () => md.wrapSelection('**', '**', 'bold');
+        document.getElementById('bullets').onclick = () => md.toggleLinePrefix('- ');
+        document.getElementById('numbers').onclick = () => md.toggleLinePrefix('', true);
+        document.getElementById('block').onclick = () => md.insertBlock('| A | B |\n|---|---|\n| 1 | 2 |');
         document.getElementById('warn').onclick = () => md.setWarnings([{ message: 'Example warning on line 1', from: 0 }]);
         document.getElementById('clear').onclick = () => md.setWarnings([]);
         document.getElementById('ro').onchange = (e) => { md.readonly = e.target.checked; };

@@ -20,6 +20,8 @@ const External = Annotation.define<boolean>();
  *   offset, 1-based line and column).
  *
  * Methods: `setCursor(offset)`, `revealOffset(offset)`, `insertAtCursor(text)`,
+ * `wrapSelection(before, after?, placeholder?)`, `toggleLinePrefix(prefix, numbered?)`,
+ * `insertBlock(text)`, `replaceRange(from, to, text)`, `selectedText`,
  * `setWarnings(list)`, `focus()`.
  */
 @customElement('juel-markdown-editor')
@@ -133,6 +135,104 @@ export class JuelMarkdownEditor extends LitElement {
     const view = this.editorView;
     if (!view || this.readonly) return;
     view.dispatch(view.state.replaceSelection(text), { scrollIntoView: true, userEvent: 'input' });
+    view.focus();
+  }
+
+  /**
+   * Replaces the text from `from` to `to` (offsets, clamped) with `text`, as
+   * one undoable user edit; the cursor keeps its place where it can. For a
+   * tool that rewrites one part of the document, such as a settings form
+   * editing the front matter.
+   */
+  replaceRange(from: number, to: number, text: string) {
+    const view = this.editorView;
+    if (!view || this.readonly) return;
+    const start = this.clamp(Math.min(from, to)), end = this.clamp(Math.max(from, to));
+    if (view.state.sliceDoc(start, end) === text) return;
+    view.dispatch({ changes: { from: start, to: end, insert: text }, userEvent: 'input' });
+  }
+
+  /** The text of the main selection ('' when it's just a cursor). */
+  get selectedText(): string {
+    const view = this.editorView;
+    if (!view) return '';
+    const { from, to } = view.state.selection.main;
+    return view.state.sliceDoc(from, to);
+  }
+
+  /**
+   * Toggles `before`/`after` around each selection: wraps it (`**bold**`),
+   * or unwraps it if it's already wrapped. An empty selection gets
+   * `before + placeholder + after` with the placeholder selected, ready to
+   * type over. An undoable user edit.
+   */
+  wrapSelection(before: string, after: string = before, placeholder: string = '') {
+    const view = this.editorView;
+    if (!view || this.readonly) return;
+    const { state } = view;
+    view.dispatch(state.changeByRange(range => {
+      const outerFrom = range.from - before.length, outerTo = range.to + after.length;
+      const wrapped = outerFrom >= 0 && outerTo <= state.doc.length
+        && state.sliceDoc(outerFrom, range.from) === before && state.sliceDoc(range.to, outerTo) === after;
+      if (wrapped) {
+        return {
+          changes: [{ from: outerFrom, to: range.from }, { from: range.to, to: outerTo }],
+          range: EditorSelection.range(outerFrom, range.to - before.length),
+        };
+      }
+      const text = range.empty ? placeholder : state.sliceDoc(range.from, range.to);
+      return {
+        changes: { from: range.from, to: range.to, insert: before + text + after },
+        range: EditorSelection.range(range.from + before.length, range.from + before.length + text.length),
+      };
+    }), { scrollIntoView: true, userEvent: 'input' });
+    view.focus();
+  }
+
+  /**
+   * Toggles a prefix on every line the selection touches: adds it to each
+   * (`- `, `> `), or removes it if every line already has it. With
+   * `numbered`, the prefix is `1. `, `2. `… and any `N. ` counts as present.
+   */
+  toggleLinePrefix(prefix: string, numbered = false) {
+    const view = this.editorView;
+    if (!view || this.readonly) return;
+    const { state } = view;
+    const { from, to } = state.selection.main;
+    const first = state.doc.lineAt(from).number, last = state.doc.lineAt(to).number;
+    const lines = Array.from({ length: last - first + 1 }, (_, i) => state.doc.line(first + i));
+    const present = (text: string) => numbered ? /^\d+\.\s/.test(text) : text.startsWith(prefix);
+    const all = lines.every(l => l.length === 0 || present(l.text)) && lines.some(l => l.length > 0);
+    const changes = lines.filter(l => l.length > 0).map((l, i) => all
+      ? { from: l.from, to: l.from + (numbered ? /^\d+\.\s/.exec(l.text)![0].length : prefix.length) }
+      : { from: l.from, insert: numbered ? `${i + 1}. ` : prefix });
+    view.dispatch({ changes, scrollIntoView: true, userEvent: 'input' });
+    view.focus();
+  }
+
+  /**
+   * Inserts `text` as a block of its own: after the cursor's line, with a
+   * blank line before and after, and the cursor placed at its end. For
+   * slides, tables, containers.
+   */
+  insertBlock(text: string) {
+    const view = this.editorView;
+    if (!view || this.readonly) return;
+    const { state } = view;
+    const line = state.doc.lineAt(state.selection.main.head);
+    const at = line.length === 0 ? line.from : line.to;
+    // Exactly one blank line on each side, counting the newlines already there.
+    const behind = state.sliceDoc(Math.max(0, at - 2), at);
+    const ahead = state.sliceDoc(at, at + 2);
+    const before = at === 0 || behind === '\n\n' ? '' : behind.endsWith('\n') ? '\n' : '\n\n';
+    const after = ahead === '' ? '\n' : ahead === '\n\n' ? '' : ahead.startsWith('\n') ? '\n' : '\n\n';
+    const body = text.replace(/\n+$/, '');
+    view.dispatch({
+      changes: { from: at, insert: before + body + after },
+      selection: EditorSelection.cursor(at + before.length + body.length),
+      scrollIntoView: true,
+      userEvent: 'input',
+    });
     view.focus();
   }
 
