@@ -49711,6 +49711,108 @@ let JuelMarkdownEditor = class JuelMarkdownEditor extends (0, _lit.LitElement) {
         });
         view.focus();
     }
+    replaceRange(from, to, text) {
+        const view = this.editorView;
+        if (!view || this.readonly) return;
+        const start = this.clamp(Math.min(from, to)), end = this.clamp(Math.max(from, to));
+        if (view.state.sliceDoc(start, end) === text) return;
+        view.dispatch({
+            changes: {
+                from: start,
+                to: end,
+                insert: text
+            },
+            userEvent: 'input'
+        });
+    }
+    get selectedText() {
+        const view = this.editorView;
+        if (!view) return '';
+        const { from, to } = view.state.selection.main;
+        return view.state.sliceDoc(from, to);
+    }
+    wrapSelection(before, after = before, placeholder = '') {
+        const view = this.editorView;
+        if (!view || this.readonly) return;
+        const { state } = view;
+        view.dispatch(state.changeByRange((range)=>{
+            const outerFrom = range.from - before.length, outerTo = range.to + after.length;
+            const wrapped = outerFrom >= 0 && outerTo <= state.doc.length && state.sliceDoc(outerFrom, range.from) === before && state.sliceDoc(range.to, outerTo) === after;
+            if (wrapped) return {
+                changes: [
+                    {
+                        from: outerFrom,
+                        to: range.from
+                    },
+                    {
+                        from: range.to,
+                        to: outerTo
+                    }
+                ],
+                range: (0, _state.EditorSelection).range(outerFrom, range.to - before.length)
+            };
+            const text = range.empty ? placeholder : state.sliceDoc(range.from, range.to);
+            return {
+                changes: {
+                    from: range.from,
+                    to: range.to,
+                    insert: before + text + after
+                },
+                range: (0, _state.EditorSelection).range(range.from + before.length, range.from + before.length + text.length)
+            };
+        }), {
+            scrollIntoView: true,
+            userEvent: 'input'
+        });
+        view.focus();
+    }
+    toggleLinePrefix(prefix, numbered = false) {
+        const view = this.editorView;
+        if (!view || this.readonly) return;
+        const { state } = view;
+        const { from, to } = state.selection.main;
+        const first = state.doc.lineAt(from).number, last = state.doc.lineAt(to).number;
+        const lines = Array.from({
+            length: last - first + 1
+        }, (_, i)=>state.doc.line(first + i));
+        const present = (text)=>numbered ? /^\d+\.\s/.test(text) : text.startsWith(prefix);
+        const all = lines.every((l)=>l.length === 0 || present(l.text)) && lines.some((l)=>l.length > 0);
+        const changes = lines.filter((l)=>l.length > 0).map((l, i)=>all ? {
+                from: l.from,
+                to: l.from + (numbered ? /^\d+\.\s/.exec(l.text)[0].length : prefix.length)
+            } : {
+                from: l.from,
+                insert: numbered ? `${i + 1}. ` : prefix
+            });
+        view.dispatch({
+            changes,
+            scrollIntoView: true,
+            userEvent: 'input'
+        });
+        view.focus();
+    }
+    insertBlock(text) {
+        const view = this.editorView;
+        if (!view || this.readonly) return;
+        const { state } = view;
+        const line = state.doc.lineAt(state.selection.main.head);
+        const at = line.length === 0 ? line.from : line.to;
+        const behind = state.sliceDoc(Math.max(0, at - 2), at);
+        const ahead = state.sliceDoc(at, at + 2);
+        const before = at === 0 || behind === '\n\n' ? '' : behind.endsWith('\n') ? '\n' : '\n\n';
+        const after = ahead === '' ? '\n' : ahead === '\n\n' ? '' : ahead.startsWith('\n') ? '\n' : '\n\n';
+        const body = text.replace(/\n+$/, '');
+        view.dispatch({
+            changes: {
+                from: at,
+                insert: before + body + after
+            },
+            selection: (0, _state.EditorSelection).cursor(at + before.length + body.length),
+            scrollIntoView: true,
+            userEvent: 'input'
+        });
+        view.focus();
+    }
     setWarnings(warnings) {
         const view = this.editorView;
         if (!view) return;
