@@ -1,36 +1,108 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <title>Table — Juel Examples</title>
     <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
 </head>
 
 <body>
-    <juel-table>
-        <juel-column slot="columns" field="name" header="Full Name"></juel-column>
-        <juel-column slot="columns" field="age" header="Age (Years)"></juel-column>
-    </juel-table>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
 
-    <juel-table>
-        <juel-column slot="columns" field="name" header="Name">
-            <template>{{name}}</template>
-        </juel-column>
-        <juel-column slot="columns" field="age" header="Age">
-            <template><juel-progress value="{{age}}"></juel-progress></template>
-        </juel-column>
-        <juel-column slot="columns" header="Chart">
-            <template><juel-chart>
-                <juel-chart-series  data="{{age}}"></juel-chart-series>
-            </juel-chart></template>
-        </juel-column>
-    </juel-table>
+    <header class="example-header">
+        <h1>Table</h1>
+        <p>
+            <code>&lt;juel-table&gt;</code> renders <code>data</code> (an array of objects), with columns
+            from <code>&lt;juel-column slot="columns"&gt;</code> children or, without any, from the first
+            row's keys. A column can hold a <code>&lt;template&gt;</code> with <code>{{field}}</code>
+            placeholders.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Columns and templates</h2>
+        <juel-table class="people">
+            <juel-column slot="columns" field="name" header="Full Name"></juel-column>
+            <juel-column slot="columns" field="age" header="Age (Years)"></juel-column>
+        </juel-table>
+
+        <juel-table class="people" style="margin-top: 1rem;">
+            <juel-column slot="columns" field="name" header="Name">
+                <template>{{name}}</template>
+            </juel-column>
+            <juel-column slot="columns" field="age" header="Age">
+                <template><juel-progress value="{{age}}"></juel-progress></template>
+            </juel-column>
+            <juel-column slot="columns" header="Chart">
+                <template><juel-chart>
+                    <juel-chart-series data="{{age}}"></juel-chart-series>
+                </juel-chart></template>
+            </juel-column>
+        </juel-table>
+    </section>
+
+    <section class="example-section">
+        <h2>Sorting</h2>
+        <p>
+            <code>sortable</code> on the table makes every bound column sortable (or set it per
+            <code>&lt;juel-column sortable&gt;</code>). Click a header to cycle ascending, descending and
+            unsorted. Numbers sort by value and text in natural order; empty values go last.
+            <code>sort-field</code>/<code>sort-direction</code> hold the sort, <code>sort-changed</code>
+            fires on each change, and <code>external-sort</code> leaves ordering to the page.
+        </p>
+        <juel-table id="sorted" sortable selection="single" sort-field="spend" sort-direction="desc">
+            <juel-column slot="columns" field="name" header="Customer"></juel-column>
+            <juel-column slot="columns" field="plan" header="Plan"></juel-column>
+            <juel-column slot="columns" field="spend" header="Spend (£)"></juel-column>
+            <juel-column slot="columns" field="joined" header="Joined"></juel-column>
+        </juel-table>
+        <p id="sort-log" class="hint">Sorted by spend, descending.</p>
+    </section>
+
+    <section class="example-section">
+        <h2>Empty state</h2>
+        <p>
+            With no rows the table shows <code>empty-text</code> (default "No rows"), or whatever is in
+            its <code>empty</code> slot.
+        </p>
+        <juel-table id="empty-default">
+            <juel-column slot="columns" field="name" header="Name"></juel-column>
+            <juel-column slot="columns" field="age" header="Age"></juel-column>
+        </juel-table>
+        <juel-table id="empty-custom" style="margin-top: 1rem;">
+            <juel-column slot="columns" field="title" header="Document"></juel-column>
+            <juel-column slot="columns" field="modified" header="Modified"></juel-column>
+            <span slot="empty">No documents yet. <a href="#">Create one</a>.</span>
+        </juel-table>
+    </section>
+
     <script>
-        var data = [
+        const people = [
             { name: 'John Doe', age: 30 },
             { name: 'Jane Smith', age: 25 },
             { name: 'Sam Brown', age: 35 }
         ];
-        var grids = document.querySelectorAll('juel-table');
-        grids.forEach(g => g.data = data);
+        document.querySelectorAll('juel-table.people').forEach(t => t.data = people);
+
+        const sorted = document.getElementById('sorted');
+        sorted.data = [
+            { name: 'Acme Ltd', plan: 'Team', spend: 1200, joined: '2025-03-14' },
+            { name: 'bolt & co', plan: 'Solo', spend: 90, joined: '2026-01-02' },
+            { name: 'Item 10 Group', plan: 'Enterprise', spend: 18500, joined: '2024-11-30' },
+            { name: 'Item 2 Group', plan: 'Team', spend: null, joined: '2025-07-01' },
+            { name: 'Cobalt', plan: 'Solo', spend: 240, joined: '2025-12-09' }
+        ];
+        sorted.addEventListener('sort-changed', (e) => {
+            const { field, direction } = e.detail;
+            document.getElementById('sort-log').textContent = field
+                ? `Sorted by ${field}, ${direction === 'asc' ? 'ascending' : 'descending'}.`
+                : 'Unsorted (data order).';
+        });
+
+        document.getElementById('empty-default').data = [];
+        document.getElementById('empty-custom').data = [];
     </script>
 </body>
 

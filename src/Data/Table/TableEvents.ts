@@ -5,5 +5,8 @@ export enum TableEvents {
     // fired by Enter/Space as well as by a click, so a consumer that navigates
     // on a row (rather than reacting to a particular column) works for
     // keyboard users too. cell-clicked stays mouse-only by nature.
-    RowActivated = "row-activated"
+    RowActivated = "row-activated",
+    // The sort changed from a header click: { field, direction }, both null
+    // when the table went back to unsorted.
+    SortChanged = "sort-changed"
 }

@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { TableEvents } from './TableEvents';
+import { CellCompare, SortDirection, sortRows } from './sortRows';
 
 export enum SelectionMode {
   None = 'none',
@@ -10,10 +11,28 @@ export enum SelectionMode {
   Check = 'check'
 }
 
+/**
+ * Sorting: `sortable` on the table makes every bound column sortable, or set
+ * it per `<juel-column sortable>`. A sortable header is a button that cycles
+ * ascending -> descending -> unsorted, and its `<th>` carries `aria-sort`.
+ * `sort-field` / `sort-direction` hold the current sort (settable), each
+ * change fires `sort-changed` `{ field, direction }`, and with
+ * `external-sort` the table only shows the indicators and leaves ordering
+ * `data` to the page (a server-side sort). Selection and every event's
+ * `index` refer to the row's position in `data`, not on screen.
+ *
+ * Empty: with no rows, one full-width row shows the `empty` slot, or
+ * `empty-text` (default "No rows").
+ */
 @customElement('juel-table')
 export class JuelTable extends LitElement {
   @property({ type: Array }) data: Record<string, any>[] = [];
   @property({ type: String }) selection: SelectionMode = SelectionMode.None;
+  @property({ type: Boolean }) sortable = false;
+  @property({ type: String, attribute: 'sort-field', reflect: true }) sortField: string | null = null;
+  @property({ type: String, attribute: 'sort-direction', reflect: true }) sortDirection: SortDirection | null = null;
+  @property({ type: Boolean, attribute: 'external-sort' }) externalSort = false;
+  @property({ type: String, attribute: 'empty-text' }) emptyText = 'No rows';
 
   @queryAssignedElements({ slot: 'columns' }) columns?: JuelColumn[];
 
@@ -81,10 +100,11 @@ export class JuelTable extends LitElement {
     });
   }
 
-  private handleRowKeydown(row: Record<string, any>, index: number, event: KeyboardEvent) {
+  // `index` is the row's place in `data`; `position` is where it is on screen.
+  private handleRowKeydown(row: Record<string, any>, index: number, position: number, event: KeyboardEvent) {
     switch (event.key) {
-      case 'ArrowDown': event.preventDefault(); this.focusRow(index + 1); break;
-      case 'ArrowUp': event.preventDefault(); this.focusRow(index - 1); break;
+      case 'ArrowDown': event.preventDefault(); this.focusRow(position + 1); break;
+      case 'ArrowUp': event.preventDefault(); this.focusRow(position - 1); break;
       case 'Home': event.preventDefault(); this.focusRow(0); break;
       case 'End': event.preventDefault(); this.focusRow(this.data.length - 1); break;
       case 'Enter':
@@ -119,6 +139,46 @@ export class JuelTable extends LitElement {
       composed: true
     }));
     this.requestUpdate();
+  }
+
+  private isSortable(field: string, column?: JuelColumn): boolean {
+    if (!field) return false; // an unbound column has nothing to sort by
+    return column ? column.sortable || this.sortable : this.sortable;
+  }
+
+  // Click on a sortable header: ascending -> descending -> unsorted.
+  private toggleSort(field: string) {
+    let direction: SortDirection | null = 'asc';
+    if (this.sortField === field) {
+      direction = this.sortDirection === 'asc' ? 'desc' : this.sortDirection === 'desc' ? null : 'asc';
+    }
+    this.sortField = direction ? field : null;
+    this.sortDirection = direction;
+    this.dispatchEvent(new CustomEvent(TableEvents.SortChanged, {
+      detail: { field: this.sortField, direction: this.sortDirection },
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  // Indices into `data`, in display order.
+  private displayOrder(): number[] {
+    if (this.externalSort) return this.data.map((_, i) => i);
+    const column = this.columns?.find(c => c.field === this.sortField);
+    return sortRows(this.data, this.sortField, this.sortDirection, column?.compare ?? undefined);
+  }
+
+  private renderHeader(field: string, label: string, column?: JuelColumn) {
+    if (!this.isSortable(field, column)) return html`<th>${label}</th>`;
+    const direction = this.sortField === field ? this.sortDirection : null;
+    const ariaSort = direction === 'asc' ? 'ascending' : direction === 'desc' ? 'descending' : 'none';
+    const indicator = direction === 'asc' ? '\u25B2' : direction === 'desc' ? '\u25BC' : '\u21C5';
+    return html`
+      <th aria-sort=${ariaSort} class="sortable">
+        <button type="button" class="sort" @click=${() => this.toggleSort(field)}>
+          <span>${label}</span><span class="sort-indicator" aria-hidden="true">${indicator}</span>
+        </button>
+      </th>`;
   }
 
   private renderCellTemplate(template: HTMLTemplateElement, context: any) {
@@ -186,6 +246,31 @@ export class JuelTable extends LitElement {
     tr.selected {
       background-color: var(--selected-color, #d3e4ff);
     }
+    th.sortable { padding: 0; }
+    button.sort {
+      all: unset;
+      box-sizing: border-box;
+      display: flex;
+      width: 100%;
+      gap: 0.5em;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      cursor: pointer;
+      font-weight: inherit;
+    }
+    button.sort:focus-visible {
+      outline: 2px solid var(--primary, #007bff);
+      outline-offset: -2px;
+    }
+    .sort-indicator { opacity: 0.4; font-size: 0.8em; }
+    th[aria-sort="ascending"] .sort-indicator,
+    th[aria-sort="descending"] .sort-indicator { opacity: 1; }
+    td.empty {
+      text-align: center;
+      color: var(--secondary, #6c757d);
+      padding: 1.5em 8px;
+    }
   `;
 
   render() {
@@ -197,6 +282,20 @@ export class JuelTable extends LitElement {
     const interactive = this.interactive;
     // Keep the roving tab stop inside the table when rows come and go.
     const roving = Math.max(0, Math.min(this.focusedRow, this.data.length - 1));
+    // Indices into `data` in display order; `position` below is a row's place on screen.
+    const order = this.displayOrder();
+    const span = Math.max(1, columns.length + (this.selection === SelectionMode.Check ? 1 : 0));
+
+    const cell = (row: Record<string, any>, index: number, field: string, content: unknown) => html`
+      <td
+        @click=${(event: Event) => {
+          if (this.selection !== SelectionMode.Check && this.selection !== SelectionMode.None) {
+            this.handleRowClick(row, index, event);
+          }
+          this.handleCellClick(row, field, event);
+          if (interactive) { this.focusedRow = order.indexOf(index); this.activateRow(row, index); }
+        }}
+      >${content}</td>`;
 
     return html`
       <table>
@@ -204,18 +303,23 @@ export class JuelTable extends LitElement {
           <tr>
             ${this.selection === SelectionMode.Check ? html`<th></th>` : ''}
             ${hasCustomColumns
-              ? this.columns!.map(col => html`<th>${col.header || col.field || ''}</th>`)
-              : columns.map(col => html`<th>${col}</th>`)}
+              ? this.columns!.map(col => this.renderHeader(col.field, col.header || col.field || '', col))
+              : columns.map(col => this.renderHeader(col, col))}
           </tr>
         </thead>
         <tbody>
-          ${this.data.map((row, index) => html`
+          ${order.length === 0 ? html`
+            <tr class="empty-row"><td class="empty" colspan=${span}><slot name="empty">${this.emptyText}</slot></td></tr>
+          ` : ''}
+          ${order.map((index, position) => {
+            const row = this.data[index];
+            return html`
             <tr
               class="${this.selectedRows.has(index) ? 'selected' : ''} ${interactive ? 'interactive' : ''}"
-              tabindex=${ifDefined(interactive ? (index === roving ? 0 : -1) : undefined)}
+              tabindex=${ifDefined(interactive ? (position === roving ? 0 : -1) : undefined)}
               aria-selected=${ifDefined(this.selection === SelectionMode.None ? undefined : this.selectedRows.has(index))}
-              @focus=${() => { if (interactive) this.focusedRow = index; }}
-              @keydown=${(event: KeyboardEvent) => { if (interactive) this.handleRowKeydown(row, index, event); }}
+              @focus=${() => { if (interactive) this.focusedRow = position; }}
+              @keydown=${(event: KeyboardEvent) => { if (interactive) this.handleRowKeydown(row, index, position, event); }}
             >
               ${this.selection === SelectionMode.Check ? html`
                 <td>
@@ -227,41 +331,18 @@ export class JuelTable extends LitElement {
                 </td>
               ` : ''}
               ${hasCustomColumns
-                ? this.columns!.map((columnEl, colIndex) => {
+                ? this.columns!.map(columnEl => {
                     const template = columnEl.template;
                     const field = columnEl.field;
-                    return html`
-                      <td
-                        @click=${(event: Event) => {
-                          if (this.selection !== SelectionMode.Check && this.selection !== SelectionMode.None) {
-                            this.handleRowClick(row, index, event);
-                          }
-                          this.handleCellClick(row, field, event);
-                          if (interactive) { this.focusedRow = index; this.activateRow(row, index); }
-                        }}
-                      >
-                        ${template
-                          ? this.renderCellTemplate(template, row)
-                          : (field ? row[field] : '')}
-                      </td>
-                    `;
+                    return cell(row, index, field, template
+                      ? this.renderCellTemplate(template, row)
+                      : (field ? row[field] : ''));
                   })
-                : columns.map((col, colIndex) => html`
-                    <td
-                      @click=${(event: Event) => {
-                        if (this.selection !== SelectionMode.Check && this.selection !== SelectionMode.None) {
-                          this.handleRowClick(row, index, event);
-                        }
-                        this.handleCellClick(row, col, event);
-                        if (interactive) { this.focusedRow = index; this.activateRow(row, index); }
-                      }}
-                    >
-                      ${row[col]}
-                    </td>
-                  `)
+                : columns.map(col => cell(row, index, col, row[col]))
               }
             </tr>
-          `)}
+          `;
+          })}
         </tbody>
       </table>
       <slot name="columns" hidden></slot>
@@ -273,6 +354,10 @@ export class JuelTable extends LitElement {
 export class JuelColumn extends LitElement {
   @property({ type: String }) field = '';
   @property({ type: String }) header = '';
+  /** Sort by this column (see juel-table). */
+  @property({ type: Boolean }) sortable = false;
+  /** How to order this column's values; the default is compareCells. */
+  @property({ attribute: false }) compare: CellCompare | null = null;
 
     @queryAssignedElements({ flatten: true })
   private _assignedElements?: HTMLElement[];
