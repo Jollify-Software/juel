@@ -739,6 +739,55 @@ needs"). The Juel side, in short:
 - ~~`juel-nav` vertical (Q8), `juel-table` empty state and sorting (Q7)~~
   **done 2026-10-11.**
 
+## Done: components the Jollify app needed (2026-10-12)
+
+The Jollify app's toolbars, Insert/View menus and dialogs were native
+elements; porting them to juel-* turned up these gaps, fixed here rather
+than worked around in the app. Verified by a Playwright click-through of
+the examples (menu, modal, select) and the app's own e2e suite.
+
+- **`juel-modal` rewritten** on the native `<dialog>` (top layer, focus
+  trap, inert page) — it used jQuery and had no way to report a result.
+  `open()`/`close(value)`, `modal-closed` {returnValue}, cancelable
+  `modal-cancel`; Escape, the close button and a backdrop click dismiss
+  (unless `dismissible` is false); `label` or `slot="title"`, a
+  `slot="buttons"` footer; focus goes to the slotted `[autofocus]`
+  (custom elements included — the browser's own dialog focusing can't see
+  slotted content). No jQuery left in it.
+- **`juel-menu` works as a menu**: `CollapsibleBase` gained an `opened`
+  state and `show()/hide()/toggle()`. The floating toggle never closed
+  (it tested `max-height`, which floating mode never sets). With
+  `trigger="click"`, an outside click or Escape closes it. Items
+  (`juel-menu-item`, or `role="menuitem"`) fire `menu-select` {item, value}
+  and close the menu; keyboard: the trigger opens it on the first item,
+  arrows/Home/End move, Escape returns focus to the trigger. Content floats
+  `position: fixed` (offset/flip/shift) so a clipping ancestor such as a
+  juel-mdi pane can't cut it off. Gotcha found: no `visibility` transition
+  on the content — mid-transition from hidden it can't take focus.
+  `juel-menu-item`: focusable, `value`, `disabled`, Enter/Space activate.
+- **`juel-button`**: `disabled` (reflected; no pointer events at all) and
+  `button-label` (accessible name for an icon/symbol-only button).
+- **`juel-text`**: `placeholder`, `type`, `name`, `inputmode`, `required`,
+  `disabled`, `focus()`/`select()`; Enter submits the closest form (the
+  inner input is in shadow DOM, so implicit submission can't see a
+  light-DOM form); styles inherit the page font; `part`s.
+- **`juel-select`**: Clear button is opt-in (`clearable`); choosing the
+  placeholder option threw (`JSON.parse('')`), now null; the value is set
+  after the options render (an option's `selected` attribute stops counting
+  once the user has picked); `value="tea"` as an attribute works (Lit's
+  Object converter turned non-JSON into null); `focus()`, `name`.
+- **`juel-upload`**: `accept` was never applied to the input; `clear()`;
+  the browse content no longer disappears after a pick unless a
+  `slot="confirm"` element is there to replace it.
+- **The bundle is ASCII-only** (`.terserrc` `format.ascii_only`): pages
+  without `<meta charset>` (30+ examples, e.g. the old menu example)
+  decoded `juel.js` as windows-1252 from disk and hit a syntax error. 20
+  characters inside template literals can't be escaped by the minifier;
+  they only mis-render, they don't break parsing.
+- `juel-mdi`: the minimised-bar flex column is on an inner `.mdi` element,
+  not `:host`, since a page's own `juel-mdi { display: block }` beats
+  `:host` and collapsed the layout.
+
 ## Done: `juel-mdi` minimise and maximise on every panel (2026-10-12)
 
 - **Minimise** on every row/column pane (title bar button; a tab stack's

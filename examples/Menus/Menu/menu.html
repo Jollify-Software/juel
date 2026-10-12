@@ -1,31 +1,72 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <title>Menu — Juel Examples</title>
     <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .clipped {
+            height: 120px;
+            overflow: auto;
+            border: 1px dashed rgba(0, 0, 0, 0.2);
+            padding: 0.75rem;
+        }
+    </style>
 </head>
 
 <body>
-    <juel-menu collapse-mode="floating" trigger="mouseenter">
-  <button slot="trigger">Menu</button>
-  <div>
-    <a href="#">Item 1</a><br>
-    <a href="#">Item 2</a><br>
-    <a href="#">Item 3</a>
-  </div>
-</juel-menu>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
 
-<juel-menu>
-  <button slot="trigger">Menu</button>
-  <juel-card>
-            <img slot="image" src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg">
-        <h5 slot="header">Card title</h5>
+    <header class="example-header">
+        <h1>Menu</h1>
         <p>
-            Some quick example text to build on the card title and make up the bulk of the card's content.
+            <code>&lt;juel-menu&gt;</code> opens its content from the element in
+            <code>slot="trigger"</code>. With <code>trigger="click"</code> a click outside
+            or Escape closes it. Items are <code>&lt;juel-menu-item&gt;</code>s (or any
+            element with <code>role="menuitem"</code>): choosing one fires
+            <code>menu-select</code> and closes the menu. From the keyboard, the trigger
+            opens it with focus on the first item, and the arrow keys, Home and End move
+            between items.
         </p>
-        <juel-button label="Hello there"></juel-button>
-    </juel-card>
-</juel-menu>
+    </header>
 
+    <section class="example-section">
+        <h2>A click menu (menu bar style)</h2>
+        <p>The content floats with <code>position: fixed</code>, so the clipped, scrolling box around this one doesn't cut it off.</p>
+        <div class="example-demo">
+            <div class="clipped">
+                <juel-menu id="insert-menu" trigger="click">
+                    <juel-button slot="trigger" type="light" label="Insert ▾"></juel-button>
+                    <juel-menu-item label="Slide" value="slide" title="A new slide"></juel-menu-item>
+                    <juel-menu-item label="Bullet list" value="list"></juel-menu-item>
+                    <juel-menu-item label="Table" value="table"></juel-menu-item>
+                    <juel-menu-item label="Disabled item" value="nothing" disabled></juel-menu-item>
+                    <juel-menu-item label="Code" value="code"></juel-menu-item>
+                </juel-menu>
+                <p>Chosen: <output id="chosen">nothing yet</output></p>
+            </div>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Hover (the default)</h2>
+        <div class="example-demo">
+            <juel-menu>
+                <juel-button slot="trigger" type="secondary" label="Hover me"></juel-button>
+                <juel-menu-item label="Item 1"></juel-menu-item>
+                <juel-menu-item label="Item 2"></juel-menu-item>
+                <juel-menu-item label="Item 3"></juel-menu-item>
+            </juel-menu>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('insert-menu').addEventListener('menu-select', e => {
+            document.getElementById('chosen').textContent = e.detail.value;
+        });
+    </script>
 </body>
 
 </html>

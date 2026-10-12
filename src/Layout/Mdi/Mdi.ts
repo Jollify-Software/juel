@@ -868,6 +868,8 @@ export class JuelMdi extends LitElement {
             })}</juel-tabs>`;
         }
 
-        return html`${this._renderMinimizedBar()}<div class="layout">${this._renderLayout()}</div>`;
+        // The flex column lives on an inner element, not :host — a page's
+        // own styles for juel-mdi (display: block, say) override :host.
+        return html`<div class="mdi">${this._renderMinimizedBar()}<div class="layout">${this._renderLayout()}</div></div>`;
     }
 }

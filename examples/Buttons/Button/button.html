@@ -80,6 +80,16 @@
     </section>
 
     <section class="example-section">
+        <h2>Disabled, and icon-only buttons</h2>
+        <p><code>disabled</code> greys the button out and stops clicks. A button whose content is only a symbol needs an accessible name: <code>button-label</code> sets one on the inner button.</p>
+        <div class="example-demo">
+            <juel-button type="primary" label="Disabled" disabled></juel-button>
+            <juel-button type="light" button-label="Bold" title="Bold"><b>B</b></juel-button>
+            <juel-button type="light" button-label="Italic" title="Italic"><i>I</i></juel-button>
+        </div>
+    </section>
+
+    <section class="example-section">
         <h2>Dropdown</h2>
         <p>Content in the <code>dropdown</code> slot opens beneath the button.</p>
         <div class="example-demo">

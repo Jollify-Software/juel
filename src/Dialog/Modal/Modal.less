@@ -1,64 +1,109 @@
 @import '../../_CommonStyles/Animations/MoveDown.less';
 
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    align-items: center;
-    justify-content: center;
+:host {
+    display: contents;
+}
 
-    &.open {
-        display: flex;
+dialog {
+    padding: 0;
+    border: 1px solid var(--border-color, rgba(0, 0, 0, .2));
+    border-radius: var(--modal-border-radius, .4rem);
+    width: var(--modal-width, auto);
+    min-width: var(--modal-min-width, min(22rem, 90vw));
+    max-width: var(--modal-max-width, min(40rem, 90vw));
+    max-height: 90vh;
+    color: inherit;
+    background: var(--modal-background, #fff);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+    font: inherit;
+}
 
-        .container {
-            animation: move-down 0.6s ease-out;
-        }
-    }
+dialog[open] {
+    animation: move-down 0.3s ease-out;
+}
+
+dialog::backdrop {
+    background: var(--modal-backdrop, rgba(0, 0, 0, .3));
 }
 
 .container {
-    background-color: #fff;
-    width: 90%;
-    max-width: 450px;
-    position: relative;
-    border: 1px solid rgba(0,0,0,.2);
-    border-radius: .3rem;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
 }
+
 .header {
     display: flex;
     flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 1rem;
-    border-bottom: 1px solid #dee2e6;
+    gap: .5rem;
+    padding: var(--modal-header-padding, .75rem 1rem);
+    border-bottom: 1px solid var(--border-color, #dee2e6);
 }
+
+.title {
+    font-weight: 600;
+    font-size: var(--modal-title-size, 1.0625rem);
+}
+
 .content {
-    position: relative;
     display: flex;
     flex-direction: column;
-    padding: 1rem 1rem;
-    pointer-events: auto;
-    background-color: #fff;
-    background-clip: padding-box;
-    outline: 0;
+    gap: var(--modal-gap, .625rem);
+    padding: var(--modal-padding, 1rem);
+    overflow: auto;
 }
+
+.buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: .375rem;
+    padding: 0 var(--modal-padding, 1rem) var(--modal-padding, 1rem);
+}
+
+.buttons.empty {
+    display: none;
+}
+
 .close {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
     cursor: pointer;
-    background-image: var(--icon-close);
-    opacity: .5;
-    width: 26px;
-    height: 26px;
-    margin-top: 3%;
-    background-repeat: no-repeat;
-    background-position: center;
+    opacity: .6;
+
+    &::after {
+        content: '';
+        display: block;
+        width: 100%;
+        height: 100%;
+        background-color: currentColor;
+        mask-image: var(--icon-close);
+        mask-size: 55%;
+        mask-repeat: no-repeat;
+        mask-position: center;
+        -webkit-mask-image: var(--icon-close);
+        -webkit-mask-size: 55%;
+        -webkit-mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+    }
+
     &:hover {
         opacity: 1;
-      }
-  }
-  ::slotted(h1), ::slotted(h2), ::slotted(h3), ::slotted(h4), ::slotted(h5), ::slotted(h6) {
+        background-color: rgba(0, 0, 0, .08);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--primary, #0d6efd);
+    }
+}
+
+::slotted(h1), ::slotted(h2), ::slotted(h3), ::slotted(h4), ::slotted(h5), ::slotted(h6) {
     margin: 0;
-  }
+    font-size: inherit;
+}

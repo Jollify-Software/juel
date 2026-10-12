@@ -1,14 +1,73 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <title>Modal — Juel Examples</title>
     <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
 </head>
 
 <body>
-    <button>Popup</button>
-    <juel-modal trigger="button">
-        <h2 slot="title">Hello</h2>
-        Hello</juel-modal>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Modal</h1>
+        <p>
+            <code>&lt;juel-modal&gt;</code> is a modal dialog on the native
+            <code>&lt;dialog&gt;</code> element: it sits in the top layer, traps focus and
+            makes the page behind it inert. <code>open()</code> shows it and
+            <code>close(value)</code> closes it; <code>modal-closed</code> reports the value.
+            Escape, the close button and a click on the backdrop dismiss it with
+            <code>''</code> (unless <code>dismissible</code> is false). On open, focus goes
+            to the slotted element with <code>autofocus</code>.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Opened by a trigger</h2>
+        <div class="example-demo">
+            <juel-button id="hello-trigger" type="primary" label="Say hello"></juel-button>
+            <juel-modal trigger="#hello-trigger" label="Hello">
+                <p>A modal opened by its <code>trigger</code> selector.</p>
+            </juel-modal>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>A form that returns a value</h2>
+        <p>The form is slotted content: its submit handler calls <code>close(value)</code>.</p>
+        <div class="example-demo">
+            <juel-button id="link-open" type="primary" label="Insert link…"></juel-button>
+            <p>Result: <output id="link-result">nothing yet</output></p>
+            <juel-modal id="link-modal" label="Insert link">
+                <form id="link-form">
+                    <juel-text id="link-text" label="Text" placeholder="Link text"></juel-text>
+                    <juel-text id="link-url" label="Address" type="url" placeholder="https://" required autofocus></juel-text>
+                </form>
+                <juel-button slot="buttons" type="light" id="link-cancel" label="Cancel"></juel-button>
+                <juel-button slot="buttons" type="primary" id="link-insert" label="Insert"></juel-button>
+            </juel-modal>
+        </div>
+    </section>
+
+    <script>
+        const modal = document.getElementById('link-modal');
+        const form = document.getElementById('link-form');
+        document.getElementById('link-open').addEventListener('click', () => modal.open());
+        document.getElementById('link-cancel').addEventListener('click', () => modal.close());
+        document.getElementById('link-insert').addEventListener('click', () => form.requestSubmit());
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const url = document.getElementById('link-url').value.trim();
+            if (!url) return;
+            const text = document.getElementById('link-text').value.trim() || url;
+            modal.close(`[${text}](${url})`);
+        });
+        modal.addEventListener('modal-closed', e => {
+            document.getElementById('link-result').textContent = e.detail.returnValue || '(cancelled)';
+        });
+    </script>
 </body>
 
 </html>

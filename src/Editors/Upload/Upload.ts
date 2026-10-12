@@ -39,6 +39,14 @@ export class JuelUpload extends JuelHttpComponent {
         }
     }
 
+    /** Forget the chosen files, so the browse button shows again. */
+    clear() {
+        this.files = [];
+        const input = this.shadowRoot?.getElementById("file") as HTMLInputElement | null;
+        if (input) input.value = '';
+        this.requestUpdate();
+    }
+
     uploadFiles() {
         if (!this.url || !this.upload || !this.files.length) {
             return;
@@ -70,6 +78,7 @@ export class JuelUpload extends JuelHttpComponent {
         }
 
         this.files = Array.from(input.files);
+        this.requestUpdate();
         Dispatch(this, UploadEvents.FilesSelected, this.files);
 
         if (this.auto == true) {
@@ -104,6 +113,7 @@ export class JuelUpload extends JuelHttpComponent {
         this.shadowRoot.firstElementChild.classList.remove("dragged");
         const dt = e.dataTransfer;
         this.files = [...dt.files];
+        this.requestUpdate();
         Dispatch(this, UploadEvents.FilesSelected, this.files);
         if (this.auto == true) {
             this.uploadFiles();
@@ -112,8 +122,8 @@ export class JuelUpload extends JuelHttpComponent {
 
     render() {
         return html`<div id="container">
-        <input type="file" class="file" id="file" ?multiple="${this.multiple}" @change="${this.change}">
-        ${this.files && this.files.length > 0
+        <input type="file" class="file" id="file" ?multiple="${this.multiple}" accept="${this.accept ?? ''}" @change="${this.change}">
+        ${this.files && this.files.length > 0 && this.querySelector(':scope > [slot="confirm"]')
                 ? html`<slot name="confirm"></slot>`
                 : this.trigger
                     ? html`<slot></slot>`

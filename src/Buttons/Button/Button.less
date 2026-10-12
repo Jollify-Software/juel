@@ -29,3 +29,13 @@ button {
     padding: var(--padding, .375rem .75rem);
     font-size: var(--font-size, 1rem);
 }
+// A disabled button takes no pointer events at all, so a click can't reach
+// the host (where apps usually listen) through its padding either.
+:host([disabled]) {
+    pointer-events: none;
+}
+
+button:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
