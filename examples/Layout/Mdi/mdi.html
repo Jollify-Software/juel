@@ -271,7 +271,14 @@
     </header>
 
     <section class="example-section">
-        <h2>IDE-style workspace (row, drag-to-dock, broadcast, popout, save/restore)</h2>
+        <h2>IDE-style workspace (row, drag-to-dock, minimise/maximise, broadcast, popout, save/restore)</h2>
+        <p>
+            Every pane has minimise and maximise buttons (double-clicking a title bar
+            also toggles maximise). A minimised panel becomes a tab on a bar above the
+            layout; click the tab to put it back where it was. Both states are part of
+            <code>getLayout()</code>, and <code>layout-changed</code> fires on every
+            change; the JSON below updates live.
+        </p>
         <div class="mdi-demo">
             <juel-mdi id="flagship-demo" order="row">
                 <div id="explorer-panel" data-title="Explorer" data-closable="false">
@@ -332,6 +339,10 @@
                 <button type="button" id="restore-layout">Restore saved layout</button>
                 <button type="button" id="reset-layout">Reset workspace</button>
             </div>
+            <details>
+                <summary>Live layout (<code>layout-changed</code> → <code>getLayout()</code>)</summary>
+                <pre id="layout-json" style="font-size: 0.75rem;"></pre>
+            </details>
         </div>
     </section>
 
@@ -515,6 +526,9 @@
             ],
         };
         flagship.updateComplete.then(() => flagship.setLayout(initialLayout));
+        flagship.addEventListener('layout-changed', () => {
+            document.getElementById('layout-json').textContent = JSON.stringify(flagship.getLayout(), null, 2);
+        });
 
         let savedLayout = null;
         document.getElementById('save-layout').addEventListener('click', () => {

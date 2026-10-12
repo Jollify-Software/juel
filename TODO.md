@@ -739,17 +739,37 @@ needs"). The Juel side, in short:
 - ~~`juel-nav` vertical (Q8), `juel-table` empty state and sorting (Q7)~~
   **done 2026-10-11.**
 
-## Next: `juel-mdi` minimise and maximise on every panel (requested 2026-10-11)
+## Done: `juel-mdi` minimise and maximise on every panel (2026-10-12)
 
-- **Every panel** gets **minimise** and **maximise**. Today maximise/restore
-  is on row/column panes only, not stack mode.
-- **A minimised panel collapses to a tab on a top bar**, and clicking the tab
-  restores it. The old Jollify app opened with the Designer maximised and the
-  Editor minimised to a tab like this.
-- **`getLayout()`/`setLayout()` must round-trip the minimised and maximised
-  state**, so an app can save the user's layout. The Jollify app already
-  saves and restores the layout in localStorage.
-- **Add an example** to `examples/Layout/Mdi/mdi.html`.
+- **Minimise** on every row/column pane (title bar button; a tab stack's
+  button minimises the whole group). A minimised panel keeps its place in its
+  slot and is just left out of the render, so it comes back where it was;
+  its tab sits on a **minimised bar** above the layout (`part="minimized-bar"`
+  / `minimized-tab`), and clicking the tab restores it. A stack with one
+  visible panel left renders as a plain pane.
+- **Maximise** on every row/column pane (already there) plus double-click on
+  a title bar. Stack mode (`order="stack"`, and the mobile tabs fallback)
+  offers neither: every panel already fills the view there.
+- Public API: `minimizePanel(id)`, `maximizePanel(id)`, `restorePanel(id)`,
+  `isMinimized(id)`, `isMaximized(id)`; `focusPanel()` restores a minimised
+  panel. Events `panel-minimized`/`-maximized`/`-restored`, and
+  **`layout-changed`** on any change to the arrangement (dock, reorder, tab
+  selection, minimise/maximise, splitter resize end) so an app can save
+  `getLayout()` without polling.
+- `MdiLayout` gained `minimized?: string[]` (panel ids, bar order) and
+  `maximized?: number` (pane index); `setLayout()` applies both. Pane sizes
+  are now captured into slot state before a pane unmounts, so `getLayout()`
+  while something is maximised/minimised no longer drops the hidden panes'
+  sizes (it used to, for maximise).
+- **Fixed in `juel-splitter`**: gutters were only built in `firstLoad()`, so
+  a pane added or removed later (docking, minimise, restore) left stale
+  gutters wired to the wrong panes. It now rebuilds them on any child-list
+  change (`syncGutters()`), and fires `resized` at the end of a drag.
+- Within-slot tab reorder kept the selected *index* rather than the selected
+  panel — fixed while mapping visible-tab indexes back to slot indexes.
+- Example: `examples/Layout/Mdi/mdi.html` flagship demo (live layout JSON).
+  Verified with a Playwright click-through (22 checks: bar, gutters, sizes
+  restored, setLayout round trip, stack minimise, gutter drag after re-render).
 
 ## Open questions for Luke — router, `juel-table`, dashboard example
 

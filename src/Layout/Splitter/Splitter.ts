@@ -29,12 +29,9 @@ export class JuelSplitter extends JuelComponent {
         return this;
     }
 
-    firstLoad(): void {
-        let panes = [...this.children] as HTMLElement[];
-        if (!panes || panes.length < 2) {
-            return;
-        }
+    private _observer?: MutationObserver;
 
+    firstLoad(): void {
         AppendStyle(JuelSplitter.StyleName, Styles);
         // Since this component renders to the light DOM (see createRenderRoot
         // above), the document-head stylesheet AppendStyle injects only
@@ -51,22 +48,57 @@ export class JuelSplitter extends JuelComponent {
             root.prepend(style);
         }
 
-        // A pane may already carry an explicit flex-basis (e.g. juel-mdi
-        // rendering a saved layout's pane sizes) — only default the rest to
-        // an equal share, so a caller-supplied size survives this pass
-        // regardless of which mounts first.
-        let basis = 100 / panes.length;
-        for (let pane of panes) {
-            if (!pane.style.flex) pane.style.flex = `1 1 ${basis}%`;
-            pane.classList.add('juel-split-pane');
-        }
+        this.syncGutters();
+        // Panes can come and go after the first load (juel-mdi docking,
+        // minimising or restoring a pane re-renders this splitter's
+        // children), so the gutters are rebuilt whenever the child list
+        // changes, not just once.
+        this._observer = new MutationObserver(() => this.syncGutters());
+        this._observer.observe(this, { childList: true });
+    }
 
-        for (let i = 0; i < panes.length - 1; i++) {
-            let gutter = document.createElement('div');
-            gutter.className = `gutter gutter-${this.vertical ? 'vertical' : 'horizontal'}`;
-            gutter.style.flex = `0 0 ${this.gutterSize}px`;
-            this.insertBefore(gutter, panes[i + 1]);
-            gutter.addEventListener('pointerdown', (e: PointerEvent) => this.startDrag(e, panes[i], panes[i + 1], gutter));
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        this._observer?.disconnect();
+        this._observer = undefined;
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        if (this.loaded && !this._observer) {
+            this._observer = new MutationObserver(() => this.syncGutters());
+            this._observer.observe(this, { childList: true });
+            this.syncGutters();
+        }
+    }
+
+    /** Remove and re-insert a gutter between each pair of panes. */
+    syncGutters(): void {
+        this._observer?.disconnect();
+        try {
+            for (const gutter of Array.from(this.children).filter(el => el.classList.contains('gutter'))) {
+                gutter.remove();
+            }
+            const panes = Array.from(this.children) as HTMLElement[];
+            // A pane may already carry an explicit flex-basis (e.g. juel-mdi
+            // rendering a saved layout's pane sizes) — only default the rest to
+            // an equal share, so a caller-supplied size survives this pass
+            // regardless of which mounts first.
+            const basis = 100 / Math.max(1, panes.length);
+            for (const pane of panes) {
+                if (!pane.style.flex) pane.style.flex = `1 1 ${basis}%`;
+                pane.classList.add('juel-split-pane');
+            }
+            for (let i = 0; i < panes.length - 1; i++) {
+                const gutter = document.createElement('div');
+                gutter.className = `gutter gutter-${this.vertical ? 'vertical' : 'horizontal'}`;
+                gutter.style.flex = `0 0 ${this.gutterSize}px`;
+                this.insertBefore(gutter, panes[i + 1]);
+                const prev = panes[i], next = panes[i + 1];
+                gutter.addEventListener('pointerdown', (e: PointerEvent) => this.startDrag(e, prev, next, gutter));
+            }
+        } finally {
+            this._observer?.observe(this, { childList: true });
         }
     }
 
@@ -101,6 +133,7 @@ export class JuelSplitter extends JuelComponent {
             this.activeDrag = null;
             window.removeEventListener('pointermove', onMove);
             window.removeEventListener('pointerup', onUp);
+            this.dispatchEvent(new CustomEvent('resized', { detail: { prev, next } }));
         };
         window.addEventListener('pointermove', onMove);
         window.addEventListener('pointerup', onUp);

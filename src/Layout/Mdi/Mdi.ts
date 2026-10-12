@@ -35,6 +35,10 @@ export interface MdiLayoutPane {
 export interface MdiLayout {
     order: 'stack' | 'row' | 'column';
     panes: MdiLayoutPane[];
+    /** Ids of minimised panels, in the order their tabs appear on the minimised bar. */
+    minimized?: string[];
+    /** Index into `panes` of the maximised pane, if one is. */
+    maximized?: number;
 }
 
 interface MdiPanel {
@@ -104,6 +108,11 @@ export class JuelMdi extends LitElement {
     // (maximize isn't offered there); in row/column mode this is a slot id.
     @state()
     private _maximizedId?: string;
+    // Panel ids minimised to the bar above the layout (row/column only), in
+    // tab order. A minimised panel keeps its place in its slot — it's just
+    // left out of the render — so restoring it puts it back where it was.
+    @state()
+    private _minimized: string[] = [];
 
     private _panelIds = new WeakMap<HTMLElement, string>();
     private _observer?: MutationObserver;
@@ -161,8 +170,18 @@ export class JuelMdi extends LitElement {
         DomReady().then(() => this._syncPanels());
     }
 
-    updated() {
+    updated(changed: Map<PropertyKey, unknown>) {
         this._wireDocking();
+        if (changed.has('_slots') || changed.has('_minimized') || changed.has('_maximizedId') || changed.has('order')) {
+            this._layoutChanged();
+        }
+    }
+
+    // Fired whenever the arrangement changes (docking, reordering, tab
+    // selection, minimise/maximise/restore, splitter resize) so an app can
+    // save getLayout() without polling.
+    private _layoutChanged() {
+        this.dispatchEvent(new CustomEvent('layout-changed', { bubbles: true, composed: true }));
     }
 
     private _panelIdFor(element: HTMLElement): string {
@@ -184,6 +203,10 @@ export class JuelMdi extends LitElement {
                 element,
             }));
         this._syncSlots();
+        const ids = new Set(this._panels.map(p => p.id));
+        if (this._minimized.some(id => !ids.has(id))) {
+            this._minimized = this._minimized.filter(id => ids.has(id));
+        }
         if (this._maximizedId
             && !this._panels.some(p => p.id === this._maximizedId)
             && !this._slots.some(s => s.id === this._maximizedId)) {
@@ -273,6 +296,7 @@ export class JuelMdi extends LitElement {
             const tabs = this.shadowRoot?.querySelector('juel-tabs') as JuelTabs | null;
             tabs?.selectTab(index);
         } else {
+            if (this._minimized.includes(id)) this._minimized = this._minimized.filter(m => m !== id);
             const slot = this._slots.find(s => s.panels.some(p => p.id === id));
             if (slot) {
                 const indexInSlot = slot.panels.findIndex(p => p.id === id);
@@ -367,20 +391,95 @@ export class JuelMdi extends LitElement {
             return { order: 'stack', panes: [{ panelIds: this._panels.map(p => p.id), selectedIndex: 0 }] };
         }
 
-        const sizeBySlotId = new Map<string, number>();
-        this.shadowRoot?.querySelectorAll<HTMLElement>('.pane[data-slot-id]').forEach(el => {
-            const size = parseFloat(el.style.flexBasis);
-            if (!Number.isNaN(size) && el.dataset.slotId) sizeBySlotId.set(el.dataset.slotId, size);
-        });
-
+        const sizeBySlotId = this._renderedSizes();
+        const maximized = this._slots.findIndex(s => s.id === this._maximizedId);
         return {
             order: this.order,
             panes: this._slots.map(slot => ({
                 panelIds: slot.panels.map(p => p.id),
                 selectedIndex: slot.selectedIndex,
-                size: sizeBySlotId.get(slot.id),
+                size: sizeBySlotId.get(slot.id) ?? slot.size,
             })),
+            minimized: [...this._minimized],
+            ...(maximized >= 0 ? { maximized } : {}),
         };
+    }
+
+    // Pane sizes as currently rendered (the splitter writes flex-basis
+    // straight onto the pane elements). Panes that aren't rendered —
+    // hidden behind a maximised pane, or whose panels are all minimised —
+    // are absent, so callers fall back to the slot's remembered size.
+    private _renderedSizes(): Map<string, number> {
+        const sizes = new Map<string, number>();
+        if (this._maximizedId) return sizes; // the one rendered pane has no basis while maximised
+        this.shadowRoot?.querySelectorAll<HTMLElement>('.pane[data-slot-id]').forEach(el => {
+            const size = parseFloat(el.style.flexBasis);
+            if (!Number.isNaN(size) && el.dataset.slotId) sizes.set(el.dataset.slotId, size);
+        });
+        return sizes;
+    }
+
+    // Copy rendered sizes into slot state before a change that unmounts
+    // panes, so they come back at the size the user left them.
+    private _captureSizes() {
+        const sizes = this._renderedSizes();
+        if (sizes.size === 0) return;
+        this._slots = this._slots.map(s => sizes.has(s.id) ? { ...s, size: sizes.get(s.id) } : s);
+    }
+
+    /** Minimise a panel to a tab on the bar above the layout (row/column mode). It keeps its place; restorePanel() or clicking its tab puts it back. */
+    minimizePanel(id: string): boolean {
+        if (this.order === 'stack' || !this._panels.some(p => p.id === id) || this._minimized.includes(id)) return false;
+        this._captureSizes();
+        this._minimized = [...this._minimized, id];
+        const max = this._slots.find(s => s.id === this._maximizedId);
+        if (max && max.panels.every(p => this._minimized.includes(p.id))) this._maximizedId = undefined;
+        this.dispatchEvent(new CustomEvent('panel-minimized', { detail: { id }, bubbles: true, composed: true }));
+        return true;
+    }
+
+    /** Maximise the pane holding this panel (row/column mode), restoring the panel first if it's minimised. */
+    maximizePanel(id: string): boolean {
+        if (this.order === 'stack') return false;
+        const slot = this._slots.find(s => s.panels.some(p => p.id === id));
+        if (!slot) return false;
+        this._captureSizes();
+        if (this._minimized.includes(id)) this._minimized = this._minimized.filter(m => m !== id);
+        const index = slot.panels.findIndex(p => p.id === id);
+        this._slots = this._slots.map(s => s.id === slot.id ? { ...s, selectedIndex: index } : s);
+        this._maximizedId = slot.id;
+        this.dispatchEvent(new CustomEvent('panel-maximized', { detail: { id }, bubbles: true, composed: true }));
+        return true;
+    }
+
+    /** Undo minimise or maximise: a minimised panel goes back to its pane; a maximised pane goes back into the layout. Restoring a minimised panel while a different pane is maximised restores that pane too, so the panel is visible. */
+    restorePanel(id: string): boolean {
+        const panel = this._panels.find(p => p.id === id);
+        if (!panel) return false;
+        const slot = this._slots.find(s => s.panels.some(p => p.id === id));
+        if (this._minimized.includes(id)) {
+            this._minimized = this._minimized.filter(m => m !== id);
+            if (slot) {
+                const index = slot.panels.findIndex(p => p.id === id);
+                this._slots = this._slots.map(s => s.id === slot.id ? { ...s, selectedIndex: index } : s);
+            }
+            if (this._maximizedId && this._maximizedId !== slot?.id) this._maximizedId = undefined;
+        } else if (slot && this._maximizedId === slot.id) {
+            this._maximizedId = undefined;
+        } else {
+            return false;
+        }
+        this.dispatchEvent(new CustomEvent('panel-restored', { detail: { id }, bubbles: true, composed: true }));
+        return true;
+    }
+
+    isMinimized(id: string): boolean {
+        return this._minimized.includes(id);
+    }
+
+    /** True when the pane holding this panel is maximised. */
+    isMaximized(id: string): boolean {
+        return !!this._maximizedId && !!this._slots.find(s => s.id === this._maximizedId)?.panels.some(p => p.id === id);
     }
 
     /** Apply a saved arrangement against the current panel set (matched by id). Panel ids not mentioned in the layout get their own trailing pane rather than disappearing; ids in the layout with no matching current panel are skipped. */
@@ -393,6 +492,8 @@ export class JuelMdi extends LitElement {
                 .filter((p): p is MdiPanel => !!p);
             const remaining = this._panels.filter(p => !ordered.includes(p));
             [...ordered, ...remaining].forEach(p => this.appendChild(p.element));
+            this._minimized = [];
+            this._maximizedId = undefined;
             return;
         }
 
@@ -413,7 +514,14 @@ export class JuelMdi extends LitElement {
         }
 
         this._slots = slots;
-        this._maximizedId = undefined;
+        this._minimized = (layout.minimized ?? []).filter(id => byId.has(id));
+        // layout.maximized indexes layout.panes, which may include panes
+        // dropped above for having no current panels, so resolve it by panel.
+        const maximizedPane = layout.maximized !== undefined ? layout.panes[layout.maximized] : undefined;
+        const maximizedSlot = maximizedPane && slots.find(s => s.panels.some(p => maximizedPane.panelIds.includes(p.id)));
+        this._maximizedId = maximizedSlot && maximizedSlot.panels.some(p => !this._minimized.includes(p.id))
+            ? maximizedSlot.id
+            : undefined;
     }
 
     private _closePanel(id: string) {
@@ -447,14 +555,34 @@ export class JuelMdi extends LitElement {
     // across re-syncs.
     private _reorderWithinSlot(slot: MdiSlot, from: number, to: number) {
         if (from === to) return;
+        // from/to index the visible (unminimised) tabs; map them back.
+        const visible = this._visiblePanels(slot);
+        const moving = visible[from], target = visible[to];
+        if (!moving || !target) return;
         const panels = [...slot.panels];
-        const [moved] = panels.splice(from, 1);
-        panels.splice(to, 0, moved);
-        this._slots = this._slots.map(s => s === slot ? { ...s, panels } : s);
+        panels.splice(panels.indexOf(moving), 1);
+        const targetIndex = panels.indexOf(target);
+        panels.splice(from < to ? targetIndex + 1 : targetIndex, 0, moving);
+        // Keep the same panel selected, wherever it moved to.
+        const selected = slot.panels[slot.selectedIndex];
+        const selectedIndex = Math.max(0, selected ? panels.indexOf(selected) : 0);
+        this._slots = this._slots.map(s => s === slot ? { ...s, panels, selectedIndex } : s);
     }
 
-    private _maximizePanel(id: string) {
-        this._maximizedId = id;
+    private _visiblePanels(slot: MdiSlot): MdiPanel[] {
+        return slot.panels.filter(p => !this._minimized.includes(p.id));
+    }
+
+    private _selectVisible(slot: MdiSlot, visibleIndex: number) {
+        const panel = this._visiblePanels(slot)[visibleIndex];
+        if (!panel) return;
+        const index = slot.panels.indexOf(panel);
+        if (index !== slot.selectedIndex) this._slots = this._slots.map(s => s.id === slot.id ? { ...s, selectedIndex: index } : s);
+    }
+
+    private _maximizePanel(slotId: string) {
+        this._captureSizes();
+        this._maximizedId = slotId;
     }
 
     private _restorePanel() {
@@ -512,7 +640,7 @@ export class JuelMdi extends LitElement {
         const originSlotId = originPane?.dataset.slotId;
         const slot = originSlotId ? this._slots.find(s => s.id === originSlotId) : undefined;
         const index = Number(handle.dataset.index);
-        const panel = slot && !Number.isNaN(index) ? slot.panels[index] : undefined;
+        const panel = slot && !Number.isNaN(index) ? this._visiblePanels(slot)[index] : undefined;
         return panel && originSlotId ? { panelId: panel.id, originSlotId } : null;
     }
 
@@ -535,7 +663,7 @@ export class JuelMdi extends LitElement {
     }
 
     private _onSlotTabDragEnd(slot: MdiSlot, e: CustomEvent<{ index: number; client: { x: number; y: number } }>) {
-        const panel = slot.panels[e.detail.index];
+        const panel = this._visiblePanels(slot)[e.detail.index];
         if (panel) this._popOutIfReleasedOutside(panel.id, e.detail.client);
     }
 
@@ -619,51 +747,111 @@ export class JuelMdi extends LitElement {
         });
     }
 
+    private _renderWindowButtons(slot: MdiSlot, visible: MdiPanel[], maximized: boolean, label: string) {
+        return html`<button
+                type="button"
+                class="minimize-button"
+                title="Minimise"
+                aria-label="Minimise ${label}"
+                @click=${() => visible.forEach(p => this.minimizePanel(p.id))}></button>
+            <button
+                type="button"
+                class="${maximized ? 'restore-button' : 'maximize-button'}"
+                title="${maximized ? 'Restore' : 'Maximise'}"
+                aria-label="${maximized ? 'Restore' : 'Maximise'} ${label}"
+                @click=${() => maximized ? this._restorePanel() : this._maximizePanel(slot.id)}></button>`;
+    }
+
     private _renderPane(slot: MdiSlot, panel: MdiPanel, maximized: boolean) {
         panel.element.setAttribute('slot', panel.id);
         const style = !maximized && slot.size !== undefined ? `flex: 1 1 ${slot.size}%` : '';
         return html`<div class="pane ${maximized ? 'maximized' : ''}" data-slot-id="${slot.id}" data-panel-id="${panel.id}" style="${style}">
-            <div class="pane-title">
+            <div class="pane-title" @dblclick=${(e: MouseEvent) => this._onTitleDoubleClick(e, slot, maximized)}>
                 <span class="pane-title-text">${panel.title}</span>
-                <button
-                    type="button"
-                    class="${maximized ? 'restore-button' : 'maximize-button'}"
-                    aria-label="${maximized ? 'Restore' : 'Maximize'} ${panel.title}"
-                    @click=${() => maximized ? this._restorePanel() : this._maximizePanel(slot.id)}></button>
-                ${panel.closable ? html`<button type="button" class="close-button" aria-label="Close ${panel.title}" @click=${() => this._closePanel(panel.id)}></button>` : ''}
+                ${this._renderWindowButtons(slot, [panel], maximized, panel.title)}
+                ${panel.closable ? html`<button type="button" class="close-button" title="Close" aria-label="Close ${panel.title}" @click=${() => this._closePanel(panel.id)}></button>` : ''}
             </div>
             <div class="pane-body"><slot name="${panel.id}"></slot></div>
         </div>`;
     }
 
-    private _renderStack(slot: MdiSlot, maximized: boolean) {
+    private _renderStack(slot: MdiSlot, visible: MdiPanel[], maximized: boolean) {
         const style = !maximized && slot.size !== undefined ? `flex: 1 1 ${slot.size}%` : '';
+        const selected = Math.max(0, visible.indexOf(slot.panels[slot.selectedIndex]));
         return html`<div class="pane ${maximized ? 'maximized' : ''}" data-slot-id="${slot.id}" style="${style}">
             <juel-tabs
                 reorderable
-                .selectedIndex=${slot.selectedIndex}
-                @tab-changed=${(e: CustomEvent) => this._slots = this._slots.map(s => s === slot ? { ...s, selectedIndex: e.detail.index } : s)}
-                @tab-close=${(e: CustomEvent) => { const p = slot.panels[e.detail.index]; if (p) this._closePanel(p.id); }}
+                .selectedIndex=${selected}
+                @tab-changed=${(e: CustomEvent) => this._selectVisible(slot, e.detail.index)}
+                @tab-close=${(e: CustomEvent) => { const p = visible[e.detail.index]; if (p) this._closePanel(p.id); }}
                 @tab-reorder=${(e: CustomEvent) => this._reorderWithinSlot(slot, e.detail.from, e.detail.to)}
                 @tab-drag-end=${(e: CustomEvent) => this._onSlotTabDragEnd(slot, e)}>
-                ${repeat(slot.panels, p => p.id, panel => {
+                ${repeat(visible, p => p.id, panel => {
                     panel.element.setAttribute('slot', panel.id);
                     return html`<juel-tab title="${panel.title}" ?closable=${panel.closable}><slot name="${panel.id}"></slot></juel-tab>`;
                 })}
-                <button
-                    type="button"
-                    slot="append"
-                    class="${maximized ? 'restore-button' : 'maximize-button'}"
-                    aria-label="${maximized ? 'Restore' : 'Maximize'} panel group"
-                    @click=${() => maximized ? this._restorePanel() : this._maximizePanel(slot.id)}></button>
+                <span slot="append" class="window-buttons">${this._renderWindowButtons(slot, visible, maximized, 'panel group')}</span>
             </juel-tabs>
         </div>`;
     }
 
     private _renderSlot(slot: MdiSlot, maximized: boolean) {
-        return slot.panels.length === 1
-            ? this._renderPane(slot, slot.panels[0], maximized)
-            : this._renderStack(slot, maximized);
+        const visible = this._visiblePanels(slot);
+        return visible.length === 1
+            ? this._renderPane(slot, visible[0], maximized)
+            : this._renderStack(slot, visible, maximized);
+    }
+
+    // Double-clicking a pane's title bar toggles maximise, as in most
+    // desktop window managers — but not when the double-click lands on
+    // one of the title bar's own buttons.
+    private _onTitleDoubleClick(e: MouseEvent, slot: MdiSlot, maximized: boolean) {
+        if ((e.target as HTMLElement).closest('button')) return;
+        if (maximized) this._restorePanel();
+        else this._maximizePanel(slot.id);
+    }
+
+    // The bar of minimised panels, one tab each; clicking a tab restores
+    // that panel. Only rendered while something is minimised.
+    private _renderMinimizedBar() {
+        if (this._minimized.length === 0) return '';
+        const panels = this._minimized
+            .map(id => this._panels.find(p => p.id === id))
+            .filter((p): p is MdiPanel => !!p);
+        return html`<div class="minimized-bar" part="minimized-bar" role="toolbar" aria-label="Minimised panels">
+            ${repeat(panels, p => p.id, panel => html`<button
+                type="button"
+                class="minimized-tab"
+                part="minimized-tab"
+                data-panel-id="${panel.id}"
+                title="Restore ${panel.title}"
+                @click=${() => this.restorePanel(panel.id)}>${panel.title}</button>`)}
+        </div>`;
+    }
+
+    private _renderLayout() {
+        const maximized = this._maximizedId ? this._slots.find(s => s.id === this._maximizedId) : undefined;
+        if (maximized) {
+            return this._renderSlot(maximized, true);
+        }
+
+        const slots = this._slots.filter(s => this._visiblePanels(s).length > 0);
+        if (slots.length === 0) {
+            return html`<div class="all-minimized">All panels are minimised.</div>`;
+        }
+
+        // A row/column left with a single slot doesn't need a splitter
+        // wrapping it — this is the flat-model equivalent of GoldenLayout
+        // auto-collapsing a container down to its one remaining child.
+        if (slots.length === 1) {
+            return this._renderSlot(slots[0], false);
+        }
+
+        // Keyed by slot id (not plain .map) so drag-to-dock reordering the
+        // _slots array doesn't hand one slot's DOM node — and whatever
+        // interactjs/juel-tabs internal state rides on it — off to a
+        // different slot that happens to land at the same position.
+        return html`<juel-splitter ?vertical=${this.order === 'column'} @resized=${() => this._layoutChanged()}>${repeat(slots, s => s.id, slot => this._renderSlot(slot, false))}</juel-splitter>`;
     }
 
     render() {
@@ -680,22 +868,6 @@ export class JuelMdi extends LitElement {
             })}</juel-tabs>`;
         }
 
-        const maximized = this._maximizedId ? this._slots.find(s => s.id === this._maximizedId) : undefined;
-        if (maximized) {
-            return this._renderSlot(maximized, true);
-        }
-
-        // A row/column left with a single slot doesn't need a splitter
-        // wrapping it — this is the flat-model equivalent of GoldenLayout
-        // auto-collapsing a container down to its one remaining child.
-        if (this._slots.length === 1) {
-            return this._renderSlot(this._slots[0], false);
-        }
-
-        // Keyed by slot id (not plain .map) so drag-to-dock reordering the
-        // _slots array doesn't hand one slot's DOM node — and whatever
-        // interactjs/juel-tabs internal state rides on it — off to a
-        // different slot that happens to land at the same position.
-        return html`<juel-splitter ?vertical=${this.order === 'column'}>${repeat(this._slots, s => s.id, slot => this._renderSlot(slot, false))}</juel-splitter>`;
+        return html`${this._renderMinimizedBar()}<div class="layout">${this._renderLayout()}</div>`;
     }
 }

@@ -1,7 +1,55 @@
 :host {
-    display: block;
+    display: flex;
+    flex-direction: column;
     height: 100%;
+    overflow: hidden;
+}
+
+// Wraps the row/column layout under the minimised bar.
+.layout {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow: auto;
+}
+
+.minimized-bar {
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px 6px;
+    background: var(--secondary-background, #f1f3f5);
+    border-bottom: 1px solid var(--border-color, #dee2e6);
+}
+
+.minimized-tab {
+    padding: 3px 10px;
+    font: inherit;
+    font-size: 0.8125rem;
+    color: inherit;
+    background: var(--background, #fff);
+    border: 1px solid var(--border-color, #dee2e6);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.minimized-tab:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.minimized-tab:focus-visible {
+    outline: 2px solid #0d6efd;
+}
+
+.all-minimized {
+    padding: 1rem;
+    opacity: 0.7;
+}
+
+.window-buttons {
+    display: inline-flex;
+    align-items: center;
+    padding-right: 6px;
 }
 
 juel-splitter {
@@ -48,6 +96,7 @@ juel-splitter {
 }
 
 .close-button,
+.minimize-button,
 .maximize-button,
 .restore-button {
     width: 16px;
@@ -62,18 +111,21 @@ juel-splitter {
 }
 
 .close-button:hover,
+.minimize-button:hover,
 .maximize-button:hover,
 .restore-button:hover {
     background-color: rgba(0, 0, 0, 0.1);
 }
 
 .close-button:focus-visible,
+.minimize-button:focus-visible,
 .maximize-button:focus-visible,
 .restore-button:focus-visible {
     outline: 2px solid #0d6efd;
 }
 
 .close-button:after,
+.minimize-button:after,
 .maximize-button:after,
 .restore-button:after {
     content: '';
@@ -92,6 +144,11 @@ juel-splitter {
 .close-button:after {
     mask-image: var(--icon-close);
     -webkit-mask-image: var(--icon-close);
+}
+
+.minimize-button:after {
+    mask-image: var(--icon-minimize);
+    -webkit-mask-image: var(--icon-minimize);
 }
 
 .maximize-button:after {
