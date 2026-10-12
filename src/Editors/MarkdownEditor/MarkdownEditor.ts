@@ -1,10 +1,10 @@
 import { LitElement, html, PropertyValues } from 'lit';
 import { customElement, property } from 'lit/decorators';
 import { basicSetup, EditorView } from "codemirror";
-import { Annotation, Compartment, EditorSelection, EditorState } from '@codemirror/state'
+import { Annotation, ChangeSet, Compartment, EditorSelection, EditorState, MapMode } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown';
 import { Diagnostic, setDiagnostics } from '@codemirror/lint';
-import { MarkdownEditorEvents, MarkdownCursor, MarkdownWarning } from './MarkdownEditorEvents';
+import { MarkdownEditorEvents, MarkdownContentChanged, MarkdownCursor, MarkdownWarning } from './MarkdownEditorEvents';
 
 /** Marks changes made through the API, which don't fire `content-changed`. */
 const External = Annotation.define<boolean>();
@@ -13,7 +13,9 @@ const External = Annotation.define<boolean>();
  * A CodeMirror 6 Markdown editor.
  *
  * Events (bubbling, composed):
- * - `content-changed` `{ content }`: the user changed the text. Setting
+ * - `content-changed` `{ content, mapOffset }`: the user changed the text.
+ *   `mapOffset(offset)` says where an offset in the text before the change
+ *   is now (null if it was deleted), to keep positions in step. Setting
  *   `content` from outside doesn't fire it. (`ContentChanged`, the old name,
  *   still fires for one more release.)
  * - `cursor-changed` `{ offset, line, column }`: the cursor moved (0-based
@@ -78,7 +80,7 @@ export class JuelMarkdownEditor extends LitElement {
             if (update.docChanged) {
               this.content = update.state.doc.toString();
               const external = update.transactions.some(t => t.annotation(External));
-              if (!external) this.emitContentChanged();
+              if (!external) this.emitContentChanged(update.changes);
             }
             if (update.docChanged || update.selectionSet) this.emitCursorChanged(update.state);
           }),
@@ -277,9 +279,16 @@ export class JuelMarkdownEditor extends LitElement {
     return Math.max(0, Math.min(Math.trunc(Number(offset) || 0), length));
   }
 
-  private emitContentChanged() {
+  private emitContentChanged(changes: ChangeSet) {
+    // Where an offset in the text before this change is now; null if the
+    // character there was deleted. An insertion exactly at the offset lands
+    // before it, so an offset anchored to the start of a block stays there.
+    const mapOffset = (offset: number): number | null => {
+      if (offset < 0 || offset > changes.length) return null;
+      return changes.mapPos(offset, 1, MapMode.TrackAfter);
+    };
     for (const name of [MarkdownEditorEvents.contentChanged, MarkdownEditorEvents.legacyContentChanged]) {
-      this.dispatchEvent(new CustomEvent(name, { detail: { content: this.content }, bubbles: true, composed: true }));
+      this.dispatchEvent(new CustomEvent<MarkdownContentChanged>(name, { detail: { content: this.content, mapOffset }, bubbles: true, composed: true }));
     }
   }
 

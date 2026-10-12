@@ -32,7 +32,12 @@ export class JuelFrame extends LitElement {
                 width: 100%; height: 150px; }
         iframe { position: absolute; left: 0; top: 0; border: 0; width: 100%; height: 100%;
                  transform-origin: 0 0; background: var(--juel-frame-background, transparent); }
-        iframe.back { visibility: hidden; pointer-events: none; }
+        iframe { z-index: 1; }
+        /* Behind the shown frame and transparent, not visibility: hidden: Chrome
+           stops rendering a hidden cross-origin frame (a sandboxed srcdoc is
+           one), so a page there that waits for a paint (requestAnimationFrame)
+           to say it's ready never would, and the swap would never come. */
+        iframe.back { z-index: 0; opacity: 0; pointer-events: none; }
     `;
 
     @property() srcdoc: string | null = null;

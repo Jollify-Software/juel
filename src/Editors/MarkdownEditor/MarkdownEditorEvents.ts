@@ -1,11 +1,22 @@
 export const MarkdownEditorEvents = {
-    /** The user changed the text: `{ content }`. */
+    /** The user changed the text: {@link MarkdownContentChanged}. */
     contentChanged: 'content-changed',
     /** The old name of `content-changed`; still fired for one more release. */
     legacyContentChanged: 'ContentChanged',
     /** The cursor moved: {@link MarkdownCursor}. */
     cursorChanged: 'cursor-changed',
 } as const;
+
+/** `content-changed` detail. */
+export interface MarkdownContentChanged {
+    content: string;
+    /**
+     * Where an offset in the text before this change is now, or null if the
+     * character at it was deleted. An insertion exactly at the offset lands
+     * before it.
+     */
+    mapOffset(offset: number): number | null;
+}
 
 /** `cursor-changed` detail: 0-based offset, 1-based line and column. */
 export interface MarkdownCursor {

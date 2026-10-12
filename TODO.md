@@ -739,6 +739,24 @@ needs"). The Juel side, in short:
 - ~~`juel-nav` vertical (Q8), `juel-table` empty state and sorting (Q7)~~
   **done 2026-10-11.**
 
+## Done: for the Jollify app's design stylesheet (2026-10-12)
+
+- **`juel-markdown-editor`**: `content-changed` now carries
+  `mapOffset(offset)`: where an offset in the text before the change is now
+  (CodeMirror `mapPos`, `MapMode.TrackAfter`: null when the character at it
+  was deleted; an insertion at it lands before it). The app keeps styled
+  elements' anchors in step with edits through it.
+- **`juel-text`**: `rows` (above 1: a textarea), `monospace`, and a composed
+  `value-committed` on the native `change` (which isn't composed, so it
+  never reached the host; the doc comment wrongly said it did).
+- **`juel-frame` fix**: the buffered back frame was hidden with
+  `visibility: hidden`. Chrome stops rendering a hidden cross-origin frame (a
+  sandboxed `srcdoc` is one), so a page there that waits for a paint before
+  saying it's ready (Jetty: two `requestAnimationFrame`s) sometimes never
+  did, and the swap never came: the preview stuck on the old page. The back
+  frame is now transparent and behind the shown one instead. Found by the
+  Jollify e2e (stuck 4 runs in 4; 0 in 3 after).
+
 ## Done: components the Jollify app needed (2026-10-12)
 
 The Jollify app's toolbars, Insert/View menus and dialogs were native
