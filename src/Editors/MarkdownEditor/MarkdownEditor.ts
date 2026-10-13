@@ -23,7 +23,8 @@ const External = Annotation.define<boolean>();
  *
  * Methods: `setCursor(offset)`, `revealOffset(offset)`, `insertAtCursor(text)`,
  * `wrapSelection(before, after?, placeholder?)`, `toggleLinePrefix(prefix, numbered?)`,
- * `insertBlock(text)`, `replaceRange(from, to, text)`, `selectedText`,
+ * `insertBlock(text)`, `replaceRange(from, to, text)`,
+ * `replaceRanges([{ from, to, text }])`, `selectedText`,
  * `setWarnings(list)`, `focus()`.
  */
 @customElement('juel-markdown-editor')
@@ -152,6 +153,19 @@ export class JuelMarkdownEditor extends LitElement {
     const start = this.clamp(Math.min(from, to)), end = this.clamp(Math.max(from, to));
     if (view.state.sliceDoc(start, end) === text) return;
     view.dispatch({ changes: { from: start, to: end, insert: text }, userEvent: 'input' });
+  }
+
+  /**
+   * Several replacements as one edit (one undo step). Offsets are all in the
+   * current text; the ranges must not overlap.
+   */
+  replaceRanges(ranges: { from: number; to: number; text: string }[]) {
+    const view = this.editorView;
+    if (!view || this.readonly || ranges.length === 0) return;
+    const changes = ranges.map(r => ({
+      from: this.clamp(Math.min(r.from, r.to)), to: this.clamp(Math.max(r.from, r.to)), insert: r.text,
+    })).sort((a, b) => a.from - b.from);
+    view.dispatch({ changes, userEvent: 'input' });
   }
 
   /** The text of the main selection ('' when it's just a cursor). */
