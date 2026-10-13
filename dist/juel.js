@@ -2097,6 +2097,7 @@ ${mw(this.code(e,t))}
   `,Mp([rk({type:String,reflect:!0})],Mf.prototype,"direction",void 0),Mf=Mp([t7("juel-toolbar")],Mf);var Mm=function(e,t,r,n){var i,o=arguments.length,a=o<3?t:null===n?n=Object.getOwnPropertyDescriptor(t,r):n;if("object"==typeof Reflect&&"function"==typeof Reflect.decorate)a=Reflect.decorate(e,t,r,n);else for(var s=e.length-1;s>=0;s--)(i=e[s])&&(a=(o<3?i(a):o>3?i(t,r,a):i(t,r))||a);return o>3&&a&&Object.defineProperty(t,r,a),a};let Mg=0,M_=class extends nm{connectedCallback(){if(super.connectedCallback(),this.trigger&&"hover"!==this.trigger&&"click"!==this.trigger){let e=document.querySelector(this.trigger);e&&e.addEventListener("click",this._boundExternalToggle)}}disconnectedCallback(){if(this.trigger&&"hover"!==this.trigger&&"click"!==this.trigger){let e=document.querySelector(this.trigger);e&&e.removeEventListener("click",this._boundExternalToggle)}super.disconnectedCallback()}render(){let e=this.glyph?`--glyph: var(--icon-${this.glyph})`:"",t=this.glyph?"icon glyph":"icon";return r2`
       <div
         class="header"
+        part="header"
         role="button"
         tabindex="0"
         id="${this._headerId}"
@@ -2108,9 +2109,9 @@ ${mw(this.code(e,t))}
         <slot name="header">
           <span>${this.title}</span>
         </slot>
-        <span style="${e}" class="${t}"></span>
+        <span style="${e}" class="${t}" part="icon"></span>
       </div>
-      <div class="content" role="region" id="${this._contentId}" aria-labelledby="${this._headerId}"><slot></slot></div>
+      <div class="content" part="content" role="region" id="${this._contentId}" aria-labelledby="${this._headerId}"><slot></slot></div>
     `}toggle(e){e instanceof MouseEvent&&super.handleClick(e),this.open=!this.open,this.dispatchEvent(new CustomEvent("toggle",{detail:this.open,bubbles:!0,composed:!0}))}_onHeaderKeydown(e){("Enter"===e.key||" "===e.key)&&(e.preventDefault(),this.toggle(e))}_externalToggle(){this.open=!this.open,this.dispatchEvent(new CustomEvent("toggle",{detail:this.open,bubbles:!0,composed:!0}))}constructor(){super(...arguments),this.title="",this.open=!1,this.trigger="click",this._headerId=`juel-accordion-header-${++Mg}`,this._contentId=`juel-accordion-content-${Mg}`,this._boundExternalToggle=this._externalToggle.bind(this)}};M_.styles=ru`
     :host {
       display: flex;

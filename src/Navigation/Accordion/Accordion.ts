@@ -6,6 +6,14 @@ import { JuelComponent } from '../../_Base/JuelComponent';
 
 let sectionId = 0;
 
+/**
+ * One section of a `<juel-accordion>`: a header (`title`, or `slot="header"`)
+ * that opens and closes the content. Its `toggle` event's detail is `open`.
+ *
+ * Styling from outside: `::part(header)`, `::part(content)` and
+ * `::part(icon)`; `--max-height` caps the open content (the accordion sets
+ * it, 400px when vertical: set it on the section to override).
+ */
 @customElement('juel-accordion-section')
 export class JuelAccordionSection extends JuelComponent {
   @property({ type: String }) title = '';
@@ -107,6 +115,7 @@ export class JuelAccordionSection extends JuelComponent {
     return html`
       <div
         class="header"
+        part="header"
         role="button"
         tabindex="0"
         id="${this._headerId}"
@@ -118,9 +127,9 @@ export class JuelAccordionSection extends JuelComponent {
         <slot name="header">
           <span>${this.title}</span>
         </slot>
-        <span style="${iconStyle}" class="${iconClass}"></span>
+        <span style="${iconStyle}" class="${iconClass}" part="icon"></span>
       </div>
-      <div class="content" role="region" id="${this._contentId}" aria-labelledby="${this._headerId}"><slot></slot></div>
+      <div class="content" part="content" role="region" id="${this._contentId}" aria-labelledby="${this._headerId}"><slot></slot></div>
     `;
   }
 
