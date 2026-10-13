@@ -99,6 +99,11 @@ export class JuelMdi extends LitElement {
     // per-panel data-closable attribute).
     @property({ type: Boolean, attribute: 'default-closable' })
     defaultClosable: boolean = true;
+    // "none" leaves out the bar of minimised-panel tabs, for an app that
+    // shows them itself (in its own toolbar, say) from minimizedPanels,
+    // calling restorePanel() and re-reading on layout-changed.
+    @property({ attribute: 'minimized-bar' })
+    minimizedBar: ('top' | 'none') = 'top';
 
     @state()
     private _panels: MdiPanel[] = [];
@@ -473,6 +478,14 @@ export class JuelMdi extends LitElement {
         return true;
     }
 
+    /** The minimised panels, in tab order, with their titles. */
+    get minimizedPanels(): { id: string; title: string }[] {
+        return this._minimized
+            .map(id => this._panels.find(p => p.id === id))
+            .filter((p): p is MdiPanel => !!p)
+            .map(p => ({ id: p.id, title: p.title }));
+    }
+
     isMinimized(id: string): boolean {
         return this._minimized.includes(id);
     }
@@ -814,7 +827,7 @@ export class JuelMdi extends LitElement {
     // The bar of minimised panels, one tab each; clicking a tab restores
     // that panel. Only rendered while something is minimised.
     private _renderMinimizedBar() {
-        if (this._minimized.length === 0) return '';
+        if (this._minimized.length === 0 || this.minimizedBar === 'none') return '';
         const panels = this._minimized
             .map(id => this._panels.find(p => p.id === id))
             .filter((p): p is MdiPanel => !!p);

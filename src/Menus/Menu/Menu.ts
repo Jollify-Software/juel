@@ -178,8 +178,11 @@ export class JuelMenu extends CollapsibleBase {
   };
 
   private onContentClick = (e: Event) => {
-    const item = this.items.find(i => e.composedPath().includes(i));
-    if (!item) return;
+    // The innermost item clicked: a submenu's item, not the item holding
+    // the submenu. Clicking an item that only holds a submenu selects nothing.
+    const items = this.items;
+    const item = e.composedPath().find((n): n is HTMLElement => items.includes(n as HTMLElement));
+    if (!item || item.querySelector(':scope > juel-menu-item, :scope > [role="menuitem"]')) return;
     this.dispatchEvent(new CustomEvent<MenuSelectDetail>('menu-select', {
       detail: { item, value: item.getAttribute('value') },
       bubbles: true,

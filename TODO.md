@@ -823,6 +823,10 @@ the examples (menu, modal, select) and the app's own e2e suite.
   **`layout-changed`** on any change to the arrangement (dock, reorder, tab
   selection, minimise/maximise, splitter resize end) so an app can save
   `getLayout()` without polling.
+- (2026-10-13) `minimized-bar="none"` leaves the bar out, for an app that
+  shows the tabs itself (the Jollify app puts them in its toolbar): it reads
+  `minimizedPanels` (`{ id, title }[]`, bar order) on `layout-changed` and
+  calls `restorePanel(id)`.
 - `MdiLayout` gained `minimized?: string[]` (panel ids, bar order) and
   `maximized?: number` (pane index); `setLayout()` applies both. Pane sizes
   are now captured into slot state before a pane unmounts, so `getLayout()`
