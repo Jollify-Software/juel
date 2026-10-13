@@ -125,6 +125,18 @@ export class JuelMarkdownEditor extends LitElement {
     view.dispatch({ selection: EditorSelection.cursor(at), effects: EditorView.scrollIntoView(at, { y: 'center' }) });
   }
 
+  /**
+   * Selects `from`–`to` (clamped) and scrolls it into view, without taking
+   * focus: a tool elsewhere (a toolbar over a preview) can then use
+   * wrapSelection / toggleLinePrefix on that stretch.
+   */
+  setSelection(from: number, to: number) {
+    const view = this.editorView;
+    if (!view) return;
+    const anchor = this.clamp(from), head = this.clamp(to);
+    view.dispatch({ selection: EditorSelection.range(anchor, head), effects: EditorView.scrollIntoView(head, { y: 'center' }) });
+  }
+
   /** Scrolls `offset` into view without moving the cursor. */
   revealOffset(offset: number) {
     this.editorView?.dispatch({ effects: EditorView.scrollIntoView(this.clamp(offset), { y: 'center' }) });
