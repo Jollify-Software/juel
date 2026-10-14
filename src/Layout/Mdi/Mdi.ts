@@ -45,7 +45,11 @@ interface MdiPanel {
     id: string;
     title: string;
     closable: boolean;
+    /** False when the panel opted out of maximising (data-maximizable="false"). */
+    maximizable: boolean;
     element: HTMLElement;
+    /** Content for the panel's title bar: a child with data-header-for="<panel id>". */
+    header?: HTMLElement;
 }
 
 // A row/column pane. One panel renders as a bare pane; more than one renders
@@ -198,15 +202,25 @@ export class JuelMdi extends LitElement {
         return id;
     }
 
+    // A child with data-header-for="<panel id>" isn't a panel: it's that
+    // panel's title-bar content (a toolbar, say), shown between the title
+    // and the window buttons — or atop the panel when it's in a tab.
     private _syncPanels() {
-        this._panels = Array.from(this.children)
-            .filter((el): el is HTMLElement => el instanceof HTMLElement)
-            .map(element => ({
-                id: this._panelIdFor(element),
-                title: element.dataset.title ?? 'Panel',
-                closable: this.defaultClosable && element.dataset.closable !== 'false',
-                element,
-            }));
+        const children = Array.from(this.children).filter((el): el is HTMLElement => el instanceof HTMLElement);
+        const headers = new Map(children.filter(el => el.dataset.headerFor).map(el => [el.dataset.headerFor!, el]));
+        this._panels = children
+            .filter(el => !el.dataset.headerFor)
+            .map(element => {
+                const id = this._panelIdFor(element);
+                return {
+                    id,
+                    title: element.dataset.title ?? 'Panel',
+                    closable: this.defaultClosable && element.dataset.closable !== 'false',
+                    maximizable: element.dataset.maximizable !== 'false',
+                    element,
+                    header: headers.get(id),
+                };
+            });
         this._syncSlots();
         const ids = new Set(this._panels.map(p => p.id));
         if (this._minimized.some(id => !ids.has(id))) {
@@ -447,7 +461,7 @@ export class JuelMdi extends LitElement {
     maximizePanel(id: string): boolean {
         if (this.order === 'stack') return false;
         const slot = this._slots.find(s => s.panels.some(p => p.id === id));
-        if (!slot) return false;
+        if (!slot || !this._panels.find(p => p.id === id)?.maximizable) return false;
         this._captureSizes();
         if (this._minimized.includes(id)) this._minimized = this._minimized.filter(m => m !== id);
         const index = slot.panels.findIndex(p => p.id === id);
@@ -532,7 +546,7 @@ export class JuelMdi extends LitElement {
         // dropped above for having no current panels, so resolve it by panel.
         const maximizedPane = layout.maximized !== undefined ? layout.panes[layout.maximized] : undefined;
         const maximizedSlot = maximizedPane && slots.find(s => s.panels.some(p => maximizedPane.panelIds.includes(p.id)));
-        this._maximizedId = maximizedSlot && maximizedSlot.panels.some(p => !this._minimized.includes(p.id))
+        this._maximizedId = maximizedSlot && maximizedSlot.panels.some(p => !this._minimized.includes(p.id)) && this._canMaximize(maximizedSlot)
             ? maximizedSlot.id
             : undefined;
     }
@@ -593,7 +607,16 @@ export class JuelMdi extends LitElement {
         if (index !== slot.selectedIndex) this._slots = this._slots.map(s => s.id === slot.id ? { ...s, selectedIndex: index } : s);
     }
 
+    // A pane can be maximised when the panel showing in it can be.
+    private _canMaximize(slot: MdiSlot): boolean {
+        const visible = this._visiblePanels(slot);
+        const shown = visible.includes(slot.panels[slot.selectedIndex]) ? slot.panels[slot.selectedIndex] : visible[0];
+        return !!shown?.maximizable;
+    }
+
     private _maximizePanel(slotId: string) {
+        const slot = this._slots.find(s => s.id === slotId);
+        if (!slot || !this._canMaximize(slot)) return;
         this._captureSizes();
         this._maximizedId = slotId;
     }
@@ -691,6 +714,8 @@ export class JuelMdi extends LitElement {
         root.querySelectorAll<HTMLElement>('.pane[data-panel-id] > .pane-title').forEach(handle => {
             interact(handle).unset();
             interact(handle).draggable({
+                // A press on the panel's header content (its toolbar) isn't a drag.
+                ignoreFrom: '[slot^="header-"], .pane-header',
                 listeners: {
                     start: () => handle.closest('.pane')?.classList.add('dragging'),
                     move: (event) => {
@@ -767,25 +792,40 @@ export class JuelMdi extends LitElement {
                 title="Minimise"
                 aria-label="Minimise ${label}"
                 @click=${() => visible.forEach(p => this.minimizePanel(p.id))}></button>
-            <button
+            ${maximized || this._canMaximize(slot) ? html`<button
                 type="button"
                 class="${maximized ? 'restore-button' : 'maximize-button'}"
                 title="${maximized ? 'Restore' : 'Maximise'}"
                 aria-label="${maximized ? 'Restore' : 'Maximise'} ${label}"
-                @click=${() => maximized ? this._restorePanel() : this._maximizePanel(slot.id)}></button>`;
+                @click=${() => maximized ? this._restorePanel() : this._maximizePanel(slot.id)}></button>` : ''}`;
     }
 
     private _renderPane(slot: MdiSlot, panel: MdiPanel, maximized: boolean) {
         panel.element.setAttribute('slot', panel.id);
         const style = !maximized && slot.size !== undefined ? `flex: 1 1 ${slot.size}%` : '';
         return html`<div class="pane ${maximized ? 'maximized' : ''}" data-slot-id="${slot.id}" data-panel-id="${panel.id}" style="${style}">
-            <div class="pane-title" @dblclick=${(e: MouseEvent) => this._onTitleDoubleClick(e, slot, maximized)}>
-                <span class="pane-title-text">${panel.title}</span>
+            <div class="pane-title" part="pane-title" @dblclick=${(e: MouseEvent) => this._onTitleDoubleClick(e, slot, maximized)}>
+                <span class="pane-title-text ${panel.header ? 'with-header' : ''}" part="pane-title-text">${panel.title}</span>
+                ${this._renderHeaderSlot(panel)}
                 ${this._renderWindowButtons(slot, [panel], maximized, panel.title)}
                 ${panel.closable ? html`<button type="button" class="close-button" title="Close" aria-label="Close ${panel.title}" @click=${() => this._closePanel(panel.id)}></button>` : ''}
             </div>
             <div class="pane-body"><slot name="${panel.id}"></slot></div>
         </div>`;
+    }
+
+    // A panel's title-bar content, slotted in beside its title.
+    private _renderHeaderSlot(panel: MdiPanel) {
+        if (!panel.header) return '';
+        panel.header.setAttribute('slot', `header-${panel.id}`);
+        return html`<div class="pane-header" part="pane-header"><slot name="header-${panel.id}"></slot></div>`;
+    }
+
+    // In a tab there's no title bar of the panel's own: its header goes
+    // atop its content instead.
+    private _renderTabContent(panel: MdiPanel) {
+        if (!panel.header) return html`<slot name="${panel.id}"></slot>`;
+        return html`<div class="tab-panel">${this._renderHeaderSlot(panel)}<div class="tab-panel-body"><slot name="${panel.id}"></slot></div></div>`;
     }
 
     private _renderStack(slot: MdiSlot, visible: MdiPanel[], maximized: boolean) {
@@ -801,7 +841,7 @@ export class JuelMdi extends LitElement {
                 @tab-drag-end=${(e: CustomEvent) => this._onSlotTabDragEnd(slot, e)}>
                 ${repeat(visible, p => p.id, panel => {
                     panel.element.setAttribute('slot', panel.id);
-                    return html`<juel-tab title="${panel.title}" ?closable=${panel.closable}><slot name="${panel.id}"></slot></juel-tab>`;
+                    return html`<juel-tab title="${panel.title}" ?closable=${panel.closable}>${this._renderTabContent(panel)}</juel-tab>`;
                 })}
                 <span slot="append" class="window-buttons">${this._renderWindowButtons(slot, visible, maximized, 'panel group')}</span>
             </juel-tabs>
@@ -818,8 +858,11 @@ export class JuelMdi extends LitElement {
     // Double-clicking a pane's title bar toggles maximise, as in most
     // desktop window managers — but not when the double-click lands on
     // one of the title bar's own buttons.
+    // Nor on the panel's header content (slotted from the light DOM, so
+    // the target isn't inside .pane-title).
     private _onTitleDoubleClick(e: MouseEvent, slot: MdiSlot, maximized: boolean) {
-        if ((e.target as HTMLElement).closest('button')) return;
+        const target = e.target as HTMLElement;
+        if (target.closest('button') || !target.closest('.pane-title')) return;
         if (maximized) this._restorePanel();
         else this._maximizePanel(slot.id);
     }
@@ -877,7 +920,7 @@ export class JuelMdi extends LitElement {
                 @tab-reorder=${(e: CustomEvent) => this._onTabReorder(e)}
                 @tab-drag-end=${(e: CustomEvent) => this._onTabDragEnd(e)}>${repeat(this._panels, p => p.id, (panel) => {
                 panel.element.setAttribute('slot', panel.id);
-                return html`<juel-tab title="${panel.title}" ?closable=${panel.closable}><slot name="${panel.id}"></slot></juel-tab>`;
+                return html`<juel-tab title="${panel.title}" ?closable=${panel.closable}>${this._renderTabContent(panel)}</juel-tab>`;
             })}</juel-tabs>`;
         }
 

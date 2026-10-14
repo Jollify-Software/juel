@@ -100,6 +100,40 @@ juel-splitter {
     white-space: nowrap;
 }
 
+// Beside header content, the title is only as wide as it needs.
+.pane-title-text.with-header {
+    flex: none;
+    max-width: 40%;
+}
+
+// A panel's header content (data-header-for), between its title and the
+// window buttons: it takes the room, the title keeps its own width.
+.pane-header {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    margin: -3px 6px;
+    font-weight: normal;
+    cursor: auto;
+    user-select: auto;
+}
+
+// The same, atop the panel's content when it's in a tab.
+.tab-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.tab-panel > .pane-header {
+    flex: none;
+    margin: 0;
+}
+.tab-panel-body {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
 .close-button,
 .minimize-button,
 .maximize-button,

@@ -281,7 +281,8 @@
         </p>
         <div class="mdi-demo">
             <juel-mdi id="flagship-demo" order="row">
-                <div id="explorer-panel" data-title="Explorer" data-closable="false">
+                <!-- data-maximizable="false": no maximise button, and a double-click on the title does nothing. -->
+                <div id="explorer-panel" data-title="Explorer" data-closable="false" data-maximizable="false">
                     <div class="ide-explorer">
                         <div class="ide-tree-folder">▾ src</div>
                         <div class="ide-tree-file" data-file="App.ts">
@@ -299,6 +300,8 @@
                         </div>
                     </div>
                 </div>
+                <!-- data-header-for: this child isn't a panel, it's the Editor's title-bar content. -->
+                <span data-header-for="editor-panel" style="font-size: 12px; opacity: 0.7;">— title-bar content (data-header-for)</span>
                 <div id="editor-panel" data-title="Editor" data-closable="false">
                     <div class="ide-editor">
                         <div class="ide-editor-tab" id="editor-tab-label">Select a file to open it</div>
