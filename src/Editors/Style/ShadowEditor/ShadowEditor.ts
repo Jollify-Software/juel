@@ -2,6 +2,7 @@ import { css, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { StylePropertyEditorBase } from '../StylePropertyEditorBase';
 import { ShadowEditorEvents } from './ShadowEditorEvents';
+import '../../../Buttons/Button/Button';
 import {
   Shadow,
   ShadowList,
@@ -53,31 +54,27 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
         align-items: center;
         flex-wrap: wrap;
       }
+      /* Buttons are juel-buttons: the chips plain (showing their shadow), the rest light. */
       .chip {
-        width: 30px;
-        height: 20px;
-        border-radius: 4px;
-        border: 1px solid var(--_border);
-        background: #fff;
-        cursor: pointer;
-        padding: 0;
+        --button-width: 30px;
+        --button-height: 20px;
+        --padding: 0;
+        --border-radius: 4px;
+        --button-border-color: var(--_border);
+        --background-color: #fff;
+        --hover-background-color: #fff;
       }
       .chip[data-active] {
         outline: 2px solid var(--primary, #4f46e5);
         outline-offset: 1px;
+        border-radius: 4px;
       }
       .mini {
-        width: 1.5rem;
-        height: 1.5rem;
-        padding: 0;
-        font-size: 0.85rem;
-        line-height: 1;
-        border: 1px solid var(--_border);
-        border-radius: 4px;
-        background: var(--surface, #fff);
-        cursor: pointer;
+        --button-width: 1.5rem;
+        --button-height: 1.5rem;
+        --padding: 0;
+        --font-size: 0.85rem;
       }
-      .mini:disabled { opacity: 0.4; cursor: default; }
       .grow { flex: 1; }
       .lbl { font-size: 0.75rem; opacity: 0.7; width: 3.2rem; flex: none; }
       input[type='range'] { flex: 1; min-width: 5rem; }
@@ -349,19 +346,21 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
     return html`
       <div class="list">
         ${this.model.shadows.map(
-          (sh, i) => html`<button
+          (sh, i) => html`<juel-button
+            type="plain"
             class="chip"
             ?data-active=${i === this.active}
-            style="box-shadow:${shadowToString({ ...sh, x: half(sh.x), y: half(sh.y), blur: half(sh.blur), spread: half(sh.spread) })}"
+            style="--button-box-shadow:${shadowToString({ ...sh, x: half(sh.x), y: half(sh.y), blur: half(sh.blur), spread: half(sh.spread) })}"
             title="Shadow ${i + 1}"
+            button-label="Shadow ${i + 1}"
             @click=${() => this.select(i)}
-          ></button>`
+          ></juel-button>`
         )}
-        <button class="mini" title="Move up" ?disabled=${this.active <= 0} @click=${() => this.moveShadow(-1)}>▲</button>
-        <button class="mini" title="Move down" ?disabled=${this.active >= this.model.shadows.length - 1} @click=${() => this.moveShadow(1)}>▼</button>
-        <button class="mini" title="Remove" ?disabled=${this.model.shadows.length < 2} @click=${() => this.removeShadow()}>✕</button>
+        <juel-button type="light" class="mini" title="Move up" ?disabled=${this.active <= 0} @click=${() => this.moveShadow(-1)}>▲</juel-button>
+        <juel-button type="light" class="mini" title="Move down" ?disabled=${this.active >= this.model.shadows.length - 1} @click=${() => this.moveShadow(1)}>▼</juel-button>
+        <juel-button type="light" class="mini" title="Remove" ?disabled=${this.model.shadows.length < 2} @click=${() => this.removeShadow()}>✕</juel-button>
         <span class="grow"></span>
-        <button class="mini" title="Add shadow" @click=${() => this.addShadow()}>＋</button>
+        <juel-button type="light" class="mini" title="Add shadow" @click=${() => this.addShadow()}>＋</juel-button>
       </div>
 
       <div class="preview-wrap">

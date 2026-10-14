@@ -68,6 +68,22 @@
     </section>
 
     <section class="example-section">
+        <h2>Plain (tool and window buttons)</h2>
+        <p><code>type="plain"</code>: no fill or border, the surrounding text colour, a faint hover. Juel's own
+            components use it for their small buttons (juel-mdi's window buttons, juel-tabs' and juel-modal's close).
+            Size with <code>--button-width</code> / <code>--button-height</code> / <code>--button-icon-size</code> /
+            <code>--button-glyph-size</code>; fill with <code>--background-color</code>, <code>--button-background-image</code>
+            or <code>--button-box-shadow</code>; edge with <code>--button-border-color</code>.</p>
+        <div class="example-demo">
+            <juel-button type="plain" glyph="close" button-label="Close" title="Close"></juel-button>
+            <juel-button type="plain" glyph="minimize" button-label="Minimise" title="Minimise"></juel-button>
+            <juel-button type="plain" glyph="maximize" button-label="Maximise" title="Maximise"></juel-button>
+            <juel-button type="plain" label="Plain with a label"></juel-button>
+            <juel-button type="plain" button-label="Red swatch" style="--button-width: 28px; --button-height: 28px; --padding: 0; --background-color: crimson; --hover-background-color: crimson; --button-border-color: #ccc"></juel-button>
+        </div>
+    </section>
+
+    <section class="example-section">
         <h2>Prepend / append</h2>
         <p>Content placed in the <code>prepend</code> and <code>append</code> slots renders either side of the label.</p>
         <div class="example-demo">

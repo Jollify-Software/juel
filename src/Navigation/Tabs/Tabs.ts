@@ -4,6 +4,7 @@ import { map } from 'lit/directives/map';
 import interact from '@interactjs/interactjs';
 import { NavigationBase } from '../NavigationBase';
 import { TabsEvents } from './TabsEvents';
+import '../../Buttons/Button/Button';
 
 @customElement('juel-tab')
 export class JuelTab extends LitElement {
@@ -171,58 +172,16 @@ export class JuelTabs extends NavigationBase {
       background-color: var(--active, #e7f1ff);
       color: #495057;
     }
-    .expand-collapse-button {
-      width: 16px;
-      height: 16px;
-      margin-left: 8px;
-      cursor: pointer;
-      background-color: black;
-      border: none;
-      padding: 0;
-      mask-size: contain;
-      mask-repeat: no-repeat;
-      transition: transform 0.2s;
-    }
-    .expand-collapse-button[aria-expanded="true"] {
-      mask-image: var(--icon-minus);
-    }
-    .expand-collapse-button[aria-expanded="false"] {
-      mask-image: var(--icon-plus);
-    }
-    .expand-collapse-button:focus-visible {
-      outline: 2px solid #0d6efd;
-    }
+    /* Close and expand/collapse are juel-buttons (type="plain", a glyph). */
+    .expand-collapse-button,
     .close-button {
-      width: 16px;
-      height: 16px;
-      margin-left: 8px;
-      padding: 0;
-      border: none;
-      border-radius: 50%;
-      background-color: transparent;
-      cursor: pointer;
       flex-shrink: 0;
-    }
-    .close-button:hover {
-      background-color: rgba(0, 0, 0, 0.1);
-    }
-    .close-button:focus-visible {
-      outline: 2px solid #0d6efd;
-    }
-    .close-button:after {
-      content: '';
-      display: block;
-      width: 100%;
-      height: 100%;
-      mask-image: var(--icon-close);
-      mask-size: 60%;
-      mask-repeat: no-repeat;
-      mask-position: center;
-      -webkit-mask-image: var(--icon-close);
-      -webkit-mask-size: 60%;
-      -webkit-mask-repeat: no-repeat;
-      -webkit-mask-position: center;
-      background-color: currentColor;
+      margin-left: 6px;
+      --padding: 2px;
+      --border-radius: 50%;
+      --button-icon-size: 14px;
+      --button-glyph-size: 75%;
+      --hover-background-color: rgba(0, 0, 0, 0.1);
     }
     .tab.dragging {
       opacity: 0.6;
@@ -275,19 +234,22 @@ export class JuelTabs extends NavigationBase {
               @keydown=${(e: KeyboardEvent) => this._onTopTabKeydown(e, index)}>
                 ${tab.title}
                 ${hasSubTabs ? html`
-                  <button
-                    type="button"
+                  <juel-button
+                    type="plain"
                     class="expand-collapse-button"
+                    glyph="${expanded ? 'minus' : 'plus'}"
                     aria-expanded="${expanded}"
-                    aria-label="${expanded ? 'Collapse' : 'Expand'} ${tab.title} sub-tabs"
-                    @click=${this.toggleSubTabsFactory(tab)}></button>
+                    button-label="${expanded ? 'Collapse' : 'Expand'} ${tab.title} sub-tabs"
+                    @click=${this.toggleSubTabsFactory(tab)}></juel-button>
                 ` : ''}
                 ${tab.closable ? html`
-                  <button
-                    type="button"
+                  <juel-button
+                    type="plain"
                     class="close-button"
-                    aria-label="Close ${tab.title}"
-                    @click=${this.closeFactory(index)}></button>
+                    glyph="close"
+                    title="Close"
+                    button-label="Close ${tab.title}"
+                    @click=${this.closeFactory(index)}></juel-button>
                 ` : ''}
               ${hasSubTabs ? this.renderSubTabs(tab.subTabs!, tab, index, expanded) : ''}
             </div>
@@ -321,12 +283,13 @@ export class JuelTabs extends NavigationBase {
             @keydown=${(e: KeyboardEvent) => this._onSubTabKeydown(e, parentTab, parentIndex, subIndex)}>
             ${subTab.title}
             ${hasSubTabs ? html`
-              <button
-                type="button"
+              <juel-button
+                type="plain"
                 class="expand-collapse-button"
+                glyph="${subExpanded ? 'minus' : 'plus'}"
                 aria-expanded="${subExpanded}"
-                aria-label="${subExpanded ? 'Collapse' : 'Expand'} ${subTab.title} sub-tabs"
-                @click=${this.toggleSubTabsFactory(subTab)}></button>
+                button-label="${subExpanded ? 'Collapse' : 'Expand'} ${subTab.title} sub-tabs"
+                @click=${this.toggleSubTabsFactory(subTab)}></juel-button>
             ` : ''}
             ${hasSubTabs ? this.renderSubTabs(subTab.subTabs!, subTab, parentIndex, subExpanded) : ''}
           </div>`;

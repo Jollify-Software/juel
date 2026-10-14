@@ -7,5 +7,7 @@ export enum AlertTypes {
     Warning = "warning",
     Danger = "danger",
     Light = "light",
-    Dark = "dark"
+    Dark = "dark",
+    /** No fill or border, the surrounding text colour, a faint hover: tool and window buttons (juel-button). */
+    Plain = "plain"
 }

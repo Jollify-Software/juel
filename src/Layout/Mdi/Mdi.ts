@@ -8,6 +8,7 @@ import style from 'bundle-text:./mdi.less'
 import { IsMobile } from "../../_Utils/IsMobile";
 import { DomReady } from "../../_Utils/DomReady";
 import "../Splitter/Splitter";
+import "../../Buttons/Button/Button";
 import "../../Navigation/Tabs/Tabs";
 import { JuelTabs } from "../../Navigation/Tabs/Tabs";
 import { TabsEvents } from "../../Navigation/Tabs/TabsEvents";
@@ -786,18 +787,20 @@ export class JuelMdi extends LitElement {
     }
 
     private _renderWindowButtons(slot: MdiSlot, visible: MdiPanel[], maximized: boolean, label: string) {
-        return html`<button
-                type="button"
-                class="minimize-button"
+        return html`<juel-button
+                type="plain"
+                class="window-button minimize-button"
+                glyph="minimize"
                 title="Minimise"
-                aria-label="Minimise ${label}"
-                @click=${() => visible.forEach(p => this.minimizePanel(p.id))}></button>
-            ${maximized || this._canMaximize(slot) ? html`<button
-                type="button"
-                class="${maximized ? 'restore-button' : 'maximize-button'}"
+                button-label="Minimise ${label}"
+                @click=${() => visible.forEach(p => this.minimizePanel(p.id))}></juel-button>
+            ${maximized || this._canMaximize(slot) ? html`<juel-button
+                type="plain"
+                class="window-button ${maximized ? 'restore-button' : 'maximize-button'}"
+                glyph="${maximized ? 'restore' : 'maximize'}"
                 title="${maximized ? 'Restore' : 'Maximise'}"
-                aria-label="${maximized ? 'Restore' : 'Maximise'} ${label}"
-                @click=${() => maximized ? this._restorePanel() : this._maximizePanel(slot.id)}></button>` : ''}`;
+                button-label="${maximized ? 'Restore' : 'Maximise'} ${label}"
+                @click=${() => maximized ? this._restorePanel() : this._maximizePanel(slot.id)}></juel-button>` : ''}`;
     }
 
     private _renderPane(slot: MdiSlot, panel: MdiPanel, maximized: boolean) {
@@ -808,7 +811,7 @@ export class JuelMdi extends LitElement {
                 <span class="pane-title-text ${panel.header ? 'with-header' : ''}" part="pane-title-text">${panel.title}</span>
                 ${this._renderHeaderSlot(panel)}
                 ${this._renderWindowButtons(slot, [panel], maximized, panel.title)}
-                ${panel.closable ? html`<button type="button" class="close-button" title="Close" aria-label="Close ${panel.title}" @click=${() => this._closePanel(panel.id)}></button>` : ''}
+                ${panel.closable ? html`<juel-button type="plain" class="window-button close-button" glyph="close" title="Close" button-label="Close ${panel.title}" @click=${() => this._closePanel(panel.id)}></juel-button>` : ''}
             </div>
             <div class="pane-body"><slot name="${panel.id}"></slot></div>
         </div>`;
@@ -862,7 +865,7 @@ export class JuelMdi extends LitElement {
     // the target isn't inside .pane-title).
     private _onTitleDoubleClick(e: MouseEvent, slot: MdiSlot, maximized: boolean) {
         const target = e.target as HTMLElement;
-        if (target.closest('button') || !target.closest('.pane-title')) return;
+        if (target.closest('button, juel-button') || !target.closest('.pane-title')) return;
         if (maximized) this._restorePanel();
         else this._maximizePanel(slot.id);
     }
@@ -875,13 +878,14 @@ export class JuelMdi extends LitElement {
             .map(id => this._panels.find(p => p.id === id))
             .filter((p): p is MdiPanel => !!p);
         return html`<div class="minimized-bar" part="minimized-bar" role="toolbar" aria-label="Minimised panels">
-            ${repeat(panels, p => p.id, panel => html`<button
-                type="button"
+            ${repeat(panels, p => p.id, panel => html`<juel-button
+                type="light"
                 class="minimized-tab"
                 part="minimized-tab"
                 data-panel-id="${panel.id}"
+                label="${panel.title}"
                 title="Restore ${panel.title}"
-                @click=${() => this.restorePanel(panel.id)}>${panel.title}</button>`)}
+                @click=${() => this.restorePanel(panel.id)}></juel-button>`)}
         </div>`;
     }
 

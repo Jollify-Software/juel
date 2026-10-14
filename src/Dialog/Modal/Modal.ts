@@ -2,6 +2,7 @@ import { html, PropertyValues, unsafeCSS } from "lit";
 import { customElement, property, query, state } from "lit/decorators";
 import { JuelComponent } from "../../_Base/JuelComponent";
 import Styles from "bundle-text:./Modal.less";
+import "../../Buttons/Button/Button";
 
 /** Detail of `modal-closed`: what the modal was closed with — `close(value)`'s value, or '' when dismissed. */
 export interface ModalClosedDetail {
@@ -135,7 +136,7 @@ export class JuelModal extends JuelComponent {
             <div class="container" part="container">
                 <div class="header" part="header">
                     <div id="title" class="title"><slot name="title">${this.label ?? ''}</slot></div>
-                    ${this.dismissible ? html`<button type="button" class="close" part="close" aria-label="Close" title="Close" @click=${() => this.dismiss()}></button>` : ''}
+                    ${this.dismissible ? html`<juel-button type="plain" class="close" part="close" glyph="close" button-label="Close" title="Close" @click=${() => this.dismiss()}></juel-button>` : ''}
                 </div>
                 <div class="content" part="content"><slot></slot></div>
                 <div class="buttons ${this.hasButtons ? '' : 'empty'}" part="buttons"><slot name="buttons"

@@ -67,40 +67,16 @@ dialog::backdrop {
 }
 
 .close {
+    // A juel-button (type="plain", glyph="close"): round, faint until hovered.
     flex-shrink: 0;
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: transparent;
-    cursor: pointer;
     opacity: .6;
-
-    &::after {
-        content: '';
-        display: block;
-        width: 100%;
-        height: 100%;
-        background-color: currentColor;
-        mask-image: var(--icon-close);
-        mask-size: 55%;
-        mask-repeat: no-repeat;
-        mask-position: center;
-        -webkit-mask-image: var(--icon-close);
-        -webkit-mask-size: 55%;
-        -webkit-mask-repeat: no-repeat;
-        -webkit-mask-position: center;
-    }
-
-    &:hover {
-        opacity: 1;
-        background-color: rgba(0, 0, 0, .08);
-    }
-
-    &:focus-visible {
-        outline: 2px solid var(--primary, #0d6efd);
-    }
+    --padding: 4px;
+    --border-radius: 50%;
+    --button-icon-size: 16px;
+    --button-glyph-size: 70%;
+}
+.close:hover {
+    opacity: 1;
 }
 
 ::slotted(h1), ::slotted(h2), ::slotted(h3), ::slotted(h4), ::slotted(h5), ::slotted(h6) {

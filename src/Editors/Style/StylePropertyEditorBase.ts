@@ -1,6 +1,7 @@
 import { LitElement, css, html, PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 import { HistoryController } from '../../_Base/HistoryController';
+import '../../Buttons/Button/Button';
 
 /**
  * Shared spine for **style editors** — components that visually edit one CSS
@@ -57,21 +58,12 @@ export abstract class StylePropertyEditorBase extends LitElement {
       display: inline-flex;
       gap: 0.25rem;
     }
-    button.se-hist {
-      width: 1.75rem;
-      height: 1.75rem;
-      padding: 0;
-      font-size: 1rem;
-      line-height: 1;
-      border: 1px solid var(--border-color, #ced4da);
-      border-radius: 4px;
-      background: var(--surface, #fff);
-      color: inherit;
-      cursor: pointer;
-    }
-    button.se-hist:disabled {
-      opacity: 0.4;
-      cursor: default;
+    /* Undo / redo are juel-buttons (type="light"). */
+    .se-hist {
+      --button-width: 1.75rem;
+      --button-height: 1.75rem;
+      --padding: 0;
+      --font-size: 1rem;
     }
     .se-readout {
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -302,26 +294,22 @@ export abstract class StylePropertyEditorBase extends LitElement {
   protected renderHistoryButtons(): unknown {
     return html`
       <span class="se-history" part="history">
-        <button
-          type="button"
+        <juel-button
+          type="light"
           class="se-hist"
-          aria-label="Undo"
+          button-label="Undo"
           title="Undo"
           ?disabled=${!this.canUndo}
           @click=${() => this.undo()}
-        >
-          &#8630;
-        </button>
-        <button
-          type="button"
+        >&#8630;</juel-button>
+        <juel-button
+          type="light"
           class="se-hist"
-          aria-label="Redo"
+          button-label="Redo"
           title="Redo"
           ?disabled=${!this.canRedo}
           @click=${() => this.redo()}
-        >
-          &#8631;
-        </button>
+        >&#8631;</juel-button>
       </span>
     `;
   }

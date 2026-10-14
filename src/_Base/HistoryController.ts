@@ -42,7 +42,7 @@ export interface HistoryControllerOptions<T> extends HistoryOptions<T> {
  * // on a committed edit:
  * this.history.record(this.value);
  * // wire buttons:
- * <button ?disabled=${!this.history.canUndo} @click=${() => this.history.undo()}>
+ * <juel-button ?disabled=${!this.history.canUndo} @click=${() => this.history.undo()}>
  * ```
  *
  * The host re-renders on every change, and a bubbling `history-changed`

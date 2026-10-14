@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { property, customElement, state } from 'lit/decorators.js';
 import bind from 'bind-decorator';
+import '../../Buttons/Button/Button';
 
 // A dependency-free colour picker (replaces the @simonwep/pickr integration
 // this component originally used), built on the native <input type="color">
@@ -14,13 +15,14 @@ export class Colour extends LitElement {
             position: relative;
             font-family: Arial, sans-serif;
         }
+        /* The swatch and presets are juel-buttons (type="plain") filled with their colour. */
         .swatch {
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            cursor: pointer;
-            padding: 0;
+            display: block;
+            --button-width: 32px;
+            --button-height: 32px;
+            --padding: 0;
+            --border-radius: 4px;
+            --button-border-color: #ccc;
         }
         .popup {
             position: absolute;
@@ -60,12 +62,12 @@ export class Colour extends LitElement {
             max-width: 140px;
         }
         .preset {
-            width: 20px;
-            height: 20px;
-            border-radius: 3px;
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            cursor: pointer;
-            padding: 0;
+            display: block;
+            --button-width: 20px;
+            --button-height: 20px;
+            --padding: 0;
+            --border-radius: 3px;
+            --button-border-color: rgba(0, 0, 0, 0.15);
         }
     `;
 
@@ -148,12 +150,12 @@ export class Colour extends LitElement {
     render() {
         const hex = this.toHex(this.value);
         return html`
-            <button type="button" class="swatch" style="background:${this.value}" @click=${() => this.open = !this.open} aria-label="Choose colour"></button>
+            <juel-button type="plain" class="swatch" style="--background-color: ${this.value}; --hover-background-color: ${this.value}" @click=${() => this.open = !this.open} button-label="Choose colour"></juel-button>
             <div class="popup" ?open=${this.open}>
                 <input type="color" .value=${hex} @input=${this.handleColorInput} />
                 <input type="text" .value=${hex} @change=${this.handleHexInput} />
                 <div class="swatches">
-                    ${this.presets.map(p => html`<button type="button" class="preset" style="background:${p}" @click=${() => this.setValue(p)} aria-label="${p}"></button>`)}
+                    ${this.presets.map(p => html`<juel-button type="plain" class="preset" style="--background-color: ${p}; --hover-background-color: ${p}" @click=${() => this.setValue(p)} button-label="${p}" title="${p}"></juel-button>`)}
                 </div>
             </div>
         `;

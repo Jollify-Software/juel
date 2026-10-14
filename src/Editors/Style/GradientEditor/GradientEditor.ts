@@ -2,6 +2,7 @@ import { css, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { StylePropertyEditorBase } from '../StylePropertyEditorBase';
 import { GradientEditorEvents } from './GradientEditorEvents';
+import '../../../Buttons/Button/Button';
 import {
   ColorStop,
   GradientKind,
@@ -76,33 +77,25 @@ export class JuelGradientEditor extends StylePropertyEditorBase {
         align-items: center;
         flex-wrap: wrap;
       }
+      /* Buttons are juel-buttons: the layer swatches plain (filled with the layer), the rest light. */
       .layer-swatch {
-        width: 30px;
-        height: 22px;
-        border: 1px solid var(--_border);
-        border-radius: 4px;
-        padding: 0;
-        cursor: pointer;
-        background-color: #fff;
+        --button-width: 30px;
+        --button-height: 22px;
+        --padding: 0;
+        --border-radius: 4px;
+        --button-border-color: var(--_border);
       }
       .layer-swatch[data-active] {
+        --button-border-color: var(--primary, #4f46e5);
         outline: 2px solid var(--primary, #4f46e5);
         outline-offset: 1px;
+        border-radius: 4px;
       }
       .mini {
-        width: 1.5rem;
-        height: 1.5rem;
-        padding: 0;
-        font-size: 0.85rem;
-        line-height: 1;
-        border: 1px solid var(--_border);
-        border-radius: 4px;
-        background: var(--surface, #fff);
-        cursor: pointer;
-      }
-      .mini:disabled {
-        opacity: 0.4;
-        cursor: default;
+        --button-width: 1.5rem;
+        --button-height: 1.5rem;
+        --padding: 0;
+        --font-size: 0.85rem;
       }
       .bar-wrap {
         position: relative;
@@ -143,19 +136,8 @@ export class JuelGradientEditor extends StylePropertyEditorBase {
         z-index: 2;
       }
       .type-btn {
-        flex: 1;
-        padding: 0.25rem 0;
-        font-size: 0.8125rem;
-        border: 1px solid var(--_border);
-        background: var(--surface, #fff);
-        cursor: pointer;
-      }
-      .type-btn:first-of-type { border-radius: 4px 0 0 4px; }
-      .type-btn:last-of-type { border-radius: 0 4px 4px 0; }
-      .type-btn + .type-btn { border-left: none; }
-      .type-btn[data-active] {
-        background: var(--primary, #4f46e5);
-        color: #fff;
+        --padding: 0.2rem 0.6rem;
+        --font-size: 0.8125rem;
       }
       input[type='number'], input[type='text'], select {
         font: inherit;
@@ -173,14 +155,11 @@ export class JuelGradientEditor extends StylePropertyEditorBase {
         grid-template-columns: repeat(3, 1.4rem);
         gap: 2px;
       }
-      .anchors button {
-        width: 1.4rem;
-        height: 1.4rem;
-        padding: 0;
-        border: 1px solid var(--_border);
-        background: var(--surface, #fff);
-        cursor: pointer;
-        font-size: 0.75rem;
+      .anchors juel-button {
+        --button-width: 1.4rem;
+        --button-height: 1.4rem;
+        --padding: 0;
+        --font-size: 0.75rem;
       }
       .lbl { font-size: 0.75rem; opacity: 0.7; }
       .grow { flex: 1; }
@@ -517,20 +496,22 @@ export class JuelGradientEditor extends StylePropertyEditorBase {
     return html`
       <div class="layers">
         ${this.model.layers.map(
-          (l, i) => html`<button
+          (l, i) => html`<juel-button
+            type="plain"
             class="layer-swatch"
             ?data-active=${i === this.activeLayer}
-            style="background-image:${l.type === 'solid' ? 'none' : layerToString(l)};background-color:${l.type === 'solid' ? l.color : 'transparent'}"
+            style="--button-background-image:${l.type === 'solid' ? 'none' : layerToString(l)};--background-color:${l.type === 'solid' ? l.color : '#fff'};--hover-background-color:${l.type === 'solid' ? l.color : '#fff'}"
             title="Layer ${i + 1}"
+            button-label="Layer ${i + 1}"
             @click=${() => this.selectLayer(i)}
-          ></button>`
+          ></juel-button>`
         )}
-        <button class="mini" title="Move layer up" ?disabled=${this.activeLayer <= 0} @click=${() => this.moveLayer(-1)}>▲</button>
-        <button class="mini" title="Move layer down" ?disabled=${this.activeLayer >= this.model.layers.length - 1} @click=${() => this.moveLayer(1)}>▼</button>
-        <button class="mini" title="Remove layer" ?disabled=${this.model.layers.length < 2} @click=${() => this.removeLayer()}>✕</button>
+        <juel-button type="light" class="mini" title="Move layer up" ?disabled=${this.activeLayer <= 0} @click=${() => this.moveLayer(-1)}>▲</juel-button>
+        <juel-button type="light" class="mini" title="Move layer down" ?disabled=${this.activeLayer >= this.model.layers.length - 1} @click=${() => this.moveLayer(1)}>▼</juel-button>
+        <juel-button type="light" class="mini" title="Remove layer" ?disabled=${this.model.layers.length < 2} @click=${() => this.removeLayer()}>✕</juel-button>
         <span class="grow"></span>
-        <button class="mini" style="width:auto;padding:0 .35rem" title="Add gradient layer" @click=${() => this.addLayer('linear')}>＋▤</button>
-        <button class="mini" style="width:auto;padding:0 .35rem" title="Add solid layer" @click=${() => this.addLayer('solid')}>＋■</button>
+        <juel-button type="light" class="mini" style="--button-width:auto;--padding:0 .35rem" title="Add gradient layer" @click=${() => this.addLayer('linear')}>＋▤</juel-button>
+        <juel-button type="light" class="mini" style="--button-width:auto;--padding:0 .35rem" title="Add solid layer" @click=${() => this.addLayer('solid')}>＋■</juel-button>
       </div>
     `;
   }
@@ -574,7 +555,7 @@ export class JuelGradientEditor extends StylePropertyEditorBase {
           @change=${(e: Event) => this.onStopPos(e)}
         />
         <span class="lbl">${this.stopUnit()}</span>
-        <button class="mini" style="width:auto;padding:0 .4rem" ?disabled=${stopsOnly < 3} @click=${() => this.deleteStop()}>Delete</button>
+        <juel-button type="light" class="mini" style="--button-width:auto;--padding:0 .4rem" ?disabled=${stopsOnly < 3} @click=${() => this.deleteStop()}>Delete</juel-button>
       </div>
     `;
   }
@@ -583,11 +564,12 @@ export class JuelGradientEditor extends StylePropertyEditorBase {
     const anchorGrid = (cur: string | undefined, set: (v: string) => void) => html`
       <div class="anchors">
         ${ANCHORS.map(
-          ([v, glyph]) => html`<button
+          ([v, glyph]) => html`<juel-button
+            type=${cur === v ? 'primary' : 'light'}
             title=${v}
-            style=${cur === v ? 'outline:2px solid var(--primary,#4f46e5)' : ''}
+            button-label=${v}
             @click=${() => set(v)}
-          >${glyph}</button>`
+          >${glyph}</juel-button>`
         )}
       </div>
     `;
@@ -619,8 +601,8 @@ export class JuelGradientEditor extends StylePropertyEditorBase {
       return html`
         <div class="row">
           <span class="lbl">Shape</span>
-          <button class="type-btn" ?data-active=${(g.shape ?? 'ellipse') === 'ellipse'} @click=${() => this.setField('shape', 'ellipse')}>ellipse</button>
-          <button class="type-btn" ?data-active=${g.shape === 'circle'} @click=${() => this.setField('shape', 'circle')}>circle</button>
+          <juel-button class="type-btn" type=${(g.shape ?? 'ellipse') === 'ellipse' ? 'primary' : 'light'} @click=${() => this.setField('shape', 'ellipse')}>ellipse</juel-button>
+          <juel-button class="type-btn" type=${g.shape === 'circle' ? 'primary' : 'light'} @click=${() => this.setField('shape', 'circle')}>circle</juel-button>
         </div>
         <div class="row">
           <span class="lbl">Size</span>
@@ -679,9 +661,9 @@ export class JuelGradientEditor extends StylePropertyEditorBase {
         : g
           ? html`
               <div class="row">
-                <button class="type-btn" ?data-active=${g.kind === 'linear'} @click=${() => this.setKind('linear')}>Linear</button>
-                <button class="type-btn" ?data-active=${g.kind === 'radial'} @click=${() => this.setKind('radial')}>Radial</button>
-                <button class="type-btn" ?data-active=${g.kind === 'conic'} @click=${() => this.setKind('conic')}>Conic</button>
+                <juel-button class="type-btn" type=${g.kind === 'linear' ? 'primary' : 'light'} @click=${() => this.setKind('linear')}>Linear</juel-button>
+                <juel-button class="type-btn" type=${g.kind === 'radial' ? 'primary' : 'light'} @click=${() => this.setKind('radial')}>Radial</juel-button>
+                <juel-button class="type-btn" type=${g.kind === 'conic' ? 'primary' : 'light'} @click=${() => this.setKind('conic')}>Conic</juel-button>
                 <label class="lbl" style="display:flex;align-items:center;gap:.2rem;margin-left:.4rem">
                   <input type="checkbox" .checked=${g.repeating} @change=${() => this.toggleRepeating()} /> repeat
                 </label>

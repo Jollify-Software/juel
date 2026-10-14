@@ -28,7 +28,43 @@ button {
     user-select: none;
     padding: var(--padding, .375rem .75rem);
     font-size: var(--font-size, 1rem);
+    // A fixed size, for a swatch or an icon-only button.
+    width: var(--button-width, auto);
+    height: var(--button-height, auto);
+    justify-content: center;
 }
+// type="plain": a tool or window button (juel-mdi's, juel-tabs' close,
+// juel-modal's close…): no fill or border, the text colour around it, a
+// faint hover. The same --background-color / --hover-background-color /
+// --color variables as the coloured types.
+button.plain {
+    background-color: var(--background-color, transparent);
+    background-image: var(--button-background-image, none);
+    box-shadow: var(--button-box-shadow, none);
+    color: var(--color, inherit);
+    border: 1px solid var(--button-border-color, transparent);
+    border-radius: var(--border-radius, 4px);
+}
+button.plain:hover {
+    background-color: var(--hover-background-color, rgba(0, 0, 0, 0.08));
+    color: var(--hover-color, var(--color, inherit));
+}
+button.plain:focus-visible {
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: 1px;
+}
+// A glyph (mask icon) sized by --icon-size; beside a label it keeps apart.
+button .icon {
+    width: var(--button-icon-size, 16px);
+    height: var(--button-icon-size, 16px);
+    flex: none;
+    mask-size: var(--button-glyph-size, contain);
+    -webkit-mask-size: var(--button-glyph-size, contain);
+}
+button .icon.labelled {
+    margin-right: 0.5rem;
+}
+
 // A disabled button takes no pointer events at all, so a click can't reach
 // the host (where apps usually listen) through its padding either.
 :host([disabled]) {

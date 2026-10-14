@@ -5,6 +5,7 @@ import bind from "bind-decorator";
 import { JuelHttpComponent } from "../../_Base/JuelHttpComponent";
 import { Dispatch } from "../../_Core/DispatchFunction";
 import { UploadEvents } from "./UploadEvents";
+import "../../Buttons/Button/Button";
 
 @customElement("juel-upload")
 export class JuelUpload extends JuelHttpComponent {
@@ -128,7 +129,7 @@ export class JuelUpload extends JuelHttpComponent {
                 : this.trigger
                     ? html`<slot></slot>`
                     : html`<div id="browse" @click="${this.browse}"><slot>
-            <button type="button">${this.label}</button>
+            <juel-button type="light" label="${this.label}"></juel-button>
         </slot></div>`}</div>`;
     }
 

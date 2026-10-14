@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import '../../Buttons/Button/Button';
 
 @customElement('juel-select')
 export class JuelSelect extends LitElement {
@@ -83,16 +84,8 @@ export class JuelSelect extends LitElement {
     }
 
     .clear-button {
-      padding: var(--select-padding, 5px 7px);
-      font: inherit;
-      background-color: #f5f5f5;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .clear-button:hover {
-      background-color: #e0e0e0;
+      --padding: var(--select-padding, 5px 7px);
+      --font-size: inherit;
     }
   `;
 
@@ -215,7 +208,7 @@ export class JuelSelect extends LitElement {
             ? this.renderOptionsList(data)
             : html`<option disabled>No matches found</option>`}
         </select>
-        ${this.clearable ? html`<button type="button" class="clear-button" part="clear" @click="${this.handleClear}">Clear</button>` : ''}
+        ${this.clearable ? html`<juel-button type="light" class="clear-button" part="clear" label="Clear" @click="${this.handleClear}"></juel-button>` : ''}
       </div>
     `;
   }

@@ -51,9 +51,8 @@ export class JuelButton extends InputBase {
 
     protected renderInput(): unknown {
         let iconStyle = this.getIconStyle();
-        iconStyle["margin-right"] = "0.5rem";
         let klass = this.getInputClass();
         return html`<button ${ref(this.input)} type="${this.submit ? "submit" : "button"}" part="button" class="${klass}"
-                ?disabled=${this.disabled} aria-label=${ifDefined(this.buttonLabel || undefined)} @click="${this.onClick}"><slot>${when(this.glyph, () => html`<div class="icon sm" style="${styleMap(iconStyle)}"></div>`)}${this.label}</slot></button>`;
+                ?disabled=${this.disabled} aria-label=${ifDefined(this.buttonLabel || undefined)} @click="${this.onClick}"><slot>${when(this.glyph, () => html`<div class="icon sm ${this.label ? 'labelled' : ''}" style="${styleMap(iconStyle)}"></div>`)}${this.label}</slot></button>`;
     }
 }
