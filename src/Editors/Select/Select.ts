@@ -128,6 +128,12 @@ export class JuelSelect extends LitElement {
     }));
   }
 
+  // New data (a select reused for another list): the options follow it,
+  // through the search in force.
+  protected willUpdate(changed: Map<PropertyKey, unknown>) {
+    if (changed.has('data') && this.isConnected) this.filterData();
+  }
+
   // Set the select's value after its options have rendered: bound in the
   // template it would be applied before the options exist, and an option's
   // `selected` attribute stops counting once the user has picked one.
