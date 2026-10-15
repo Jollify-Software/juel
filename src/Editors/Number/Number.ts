@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators';
 
 @customElement('juel-number')
@@ -10,8 +10,9 @@ export class JuelNumber extends LitElement {
       font-family: Arial, sans-serif;
     }
     label {
-      margin-right: 8px;
-      font-weight: bold;
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.85em;
     }
     input[type="number"] {
       padding: 4px;
@@ -31,6 +32,11 @@ export class JuelNumber extends LitElement {
    */
   @property({ type: Number })
   value: number = 0;
+
+  /** The input's bounds and step, as on `<input type="number">`. */
+  @property({ type: Number }) min?: number;
+  @property({ type: Number }) max?: number;
+  @property({ type: Number }) step?: number;
 
   private handleInput(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
@@ -52,6 +58,9 @@ export class JuelNumber extends LitElement {
           id="number-input"
           type="number"
           .value=${String(this.value)}
+          min=${this.min ?? nothing}
+          max=${this.max ?? nothing}
+          step=${this.step ?? nothing}
           @input=${this.handleInput}
         />
       </div>

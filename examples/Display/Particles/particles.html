@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Particles — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .stage {
+            position: relative;
+            height: 220px;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font: 600 22px/1.2 system-ui, sans-serif;
+        }
+        .night { background: linear-gradient(#0d1b2a, #415a77); }
+        .storm { background: linear-gradient(#2b2d42, #5c677d); }
+        .spring { background: linear-gradient(#b8e0d2, #eac4d5); color: #3b2a33; }
+        .sky { background: linear-gradient(#89c2d9, #e9f5db); color: #2b2d42; }
+        .party { background: #222; }
+        .sea { background: linear-gradient(#468faf, #013a63); }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Particles</h1>
+        <p>
+            <code>&lt;juel-particles&gt;</code> fills its nearest positioned ancestor with
+            falling or drifting particles: <code>preset</code> <code>snow</code> (default),
+            <code>rain</code>, <code>petals</code>, <code>feathers</code>, <code>confetti</code>
+            or <code>bubbles</code>, or your own <code>image</code>. <code>emitter</code> is an
+            edge (<code>top</code>, <code>bottom</code>, <code>left</code>, <code>right</code>)
+            or a <code>point</code> at <code>x</code>/<code>y</code> percent; <code>direction</code>
+            (<code>down</code>, or degrees with 0 up and 90 right), <code>spread</code>,
+            <code>speed</code>, <code>size</code>, <code>density</code> and <code>wind</code>
+            (-1 to 1) adjust the preset. <code>pause()</code> and <code>play()</code> stop and
+            start it.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Snow</h2>
+        <div class="example-demo"><div class="stage night">Snow<juel-particles></juel-particles></div></div>
+    </section>
+
+    <section class="example-section">
+        <h2>Rain, blown left</h2>
+        <div class="example-demo"><div class="stage storm">Rain<juel-particles preset="rain" wind="-0.4"></juel-particles></div></div>
+    </section>
+
+    <section class="example-section">
+        <h2>Petals in the wind, from the left edge</h2>
+        <div class="example-demo"><div class="stage spring">Petals<juel-particles preset="petals" emitter="left" direction="120" wind="0.3" density="2"></juel-particles></div></div>
+    </section>
+
+    <section class="example-section">
+        <h2>Feathers</h2>
+        <div class="example-demo"><div class="stage sky">Feathers<juel-particles preset="feathers" wind="0.2"></juel-particles></div></div>
+    </section>
+
+    <section class="example-section">
+        <h2>Confetti from a point</h2>
+        <div class="example-demo"><div class="stage party">Confetti<juel-particles preset="confetti" emitter="point" x="50" y="100" direction="up" spread="35" speed="2.5"></juel-particles></div></div>
+    </section>
+
+    <section class="example-section">
+        <h2>Bubbles, behind the text</h2>
+        <p><code>layer="behind"</code> (the container needs <code>isolation: isolate</code>).</p>
+        <div class="example-demo"><div class="stage sea" style="isolation: isolate">Bubbles<juel-particles preset="bubbles" layer="behind"></juel-particles></div></div>
+    </section>
+</body>
+
+</html>

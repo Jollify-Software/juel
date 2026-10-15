@@ -9,3 +9,4 @@ import './Media/Media';
 import './Parallax/Parallax';
 import './Card/Card';
 import './Frame/Frame';
+import './Particles/Particles';
