@@ -4,10 +4,6 @@ import { InputBase } from "../_Base/InputBase";
 import { RenderStyles } from "../_Core/RenderStyles";
 import { ButtonTemplate } from "./ButtonTemplate";
 import { InputTypes } from "./InputTypes";
-import { MemoTemplate } from "./MemoTemplate";
-import { RangeTemplate } from "./RangeTemplate";
-import { TextTemplate } from "./TextTemplate";
-import { TickboxTemplate } from "./TickboxTemplate";
 
 
 export function InputGroupTemplate(el: InputBase, type: InputTypes) {
@@ -51,17 +47,6 @@ export function InputGroupTemplate(el: InputBase, type: InputTypes) {
         case InputTypes.Button:
             inputTemplate = ButtonTemplate;
             break;
-        case InputTypes.Text:
-            inputTemplate = TextTemplate;
-            break;
-        case InputTypes.Range:
-            inputTemplate = RangeTemplate
-            break;
-        case InputTypes.Tickbox:
-            inputTemplate = TickboxTemplate
-            break;
-        case InputTypes.Memo:
-            inputTemplate = MemoTemplate;
         default:
             break;
     }
