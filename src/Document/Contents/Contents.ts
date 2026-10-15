@@ -1,5 +1,5 @@
 import bind from "bind-decorator";
-import { html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement, nothing, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators";
 import { NextUntil } from "../../_Utils/NextUntil";
 import { ContentsItem } from "./ContentsItem";
@@ -16,10 +16,37 @@ export class JuelContents extends LitElement {
 
     @property() link: string;
     @property({ type: Number }) level: number = 6;
+    /**
+     * Where page numbers come from. "data" (default): a heading's
+     * `section[data-page]`, set by a paginator before the contents are built.
+     * "css": the contents are built BEFORE pagination, so every entry gets the
+     * dotted leader and the number is left to print CSS, e.g.
+     * `juel-contents a[part="link"]::after { content: target-counter(attr(href), page) }`
+     * (Paged.js / Logbook).
+     */
+    @property({ attribute: "page-numbers" }) pageNumbers: "data" | "css" = "data";
+    /**
+     * The `frozen` attribute: keep the list already built and never rebuild
+     * it. A paginator that copies the element into pages (Paged.js clones
+     * nodes) sets it first: each copy is a new instance, and without it would
+     * build and render a second list beside the copied one.
+     *
+     * Deliberately NOT a reactive property: setting it on the original would
+     * re-render that element with nothing and erase its list. Only a copy,
+     * which starts life with the attribute, reads it (on its first render).
+     */
+    get frozen(): boolean {
+        return this.hasAttribute("frozen");
+    }
+
+    /** Resolves once the list is built and rendered (immediately if frozen). */
+    contentsReady: Promise<void>;
+    private resolveContentsReady: () => void;
 
     constructor() {
         super();
         this.link = "false";
+        this.contentsReady = new Promise(resolve => this.resolveContentsReady = resolve);
     }
 
     @state()
@@ -110,16 +137,23 @@ export class JuelContents extends LitElement {
     }
 
     firstUpdated() {
-        let promise = ('reportReady' in window) ? window['reportReady'] : DomReady();
-        Promise.resolve(promise).then(() => {
-            console.log("Contents ready", 'reportReady' in window);
+        if (this.frozen) {
+            this.resolveContentsReady();
+            return;
+        }
+        // In "css" mode the contents must exist before pagination, so don't wait for a paginator.
+        let promise = (this.pageNumbers != "css" && 'reportReady' in window) ? window['reportReady'] : DomReady();
+        Promise.resolve(promise).then(async () => {
             if (this.link == "true") {
                 let div = document.createElement("div");
                 div.className = "hidden";
                 div.append(IconsModule.get("link"));
                 this.prepend(div);
             }
-             this.populateContents();
+            this.populateContents();
+            await this.updateComplete;
+            this.resolveContentsReady();
+            this.dispatchEvent(new CustomEvent("contents-ready", { bubbles: true, composed: true }));
         });
     }
 
@@ -127,7 +161,9 @@ export class JuelContents extends LitElement {
     renderContentsItem(item: ContentsItem) {
         return html`<li part="list-item">
             <a part="link" href="#${item.id}">${
-                when(!item.page, () => item.title, () => html`<span>${item.title}</span><hr/><span>${item.page}</span>`)
+                when(this.pageNumbers == "css",
+                    () => html`<span>${item.title}</span><hr/>`,
+                    () => when(!item.page, () => item.title, () => html`<span>${item.title}</span><hr/><span>${item.page}</span>`))
             }</a>
             ${item.children ?
                 html`<ul>
@@ -138,6 +174,8 @@ export class JuelContents extends LitElement {
     }
 
     render() {
+        // A frozen copy already holds its list (light DOM); render nothing beside it.
+        if (this.frozen) return nothing;
         return html`
             <style>${Style}</style>
             <ul id="toc">
