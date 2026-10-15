@@ -1,0 +1,29 @@
+name: build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # `npm run build` uses cmd's `del`; call Parcel directly instead.
+      - name: Build
+        run: npx parcel build juel.ts
+
+      - name: Check the bundle exists
+        run: test -s dist/juel.js
