@@ -1,9 +1,41 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css, PropertyValues } from 'lit-element';
 import { customElement, property } from 'lit/decorators';
+import { autoUpdate, computePosition, flip, offset, shift, Placement, VirtualElement } from '@floating-ui/dom';
 
+/** A box in the window's px, as `getBoundingClientRect()` gives. */
+export interface AnchorRect { x: number; y: number; width: number; height: number; }
+
+/** What an anchored toolbar floats by. */
+export type ToolbarAnchor = string | Element | AnchorRect | (() => AnchorRect | null);
+
+/**
+ * `<juel-toolbar>`: a row (or column) of controls.
+ *
+ * Anchored, it floats by something instead: a formatting bar over selected
+ * text, tools by a picked element.
+ * - `anchor`: what it floats by. An element, an element's id (attribute), or
+ *   a rect in the window's px (property) for things that aren't elements of
+ *   this page, or a function giving that rect, read afresh each time it is
+ *   placed so it follows scrolling and resizing (text in an iframe: see
+ *   `juel-frame`'s `toViewportRect`).
+ * - `placement` (default `top`): the side it prefers; it flips to the other
+ *   side when there's no room, and shifts along to stay in view. The side it
+ *   ended up on is `data-placement`.
+ * - `anchor-offset` (default 8): the gap between it and the anchor, in px.
+ * - `boundary`: a selector for the ancestor it keeps inside (its nearest
+ *   match); otherwise its clipping ancestors.
+ * - `keep-selection`: pressing it doesn't take focus or the text selection
+ *   away from what it formats.
+ * It positions itself absolutely, against its offset parent.
+ */
 @customElement('juel-toolbar')
 export class JuelToolbar extends LitElement {
   @property({ type: String, reflect: true }) direction: 'horizontal' | 'vertical' = 'horizontal';
+  @property({ attribute: 'anchor' }) anchor: ToolbarAnchor | null = null;
+  @property({ type: String }) placement: Placement = 'top';
+  @property({ type: Number, attribute: 'anchor-offset' }) anchorOffset = 8;
+  @property({ type: String }) boundary: string | null = null;
+  @property({ type: Boolean, attribute: 'keep-selection' }) keepSelection = false;
 
   static styles = css`
     :host {
@@ -12,6 +44,23 @@ export class JuelToolbar extends LitElement {
       background-color: var(--toolbar-background-color, #ffffff);
       color: var(--toolbar-color, #000000);
       padding: var(--toolbar-padding, 0.5rem 1rem);
+    }
+
+    :host([hidden]) {
+      display: none;
+    }
+
+    :host([anchored]) {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: max-content;
+      z-index: var(--toolbar-z-index, 10);
+    }
+
+    /* Until it has been placed, so it never shows in the corner first. */
+    :host([anchored]:not([data-placement])) {
+      visibility: hidden;
     }
 
     .toolbar {
@@ -26,6 +75,10 @@ export class JuelToolbar extends LitElement {
          room to grow into — this matters most for direction="vertical". */
       height: 100%;
       box-sizing: border-box;
+    }
+
+    :host([anchored]) .toolbar {
+      flex-wrap: nowrap;
     }
 
     :host([direction="vertical"]) .toolbar {
@@ -43,11 +96,96 @@ export class JuelToolbar extends LitElement {
     }
   `;
 
+  /** What floating-ui positions against: reads `anchor` afresh each time. */
+  private reference: VirtualElement = {
+    getBoundingClientRect: () => {
+      const anchor = this.resolveAnchor();
+      if (anchor instanceof Element) return anchor.getBoundingClientRect();
+      const r = anchor ?? { x: 0, y: 0, width: 0, height: 0 };
+      return new DOMRect(r.x, r.y, r.width, r.height);
+    },
+  };
+  /** The element `autoUpdate` watches (null for a rect: its owner re-sets it as it moves). */
+  private watched: Element | null | undefined;
+  private stopAutoUpdate: (() => void) | null = null;
+
+  private onMouseDown = (e: MouseEvent) => {
+    if (this.keepSelection) e.preventDefault();
+  };
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.addEventListener('mousedown', this.onMouseDown);
+    if (this.anchor) this.requestUpdate('anchor');
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeEventListener('mousedown', this.onMouseDown);
+    this.unanchor();
+  }
+
+  updated(changed: PropertyValues) {
+    if (!['anchor', 'placement', 'anchorOffset', 'boundary'].some(p => changed.has(p))) return;
+    const anchor = this.resolveAnchor();
+    if (!anchor) {
+      this.unanchor();
+      return;
+    }
+    this.toggleAttribute('anchored', true);
+    // A new rect just moves it; a new element (or the first anchor) also
+    // changes what to follow as the page scrolls and resizes.
+    const element = anchor instanceof Element ? anchor : null;
+    if (!this.stopAutoUpdate || element !== this.watched) {
+      this.stopAutoUpdate?.();
+      this.watched = element;
+      const reference = element ? { getBoundingClientRect: this.reference.getBoundingClientRect, contextElement: element } : this.reference;
+      this.stopAutoUpdate = autoUpdate(reference, this, () => this.reposition());
+    } else {
+      this.reposition();
+    }
+  }
+
+  /** Places it by its anchor again (it does so itself as things move and resize). */
+  async reposition() {
+    if (!this.stopAutoUpdate) return;
+    const boundaryElement = this.boundary ? this.parentElement?.closest(this.boundary) : null;
+    const boundary = boundaryElement ?? 'clippingAncestors';
+    const { x, y, placement } = await computePosition(this.reference, this, {
+      strategy: 'absolute',
+      placement: this.placement,
+      middleware: [offset(this.anchorOffset), flip({ boundary, padding: 4 }), shift({ boundary, padding: 4 })],
+    });
+    if (!this.stopAutoUpdate) return;
+    this.style.left = `${x}px`;
+    this.style.top = `${y}px`;
+    this.dataset.placement = placement;
+  }
+
   render() {
     return html`
       <div class="toolbar" role="toolbar" aria-orientation="${this.direction}">
         <slot></slot>
       </div>
     `;
+  }
+
+  private resolveAnchor(): Element | AnchorRect | null {
+    const anchor = this.anchor;
+    if (!anchor) return null;
+    if (typeof anchor === 'function') return anchor();
+    if (typeof anchor !== 'string') return anchor;
+    const root = this.getRootNode() as Document | ShadowRoot;
+    return root.getElementById?.(anchor) ?? document.getElementById(anchor);
+  }
+
+  private unanchor() {
+    this.stopAutoUpdate?.();
+    this.stopAutoUpdate = null;
+    this.watched = undefined;
+    if (!this.hasAttribute('anchored')) return;
+    this.removeAttribute('anchored');
+    delete this.dataset.placement;
+    this.style.left = this.style.top = '';
   }
 }

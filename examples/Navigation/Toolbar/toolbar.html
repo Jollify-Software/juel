@@ -96,6 +96,48 @@
             </juel-toolbar>
         </div>
     </section>
+
+    <section class="example-section">
+        <h2>Anchored: a formatting bar over selected text</h2>
+        <p>
+            With <code>anchor</code>, the toolbar floats by something: an element (or its id), a rect
+            in the window's px, or a function giving one. It sits on its <code>placement</code> side
+            (default <code>top</code>), flips when there's no room, and stays inside
+            <code>boundary</code>. <code>keep-selection</code> stops a press on it clearing the
+            selection it formats. Select some of the text below.
+        </p>
+        <div class="example-demo" id="anchored-demo" style="position: relative; padding: 3rem 1rem;">
+            <p id="anchored-text" contenteditable="true" style="margin: 0;">
+                Select a few words of this paragraph and a bar appears over them: Bold, Italic and
+                Underline act on the selection without losing it.
+            </p>
+            <juel-toolbar id="anchored-bar" class="toolbar-demo" keep-selection boundary="#anchored-demo" hidden
+                style="--toolbar-padding: 0.25rem; --toolbar-gap: 0.25rem;">
+                <button data-command="bold"><b>B</b></button>
+                <button data-command="italic"><i>I</i></button>
+                <button data-command="underline"><u>U</u></button>
+            </juel-toolbar>
+        </div>
+        <script>
+            (() => {
+                const text = document.getElementById('anchored-text');
+                const bar = document.getElementById('anchored-bar');
+                const range = () => {
+                    const selection = document.getSelection();
+                    const r = selection && selection.rangeCount ? selection.getRangeAt(0) : null;
+                    return r && !r.collapsed && text.contains(r.commonAncestorContainer) ? r : null;
+                };
+                document.addEventListener('selectionchange', () => {
+                    bar.hidden = !range();
+                    bar.anchor = bar.hidden ? null : () => range()?.getBoundingClientRect() ?? null;
+                });
+                bar.addEventListener('click', e => {
+                    const command = e.target.closest('[data-command]')?.dataset.command;
+                    if (command) document.execCommand(command);
+                });
+            })();
+        </script>
+    </section>
 </body>
 
 </html>

@@ -16,6 +16,7 @@ import { parseAspect } from './parseAspect';
  * - `buffered`: new content loads in a hidden second iframe and swaps in when
  *   it is ready, so a reload never flashes. Ready means the `load` event, or
  *   with `ready-type="ready"`, the first message whose `type` matches.
+ * - `toViewportRect(rect)` maps a rect in the page to the window's px.
  * - `send(data)` posts to the shown frame. Messages from either frame arrive
  *   as `frame-message` `{ data, pending, reply(data) }`; `pending` is true for
  *   the frame still loading behind, and `reply` answers the frame that sent it.
@@ -84,6 +85,18 @@ export class JuelFrame extends LitElement {
     /** Posts `data` to the frame on show. */
     send(data: unknown) {
         this.frame?.contentWindow?.postMessage(data, '*');
+    }
+
+    /**
+     * A rect in the shown page's own px (`getBoundingClientRect()` inside
+     * it) in the window's: offset by the iframe and scaled as `aspect`
+     * scales it. For anchoring things outside the frame to things in it.
+     */
+    toViewportRect(rect: { x: number, y: number, width: number, height: number }): DOMRect {
+        const frame = this.frame;
+        const box = frame.getBoundingClientRect();
+        const sx = box.width / (frame.offsetWidth || 1), sy = box.height / (frame.offsetHeight || 1);
+        return new DOMRect(box.x + rect.x * sx, box.y + rect.y * sy, rect.width * sx, rect.height * sy);
     }
 
     /** Reloads the current content. */
