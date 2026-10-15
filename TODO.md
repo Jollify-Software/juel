@@ -936,6 +936,8 @@ the legend layout, or leave?
 selector named a `breadcrumb-item` tag that has never existed (fixed to
 `juel-breadcrumb-item`). The same unprefixed-tag pattern was flagged earlier for
 `tree-*`. Worth a naming-consistency pass across the library?
+*Partly done 2026-10-15:* the tree is also `juel-tree` / `juel-tree-branch` /
+`juel-tree-leaf` (the `tree-*` tags still work).
 
 ### The gallery (not a question so much as a decision)
 

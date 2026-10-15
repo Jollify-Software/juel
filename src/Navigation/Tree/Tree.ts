@@ -9,7 +9,7 @@ import { customElement, property } from 'lit/decorators';
 function resolveTreeSelectable(el: Element, ownSelectable: boolean, isBranch: boolean): boolean {
   if (ownSelectable) return true;
   let ancestor: Element | null = el.parentElement;
-  while (ancestor && ancestor.tagName !== 'TREE-MENU') {
+  while (ancestor && ancestor.tagName !== 'TREE-MENU' && ancestor.tagName !== 'JUEL-TREE') {
     ancestor = ancestor.parentElement;
   }
   const mode = (ancestor as any)?.selectable;
@@ -33,6 +33,11 @@ export class TreeMenu extends LitElement {
 
   // Data-driven mode: the currently-selected data object, tracked directly.
   private _selectedNode: any = null;
+  // Data whose node objects were rebuilt (a new array) starts again from
+  // their own `selected` / `expanded` fields.
+  willUpdate(changed: Map<string | number | symbol, unknown>) {
+    if (changed.has('data')) this._selectedNode = null;
+  }
   // Declarative (slotted tree-branch/tree-leaf) mode: TreeMenu can't see
   // into sibling elements' state, so it coordinates single-selection itself
   // by listening for the (now bubbling) node-selected event and flipping
@@ -142,8 +147,13 @@ export class TreeMenu extends LitElement {
     target.selected = true;
   };
 
+  private expanded(node: any): boolean {
+    return node._expanded ?? !!node.expanded;
+  }
+
   private toggle(node: any) {
-    node._expanded = !node._expanded;
+    node._expanded = !this.expanded(node);
+    this.dispatchEvent(new CustomEvent('node-toggled', { detail: { node, expanded: node._expanded }, bubbles: true, composed: true }));
     this.requestUpdate();
   }
 
@@ -162,7 +172,7 @@ export class TreeMenu extends LitElement {
 
   private handleSelect(node: any, label: string) {
     this._selectedNode = node;
-    this.dispatchEvent(new CustomEvent('node-selected', { detail: { label }, bubbles: true, composed: true }));
+    this.dispatchEvent(new CustomEvent('node-selected', { detail: { label, node }, bubbles: true, composed: true }));
     this.requestUpdate();
   }
 
@@ -178,10 +188,10 @@ export class TreeMenu extends LitElement {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       this.handleActivate(node, node[this.labelField], canSelect, hasChildren);
-    } else if (e.key === 'ArrowRight' && hasChildren && !node._expanded) {
+    } else if (e.key === 'ArrowRight' && hasChildren && !this.expanded(node)) {
       e.preventDefault();
       this.toggle(node);
-    } else if (e.key === 'ArrowLeft' && hasChildren && node._expanded) {
+    } else if (e.key === 'ArrowLeft' && hasChildren && this.expanded(node)) {
       e.preventDefault();
       this.toggle(node);
     }
@@ -192,14 +202,15 @@ export class TreeMenu extends LitElement {
     const children = node[this.itemsField];
     const hasChildren = Array.isArray(children) && children.length > 0;
     const canSelect = this.isSelectable(node, hasChildren);
-    const isSelected = node === this._selectedNode;
+    const isSelected = this._selectedNode ? node === this._selectedNode : !!node.selected;
+    const expanded = this.expanded(node);
 
     return html`
-      <li role="treeitem" aria-expanded="${hasChildren ? (node._expanded ? 'true' : 'false') : nothing}" aria-selected="${canSelect ? (isSelected ? 'true' : 'false') : nothing}">
+      <li role="treeitem" aria-expanded="${hasChildren ? (expanded ? 'true' : 'false') : nothing}" aria-selected="${canSelect ? (isSelected ? 'true' : 'false') : nothing}">
         <div class="node ${canSelect || hasChildren ? 'hoverable' : ''} ${isSelected ? 'selected' : ''}">
           ${hasChildren
             ? html`<span
-                class="chevron ${node._expanded ? 'rotated' : ''}"
+                class="chevron ${expanded ? 'rotated' : ''}"
                 @click="${() => this.toggle(node)}"
               ></span>`
             : html`<span class="leaf-bullet"></span>`}
@@ -212,7 +223,7 @@ export class TreeMenu extends LitElement {
             ${label}
           </span>
         </div>
-        ${hasChildren && node._expanded
+        ${hasChildren && expanded
           ? html`<ul role="group">${children.map((child: any) => this.renderNode(child))}</ul>`
           : ''}
       </li>
@@ -427,3 +438,9 @@ export class TreeBranch extends LitElement {
     `;
   }
 }
+
+// The library's own names (Q10 in TODO.md): juel-tree, juel-tree-branch,
+// juel-tree-leaf. The unprefixed tree-* tags above keep working.
+customElements.define('juel-tree', class extends TreeMenu {});
+customElements.define('juel-tree-branch', class extends TreeBranch {});
+customElements.define('juel-tree-leaf', class extends TreeLeaf {});
