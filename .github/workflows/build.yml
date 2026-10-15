@@ -27,3 +27,10 @@ jobs:
 
       - name: Check the bundle exists
         run: test -s dist/juel.js
+
+      - name: Unit tests
+        run: npx jest
+
+      # Playwright in the runner's installed Google Chrome (channel: 'chrome').
+      - name: Browser tests
+        run: npm run test:browser
