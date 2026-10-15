@@ -8,7 +8,7 @@
 import { JuelModule } from "./_Modules/JuelModule";
 import "./_Modules/WindowModule";
 import $ from "jquery";
-import Styles from "bundle-text:./_CommonStyles/juel.less";
+import Styles from "bundle-text:./_CommonStyles/Juel.less";
 
 import { IsMobile } from './_Utils/IsMobile';
 import { Vh } from './_Utils/Vh';
