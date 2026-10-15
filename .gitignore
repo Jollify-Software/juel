@@ -3,3 +3,6 @@ node_modules
 
 dist
 !dist/juel.js
+
+test-results
+playwright-report

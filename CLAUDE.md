@@ -4,7 +4,7 @@
 
 # Architecture
 
-Juel is a Lit 3 / TypeScript web component library (custom elements prefixed `juel-`), ~69 components organized under `src/<Module>/<Component>/` across these modules: Buttons, Data, Dialog, Display, Document, Editors, Gallery, Layout, Menus, Navigation, Utilities, Visualization. Shared infrastructure lives in underscore-prefixed folders: `_Base` (component base classes — `JuelComponent`, `InputBase`, `ListBase`, `ItemBase`, `FilteredBase`/`FilteredItemBase`, `CollapsibleBase`, `CommandBase`/`CommandComponent`, `NavigationBase`), `_Core`, `_Services`, `_Templates`, `_Utils`, `_Converters`, `_Directives`, `_CommonStyles`, `_Modules`, `_Strings`.
+Juel is a Lit 3 / TypeScript web component library (custom elements prefixed `juel-`), ~69 components organized under `src/<Module>/<Component>/` across these modules: Buttons, Data, Dialog, Display, Document, Editors, Files, Gallery, Layout, Menus, Navigation, Utilities, Visualization. Shared infrastructure lives in underscore-prefixed folders: `_Base` (component base classes — `JuelComponent`, `InputBase`, `ListBase`, `ItemBase`, `FilteredBase`/`FilteredItemBase`, `CollapsibleBase`, `CommandBase`/`CommandComponent`, `NavigationBase`), `_Core`, `_Services`, `_Templates`, `_Utils`, `_Converters`, `_Directives`, `_CommonStyles`, `_Modules`, `_Strings`.
 
 Each component typically has a `Component.ts`, a `Component.less` (bundled in via Parcel's `bundle-text:` import), and often a `ComponentEvents.ts`. Modules are wired up via per-module `Import.ts` barrel files, all re-exported from the root `juel.ts` entry point (note: `Dialog` uses `Imports.ts`, plural — the one exception).
 
@@ -22,6 +22,11 @@ Each component typically has a `Component.ts`, a `Component.less` (bundled in vi
 
 Jest + ts-jest is configured but test coverage is thin (`tests/util/`, `tests/MessageBox/`). Don't assume component behavior is protected by tests — the `examples/` directory (one HTML page per component/feature) is the primary manual verification surface. Pure logic (parsers, data structures like `_Core/History/HistoryStack`) is the exception — unit-test that in `tests/`.
 
+- `npm test` runs Jest. Every file under `tests/` is a test file except `tests/__mocks__/`, `tests/shared/` (helpers shared with the browser tests), `tests/browser/` (pages for Playwright) and `tests/e2e/` (Playwright specs).
+- `npm run test:browser` builds the browser test pages (into `dist/`, git-ignored) and runs Playwright (`playwright.config.ts`) in the installed Chrome, against a static server for the repo root (`tests/e2e/server.mjs`). Started with the Files module (`src/Files/README.md`); new interactive components should add specs here.
+- CI (`.github/workflows/build.yml`) runs the build, Jest and the browser tests.
+- In a module that re-exports another (`export * from './X'`), don't also `import * as X from './X'`: Parcel's scope hoisting leaves the namespace undefined in the production bundle. Import the names.
+
 # Shared infrastructure worth knowing
 
 - **Undo / redo.** Any editor component that has discrete committed states (and optionally a
@@ -35,6 +40,9 @@ Jest + ts-jest is configured but test coverage is thin (`tests/util/`, `tests/Me
   `window.juel.shape.registerShape`. The component has four render paths (`<template>` SVG /
   geometric / icon glyph / image) and a `clip-path` hover-morph. **Read
   `src/Display/Shape/README.md` before touching the component, `ClipShapes`, or the morph code.**
+
+- **Files** (`src/Files/`): a file manager over any `IFileStorage` (memory, browser OPFS + IndexedDB, later a server).
+  **Read `src/Files/README.md` first**; the shared storage contract is `tests/shared/storageContract.ts`.
 
 # Known in-progress work / quirks
 
