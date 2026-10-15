@@ -10,6 +10,9 @@ export { BrowserFileStorage, OpfsBackend, IdbIndex, describeMedia } from './Stor
 export { readZip, writeZip, crc32, ZipError } from './Zip/Zip';
 export type { ZipEntry } from './Zip/Zip';
 export { entriesUnder, zipFolder, unzipInto, canSaveToDisk, saveToDirectory } from './Zip/Transfer';
+export { JuelFileManager } from './FileManager/FileManager';
+export type { FileCommand, FileManagerEventMap, BeforeDeleteDetail, BeforeMoveDetail } from './FileManager/FileManagerEvents';
+export { formatSize, formatDate, formatItemSize } from './FileManager/Format';
 
 import { FileStorageError } from './Storage/IFileStorage';
 import { accepts, checkPath, folderOf, join, kindOf, nameOf, normalise, parentsOf, typeOf, uniquePath, within } from './Storage/Paths';

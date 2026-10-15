@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>juel-file-manager</title>
+    <script src="../../dist/juel.js"></script>
+    <style>
+        body { margin: 0; font: 14px/1.4 system-ui, sans-serif; background: #f3f3f3; color: #242424; }
+        html[data-theme="dark"] body { background: #141414; color: #eee; }
+        header { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; padding: 0.75rem 1rem; }
+        header h1 { font-size: 1.1rem; margin: 0 auto 0 0; }
+        header label { display: inline-flex; gap: 0.35rem; align-items: center; }
+        main { display: grid; grid-template-columns: minmax(0, 1fr) 18rem; gap: 1rem; padding: 0 1rem 1rem; height: calc(100vh - 4rem); }
+        juel-file-manager { border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.12); overflow: hidden; }
+        #log { margin: 0; padding: 0.5rem; overflow: auto; font: 12px/1.5 ui-monospace, monospace; background: rgba(127,127,127,.08); border-radius: 8px; }
+        @media (max-width: 760px) { main { grid-template-columns: 1fr; grid-template-rows: 1fr 8rem; } }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>&lt;juel-file-manager&gt;</h1>
+        <label><input type="checkbox" id="browser"> Browser storage (OPFS)</label>
+        <label><input type="checkbox" id="dark"> Dark</label>
+        <label><input type="checkbox" id="readonly"> Read-only</label>
+        <label>Show <select id="accept"><option value="">everything</option><option value="image/*">pictures</option><option value=".csv,.json">data</option></select></label>
+    </header>
+    <main>
+        <juel-file-manager id="files" root-label="My files"></juel-file-manager>
+        <pre id="log" aria-label="Events"></pre>
+    </main>
+    <script type="module">
+        const { MemoryFileStorage, BrowserFileStorage } = window.juel.files;
+        const manager = document.getElementById('files');
+        const log = document.getElementById('log');
+        const note = text => { log.textContent = `${text}\n${log.textContent}`.slice(0, 4000); };
+
+        // A picture drawn on a canvas, so the samples are real images.
+        async function picture(width, height, hue, label) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            const g = canvas.getContext('2d');
+            const gradient = g.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, `hsl(${hue} 70% 60%)`);
+            gradient.addColorStop(1, `hsl(${hue + 40} 70% 35%)`);
+            g.fillStyle = gradient; g.fillRect(0, 0, width, height);
+            g.fillStyle = 'white'; g.font = `${height / 6}px system-ui`; g.fillText(label, width / 12, height / 2);
+            return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        }
+
+        let made;
+        // Made once: drawing the pictures is the slow part.
+        function samples() { return made ??= makeSamples(); }
+
+        async function makeSamples() {
+            const files = {
+                'Pictures/harbour.png': await picture(800, 500, 200, 'Harbour'),
+                'Pictures/sunset.png': await picture(640, 400, 10, 'Sunset'),
+                'Pictures/2026/conference.png': await picture(1024, 576, 260, 'Conference'),
+                'Data/sales.csv': new Blob(['region,q1,q2\nNorth,120,140\nSouth,98,110\n'], { type: 'text/csv' }),
+                'Data/quiz.json': new Blob([JSON.stringify([{ q: '2 + 2?', a: ['3', '4'], correct: 1 }], null, 2)], { type: 'application/json' }),
+                'Styles/talk.css': new Blob(['h1 { color: teal; }\n'], { type: 'text/css' }),
+                'notes.md': new Blob(['# Notes\n\nThings to do.\n'], { type: 'text/markdown' }),
+                'logo.png': await picture(256, 256, 140, 'Logo'),
+            };
+            for (let i = 1; i <= 12; i++) files[`Data/archive/report ${i}.txt`] = new Blob([`Report ${i}`], { type: 'text/plain' });
+            return files;
+        }
+
+        async function memory() {
+            return new MemoryFileStorage({ files: await samples(), folders: ['Video', 'Empty folder'] });
+        }
+
+        async function browser() {
+            const storage = await BrowserFileStorage.open({ folder: 'juel-example-files', database: 'juel-example-files' });
+            if (!(await storage.list('')).items.length) {
+                for (const [path, data] of Object.entries(await samples())) await storage.write(path, data);
+            }
+            return storage;
+        }
+
+        // Hook points a page (the Jollify app) uses.
+        manager.commands = [{
+            id: 'insert', label: 'Insert', icon: 'insert',
+            when: records => records.length === 1 && records[0].kind === 'file',
+            run: ([record]) => note(`Insert ${record.path}`),
+        }];
+        manager.addEventListener('file-before-delete', e => {
+            const used = e.detail.records.filter(r => r.name === 'logo.png');
+            if (used.length) e.detail.notes.push('logo.png is used by 3 decks.');
+        });
+        for (const name of ['path-changed', 'selection-changed', 'file-open', 'file-moved', 'file-deleted', 'file-added', 'file-error']) {
+            manager.addEventListener(name, e => {
+                const d = e.detail;
+                note(`${name} ${JSON.stringify(d.records ? { ...d, records: d.records.map(r => r.path) } : d.record ? d.record.path : d.error ? d.message : d)}`);
+            });
+        }
+        manager.addEventListener('file-open', e => {
+            // The default downloads the file; the example logs it instead.
+            e.preventDefault();
+        });
+
+        const choose = async () => {
+            const kind = document.getElementById('browser').checked ? 'browser' : 'memory';
+            manager.storage = kind === 'browser' ? await browser() : await memory();
+            manager.path = '';
+            await manager.updateComplete;
+            await manager.loaded;
+            manager.dataset.storage = kind; // for the tests: which storage is on show
+        };
+        document.getElementById('browser').addEventListener('change', choose);
+        document.getElementById('dark').addEventListener('change', e => document.documentElement.setAttribute('data-theme', e.target.checked ? 'dark' : 'light'));
+        document.getElementById('readonly').addEventListener('change', e => { manager.readonly = e.target.checked; });
+        document.getElementById('accept').addEventListener('change', e => { manager.accept = e.target.value; });
+        document.getElementById('dark').checked = document.documentElement.getAttribute('data-theme') === 'dark';
+        await choose();
+        window.exampleReady = true;
+    </script>
+</body>
+</html>
