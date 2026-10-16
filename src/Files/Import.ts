@@ -11,21 +11,28 @@ export { readZip, writeZip, crc32, ZipError } from './Zip/Zip';
 export type { ZipEntry } from './Zip/Zip';
 export { entriesUnder, zipFolder, unzipInto, canSaveToDisk, saveToDirectory } from './Zip/Transfer';
 export { JuelFileManager } from './FileManager/FileManager';
+export type { FileView } from './FileManager/FileManager';
+export { JuelFileViewer } from './FileManager/FileViewer';
+export { JuelFilePicker } from './FileManager/FilePicker';
+export type { FilePickerOptions } from './FileManager/FilePicker';
 export type { FileCommand, FileManagerEventMap, BeforeDeleteDetail, BeforeMoveDetail } from './FileManager/FileManagerEvents';
 export { formatSize, formatDate, formatItemSize } from './FileManager/Format';
 
 import { FileStorageError } from './Storage/IFileStorage';
 import { accepts, checkPath, folderOf, join, kindOf, nameOf, normalise, parentsOf, typeOf, uniquePath, within } from './Storage/Paths';
 import { MemoryFileStorage } from './Storage/MemoryFileStorage';
-import { BrowserFileStorage } from './Storage/BrowserFileStorage';
+import { BrowserFileStorage, describeMedia } from './Storage/BrowserFileStorage';
 import { readZip, writeZip } from './Zip/Zip';
 import { canSaveToDisk, saveToDirectory, unzipInto, zipFolder } from './Zip/Transfer';
+import { JuelFilePicker } from './FileManager/FilePicker';
 
 const g = globalThis as unknown as { juel?: Record<string, unknown> };
 g.juel ??= {};
 g.juel.files = {
-    MemoryFileStorage, BrowserFileStorage, FileStorageError,
+    MemoryFileStorage, BrowserFileStorage, FileStorageError, describeMedia,
     // Not `import * as`: Parcel's scope hoisting loses a namespace import of a module this file also re-exports.
     paths: { accepts, checkPath, folderOf, join, kindOf, nameOf, normalise, parentsOf, typeOf, uniquePath, within },
     readZip, writeZip, zipFolder, unzipInto, canSaveToDisk, saveToDirectory,
+    /** `await juel.files.pick({ storage, accept, multiple })`: the chosen records, or [] on Cancel. */
+    pick: JuelFilePicker.choose,
 };

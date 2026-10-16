@@ -10,18 +10,34 @@ import { LitElement, PropertyValues, html, nothing } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { computePosition, flip, offset, shift } from '@floating-ui/dom';
-import { FileRecord, FileSortKey, FileStorageError, IFileStorage, PathChange } from '../Storage/IFileStorage';
+import { FileRecord, FileSortKey, FileStorageError, IFileStorage, ListOptions, PathChange, StorageQuota } from '../Storage/IFileStorage';
 import { folderOf, join, kindOf, nameOf, parentsOf, uniquePath, within } from '../Storage/Paths';
-import { entriesUnder } from '../Zip/Transfer';
-import { writeZip, ZipEntry } from '../Zip/Zip';
+import { entriesUnder, unzipInto } from '../Zip/Transfer';
+import { readZip, writeZip, ZipEntry } from '../Zip/Zip';
 import { MessageBoxModule } from '../../_Modules/MessageBox/MessageBoxModule';
 import { MessageBoxButtons } from '../../_Modules/MessageBox/MessageBoxButtons';
 import { MessageBoxResultStatus } from '../../_Modules/MessageBox/MessageBoxResultStatus';
 import { FileManagerStyles } from './FileManagerStyles';
 import { icon, kindIcon } from './Icons';
-import { countLabel, formatDate, formatItemSize } from './Format';
+import { countLabel, formatDate, formatDateTime, formatDuration, formatItemSize, formatSize, kindLabel } from './Format';
 import { Selection, SelectionMode } from './Selection';
+import { DroppedItem, hasFiles, readDrop } from './Drop';
+import { Thumbnails } from './Thumbnails';
+import { JuelFileViewer } from './FileViewer';
 import { BeforeDeleteDetail, BeforeMoveDetail, FileCommand, settle } from './FileManagerEvents';
+
+interface DropOn {
+    kind: 'view' | 'folder' | 'crumb';
+    path: string;
+    /** Rows dragged within the view (a move), not files from the desktop (a copy). */
+    move?: boolean;
+}
+
+/** What a drag carries: files from the desktop, or rows from this view. */
+type DragKind = 'files' | 'rows';
+
+/** The drag data type for rows: a JSON array of paths. */
+export const FileDragType = 'application/x-juel-file';
 
 interface MenuItem {
     id: string;
@@ -40,6 +56,7 @@ interface Command extends MenuItem {
 }
 
 type Column = 'name' | 'modified' | 'size';
+export type FileView = 'list' | 'grid';
 
 const ColumnSort: Record<Column, FileSortKey> = { name: 'name', modified: 'modified', size: 'size' };
 const LongPress = 500;
@@ -65,6 +82,10 @@ export class JuelFileManager extends LitElement {
     @property({ type: Boolean, attribute: 'no-confirm' }) noConfirm = false;
     /** How many items to ask the storage for at once. */
     @property({ type: Number, attribute: 'page-size' }) pageSize = 500;
+    /** `list` (details) or `grid` (thumbnails). The View menu changes it. */
+    @property({ reflect: true }) view: FileView = 'list';
+    /** Shows the details pane. The Details button toggles it. */
+    @property({ type: Boolean, reflect: true }) details = false;
     /** The page's own commands, in the bar and the ⋯ menu. */
     @property({ attribute: false }) commands: FileCommand[] = [];
     /** Asks before something can't be undone; resolves true to go ahead. The default is Juel's message box. */
@@ -78,14 +99,25 @@ export class JuelFileManager extends LitElement {
     @state() private chooser?: { copy: boolean; records: FileRecord[]; folders: FileRecord[]; target: string };
     @state() private message = '';
     @state() private messageIsError = false;
+    /** Where files dragged from the desktop would land: the view, a folder row or a crumb. */
+    @state() private dropOn?: DropOn;
     /** Bumped when the selection changes, so Lit re-renders. */
     @state() private selectionVersion = 0;
+    /** What's being searched for, in the folder on show and below; '' for none. */
+    @state() private query = '';
+    /** How full the storage is, for storages that know. */
+    @state() private quota?: StorageQuota;
+    /** The bar's commands don't fit with their labels: icons only. */
+    @state() private compact = false;
+    /** Icons only still don't fit: how many show; the rest are under ⋯. */
+    @state() private barShown?: number;
 
     @query('.list') private listElement!: HTMLElement;
     @query('.menu') private menuElement?: HTMLElement;
     @query('dialog') private dialogElement?: HTMLDialogElement;
     @query('input.files') private fileInput!: HTMLInputElement;
     @query('input.folder') private folderInput!: HTMLInputElement;
+    @query('input.zip') private zipInput!: HTMLInputElement;
 
     private selection = new Selection();
     private unsubscribe?: () => void;
@@ -94,6 +126,20 @@ export class JuelFileManager extends LitElement {
     private pressTimer?: number;
     private pressed = false;
     private messageTimer?: number;
+    /** dragenter minus dragleave: the list's children fire them too. */
+    private dragDepth = 0;
+    /** The rows being dragged, while a drag from this view is on. */
+    private dragging?: FileRecord[];
+    /** The last pointerdown was a touch: touch keeps long-press to select, not drag. */
+    private touching = false;
+    private thumbnails = new Thumbnails(() => this.requestUpdate());
+    private viewer?: JuelFileViewer;
+    private searchTimer?: number;
+    /** The commands and width the bar was last fitted for. */
+    private barKey = '';
+    /** The ids of the bar's commands at the last render. */
+    private barIds = '';
+    private resizeObserver = new ResizeObserver(() => this.requestUpdate());
 
     // --- public ------------------------------------------------------------
 
@@ -110,7 +156,10 @@ export class JuelFileManager extends LitElement {
 
     /** Shows a folder. */
     async navigate(path: string) {
-        if (path === this.path) { await this.reload(); return; }
+        if (path === this.path) {
+            if (this.query) { this.query = ''; await this.updateComplete; await this.loaded; } else await this.reload();
+            return;
+        }
         this.path = path;
         this.selection.clear();
         this.dispatch('path-changed', { path });
@@ -144,24 +193,22 @@ export class JuelFileManager extends LitElement {
 
     /** Uploads files into a folder (default: the one on show). A `webkitRelativePath` keeps its folders. A clash keeps both. */
     async upload(files: Iterable<File>, folder = this.path): Promise<FileRecord[]> {
-        const storage = this.storage;
-        if (!storage || !this.canWrite) return [];
-        const added: FileRecord[] = [];
-        const renamed: string[] = [];
-        try {
-            for (const file of files) {
-                const relative = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
-                const result = await storage.write(join(folder, relative), file, { onConflict: 'keep-both' });
-                if (result.outcome === 'renamed') renamed.push(result.record.name);
-                added.push(result.record);
-            }
-            (storage as IFileStorage & { keep?: () => Promise<boolean> }).keep?.();
-            this.say(`Uploaded ${added.length === 1 ? `"${added[0].name}"` : `${added.length} files`}` + (renamed.length ? `; kept both where names clashed: ${renamed.join(', ')}` : ''));
-            if (added.length) this.dispatch('file-added', { records: added });
-        } catch (error) {
-            this.fail(error);
-        }
-        return added;
+        const items = [...files].map(file => ({ file, relative: (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name }));
+        return this.uploadItems(items, folder);
+    }
+
+    /** Searches the folder on show and below for names containing `text` (`''` stops searching). */
+    async search(text: string) {
+        window.clearTimeout(this.searchTimer);
+        this.query = text.trim();
+        await this.updateComplete;
+        await this.loaded;
+    }
+
+    /** Opens a file in the viewer (a folder: goes in). */
+    open(record: FileRecord) {
+        if (record.kind === 'folder') { void this.navigate(record.path); return; }
+        if (this.dispatch('file-open', { record }, true)) this.openViewer(record);
     }
 
     /** Resolves when the folder on show has loaded. */
@@ -169,23 +216,35 @@ export class JuelFileManager extends LitElement {
 
     // --- lifecycle ---------------------------------------------------------
 
+    constructor() {
+        super();
+        this.addEventListener('paste', this.onPaste);
+    }
+
     connectedCallback() {
         super.connectedCallback();
         document.addEventListener('pointerdown', this.onDocumentPointerDown, true);
+        this.resizeObserver.observe(this);
         this.subscribe();
     }
 
     disconnectedCallback() {
         super.disconnectedCallback();
         document.removeEventListener('pointerdown', this.onDocumentPointerDown, true);
+        this.resizeObserver.disconnect();
         this.unsubscribe?.();
         this.unsubscribe = undefined;
+        this.viewer?.close();
+        this.viewer?.remove();
+        this.thumbnails.clear();
     }
 
     protected willUpdate(changed: PropertyValues<this>) {
         if (changed.has('selectionMode')) this.selection.mode = this.selectionMode;
-        if (changed.has('storage')) this.subscribe();
-        if (changed.has('storage') || changed.has('path') || changed.has('sort') || changed.has('descending') || changed.has('accept')) {
+        if (changed.has('storage')) { this.subscribe(); this.thumbnails.clear(); }
+        // Going somewhere else ends a search.
+        if ((changed.has('path') || changed.has('storage')) && !changed.has('query' as keyof JuelFileManager)) this.query = '';
+        if (changed.has('storage') || changed.has('path') || changed.has('sort') || changed.has('descending') || changed.has('accept') || changed.has('query' as keyof JuelFileManager)) {
             if (changed.has('path') || changed.has('storage')) { this.renaming = undefined; this.selection.clear(); }
             this.loaded = this.load(false);
         }
@@ -194,6 +253,29 @@ export class JuelFileManager extends LitElement {
     protected updated(changed: PropertyValues<this>) {
         if (changed.has('menu' as keyof JuelFileManager) && this.menu) void this.placeMenu();
         this.toggleAttribute('selecting', this.selection.size > 0);
+        this.fitBar();
+    }
+
+    /**
+     * Labels where they fit, icons where they don't. When the commands or the width change,
+     * the bar is laid out with labels first and measured (both before the browser paints).
+     */
+    private fitBar() {
+        const commands = this.renderRoot.querySelector<HTMLElement>('.bar .commands');
+        if (!commands) return;
+        const key = this.barIds + ':' + this.clientWidth;
+        if (key !== this.barKey) {
+            this.barKey = key;
+            if (this.compact || this.barShown !== undefined) { this.compact = false; this.barShown = undefined; return; }
+        }
+        const overflowing = commands.scrollWidth > commands.clientWidth + 1;
+        if (!overflowing || this.barShown !== undefined) return;
+        if (!this.compact) { this.compact = true; return; }
+        // Keep the commands that fit with room for the ⋯ button.
+        const right = commands.getBoundingClientRect().left + commands.clientWidth - 40;
+        const buttons = [...commands.children] as HTMLElement[];
+        const fit = buttons.findIndex(b => b.getBoundingClientRect().right > right);
+        this.barShown = fit < 0 ? buttons.length : fit;
     }
 
     private subscribe() {
@@ -216,8 +298,7 @@ export class JuelFileManager extends LitElement {
         if (!storage) { this.items = []; this.next = undefined; return; }
         this.loading = true;
         try {
-            const accept = this.accept.split(',').map(a => a.trim()).filter(Boolean);
-            const options = { sort: this.sort, descending: this.descending, accept, limit: this.pageSize };
+            const options = this.listOptions();
             let { items, next } = await storage.list(this.path, options);
             // A reload keeps as many pages as were on show.
             while (keep && next && items.length < this.items.length) {
@@ -231,6 +312,7 @@ export class JuelFileManager extends LitElement {
             this.selection.setItems(items.map(i => i.path));
             if (this.renaming && !items.some(i => i.path === this.renaming)) this.renaming = undefined;
             this.selectionChanged(false);
+            void this.loadQuota(storage);
         } catch (error) {
             if (token !== this.loadToken) return;
             this.items = [];
@@ -246,11 +328,28 @@ export class JuelFileManager extends LitElement {
         }
     }
 
+    private async loadQuota(storage: IFileStorage) {
+        if (!storage.capabilities.quota || !storage.quota) { this.quota = undefined; return; }
+        try {
+            const quota = await storage.quota();
+            if (storage === this.storage) this.quota = quota.quota ? quota : undefined;
+        } catch {
+            this.quota = undefined;
+        }
+    }
+
+    /** How to list: a search looks below the folder too. */
+    private listOptions(): ListOptions {
+        const accept = this.accept.split(',').map(a => a.trim()).filter(Boolean);
+        const options: ListOptions = { sort: this.sort, descending: this.descending, accept, limit: this.pageSize };
+        if (this.query) { options.search = this.query; options.deep = true; }
+        return options;
+    }
+
     private async loadMore() {
         if (!this.storage || !this.next) return;
         try {
-            const accept = this.accept.split(',').map(a => a.trim()).filter(Boolean);
-            const page = await this.storage.list(this.path, { sort: this.sort, descending: this.descending, accept, limit: this.pageSize, cursor: this.next });
+            const page = await this.storage.list(this.path, { ...this.listOptions(), cursor: this.next });
             this.items = [...this.items, ...page.items];
             this.next = page.next;
             this.selection.setItems(this.items.map(i => i.path));
@@ -288,6 +387,7 @@ export class JuelFileManager extends LitElement {
         commands.push({ id: 'download', label: 'Download', icon: 'download', bar: true, run: () => void this.download(records) });
         if (write && one) commands.push({ id: 'rename', label: 'Rename', icon: 'rename', bar: true, run: () => void this.startRename(one.path) });
         if (write) commands.push({ id: 'move', label: 'Move to', icon: 'move', bar: true, run: () => void this.openChooser(records, false) });
+        if (write && one && kindOf(one) === 'archive') commands.push({ id: 'extract', label: 'Extract', icon: 'archive', run: () => void this.extract(one) });
         if (this.canCopy) {
             commands.push({ id: 'copy', label: 'Copy to', icon: 'copy', bar: true, run: () => void this.openChooser(records, true) });
             commands.push({ id: 'duplicate', label: 'Duplicate', icon: 'duplicate', run: () => void this.duplicate(records) });
@@ -305,10 +405,35 @@ export class JuelFileManager extends LitElement {
 
     // --- actions -----------------------------------------------------------
 
-    private open(record: FileRecord) {
-        if (record.kind === 'folder') { void this.navigate(record.path); return; }
-        const go = this.dispatch('file-open', { record }, true);
-        if (go) void this.download([record]);
+    /** The viewer goes on the page's body, so a panel's transform or overflow can't clip it and Juel's message box shows over it. */
+    private openViewer(record: FileRecord) {
+        const storage = this.storage;
+        if (!storage) return;
+        let viewer = this.viewer;
+        if (!viewer) {
+            viewer = this.viewer = document.createElement('juel-file-viewer');
+            viewer.addEventListener('viewer-change', e => this.select([(e as CustomEvent).detail.record.path]));
+            viewer.addEventListener('viewer-download', e => {
+                e.preventDefault();
+                void this.download([(e as CustomEvent).detail.record]);
+            });
+            viewer.addEventListener('viewer-delete', e => void this.deleteFromViewer((e as CustomEvent).detail.record));
+            viewer.addEventListener('viewer-close', () => {
+                viewer!.remove();
+                const record = viewer!.current;
+                if (record && this.items.some(i => i.path === record.path)) this.select([record.path]);
+                this.focusList();
+            });
+        }
+        if (!viewer.isConnected) document.body.append(viewer);
+        viewer.canDelete = this.canWrite;
+        const files = this.items.filter(i => i.kind === 'file');
+        void viewer.show(storage, files, files.indexOf(record));
+    }
+
+    private async deleteFromViewer(record: FileRecord) {
+        if (await this.deleteItems([record])) this.viewer?.forget(record);
+        this.viewer?.shadowRoot?.querySelector<HTMLElement>('.close')?.focus();
     }
 
     private async newFolder() {
@@ -378,11 +503,12 @@ export class JuelFileManager extends LitElement {
         await this.moveItems(records, moves, { copy: true, rename: false });
     }
 
-    private async deleteItems(records: FileRecord[]) {
+    /** Deletes after asking; true if anything went. */
+    private async deleteItems(records: FileRecord[]): Promise<boolean> {
         const storage = this.storage;
-        if (!storage || !records.length) return;
+        if (!storage || !records.length) return false;
         const { go, notes } = await settle<BeforeDeleteDetail>(this, 'file-before-delete', { records });
-        if (!go) return;
+        if (!go) return false;
         if (!this.noConfirm) {
             const folders = records.filter(r => r.kind === 'folder' && r.items);
             const text = [
@@ -391,7 +517,7 @@ export class JuelFileManager extends LitElement {
                 ...notes,
                 "This can't be undone.",
             ].filter(Boolean).join(' ');
-            if (!await this.confirm('Delete', text, 'Delete')) return;
+            if (!await this.confirm('Delete', text, 'Delete')) return false;
         }
         const paths: string[] = [];
         try {
@@ -402,7 +528,8 @@ export class JuelFileManager extends LitElement {
         this.dispatch('file-deleted', { paths });
         this.say(`Deleted ${countLabel(records)}`);
         await this.load(true);
-        this.focusList();
+        if (!this.viewer?.open) this.focusList();
+        return paths.length > 0;
     }
 
     /** One file as itself; a folder or several items as a .zip. */
@@ -428,6 +555,80 @@ export class JuelFileManager extends LitElement {
         } catch (error) {
             this.fail(error);
         }
+    }
+
+    /** Uploads files (and makes empty folders) at paths relative to a folder. A clash keeps both. */
+    private async uploadItems(items: DroppedItem[], folder: string): Promise<FileRecord[]> {
+        const storage = this.storage;
+        if (!storage || !this.canWrite) return [];
+        const added: FileRecord[] = [];
+        const renamed: string[] = [];
+        let files = 0;
+        try {
+            for (const item of items) {
+                const path = join(folder, item.relative);
+                if (!item.file) { added.push(await storage.makeFolder(path)); continue; }
+                const result = await storage.write(path, item.file, { onConflict: 'keep-both' });
+                if (result.outcome === 'renamed') renamed.push(result.record.name);
+                added.push(result.record);
+                files++;
+            }
+            (storage as IFileStorage & { keep?: () => Promise<boolean> }).keep?.();
+            const what = added.length === 1 ? `"${added[0].name}"` : files === added.length ? `${files} files` : countLabel(added);
+            this.say(`Uploaded ${what}` + (renamed.length ? `; kept both where names clashed: ${renamed.join(', ')}` : ''));
+            if (added.length) this.dispatch('file-added', { records: added });
+        } catch (error) {
+            this.fail(error);
+        }
+        return added;
+    }
+
+    /** Unpacks a .zip that's in the storage, beside it. */
+    private async extract(record: FileRecord) {
+        if (!this.storage) return;
+        try {
+            await this.unpack(await this.storage.read(record.path), record.name, folderOf(record.path));
+        } catch (error) {
+            this.fail(error);
+        }
+    }
+
+    /**
+     * Unpacks a zip into a folder, as Extract All does: a zip that holds one folder gives that
+     * folder; anything else goes into a new folder named after the zip. A clash keeps both.
+     */
+    async unpack(zip: Blob, name: string, folder = this.path): Promise<FileRecord | undefined> {
+        const storage = this.storage;
+        if (!storage || !this.canWrite) return undefined;
+        try {
+            this.say(`Unpacking "${name}"…`);
+            const entries = await readZip(zip);
+            const tops = new Set(entries.map(e => e.path.split('/')[0]));
+            const oneFolder = tops.size === 1 && entries.every(e => e.path.includes('/') || e.folder);
+            let target = folder;
+            if (!oneFolder) {
+                target = await storage.uniquePath(join(folder, name.replace(/\.zip$/i, '') || 'Unpacked'));
+                await storage.makeFolder(target);
+            }
+            const result = await unzipInto(storage, zip, target, 'keep-both');
+            const made = await storage.stat(oneFolder ? join(folder, [...tops][0]) : target);
+            this.say(`Unpacked ${result.files} ${result.files === 1 ? 'file' : 'files'} from "${name}"` +
+                (result.renamed.length ? `; kept both where names clashed: ${result.renamed.map(r => nameOf(r.to)).join(', ')}` : ''));
+            if (made) this.dispatch('file-added', { records: [made] });
+            await this.load(true);
+            if (made && folderOf(made.path) === this.path) this.select([made.path]);
+            return made;
+        } catch (error) {
+            this.fail(error);
+            return undefined;
+        }
+    }
+
+    private async onZipChosen(e: Event) {
+        const input = e.target as HTMLInputElement;
+        const files = [...(input.files ?? [])];
+        input.value = '';
+        for (const file of files) await this.unpack(file, file.name);
     }
 
     // --- Move to / Copy to -------------------------------------------------
@@ -456,18 +657,30 @@ export class JuelFileManager extends LitElement {
         this.dialogElement?.close();
         this.chooser = undefined;
         if (!chooser || !this.storage) return;
+        await this.moveInto(chooser.records, chooser.target, chooser.copy);
+    }
+
+    /** Moves or copies items into a folder; a clash keeps both. */
+    private async moveInto(records: FileRecord[], folder: string, copy: boolean) {
+        const storage = this.storage;
+        if (!storage) return;
         const moves: PathChange[] = [];
         const taken = new Set<string>();
-        for (const r of chooser.records) {
-            const wanted = join(chooser.target, r.name);
-            if (!chooser.copy && wanted === r.path) continue;
-            let to = await this.storage.uniquePath(wanted);
-            if (taken.has(to)) to = uniquePath(to, p => taken.has(p));
-            taken.add(to);
-            moves.push({ from: r.path, to });
+        try {
+            for (const r of records) {
+                const wanted = join(folder, r.name);
+                if (!copy && wanted === r.path) continue;
+                let to = await storage.uniquePath(wanted);
+                if (taken.has(to)) to = uniquePath(to, p => taken.has(p));
+                taken.add(to);
+                moves.push({ from: r.path, to });
+            }
+        } catch (error) {
+            this.fail(error);
+            return;
         }
         if (!moves.length) { this.say('Already there'); return; }
-        await this.moveItems(chooser.records, moves, { copy: chooser.copy, rename: false });
+        await this.moveItems(records, moves, { copy, rename: false });
     }
 
     private closeChooser() {
@@ -528,7 +741,13 @@ export class JuelFileManager extends LitElement {
         this.openMenu(anchor, [
             { id: 'upload-files', label: 'Files', icon: 'file', run: () => this.fileInput.click() },
             { id: 'upload-folder', label: 'Folder', icon: 'new-folder', run: () => this.folderInput.click() },
+            { id: 'upload-zip', label: 'Zip, unpacked', icon: 'archive', run: () => this.zipInput.click() },
         ], 'Upload');
+    }
+
+    private openViewMenu(anchor: Element) {
+        const as = (view: FileView, label: string): MenuItem => ({ id: `view-${view}`, label, icon: view, checked: this.view === view, run: () => { this.view = view; } });
+        this.openMenu(anchor, [as('list', 'List'), as('grid', 'Tiles')], 'View');
     }
 
     private openSortMenu(anchor: Element) {
@@ -581,7 +800,8 @@ export class JuelFileManager extends LitElement {
     }
 
     private onPointerDown(e: PointerEvent, record: FileRecord) {
-        if (e.pointerType !== 'touch') return;
+        this.touching = e.pointerType === 'touch';
+        if (!this.touching) return;
         window.clearTimeout(this.pressTimer);
         this.pressTimer = window.setTimeout(() => {
             this.pressed = true;
@@ -599,11 +819,15 @@ export class JuelFileManager extends LitElement {
         const extend = e.shiftKey, keep = e.ctrlKey || e.metaKey;
         const focused = this.items.find(i => i.path === this.selection.focus);
         const step = (s: number | 'first' | 'last') => { e.preventDefault(); this.selection.move(s, { extend, keep }); this.selectionChanged(); this.scrollToFocus(); };
+        // In the grid, up and down go a row of tiles at a time; left and right one tile.
+        const across = this.view === 'grid' ? this.gridColumns() : 1;
         switch (e.key) {
-            case 'ArrowDown': step(1); return;
+            case 'ArrowDown': step(across); return;
             case 'ArrowUp':
                 if (e.altKey) { e.preventDefault(); this.goUp(); return; }
-                step(-1); return;
+                step(-across); return;
+            case 'ArrowRight': if (this.view === 'grid') step(1); return;
+            case 'ArrowLeft': if (this.view === 'grid') step(-1); return;
             case 'Home': step('first'); return;
             case 'End': step('last'); return;
             case 'PageDown': step(10); return;
@@ -644,6 +868,34 @@ export class JuelFileManager extends LitElement {
         else if (e.key === 'Escape') { e.preventDefault(); this.cancelRename(); }
     }
 
+    /** How many tiles a grid row holds, from the laid-out columns. */
+    private gridColumns(): number {
+        const columns = getComputedStyle(this.listElement).gridTemplateColumns;
+        return columns && columns !== 'none' ? columns.split(' ').filter(Boolean).length : 1;
+    }
+
+    private onSearchInput(e: Event) {
+        const text = (e.target as HTMLInputElement).value;
+        window.clearTimeout(this.searchTimer);
+        this.searchTimer = window.setTimeout(() => { this.query = text.trim(); }, 250);
+    }
+
+    private onSearchKeydown(e: KeyboardEvent) {
+        const input = e.target as HTMLInputElement;
+        if (e.key === 'Escape' && input.value) {
+            e.preventDefault();
+            e.stopPropagation();
+            input.value = '';
+            void this.search('');
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            void this.search(input.value).then(() => { this.selection.move('first'); this.selectionChanged(); this.focusList(); });
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            this.focusList();
+        }
+    }
+
     private goUp() {
         if (!this.path) return;
         const from = this.path;
@@ -655,6 +907,118 @@ export class JuelFileManager extends LitElement {
         const files = [...(input.files ?? [])];
         input.value = '';
         if (files.length) await this.upload(files);
+    }
+
+    // --- drag and drop -----------------------------------------------------
+
+    // The list and the crumbs share these: dragenter/leave fire for every child, so they're counted.
+
+    /** A row drag starts: an unselected row drags itself, a selected one the whole selection. */
+    private onRowDragStart(e: DragEvent, record: FileRecord) {
+        const data = e.dataTransfer;
+        if (!data || this.touching || this.renaming) { e.preventDefault(); return; }
+        const records = this.selection.has(record.path) ? this.selectedRecords : [record];
+        this.dragging = records;
+        // Within the view it's a move; dropped elsewhere (an editor, say), the page decides.
+        data.effectAllowed = 'copyMove';
+        data.setData(FileDragType, JSON.stringify(records.map(r => r.path)));
+        data.setData('text/plain', records.map(r => r.path).join('\n'));
+        data.setDragImage(dragLabel(records.length === 1 ? records[0].name : countLabel(records)), -12, -12);
+    }
+
+    private onRowDragEnd() {
+        this.dragging = undefined;
+        this.dragDepth = 0;
+        this.dropOn = undefined;
+    }
+
+    /** What the drag carries, if it's something this view takes. */
+    private dragKind(e: DragEvent): DragKind | undefined {
+        if (this.dragging && [...(e.dataTransfer?.types ?? [])].includes(FileDragType)) return 'rows';
+        return hasFiles(e.dataTransfer) ? 'files' : undefined;
+    }
+
+    private onDragEnter(e: DragEvent) {
+        const kind = this.dragKind(e);
+        if (!this.canWrite || !kind) return;
+        e.preventDefault();
+        this.dragDepth++;
+        this.dragOver(e, kind);
+    }
+
+    private onDragOver(e: DragEvent) {
+        const kind = this.dragKind(e);
+        if (!this.canWrite || !kind) return;
+        this.dragOver(e, kind);
+    }
+
+    private onDragLeave(e: DragEvent) {
+        if (!this.dragKind(e)) return;
+        this.dragDepth = Math.max(0, this.dragDepth - 1);
+        if (!this.dragDepth) this.dropOn = undefined;
+    }
+
+    private onDrop(e: DragEvent) {
+        const data = e.dataTransfer;
+        const kind = this.dragKind(e);
+        if (!kind) return;
+        e.preventDefault();
+        const target = this.canWrite ? this.dropTargetOf(e, kind) : undefined;
+        const records = this.dragging;
+        this.dragDepth = 0;
+        this.dropOn = undefined;
+        this.dragging = undefined;
+        if (!target) return;
+        if (kind === 'rows') { void this.moveInto(records!, target.path, false); return; }
+        // Read now: the items are gone once this handler returns.
+        readDrop(data!)
+            .then(items => (items.length ? this.uploadItems(items, target.path) : undefined))
+            .catch(error => this.fail(error));
+    }
+
+    /** Ctrl+V of files (a screenshot arrives as `image.png`): into the folder on show. Text pastes are left alone. */
+    private onPaste = (e: ClipboardEvent) => {
+        const files = [...(e.clipboardData?.files ?? [])];
+        if (!files.length || !this.canWrite || this.renaming) return;
+        e.preventDefault();
+        void this.upload(files);
+    };
+
+    /** Points the drag at what's under it; between the crumbs, or where the rows already are, it can't be dropped. */
+    private dragOver(e: DragEvent, kind: DragKind) {
+        const target = this.dropTargetOf(e, kind);
+        if (!target) { e.dataTransfer!.dropEffect = 'none'; this.dropOn = undefined; return; }
+        e.preventDefault();
+        e.dataTransfer!.dropEffect = target.move ? 'move' : 'copy';
+        if (this.dropOn?.kind !== target.kind || this.dropOn.path !== target.path || this.dropOn.move !== target.move) this.dropOn = target;
+    }
+
+    /** A folder row or a crumb under the event, else the view if it's over the list. */
+    private dropTargetOf(e: Event, kind: DragKind): DropOn | undefined {
+        let target: DropOn | undefined;
+        for (const node of e.composedPath()) {
+            if (!(node instanceof HTMLElement)) continue;
+            if (node.matches('.crumb')) { target = { kind: 'crumb', path: node.dataset.path ?? '' }; break; }
+            if (node.matches('.item[data-kind="folder"]')) { target = { kind: 'folder', path: node.dataset.path! }; break; }
+            if (node.matches('.list')) { target = { kind: 'view', path: this.path }; break; }
+            if (node === this) break;
+        }
+        if (!target || kind === 'files') return target;
+        return this.canMoveInto(target.path) ? { ...target, move: true } : undefined;
+    }
+
+    /** Whether the dragged rows can move into a folder: not where they are, nor into themselves. */
+    private canMoveInto(folder: string) {
+        return !!this.dragging?.every(r => folderOf(r.path) !== folder && !(r.kind === 'folder' && within(folder, r.path)));
+    }
+
+    private isDropOn(kind: DropOn['kind'], path: string) {
+        return this.dropOn?.kind === kind && this.dropOn.path === path;
+    }
+
+    /** On a folder row or crumb: files from the desktop are copied in, rows moved. */
+    private dropBadge() {
+        return html`<span class="drop-badge" part="drop-badge">${this.dropOn?.move ? 'Move' : '+ Copy'}</span>`;
     }
 
     // --- helpers -----------------------------------------------------------
@@ -699,52 +1063,84 @@ export class JuelFileManager extends LitElement {
     render() {
         void this.selectionVersion;
         const selected = this.selectedRecords;
-        const commands = this.commandsFor(selected).filter(c => c.bar);
+        const all = this.commandsFor(selected).filter(c => c.bar);
+        this.barIds = all.map(c => c.id).join();
+        const commands = this.barShown === undefined ? all : all.slice(0, this.barShown);
+        const rest = all.slice(commands.length);
         return html`
-            <div class="bar" part="bar" role="toolbar" aria-label="File commands">
+            <div class="bar ${this.compact ? 'compact' : ''}" part="bar" role="toolbar" aria-label="File commands">
                 <div class="commands">
                     ${commands.map(c => html`
                         <button class="command ${c.danger ? 'danger' : ''}" data-command=${c.id} title=${c.label} @click=${c.run}>
                             ${c.icon ? icon(c.icon) : nothing}<span class="text">${c.label}</span>
                             ${c.id === 'upload' ? icon('chevron-down') : nothing}
                         </button>`)}
+                    ${rest.length ? html`
+                        <button class="command" data-command="more" title="More commands" aria-label="More commands" aria-haspopup="menu"
+                            @click=${(e: Event) => this.openMenu(e.currentTarget as Element, rest, 'More commands')}>${icon('more')}</button>` : nothing}
                 </div>
                 <div class="end">
-                    <button class="command" data-command="sort" title="Sort" aria-haspopup="menu" @click=${(e: Event) => this.openSortMenu(e.currentTarget as Element)}>
-                        ${icon('sort')}<span class="text">Sort</span>${icon('chevron-down')}
-                    </button>
                     ${selected.length ? html`
                         <button class="chip" data-command="clear-selection" title="Clear the selection" @click=${() => { this.selection.clear(); this.selectionChanged(); this.focusList(); }}>
-                            ${icon('close')}<span>${selected.length} selected</span>
+                            ${icon('close')}<span>${selected.length}<span class="text"> selected</span></span>
                         </button>` : nothing}
+                    <button class="command" data-command="sort" title="Sort" aria-haspopup="menu" @click=${(e: Event) => this.openSortMenu(e.currentTarget as Element)}>
+                        ${icon('sort')}<span class="text">Sort</span><span class="chevron">${icon('chevron-down')}</span>
+                    </button>
+                    <button class="command" data-command="view" title="View" aria-haspopup="menu" @click=${(e: Event) => this.openViewMenu(e.currentTarget as Element)}>
+                        ${icon(this.view)}<span class="text">View</span><span class="chevron">${icon('chevron-down')}</span>
+                    </button>
+                    <button class="command" data-command="details" title="Details" aria-pressed=${this.details ? 'true' : 'false'} @click=${() => { this.details = !this.details; }}>
+                        ${icon('info')}<span class="text">Details</span>
+                    </button>
                 </div>
             </div>
-            ${this.renderCrumbs()}
-            ${this.renderList()}
+            <div class="where-bar">
+                ${this.renderCrumbs()}
+                <label class="search" part="search">
+                    ${icon('search')}
+                    <input type="search" placeholder="Search" aria-label=${`Search ${this.path ? nameOf(this.path) : this.rootLabel}`} .value=${this.query}
+                        @input=${this.onSearchInput} @keydown=${this.onSearchKeydown}>
+                </label>
+            </div>
+            <slot name="header"></slot>
+            <div class="body">
+                ${this.renderList()}
+                ${this.details ? this.renderDetails(selected) : nothing}
+            </div>
             <div class="status ${this.messageIsError ? 'error' : ''}" part="status" role="status" aria-live="polite">${this.message}</div>
+            ${this.renderQuota()}
             ${this.renderMenu()}
             ${this.renderChooser()}
             <input class="files" type="file" multiple hidden @change=${this.onFilesChosen}>
             <input class="folder" type="file" webkitdirectory hidden @change=${this.onFilesChosen}>
+            <input class="zip" type="file" accept=".zip,application/zip" multiple hidden @change=${this.onZipChosen}>
         `;
     }
 
     private renderCrumbs() {
         const parts = this.path ? [...parentsOf(this.path + '/x')] : [];
         const crumbs = [{ path: '', label: this.rootLabel }, ...parts.map(p => ({ path: p, label: nameOf(p) }))];
+        const searching = !!this.query;
         return html`
-            <nav class="crumbs" part="crumbs" aria-label="Folder">
+            <nav class="crumbs" part="crumbs" aria-label="Folder"
+                @dragenter=${this.onDragEnter} @dragover=${this.onDragOver} @dragleave=${this.onDragLeave} @drop=${this.onDrop}>
                 ${crumbs.map((c, i) => {
-                    const last = i === crumbs.length - 1;
+                    // While searching, the folder on show is a way back out of the results.
+                    const last = i === crumbs.length - 1 && !searching;
                     return html`
                         ${i ? html`<span class="sep">${icon('chevron')}</span>` : nothing}
-                        <button class="crumb" data-path=${c.path} aria-current=${last ? 'page' : nothing}
-                            @click=${() => { if (!last) void this.navigate(c.path); }}>${c.label}</button>`;
+                        <button class="crumb ${this.isDropOn('crumb', c.path) ? 'drop-target' : ''}" data-path=${c.path} aria-current=${last ? 'page' : nothing}
+                            @click=${() => { if (!last) void this.navigate(c.path); }}>${c.label}${this.isDropOn('crumb', c.path) ? this.dropBadge() : nothing}</button>`;
                 })}
+                ${searching ? html`
+                    <span class="sep">${icon('chevron')}</span>
+                    <span class="results" aria-current="page">Results for "${this.query}"</span>` : nothing}
             </nav>`;
     }
 
     private renderList() {
+        const grid = this.view === 'grid';
         const all = this.items.length > 0 && this.selection.size === this.items.length;
         const some = this.selection.size > 0 && !all;
         const header = (column: Column, label: string) => {
@@ -759,64 +1155,140 @@ export class JuelFileManager extends LitElement {
         };
         const focus = this.selection.focus;
         return html`
-            <div class="list" part="list" role="listbox" tabindex="0" aria-label=${this.path ? nameOf(this.path) : this.rootLabel}
+            <div class="list ${grid ? 'grid' : ''} ${this.dropOn?.kind === 'view' ? 'dropping' : ''}" part="list" role="listbox" tabindex="0"
+                aria-label=${this.query ? `Results for ${this.query}` : this.path ? nameOf(this.path) : this.rootLabel}
                 aria-multiselectable=${this.selectionMode === 'multiple' ? 'true' : 'false'}
                 aria-activedescendant=${focus ? `item-${this.items.findIndex(i => i.path === focus)}` : nothing}
-                @keydown=${this.onListKeydown}>
-                <div class="row head" role="presentation">
-                    <div class="cell">
-                        ${this.selectionMode === 'multiple' ? html`
-                            <button class="check ${some ? 'some' : ''}" role="checkbox" aria-label="Select all" tabindex="-1"
-                                aria-checked=${all ? 'true' : some ? 'mixed' : 'false'} @click=${this.onCheckAll}>${icon(some ? 'dash' : 'check')}</button>` : nothing}
-                    </div>
-                    ${header('name', 'Name')}${header('modified', 'Modified')}${header('size', 'File size')}
-                </div>
-                ${repeat(this.items, i => i.id, (record, index) => this.renderRow(record, index))}
+                @keydown=${this.onListKeydown}
+                @dragenter=${this.onDragEnter} @dragover=${this.onDragOver} @dragleave=${this.onDragLeave} @drop=${this.onDrop}>
+                ${grid ? nothing : html`
+                    <div class="row head" role="presentation">
+                        <div class="cell">
+                            ${this.selectionMode === 'multiple' ? html`
+                                <button class="check ${some ? 'some' : ''}" role="checkbox" aria-label="Select all" tabindex="-1"
+                                    aria-checked=${all ? 'true' : some ? 'mixed' : 'false'} @click=${this.onCheckAll}>${icon(some ? 'dash' : 'check')}</button>` : nothing}
+                        </div>
+                        ${header('name', 'Name')}${header('modified', 'Modified')}${header('size', 'File size')}
+                    </div>`}
+                ${repeat(this.items, i => i.id, (record, index) => this.renderItem(record, index))}
                 ${!this.items.length && !this.loading ? html`
                     <div class="empty" part="empty">
-                        ${kindIcon('folder')}
-                        <div>This folder is empty</div>
-                        ${this.canWrite ? html`<div>Use Upload, or New folder, to add something.</div>` : nothing}
+                        ${this.query ? html`
+                            ${icon('search')}
+                            <div>Nothing called "${this.query}" here</div>` : html`
+                            ${kindIcon('folder')}
+                            <div>This folder is empty</div>
+                            ${this.canWrite ? html`<div>Use Upload, or New folder, or drop files here.</div>` : nothing}`}
                     </div>` : nothing}
                 ${this.next ? html`<button class="more" @click=${this.loadMore}>Show more</button>` : nothing}
             </div>`;
     }
 
-    private renderRow(record: FileRecord, index: number) {
+    /** A row in the list, or a tile in the grid: the same element, events and selection either way. */
+    private renderItem(record: FileRecord, index: number) {
         const selected = this.selection.has(record.path);
         const focused = this.selection.focus === record.path;
         const renaming = this.renaming === record.path;
         const kind = kindOf(record);
+        const dropping = this.isDropOn('folder', record.path);
+        const grid = this.view === 'grid';
+        const check = this.selectionMode !== 'none' ? html`
+            <button class="check" role="checkbox" tabindex="-1" aria-label=${`Select ${record.name}`}
+                aria-checked=${selected ? 'true' : 'false'} @click=${(e: Event) => this.onCheck(e, record)}>${icon('check')}</button>` : nothing;
+        const actions = html`
+            <span class="actions">
+                <button class="icon-button more-actions" tabindex="-1" aria-label=${`More actions for ${record.name}`} title="More actions"
+                    @click=${(e: MouseEvent) => { e.stopPropagation(); this.openRowMenu(record, e.currentTarget as Element); }}
+                    @dblclick=${(e: Event) => e.stopPropagation()}>${icon('more')}</button>
+            </span>`;
+        const name = renaming ? html`
+            <input class="rename" aria-label="New name" .value=${record.name}
+                @keydown=${(e: KeyboardEvent) => this.onRenameKeydown(e, record)}
+                @click=${(e: Event) => e.stopPropagation()} @dblclick=${(e: Event) => e.stopPropagation()}
+                @blur=${(e: FocusEvent) => void this.commitRename(record, e.target as HTMLInputElement)}>`
+            : html`<span class="label">${record.name}</span>`;
+        // In search results, where each one is.
+        const where = this.query && folderOf(record.path) !== this.path
+            ? html`<span class="where muted" title=${folderOf(record.path) || this.rootLabel}>${folderOf(record.path) ? nameOf(folderOf(record.path)) : this.rootLabel}</span>` : nothing;
+        const thumb = grid && this.storage ? this.thumbnails.get(this.storage, record) : undefined;
         return html`
-            <div class="row item ${focused ? 'focus' : ''}" id=${`item-${index}`} role="option" aria-selected=${selected ? 'true' : 'false'}
-                data-path=${record.path} data-kind=${record.kind}
+            <div class="${grid ? 'tile' : 'row'} item ${focused ? 'focus' : ''} ${dropping ? 'drop-target' : ''}" id=${`item-${index}`} role="option" aria-selected=${selected ? 'true' : 'false'}
+                data-path=${record.path} data-kind=${record.kind} draggable=${this.canWrite && !renaming ? 'true' : 'false'}
+                @dragstart=${(e: DragEvent) => this.onRowDragStart(e, record)} @dragend=${this.onRowDragEnd}
                 @click=${(e: MouseEvent) => this.onRowClick(e, record)}
                 @dblclick=${() => this.onRowDoubleClick(record)}
                 @contextmenu=${(e: MouseEvent) => this.onRowContextMenu(e, record)}
                 @pointerdown=${(e: PointerEvent) => this.onPointerDown(e, record)}
                 @pointerup=${this.onPointerEnd} @pointercancel=${this.onPointerEnd} @pointerleave=${this.onPointerEnd}>
-                <div class="cell">
-                    ${this.selectionMode !== 'none' ? html`
-                        <button class="check" role="checkbox" tabindex="-1" aria-label=${`Select ${record.name}`}
-                            aria-checked=${selected ? 'true' : 'false'} @click=${(e: Event) => this.onCheck(e, record)}>${icon('check')}</button>` : nothing}
-                </div>
-                <div class="cell name" title=${record.name}>
-                    ${kindIcon(kind)}
-                    ${renaming ? html`
-                        <input class="rename" aria-label="New name" .value=${record.name}
-                            @keydown=${(e: KeyboardEvent) => this.onRenameKeydown(e, record)}
-                            @click=${(e: Event) => e.stopPropagation()} @dblclick=${(e: Event) => e.stopPropagation()}
-                            @blur=${(e: FocusEvent) => void this.commitRename(record, e.target as HTMLInputElement)}>`
-                        : html`<span class="label">${record.name}</span>
-                            <span class="actions">
-                                <button class="icon-button more-actions" tabindex="-1" aria-label=${`More actions for ${record.name}`} title="More actions"
-                                    @click=${(e: MouseEvent) => { e.stopPropagation(); this.openRowMenu(record, e.currentTarget as Element); }}
-                                    @dblclick=${(e: Event) => e.stopPropagation()}>${icon('more')}</button>
-                            </span>`}
-                </div>
-                <div class="cell modified muted">${formatDate(record.modified)}</div>
-                <div class="cell size muted">${formatItemSize(record)}</div>
+                ${grid ? html`
+                    ${check}
+                    <div class="thumb">${thumb ? html`<img src=${thumb} alt="" draggable="false">` : kindIcon(kind)}</div>
+                    <div class="name" title=${record.name}>${name}${renaming ? nothing : actions}</div>
+                    <div class="sub muted">${where !== nothing ? where : record.kind === 'folder' ? formatItemSize(record) : formatDate(record.modified)}</div>
+                    ${dropping ? this.dropBadge() : nothing}` : html`
+                    <div class="cell">${check}</div>
+                    <div class="cell name" title=${record.name}>
+                        ${kindIcon(kind)}${name}${renaming ? nothing : html`${where}${dropping ? this.dropBadge() : nothing}${actions}`}
+                    </div>
+                    <div class="cell modified muted">${formatDate(record.modified)}</div>
+                    <div class="cell size muted">${formatItemSize(record)}</div>`}
             </div>`;
+    }
+
+    /** "1.2 MB of 2 GB used", with a meter, for storages that know. */
+    private renderQuota() {
+        const q = this.quota;
+        if (!q?.quota) return nothing;
+        const used = q.usage ?? 0;
+        const fraction = Math.min(1, used / q.quota);
+        const note = q.lasting ? '' : 'The browser may clear these files if space runs short.';
+        return html`
+            <div class="quota ${fraction > 0.9 ? 'full' : ''}" part="quota" title=${note}>
+                <span class="meter" role="meter" aria-label="Storage used" aria-valuemin="0" aria-valuemax=${q.quota} aria-valuenow=${used}
+                    aria-valuetext=${`${formatSize(used)} of ${formatSize(q.quota)}`}><span style=${`width: ${(fraction * 100).toFixed(1)}%`}></span></span>
+                <span class="text">${formatSize(used)} of ${formatSize(q.quota)} used</span>
+            </div>`;
+    }
+
+    /** The details pane: one item's preview and facts, a selection's total, or the folder's. */
+    private renderDetails(selected: FileRecord[]) {
+        const one = selected.length === 1 ? selected[0] : undefined;
+        let body;
+        if (one) {
+            const kind = kindOf(one);
+            const thumb = this.storage && (kind === 'picture' || kind === 'video') ? this.thumbnails.get(this.storage, one) : undefined;
+            const meta = one.meta ?? {};
+            const facts: [string, string][] = [['Type', one.kind === 'folder' ? 'Folder' : `${kindLabel(kind)}${one.type ? ` (${one.type})` : ''}`]];
+            facts.push(one.kind === 'folder' ? ['Contains', formatItemSize(one)] : ['Size', formatSize(one.size)]);
+            if (meta.width && meta.height) facts.push(['Dimensions', `${meta.width} × ${meta.height}`]);
+            if (meta.duration) facts.push(['Duration', formatDuration(meta.duration)]);
+            facts.push(['Modified', formatDateTime(one.modified)], ['Created', formatDateTime(one.created)]);
+            facts.push(['Where', folderOf(one.path) ? `${this.rootLabel} › ${folderOf(one.path).split('/').join(' › ')}` : this.rootLabel]);
+            body = html`
+                <div class="preview">${thumb ? html`<img src=${thumb} alt="">` : kindIcon(kind)}</div>
+                <h3>${one.name}</h3>
+                <dl>${facts.map(([k, v]) => html`<dt>${k}</dt><dd data-fact=${k.toLowerCase()}>${v}</dd>`)}</dl>`;
+        } else if (selected.length) {
+            const files = selected.filter(r => r.kind === 'file');
+            body = html`
+                <div class="preview">${icon('copy')}</div>
+                <h3>${selected.length} items selected</h3>
+                <dl>
+                    <dt>Files</dt><dd data-fact="files">${files.length}</dd>
+                    <dt>Folders</dt><dd data-fact="folders">${selected.length - files.length}</dd>
+                    <dt>Size</dt><dd data-fact="size">${formatSize(files.reduce((n, f) => n + f.size, 0))}${files.length < selected.length ? ' (files only)' : ''}</dd>
+                </dl>`;
+        } else {
+            body = html`
+                <div class="preview">${kindIcon('folder')}</div>
+                <h3>${this.path ? nameOf(this.path) : this.rootLabel}</h3>
+                <dl><dt>Contains</dt><dd data-fact="contains">${this.items.length}${this.next ? '+' : ''} ${this.items.length === 1 ? 'item' : 'items'}</dd></dl>`;
+        }
+        return html`
+            <aside class="details" part="details" aria-label="Details">
+                ${body}
+                <slot name="details"></slot>
+            </aside>`;
     }
 
     private renderMenu() {
@@ -859,6 +1331,19 @@ export class JuelFileManager extends LitElement {
                 </form>
             </dialog>`;
     }
+}
+
+/** The drag image for rows: their name, or "N items". It only has to be in the page while setDragImage runs. */
+function dragLabel(text: string): HTMLElement {
+    const label = document.createElement('div');
+    label.textContent = text;
+    Object.assign(label.style, {
+        position: 'fixed', top: '-1000px', left: '0', padding: '0.25rem 0.75rem', borderRadius: '999px',
+        background: '#0f6cbd', color: '#fff', font: '600 0.875rem system-ui, sans-serif', whiteSpace: 'nowrap',
+    });
+    document.body.append(label);
+    setTimeout(() => label.remove());
+    return label;
 }
 
 /** Saves a Blob as a download. */

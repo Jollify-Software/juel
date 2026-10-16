@@ -85,10 +85,13 @@ export const FileManagerStyles = css`
         min-height: 2.75rem;
         padding: 0.25rem 0.5rem;
         border-bottom: 1px solid var(--_border);
-        flex-wrap: wrap;
     }
-    .bar .commands, .bar .end { display: flex; align-items: center; gap: 0.125rem; flex-wrap: wrap; }
-    .bar .end { margin-left: auto; }
+    /* One line, always: a bar that wrapped when the selection changed would move the list under the pointer. */
+    .bar .commands, .bar .end { display: flex; align-items: center; gap: 0.125rem; }
+    .bar .commands { min-width: 0; overflow: hidden; }
+    .bar .end { flex: none; margin-left: auto; }
+    .bar.compact .commands .text { display: none; }
+    .bar.compact .commands .command { padding: 0 0.5rem; }
     .command {
         display: inline-flex;
         align-items: center;
@@ -98,6 +101,21 @@ export const FileManagerStyles = css`
         white-space: nowrap;
     }
     .command:hover:not(:disabled) { background: var(--_hover); }
+    .command[aria-pressed="true"] { background: var(--_selected); }
+    .search {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        height: 2rem;
+        padding: 0 0.6rem;
+        margin: 0.5rem 0.75rem 0 auto;
+        border: 1px solid var(--_border);
+        border-radius: 999px;
+        color: var(--_muted);
+    }
+    .search:focus-within { border-color: var(--_accent); }
+    .search .icon { width: 1rem; height: 1rem; }
+    .search input { width: 10rem; padding: 0; border: 0; outline: none; font: inherit; color: var(--_fg); background: none; }
     .command.danger:hover { color: var(--_danger); }
     .chip {
         display: inline-flex;
@@ -111,9 +129,13 @@ export const FileManagerStyles = css`
     }
     .chip:hover { background: var(--_hover); }
     .chip .icon { width: 1rem; height: 1rem; }
+    .chevron { display: contents; }
 
-    /* Where we are */
+    /* Where we are, and search */
+    .where-bar { display: flex; align-items: flex-start; flex-wrap: wrap; }
     .crumbs {
+        flex: 1 1 auto;
+        min-width: 0;
         display: flex;
         align-items: center;
         flex-wrap: wrap;
@@ -130,14 +152,33 @@ export const FileManagerStyles = css`
     .crumb[aria-current="page"] { color: var(--_fg); font-weight: 600; cursor: default; }
     .crumb[aria-current="page"]:hover { background: none; }
     .crumbs .sep { display: inline-grid; color: var(--_muted); }
+    .crumbs .results { padding: 0.125rem 0.375rem; font-weight: 600; }
     .crumbs .sep .icon { width: 1rem; height: 1rem; }
 
-    /* The list */
+    /* The list (and the details pane beside it) */
+    .body { flex: 1; min-height: 0; display: flex; }
     .list {
+        min-width: 0;
         flex: 1;
         overflow: auto;
         padding: 0 0.5rem 0.5rem;
         outline: none;
+    }
+    /* Files from the desktop over the view. */
+    .list.dropping { outline: 2px dashed var(--_accent); outline-offset: -2px; border-radius: var(--_radius); }
+    /* ...or over a folder row or crumb: that gets the outline, and a badge. */
+    .item.drop-target, .crumb.drop-target { outline: 2px dashed var(--_accent); outline-offset: -2px; border-radius: var(--_radius); }
+    .drop-badge {
+        flex: none;
+        margin-left: 0.5rem;
+        padding: 0 0.5rem;
+        border-radius: 999px;
+        background: var(--_accent);
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1.25rem;
+        pointer-events: none;
     }
     .row {
         display: grid;
@@ -171,11 +212,11 @@ export const FileManagerStyles = css`
     .head .sort .icon { width: 0.875rem; height: 0.875rem; }
     .head .sort .icon.up { transform: rotate(180deg); }
     .item { cursor: default; user-select: none; -webkit-user-select: none; border-radius: 6px; border-bottom-color: transparent; position: relative; }
-    .item::after { content: ""; position: absolute; left: 0.5rem; right: 0.5rem; bottom: -1px; border-bottom: 1px solid var(--_border); }
+    .row.item::after { content: ""; position: absolute; left: 0.5rem; right: 0.5rem; bottom: -1px; border-bottom: 1px solid var(--_border); }
     .item:hover { background: var(--_hover); }
     .item[aria-selected="true"] { background: var(--_selected); }
     .item[aria-selected="true"]:hover { background: var(--_selected-hover); }
-    .item[aria-selected="true"]::after, .item:hover::after { border-color: transparent; }
+    .row.item[aria-selected="true"]::after, .row.item:hover::after { border-color: transparent; }
     .list:focus-visible .item.focus { outline: 2px solid var(--_accent); outline-offset: -2px; }
     .muted { color: var(--_muted); }
 
@@ -220,6 +261,64 @@ export const FileManagerStyles = css`
         border: 1px solid var(--_accent);
         border-radius: 4px;
     }
+    .name .where { flex: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; font-size: 0.75rem; }
+
+    /* Tiles */
+    .list.grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(var(--file-manager-tile-width, 9.5rem), 1fr));
+        align-content: start;
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+    .list.grid > .empty, .list.grid > .more { grid-column: 1 / -1; }
+    .tile { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; padding: 0.5rem; border-radius: var(--_radius); }
+    .tile .thumb {
+        display: grid;
+        place-items: center;
+        aspect-ratio: 4 / 3;
+        overflow: hidden;
+        border-radius: 6px;
+        background: var(--_hover);
+    }
+    .tile:hover .thumb, .tile[aria-selected="true"] .thumb { background: var(--_bg); }
+    .tile .thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .tile .thumb .kind { width: 3rem; height: 3rem; color: var(--_muted); }
+    .tile .thumb .kind.picture, .tile .thumb .kind.video { color: #8a5cd1; }
+    .tile .thumb .kind.folder { width: 4rem; height: 4rem; }
+    .tile .name { min-height: 2rem; gap: 0.25rem; }
+    .tile .name .label { white-space: nowrap; }
+    .tile .sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.75rem; }
+    .tile .check { position: absolute; top: 0.875rem; left: 0.875rem; z-index: 1; margin: 0; }
+    .tile .drop-badge { position: absolute; top: 0.875rem; right: 0.875rem; margin: 0; }
+    .tile .rename { height: 1.75rem; }
+    .list.grid:focus-visible .tile.focus { outline: 2px solid var(--_accent); outline-offset: -2px; }
+
+    /* The details pane */
+    .details {
+        flex: none;
+        width: var(--file-manager-details-width, 18rem);
+        overflow: auto;
+        padding: 0.75rem 1rem 1rem;
+        border-left: 1px solid var(--_border);
+    }
+    .details .preview {
+        display: grid;
+        place-items: center;
+        aspect-ratio: 4 / 3;
+        margin-bottom: 0.75rem;
+        overflow: hidden;
+        border-radius: var(--_radius);
+        background: var(--_hover);
+        color: var(--_muted);
+    }
+    .details .preview img { width: 100%; height: 100%; object-fit: contain; }
+    .details .preview .icon { width: 3.5rem; height: 3.5rem; }
+    .details h3 { margin: 0 0 0.75rem; font-size: 1rem; font-weight: 600; overflow-wrap: anywhere; }
+    .details dl { display: grid; grid-template-columns: auto 1fr; gap: 0.375rem 0.75rem; margin: 0 0 0.75rem; }
+    .details dt { color: var(--_muted); }
+    .details dd { margin: 0; overflow-wrap: anywhere; }
+
     .empty { padding: 3rem 1rem; text-align: center; color: var(--_muted); }
     .empty .icon { width: 3rem; height: 3rem; margin-bottom: 0.5rem; }
     .more { display: block; margin: 0.75rem auto; padding: 0.375rem 1rem; border: 1px solid var(--_border); }
@@ -232,6 +331,18 @@ export const FileManagerStyles = css`
         font-size: 0.8125rem;
     }
     .status.error { color: var(--_danger); }
+    .quota {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.375rem 0.75rem;
+        border-top: 1px solid var(--_border);
+        color: var(--_muted);
+        font-size: 0.8125rem;
+    }
+    .quota .meter { flex: none; width: 6rem; height: 0.375rem; overflow: hidden; border-radius: 999px; background: var(--_border); }
+    .quota .meter > span { display: block; height: 100%; background: var(--_accent); }
+    .quota.full .meter > span { background: var(--_danger); }
     .status:empty { display: none; }
 
     /* The ⋯ / sort / upload menu */
@@ -291,9 +402,18 @@ export const FileManagerStyles = css`
     dialog footer button { height: 2.25rem; padding: 0 1rem; border: 1px solid var(--_border); }
     dialog footer button.primary { color: #fff; background: var(--_accent); border-color: var(--_accent); }
 
+    @container (max-width: 1100px) {
+        .end .command .text { display: none; }
+    }
     @container (max-width: 640px) {
         .command .text { display: none; }
         .command { padding: 0 0.5rem; }
+        .search input { width: 6rem; }
+        .chip .text, .end .chevron { display: none; }
+        .chip { padding: 0 0.6rem 0 0.4rem; }
+        .body { flex-direction: column; }
+        .details { width: auto; max-height: 45%; border-left: 0; border-top: 1px solid var(--_border); }
+        .details .preview { aspect-ratio: auto; height: 8rem; }
     }
     @container (max-width: 520px) {
         .row { grid-template-columns: 2.5rem minmax(6rem, 1fr) var(--file-manager-size-width, 6rem); }

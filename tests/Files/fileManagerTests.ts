@@ -1,7 +1,7 @@
 // The file manager's pure parts: selection rules and formatting. The
 // component itself is tested in Chrome (tests/e2e/file-manager.spec.ts).
 import { Selection } from '../../src/Files/FileManager/Selection';
-import { formatDate, formatItemSize, formatSize } from '../../src/Files/FileManager/Format';
+import { formatDate, formatDuration, formatItemSize, formatSize, kindLabel } from '../../src/Files/FileManager/Format';
 import { FileRecord } from '../../src/Files/Storage/IFileStorage';
 
 const items = ['a', 'b', 'c', 'd', 'e'];
@@ -106,5 +106,17 @@ describe('Format', () => {
         expect(formatDate(new Date(2026, 9, 15, 9, 5).getTime(), now, 'en-GB')).toBe('09:05');
         expect(formatDate(new Date(2026, 1, 9).getTime(), now, 'en-US')).toBe('February 9');
         expect(formatDate(new Date(2024, 8, 13).getTime(), now, 'en-US')).toBe('September 13, 2024');
+    });
+});
+
+describe('formatDuration and kindLabel', () => {
+    test('durations read as a clock', () => {
+        expect(formatDuration(7)).toBe('0:07');
+        expect(formatDuration(205.4)).toBe('3:25');
+        expect(formatDuration(3725)).toBe('1:02:05');
+    });
+    test('kinds have names', () => {
+        expect(kindLabel('picture')).toBe('Picture');
+        expect(kindLabel('other')).toBe('File');
     });
 });

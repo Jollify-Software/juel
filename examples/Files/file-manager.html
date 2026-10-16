@@ -13,8 +13,11 @@
         header label { display: inline-flex; gap: 0.35rem; align-items: center; }
         main { display: grid; grid-template-columns: minmax(0, 1fr) 18rem; gap: 1rem; padding: 0 1rem 1rem; height: calc(100vh - 4rem); }
         juel-file-manager { border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.12); overflow: hidden; }
-        #log { margin: 0; padding: 0.5rem; overflow: auto; font: 12px/1.5 ui-monospace, monospace; background: rgba(127,127,127,.08); border-radius: 8px; }
-        @media (max-width: 760px) { main { grid-template-columns: 1fr; grid-template-rows: 1fr 8rem; } }
+        aside { display: flex; flex-direction: column; gap: 0.5rem; min-height: 0; }
+        aside p { margin: 0; font-size: 12px; opacity: .75; }
+        #out { height: 5rem; resize: none; font: 12px/1.5 ui-monospace, monospace; border: 1px dashed #999; border-radius: 8px; padding: 0.5rem; background: transparent; color: inherit; }
+        #log { flex: 1; margin: 0; padding: 0.5rem; overflow: auto; font: 12px/1.5 ui-monospace, monospace; background: rgba(127,127,127,.08); border-radius: 8px; }
+        @media (max-width: 760px) { main { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) 8rem; } }
     </style>
 </head>
 <body>
@@ -23,14 +26,20 @@
         <label><input type="checkbox" id="browser"> Browser storage (OPFS)</label>
         <label><input type="checkbox" id="dark"> Dark</label>
         <label><input type="checkbox" id="readonly"> Read-only</label>
+        <label><input type="checkbox" id="details"> Details</label>
+        <label>View <select id="view"><option value="list">list</option><option value="grid">tiles</option></select></label>
         <label>Show <select id="accept"><option value="">everything</option><option value="image/*">pictures</option><option value=".csv,.json">data</option></select></label>
     </header>
     <main>
         <juel-file-manager id="files" root-label="My files"></juel-file-manager>
-        <pre id="log" aria-label="Events"></pre>
+        <aside>
+            <p>Drop files or folders from the desktop onto the list, a folder or a crumb; drag rows onto a folder to move them; Ctrl+V pastes files or a screenshot.</p>
+            <textarea id="out" aria-label="Drag rows out here" placeholder="Drag rows out here: they carry their paths"></textarea>
+            <pre id="log" aria-label="Events"></pre>
+        </aside>
     </main>
     <script type="module">
-        const { MemoryFileStorage, BrowserFileStorage } = window.juel.files;
+        const { MemoryFileStorage, BrowserFileStorage, describeMedia } = window.juel.files;
         const manager = document.getElementById('files');
         const log = document.getElementById('log');
         const note = text => { log.textContent = `${text}\n${log.textContent}`.slice(0, 4000); };
@@ -68,7 +77,8 @@
         }
 
         async function memory() {
-            return new MemoryFileStorage({ files: await samples(), folders: ['Video', 'Empty folder'] });
+            // describeMedia: dimensions and thumbnails, as the browser storage has them.
+            return new MemoryFileStorage({ files: await samples(), folders: ['Video', 'Empty folder'], describe: describeMedia() });
         }
 
         async function browser() {
@@ -95,10 +105,6 @@
                 note(`${name} ${JSON.stringify(d.records ? { ...d, records: d.records.map(r => r.path) } : d.record ? d.record.path : d.error ? d.message : d)}`);
             });
         }
-        manager.addEventListener('file-open', e => {
-            // The default downloads the file; the example logs it instead.
-            e.preventDefault();
-        });
 
         const choose = async () => {
             const kind = document.getElementById('browser').checked ? 'browser' : 'memory';
@@ -112,6 +118,8 @@
         document.getElementById('dark').addEventListener('change', e => document.documentElement.setAttribute('data-theme', e.target.checked ? 'dark' : 'light'));
         document.getElementById('readonly').addEventListener('change', e => { manager.readonly = e.target.checked; });
         document.getElementById('accept').addEventListener('change', e => { manager.accept = e.target.value; });
+        document.getElementById('view').addEventListener('change', e => { manager.view = e.target.value; });
+        document.getElementById('details').addEventListener('change', e => { manager.details = e.target.checked; });
         document.getElementById('dark').checked = document.documentElement.getAttribute('data-theme') === 'dark';
         await choose();
         window.exampleReady = true;

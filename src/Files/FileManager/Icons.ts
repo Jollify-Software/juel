@@ -23,6 +23,9 @@ const Paths: Record<string, SVGTemplateResult> = {
     chevron: svg`<path d="M9 6l6 6-6 6"/>`,
     'chevron-down': svg`<path d="M6 9l6 6 6-6"/>`,
     up: svg`<path d="M12 19V5M6 11l6-6 6 6"/>`,
+    info: svg`<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.01"/>`,
+    search: svg`<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/>`,
+    'chevron-left': svg`<path d="M15 6l-6 6 6 6"/>`,
     insert: svg`<path d="M12 5v14M5 12h14"/>`,
     // File kinds
     file: svg`<path d="M6 3h8l5 5v11.5A1.5 1.5 0 0 1 17.5 21h-11A1.5 1.5 0 0 1 5 19.5v-15A1.5 1.5 0 0 1 6.5 3z"/><path d="M14 3v5h5"/>`,
