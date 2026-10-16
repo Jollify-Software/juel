@@ -1682,7 +1682,7 @@ ${mB(this.code(e,t))}
     dialog form { display: flex; flex-direction: column; max-height: inherit; }
     dialog h2 { margin: 0; padding: 1rem 1.25rem 0.5rem; font-size: 1.125rem; font-weight: 600; }
     dialog .folders { flex: 1; overflow: auto; padding: 0.25rem 0.75rem; min-height: 8rem; }
-    dialog .folder {
+    dialog button.folder {
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -1691,8 +1691,8 @@ ${mB(this.code(e,t))}
         padding: 0 0.5rem;
         text-align: left;
     }
-    dialog .folder:hover:not(:disabled) { background: var(--_hover); }
-    dialog .folder[aria-selected="true"] { background: var(--_selected); }
+    dialog button.folder:hover:not(:disabled) { background: var(--_hover); }
+    dialog button.folder[aria-selected="true"] { background: var(--_selected); }
     dialog footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 0.75rem 1.25rem 1rem; }
     dialog footer button { height: 2.25rem; padding: 0 1rem; border: 1px solid var(--_border); }
     dialog footer button.primary { color: #fff; background: var(--_accent); border-color: var(--_accent); }

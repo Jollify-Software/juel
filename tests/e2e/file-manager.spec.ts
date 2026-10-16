@@ -173,7 +173,19 @@ test('moves and copies with the folder chooser; duplicates', async ({ page }) =>
     await command(page, 'move').click();
     const dialog = page.locator('juel-file-manager dialog[open]');
     await expect(dialog.locator('h2')).toHaveText('Move 2 items to…');
-    await dialog.locator('.folder[data-path="Styles"]').click();
+    // Each choice is a small icon then its name on one line, with no sideways scroll
+    // (the icon's own `folder` class once picked up the row's width and padding).
+    const layout = await dialog.locator('.folders').evaluate(list => {
+        const choice = list.querySelector('button.folder[data-path="Styles"]')!;
+        const icon = choice.querySelector('svg')!.getBoundingClientRect();
+        const name = choice.querySelector('span')!.getBoundingClientRect();
+        return { iconWidth: icon.width, gap: name.left - icon.right, nameHeight: name.height, choiceHeight: choice.getBoundingClientRect().height, overflow: list.scrollWidth - list.clientWidth };
+    });
+    expect(layout.iconWidth).toBeLessThan(32);
+    expect(layout.gap).toBeLessThan(16);
+    expect(layout.nameHeight).toBeLessThanOrEqual(layout.choiceHeight);
+    expect(layout.overflow).toBeLessThanOrEqual(0);
+    await dialog.locator('button.folder[data-path="Styles"]').click();
     await dialog.locator('[data-command="choose"]').click();
     await expect(dialog).toHaveCount(0);
     await expect(row(page, 'logo.png')).toHaveCount(0);
