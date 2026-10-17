@@ -53,7 +53,10 @@ Opening a file (double-click, Enter, Open) shows it in `<juel-file-viewer>`
 unless the page cancels `file-open`. Upload offers files, a folder, or a zip
 to unpack; a .zip already in the storage has Extract in its ⋯ menu. A zip
 holding one folder comes out as that folder; anything else goes into a new
-folder named after the zip (as Windows' Extract All does). A storage that
+folder named after the zip (as Windows' Extract All does). A page restoring a
+backup calls `unpack(zip, name, folder, { inPlace: true })` to put everything
+straight back where it was. A file already there with the same bytes is left
+alone, and any other clash keeps both. A storage that
 knows its quota (`capabilities.quota`) gets a "1.2 MB of 10 GB used" line
 with a meter.
 
@@ -100,7 +103,7 @@ adds or removes.
 | `theme="dark"` | dark without a dark page (a page with `<html data-theme="dark">` gets it anyway) |
 
 Methods: `navigate(path)`, `select(paths)`, `reload()`, `startRename(path)`,
-`upload(files, folder?)`, `unpack(zip, name, folder?)`, `search(text)`,
+`upload(files, folder?)`, `unpack(zip, name, folder?, { inPlace? })`, `search(text)`,
 `open(record)`, `announce(message, error?)` (the page's own message in the
 status line, e.g. after an action from a `header` slot); `selectedRecords`, `records`, `loaded` (a promise for the
 folder on show).
@@ -217,7 +220,7 @@ to a `MemoryFileStorage` for dimensions and thumbnails.
 `Zip/Zip.ts` writes stored (uncompressed) zips streamed from Blobs and reads
 stored and deflated ones; no Zip64 (4 GB / 65 535 entries). `Zip/Transfer.ts`
 does it for a storage: `zipFolder(storage, folder)`, `unzipInto(storage, zip,
-folder, onConflict)`, and `saveToDirectory(storage, folder, handle)` for
+folder, onConflict)` (it skips files already there with the same bytes, counted as `same`), and `saveToDirectory(storage, folder, handle)` for
 Chrome and Edge's `showDirectoryPicker`.
 
 ## Tests

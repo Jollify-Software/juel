@@ -156,9 +156,15 @@ describe('zip', () => {
         expect([name, files]).toEqual(['trip.zip', 2]);
         const to = new MemoryFileStorage({ files: { 'in/a.txt': 'different' } });
         const result = await unzipInto(to, zip, 'in');
-        expect(result).toEqual({ files: 2, renamed: [{ from: 'in/a.txt', to: 'in/a (2).txt' }] });
+        expect(result).toEqual({ files: 2, renamed: [{ from: 'in/a.txt', to: 'in/a (2).txt' }], same: 0 });
         expect((await to.list('in', { deep: true })).items.map(i => i.path)).toEqual(['in/day 2', 'in/empty', 'in/a (2).txt', 'in/a.txt', 'in/day 2/b.txt']);
         expect(await (await to.read('in/a (2).txt')).text()).toBe('a');
         expect((await zipFolder(from, '')).name).toBe('files.zip');
+        // Unpacking it again leaves what's there byte for byte alone (day 2/b.txt), and keeps both
+        // where it differs (in/a.txt holds 'different').
+        expect(await unzipInto(to, zip, 'in')).toEqual({ files: 1, renamed: [{ from: 'in/a.txt', to: 'in/a (3).txt' }], same: 1 });
+        const fresh = new MemoryFileStorage();
+        await unzipInto(fresh, zip, '');
+        expect(await unzipInto(fresh, zip, '')).toEqual({ files: 0, renamed: [], same: 2 });
     });
 });

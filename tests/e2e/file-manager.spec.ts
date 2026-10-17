@@ -758,6 +758,28 @@ test('Upload > Zip, unpacked: loose files go into a folder named after the zip; 
     await expect(row(page, 'whatever')).toHaveCount(0);
 });
 
+test('unpack in place (restoring a backup): no wrapping folder; same bytes are left alone', async ({ page }) => {
+    const bytes = await zipOf(page, { 'restored.txt': 'R', 'Back/b.txt': 'B' });
+    const result = await page.evaluate(async bytes => {
+        const manager = document.getElementById('files') as any;
+        const added: string[] = [];
+        manager.addEventListener('file-added', (e: CustomEvent) => added.push(...e.detail.records.map((r: any) => r.path)));
+        const zip = new Blob([new Uint8Array(bytes)], { type: 'application/zip' });
+        await manager.unpack(zip, 'backup.zip', '', { inPlace: true });
+        const first = manager.shadowRoot.querySelector('.status').textContent.trim();
+        await manager.unpack(zip, 'backup.zip', '', { inPlace: true });
+        return { added: added.sort(), first, again: manager.shadowRoot.querySelector('.status').textContent.trim() };
+    }, [...bytes]);
+    expect(result.first).toBe('Unpacked 2 files from "backup.zip"');
+    expect(result.added).toEqual(['Back', 'Back', 'restored.txt', 'restored.txt']);
+    expect(await exists(page, 'restored.txt')).toBe(true);
+    expect(await exists(page, 'Back/b.txt')).toBe(true);
+    expect(await exists(page, 'backup')).toBe(false);
+    // The second time, everything is already there.
+    expect(result.again).toBe('Unpacked 0 files from "backup.zip"; 2 already there');
+    expect(await exists(page, 'restored (2).txt')).toBe(false);
+});
+
 test('a .zip in the storage has Extract in its menu; a broken one says so', async ({ page }) => {
     const bytes = await zipOf(page, { 'one.txt': '1' });
     await page.evaluate(async bytes => {
