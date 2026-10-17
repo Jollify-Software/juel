@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>juel-quiz</title>
+    <script src="../../dist/juel.js"></script>
+    <style>
+        body { margin: 0; padding: 1rem; font: 16px/1.4 system-ui, sans-serif; background: #f3f3f3; color: #242424; }
+        h1 { font-size: 1.1rem; margin: 0 0 0.75rem; }
+        juel-quiz { max-width: 32rem; margin: 0 0 1.5rem; padding: 1rem; background: #fff; border-radius: 8px; }
+        #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre-wrap; opacity: .8; }
+    </style>
+</head>
+<body>
+    <h1>&lt;juel-quiz&gt;</h1>
+    <p>Choose, then Check: the answer dialog says right or wrong and shows the explanation. Reset clears it.</p>
+
+    <juel-quiz id="one" data-answer="1">
+        <p>Which planet is the largest?</p>
+        <ul><li>Mars</li><li>Jupiter</li><li>Venus</li><li>Mercury</li></ul>
+        <blockquote><p>Jupiter is more than twice the mass of all the other planets together.</p></blockquote>
+    </juel-quiz>
+
+    <juel-quiz id="several" data-answer="0,2">
+        <p>Which of these are mammals?</p>
+        <ul><li>Whale</li><li>Shark</li><li>Bat</li><li>Penguin</li></ul>
+    </juel-quiz>
+
+    <juel-quiz id="yesno" data-answer="0">
+        <p>Is the Sun a star?</p>
+        <ul><li>Yes</li><li>No</li></ul>
+        <blockquote><p>A G-type main-sequence star.</p></blockquote>
+    </juel-quiz>
+
+    <juel-quiz id="key" data-answer="1" show-answers>
+        <p>Answer key: which planet is the largest?</p>
+        <ul><li>Mars</li><li>Jupiter</li><li>Venus</li><li>Mercury</li></ul>
+    </juel-quiz>
+
+    <p>Sort: drag each item into its group (mouse or touch), then Check. Show the answer places them all; Try again starts over.</p>
+
+    <juel-quiz id="sort" type="sort" data-answer="0,0,0,1,1,2,2">
+        <p>Put each animal in its group.</p>
+        <ol data-groups><li data-colour="#c026d3">Mammal</li><li>Reptile</li><li>Bird</li></ol>
+        <ul><li>Dog</li><li>Whale</li><li>Bat</li><li>Snake</li><li>Lizard</li><li>Eagle</li><li>Penguin</li></ul>
+        <blockquote><p>Bats and whales are mammals; penguins are birds that don't fly.</p></blockquote>
+    </juel-quiz>
+
+    <juel-quiz id="sort-key" type="sort" data-answer="0,1,0,1" show-answers>
+        <p>Answer key: odd or even?</p>
+        <ol data-groups><li>Odd</li><li>Even</li></ol>
+        <ul><li>1</li><li>2</li><li>3</li><li>4</li></ul>
+    </juel-quiz>
+
+    <p>Match: drag each partner into the slot beside its entry. A slot holds one; dropping another sends the first back.</p>
+
+    <!-- data-answer[i]: the partner (source index) that belongs beside left entry i -->
+    <juel-quiz id="match" type="match" data-answer="1,2,0">
+        <p>Match each date to its event.</p>
+        <ul><li>1066</li><li>1815</li><li>1969</li></ul>
+        <ul data-partners><li>The Moon landing</li><li>The Battle of Hastings</li><li>The Battle of Waterloo</li></ul>
+        <blockquote><p>Hastings, Waterloo, then Apollo 11.</p></blockquote>
+    </juel-quiz>
+
+    <div id="log"></div>
+    <script>
+        const log = document.getElementById('log');
+        document.addEventListener('quiz-change', e => {
+            log.textContent += `${e.target.id}: ${e.detail.message.type} → ${JSON.stringify(e.detail.state)}\n`;
+        });
+        customElements.whenDefined('juel-quiz').then(() => { window.exampleReady = true; });
+    </script>
+</body>
+</html>
