@@ -192,6 +192,8 @@ export class LocalFileStorage implements IFileStorage {
 
     async write(path: string, data: Blob, options: WriteOptions = {}): Promise<WriteResult> {
         await this.open();
+        // Plain JavaScript may hand over a string (or an ArrayBuffer): make it a Blob.
+        if (!(data instanceof Blob)) data = new Blob([data as BlobPart]);
         let target = checkPath(path);
         const hash = await hashOf(data);
         const existing = this.records.get(target);

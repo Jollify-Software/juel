@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>juel-file-picker</title>
+    <script src="../../dist/juel.js"></script>
+    <style>
+        body { margin: 0; padding: 1rem; font: 14px/1.4 system-ui, sans-serif; background: #f3f3f3; color: #242424; }
+        html[data-theme="dark"] body { background: #141414; color: #eee; }
+        h1 { font-size: 1.1rem; margin: 0 0 0.75rem; }
+        .buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .buttons button { padding: 0.5rem 0.9rem; font: inherit; border: 1px solid #bbb; border-radius: 6px; background: #fff; cursor: pointer; }
+        html[data-theme="dark"] .buttons button { background: #2b2b2b; color: inherit; border-color: #555; }
+        #chosen { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+        #chosen figure { margin: 0; width: 9rem; font-size: 12px; }
+        #chosen img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 6px; background: #ddd; }
+        #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre-wrap; opacity: .8; }
+    </style>
+</head>
+<body>
+    <h1>&lt;juel-file-picker&gt;</h1>
+    <p>The file manager in a dialog: only the types asked for show; Upload adds files to the folder on show and selects them; Open (or a double-click) chooses.</p>
+    <div class="buttons">
+        <button id="one-picture">Choose a picture</button>
+        <button id="many">Choose several files</button>
+        <button id="data">Choose a data file (element on the page)</button>
+        <label><input type="checkbox" id="dark"> Dark</label>
+    </div>
+    <div id="chosen"></div>
+    <p id="log" aria-label="What was chosen"></p>
+
+    <!-- A picker placed on the page; the buttons above use juel.files.pick(), which makes one. -->
+    <juel-file-picker id="data-picker" heading="Choose a data file" accept=".csv,.json" open-label="Use this file"></juel-file-picker>
+
+    <script type="module">
+        const { MemoryFileStorage, describeMedia, pick } = window.juel.files;
+
+        async function picture(width, height, hue, label) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            const g = canvas.getContext('2d');
+            g.fillStyle = `hsl(${hue} 65% 50%)`; g.fillRect(0, 0, width, height);
+            g.fillStyle = 'white'; g.font = `${height / 6}px system-ui`; g.fillText(label, width / 12, height / 2);
+            return new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        }
+
+        const storage = new MemoryFileStorage({
+            files: {
+                'Pictures/harbour.png': await picture(800, 500, 200, 'Harbour'),
+                'Pictures/sunset.png': await picture(640, 400, 15, 'Sunset'),
+                'Data/sales.csv': 'region,q1\nNorth,120\n',
+                'Data/quiz.json': '[]',
+                'notes.md': '# Notes',
+                'logo.png': await picture(256, 256, 140, 'Logo'),
+            },
+            describe: describeMedia(),
+        });
+
+        const log = document.getElementById('log');
+        const chosen = document.getElementById('chosen');
+        async function show(records) {
+            log.textContent = records.length ? `Chose ${records.map(r => r.path).join(', ')}` : 'Cancelled';
+            chosen.replaceChildren();
+            for (const r of records.filter(r => r.type.startsWith('image/'))) {
+                const figure = document.createElement('figure');
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(await storage.read(r.path));
+                figure.append(img, r.name);
+                chosen.append(figure);
+            }
+        }
+
+        document.getElementById('one-picture').addEventListener('click', async () => show(await pick({ storage, accept: 'image/*', heading: 'Choose a picture' })));
+        document.getElementById('many').addEventListener('click', async () => show(await pick({ storage, multiple: true, heading: 'Choose files' })));
+        const element = document.getElementById('data-picker');
+        element.storage = storage;
+        document.getElementById('data').addEventListener('click', async () => show(await element.pick()));
+        document.getElementById('dark').addEventListener('change', e => document.documentElement.setAttribute('data-theme', e.target.checked ? 'dark' : 'light'));
+        window.exampleReady = true;
+    </script>
+</body>
+</html>

@@ -1,5 +1,9 @@
 {
   "format": {
     "ascii_only": true
+  },
+  "compress": {
+    "inline": 0,
+    "reduce_vars": false
   }
 }

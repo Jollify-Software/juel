@@ -27,22 +27,39 @@ export async function zipFolder(storage: IFileStorage, folder: string): Promise<
 }
 
 export interface ImportResult {
+    /** Files written (not counting `same`). */
     files: number;
     /** Paths that were taken, so the incoming file got a new name (with `keep-both`). */
     renamed: { from: string; to: string }[];
+    /** Files already there with the same bytes, so left as they were. */
+    same: number;
 }
 
-/** Unpacks a .zip into a folder. A clash keeps both unless told otherwise. */
+/**
+ * Unpacks a .zip into a folder. A file already there with the same bytes is
+ * left alone (so unpacking a backup twice changes nothing); any other clash
+ * keeps both unless told otherwise.
+ */
 export async function unzipInto(storage: IFileStorage, zip: Blob, folder: string, onConflict: OnConflict = 'keep-both'): Promise<ImportResult> {
-    const result: ImportResult = { files: 0, renamed: [] };
+    const result: ImportResult = { files: 0, renamed: [], same: 0 };
     for (const entry of await readZip(zip)) {
         const target = join(folder, entry.path);
         if (entry.folder) { await storage.makeFolder(target); continue; }
+        if (await sameBytes(storage, target, entry.data)) { result.same++; continue; }
         const written = await storage.write(target, new Blob([entry.data], { type: typeOf(entry.path) }), { onConflict });
         if (written.outcome === 'renamed') result.renamed.push({ from: target, to: written.record.path });
         result.files++;
     }
     return result;
+}
+
+async function sameBytes(storage: IFileStorage, path: string, data: Blob): Promise<boolean> {
+    const existing = await storage.stat(path);
+    if (!existing || existing.kind !== 'file' || existing.size !== data.size) return false;
+    const incoming = new Uint8Array(await data.arrayBuffer());
+    const bytes = new Uint8Array(await (await storage.read(path)).arrayBuffer());
+    for (let i = 0; i < bytes.length; i++) if (bytes[i] !== incoming[i]) return false;
+    return true;
 }
 
 /** Chrome and Edge can write into a folder on disk. */
