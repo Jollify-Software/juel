@@ -12,7 +12,7 @@ import { repeat } from 'lit/directives/repeat.js';
 import { computePosition, flip, offset, shift } from '@floating-ui/dom';
 import { FileRecord, FileSortKey, FileStorageError, IFileStorage, ListOptions, PathChange, StorageQuota } from '../Storage/IFileStorage';
 import { folderOf, join, kindOf, nameOf, parentsOf, uniquePath, within } from '../Storage/Paths';
-import { entriesUnder, unzipInto } from '../Zip/Transfer';
+import { canSaveToDisk, entriesUnder, saveToDirectory, unzipInto } from '../Zip/Transfer';
 import { readZip, writeZip, ZipEntry } from '../Zip/Zip';
 import { MessageBoxModule } from '../../_Modules/MessageBox/MessageBoxModule';
 import { MessageBoxButtons } from '../../_Modules/MessageBox/MessageBoxButtons';
@@ -78,6 +78,8 @@ export class JuelFileManager extends LitElement {
     @property({ type: Boolean, reflect: true }) descending = false;
     /** No changes: browse, open and download only. Also when the storage can't write. */
     @property({ type: Boolean, reflect: true }) readonly = false;
+    /** Browse only: open, download, upload and new folder, but no rename, move, copy, duplicate, extract or delete (what <juel-file-picker> sets). */
+    @property({ type: Boolean, reflect: true }) browse = false;
     /** Don't ask before deleting. */
     @property({ type: Boolean, attribute: 'no-confirm' }) noConfirm = false;
     /** How many items to ask the storage for at once. */
@@ -209,6 +211,11 @@ export class JuelFileManager extends LitElement {
     open(record: FileRecord) {
         if (record.kind === 'folder') { void this.navigate(record.path); return; }
         if (this.dispatch('file-open', { record }, true)) this.openViewer(record);
+    }
+
+    /** Shows `message` in the status line, as the manager's own actions do (an error stays until the next message). */
+    announce(message: string, error = false) {
+        this.say(message, error);
     }
 
     /** Resolves when the folder on show has loaded. */
@@ -364,20 +371,26 @@ export class JuelFileManager extends LitElement {
         return !this.readonly && !!this.storage && this.storage.capabilities.write;
     }
 
+    /** Changes to what is already there: rename, move, copy, delete. */
+    private get canEdit(): boolean {
+        return this.canWrite && !this.browse;
+    }
+
     private get canCopy(): boolean {
-        return this.canWrite && !!this.storage?.capabilities.copy;
+        return this.canEdit && !!this.storage?.capabilities.copy;
     }
 
     /** The commands for these items (none: the folder's own). */
     private commandsFor(records: FileRecord[]): Command[] {
-        const write = this.canWrite;
+        const write = this.canEdit;
         if (!records.length) {
             const commands: Command[] = [];
-            if (write) {
+            if (this.canWrite) {
                 commands.push({ id: 'new-folder', label: 'New folder', icon: 'new-folder', bar: true, run: () => void this.newFolder() });
                 commands.push({ id: 'upload', label: 'Upload', icon: 'upload', bar: true, run: () => this.openUploadMenu() });
             }
             for (const c of this.commands.filter(c => c.when?.([]))) commands.push({ ...this.pageCommand(c, []), bar: true });
+            if (canSaveToDisk() && !this.browse) commands.push({ id: 'save-to-disk', label: 'Save to disk', icon: 'download', bar: true, run: () => void this.saveToDisk([]) });
             return commands;
         }
         const one = records.length === 1 ? records[0] : undefined;
@@ -385,6 +398,7 @@ export class JuelFileManager extends LitElement {
         if (one) commands.push({ id: 'open', label: 'Open', icon: 'open', bar: true, run: () => this.open(one) });
         for (const c of this.commands.filter(c => (c.when ? c.when(records) : true))) commands.push({ ...this.pageCommand(c, records), bar: true });
         commands.push({ id: 'download', label: 'Download', icon: 'download', bar: true, run: () => void this.download(records) });
+        if (canSaveToDisk() && !this.browse) commands.push({ id: 'save-to-disk', label: 'Save to disk', icon: 'download', run: () => void this.saveToDisk(records) });
         if (write && one) commands.push({ id: 'rename', label: 'Rename', icon: 'rename', bar: true, run: () => void this.startRename(one.path) });
         if (write) commands.push({ id: 'move', label: 'Move to', icon: 'move', bar: true, run: () => void this.openChooser(records, false) });
         if (write && one && kindOf(one) === 'archive') commands.push({ id: 'extract', label: 'Extract', icon: 'archive', run: () => void this.extract(one) });
@@ -426,7 +440,7 @@ export class JuelFileManager extends LitElement {
             });
         }
         if (!viewer.isConnected) document.body.append(viewer);
-        viewer.canDelete = this.canWrite;
+        viewer.canDelete = this.canEdit;
         const files = this.items.filter(i => i.kind === 'file');
         void viewer.show(storage, files, files.indexOf(record));
     }
@@ -552,6 +566,37 @@ export class JuelFileManager extends LitElement {
             this.say(`Packing ${name}…`);
             save(await writeZip(entries), name);
             this.say(`Downloaded ${name}`);
+        } catch (error) {
+            this.fail(error);
+        }
+    }
+
+    /** Writes these items (none: the folder on show) into a folder on disk the user picks (Chrome and Edge). */
+    private async saveToDisk(records: FileRecord[]) {
+        const storage = this.storage;
+        if (!storage) return;
+        let root: FileSystemDirectoryHandle;
+        try {
+            root = await (globalThis as any).showDirectoryPicker({ mode: 'readwrite' });
+        } catch (error) {
+            if ((error as Error)?.name !== 'AbortError') this.fail(error);
+            return;
+        }
+        try {
+            this.say('Saving…');
+            let count = 0;
+            if (!records.length) count = await saveToDirectory(storage, this.path, root);
+            for (const r of records) {
+                if (r.kind === 'folder') {
+                    count += await saveToDirectory(storage, r.path, await root.getDirectoryHandle(r.name, { create: true }));
+                    continue;
+                }
+                const writable = await (await root.getFileHandle(r.name, { create: true })).createWritable();
+                await writable.write(await storage.read(r.path));
+                await writable.close();
+                count++;
+            }
+            this.say(`Saved ${count === 1 ? '1 file' : `${count} files`} to "${root.name}"`);
         } catch (error) {
             this.fail(error);
         }
@@ -840,10 +885,10 @@ export class JuelFileManager extends LitElement {
                 return;
             case 'Backspace': e.preventDefault(); this.goUp(); return;
             case 'Delete':
-                if (this.canWrite && this.selection.size) { e.preventDefault(); void this.deleteItems(this.selectedRecords); }
+                if (this.canEdit && this.selection.size) { e.preventDefault(); void this.deleteItems(this.selectedRecords); }
                 return;
             case 'F2':
-                if (focused && this.canWrite) { e.preventDefault(); void this.startRename(focused.path); }
+                if (focused && this.canEdit) { e.preventDefault(); void this.startRename(focused.path); }
                 return;
             case 'Escape':
                 if (this.selection.size) { e.preventDefault(); this.selection.clear(); this.selectionChanged(); }
@@ -1004,7 +1049,7 @@ export class JuelFileManager extends LitElement {
             if (node === this) break;
         }
         if (!target || kind === 'files') return target;
-        return this.canMoveInto(target.path) ? { ...target, move: true } : undefined;
+        return this.canEdit && this.canMoveInto(target.path) ? { ...target, move: true } : undefined;
     }
 
     /** Whether the dragged rows can move into a folder: not where they are, nor into themselves. */

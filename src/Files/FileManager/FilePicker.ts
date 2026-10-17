@@ -1,5 +1,6 @@
 // <juel-file-picker>: <juel-file-manager> in a dialog, to choose files. Only
-// `accept`ed types show; Upload puts new files in the folder on show (and
+// `accept`ed types show; it only browses (the manager's `browse`: no rename, move,
+// copy or delete). Upload puts new files in the folder on show (and
 // selects them); Open or a double-click chooses. See src/Files/README.md.
 //
 //   const [record] = await JuelFilePicker.choose({ storage, accept: 'image/*' });
@@ -20,6 +21,8 @@ export interface FilePickerOptions {
     multiple?: boolean;
     /** The folder to start in. */
     path?: string;
+    /** Files (in `path`) to start with selected, such as the one already chosen. */
+    selected?: string[];
     rootLabel?: string;
     heading?: string;
     openLabel?: string;
@@ -45,6 +48,8 @@ export class JuelFilePicker extends LitElement {
     @property({ type: Boolean }) multiple = false;
     /** The folder to start in; follows the user. */
     @property() path = '';
+    /** Files (in `path`) selected when it opens; ones not there are skipped. */
+    @property({ attribute: false }) selected: string[] = [];
     @property({ attribute: 'root-label' }) rootLabel = 'My files';
     @property() heading = 'Choose a file';
     @property({ attribute: 'open-label' }) openLabel = 'Open';
@@ -53,6 +58,7 @@ export class JuelFilePicker extends LitElement {
     @state() private chosen: FileRecord[] = [];
 
     @query('juel-file-manager') private manager?: JuelFileManager;
+    @query('dialog.picker') private dialog?: HTMLDialogElement;
 
     private pending?: Promise<FileRecord[]>;
     private resolve?: (records: FileRecord[]) => void;
@@ -68,9 +74,17 @@ export class JuelFilePicker extends LitElement {
         this.open = true;
         this.pending = new Promise(resolve => { this.resolve = resolve; });
         void this.updateComplete.then(async () => {
+            // A modal <dialog>, so it opens over one the page already has open (an app's "Insert
+            // image" dialog, say). It only browses, so it never needs a message box over it.
+            if (this.dialog && !this.dialog.open) this.dialog.showModal();
             this.makeRestInert();
-            await this.manager?.updateComplete;
-            this.manager?.shadowRoot?.querySelector<HTMLElement>('.list')?.focus();
+            const manager = this.manager;
+            await manager?.updateComplete;
+            if (manager && this.selected.length) {
+                await manager.loaded;
+                manager.select(this.selected);
+            }
+            manager?.shadowRoot?.querySelector<HTMLElement>('.list')?.focus();
         });
         return this.pending;
     }
@@ -89,6 +103,7 @@ export class JuelFilePicker extends LitElement {
         if (!this.pending) return;
         const resolve = this.resolve!;
         this.pending = this.resolve = undefined;
+        if (this.dialog?.open) this.dialog.close();
         this.open = false;
         this.giveBackInert();
         this.dispatchEvent(new CustomEvent(records.length ? 'file-picked' : 'pick-cancel', { detail: { records }, bubbles: true, composed: true }));
@@ -97,7 +112,7 @@ export class JuelFilePicker extends LitElement {
         this.returnFocus = undefined;
     }
 
-    /** Everything else on the page, while the picker is open: a modal without <dialog>, so Juel's message box can still show over it. */
+    /** Everything else on the page, while the picker is open (the modal <dialog> blocks it too; this keeps it so in older browsers). */
     private makeRestInert() {
         let top: Element = this;
         while (top.parentElement && top.parentElement !== document.body) top = top.parentElement;
@@ -149,7 +164,7 @@ export class JuelFilePicker extends LitElement {
 
     private onKeydown(e: KeyboardEvent) {
         // The manager's own Escapes (a menu, a rename, the Move to dialog, the selection) come first.
-        if (e.key !== 'Escape' || e.defaultPrevented || e.composedPath().some(n => n instanceof HTMLDialogElement)) return;
+        if (e.key !== 'Escape' || e.defaultPrevented || e.composedPath().some(n => n instanceof HTMLDialogElement && n !== this.dialog)) return;
         e.preventDefault();
         this.cancel();
     }
@@ -159,13 +174,14 @@ export class JuelFilePicker extends LitElement {
         const { files, folder } = this.openable;
         const summary = folder ? `Folder "${folder.name}"` : files.length ? countLabel(files) : this.multiple ? 'Choose one or more files' : 'Choose a file';
         return html`
+            <dialog class="picker" aria-label=${this.heading} @cancel=${(e: Event) => { e.preventDefault(); this.cancel(); }}>
             <div class="backdrop" part="backdrop" @click=${(e: Event) => { if (e.target === e.currentTarget) this.cancel(); }}>
                 <div class="panel" part="panel" role="dialog" aria-modal="true" aria-label=${this.heading} @keydown=${this.onKeydown}>
                     <header>
                         <h2>${this.heading}</h2>
                         <button class="close" data-command="cancel-x" aria-label="Cancel" title="Cancel" @click=${this.cancel}>${icon('close')}</button>
                     </header>
-                    <juel-file-manager exportparts="bar, crumbs, list, status, menu, empty, details, quota, search"
+                    <juel-file-manager browse exportparts="bar, crumbs, list, status, menu, empty, details, quota, search"
                         .storage=${this.storage} .path=${this.path} root-label=${this.rootLabel} accept=${this.accept}
                         selection-mode=${this.multiple ? 'multiple' : 'single'}
                         @path-changed=${(e: CustomEvent<{ path: string }>) => { this.path = e.detail.path; }}
@@ -176,12 +192,28 @@ export class JuelFilePicker extends LitElement {
                         <button class="primary" data-command="pick" ?disabled=${!folder && !files.length} @click=${this.onOpen}>${this.openLabel}</button>
                     </footer>
                 </div>
-            </div>`;
+            </div>
+            </dialog>`;
     }
 
     static styles = css`
         :host { display: contents; }
         *, *::before, *::after { box-sizing: border-box; }
+        dialog.picker {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            overflow: visible;
+            color: inherit;
+            background: transparent;
+        }
+        dialog.picker::backdrop { background: transparent; }
         .backdrop {
             position: fixed;
             inset: 0;

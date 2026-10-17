@@ -108,3 +108,139 @@ test('dark: the picker follows the page', async ({ page }) => {
     expect(await picker(page).evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(31, 31, 31)');
     await page.keyboard.press('Escape');
 });
+
+test('it only browses: Open, upload and New folder, but no Rename, Move to, Copy to or Delete', async ({ page }) => {
+    await page.click('#many');
+    const manager = page.locator('juel-file-picker juel-file-manager');
+    await expect(manager).toHaveAttribute('browse', '');
+    const bar = (id: string) => manager.locator(`.bar [data-command="${id}"]`);
+    // Nothing selected: New folder and Upload are there.
+    await expect(bar('new-folder')).toHaveCount(1);
+    await expect(bar('upload')).toHaveCount(1);
+    // A file selected: Open and Download, nothing that changes it.
+    await row(page, 'notes.md').click();
+    await expect(bar('open')).toHaveCount(1);
+    for (const id of ['rename', 'move', 'copy', 'delete']) await expect(bar(id)).toHaveCount(0);
+    // Nor in the ⋯ menu.
+    await row(page, 'notes.md').locator('.more-actions').click();
+    const menu = manager.locator('.menu');
+    await expect(menu.locator('[data-item="open"]')).toHaveCount(1);
+    for (const id of ['rename', 'move', 'copy', 'duplicate', 'delete']) await expect(menu.locator(`[data-item="${id}"]`)).toHaveCount(0);
+    await page.keyboard.press('Escape');
+    // Nor by the keyboard: F2 doesn't rename, Delete doesn't delete.
+    await row(page, 'notes.md').click();
+    await page.keyboard.press('F2');
+    await expect(manager.locator('input.rename')).toHaveCount(0);
+    await page.keyboard.press('Delete');
+    await expect(row(page, 'notes.md')).toBeVisible();
+    await expect(page.locator('juel-message-box, .juel-message-box')).toHaveCount(0);
+});
+
+test('it opens over a modal <dialog> already open, and can be used there', async ({ page }) => {
+    // An app's own modal dialog (say "Insert image") that opens the picker.
+    await page.evaluate(() => {
+        const dialog = document.createElement('dialog');
+        dialog.id = 'app-dialog';
+        dialog.innerHTML = '<button id="from-dialog">Choose…</button>';
+        dialog.querySelector('button')!.addEventListener('click', () => document.getElementById('one-picture')!.click());
+        document.body.append(dialog);
+        dialog.showModal();
+    });
+    await page.click('#from-dialog');
+    await expect(picker(page)).toBeVisible();
+    await page.locator('juel-file-picker footer [data-command="cancel-pick"]').click();
+    await expect(picker(page)).toHaveCount(0);
+    await expect(log(page)).toHaveText('Cancelled');
+    await page.click('#from-dialog');
+    await row(page, 'logo.png').click();
+    await pickButton(page).click();
+    await expect(log(page)).toHaveText('Chose logo.png');
+    // The app's dialog is still open, and usable again.
+    await expect(page.locator('#app-dialog')).toHaveJSProperty('open', true);
+    await page.click('#from-dialog');
+    await page.keyboard.press('Escape');
+    await expect(picker(page)).toHaveCount(0);
+    await expect(page.locator('#app-dialog')).toHaveJSProperty('open', true);
+});
+
+// --- Narrow, touch and dark ----------------------------------------------------
+
+/** A touch tap (or press, held for `ms`) on an element. */
+async function tap(page: Page, locator: ReturnType<Page['locator']>, ms = 50) {
+    const box = (await locator.boundingBox())!;
+    const at = { clientX: box.x + box.width / 2, clientY: box.y + box.height / 2, pointerType: 'touch', isPrimary: true, bubbles: true, composed: true };
+    await locator.dispatchEvent('pointerdown', at);
+    await page.waitForTimeout(ms);
+    await locator.dispatchEvent('pointerup', at);
+    // A tap's click is a PointerEvent with pointerType "touch" (dispatchEvent('click') would make a MouseEvent).
+    await locator.evaluate((el, at) => el.dispatchEvent(new PointerEvent('click', { ...at, detail: 1 } as PointerEventInit)), at);
+}
+
+test('narrow: the panel fits a phone, the bar stays on one line, and Open is on screen', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 640 });
+    await page.click('#many');
+    const panel = (await picker(page).boundingBox())!;
+    expect(panel.x).toBeGreaterThanOrEqual(0);
+    expect(panel.y).toBeGreaterThanOrEqual(0);
+    expect(panel.x + panel.width).toBeLessThanOrEqual(360);
+    expect(panel.y + panel.height).toBeLessThanOrEqual(640);
+    await row(page, 'logo.png').click();
+    expect((await page.locator('juel-file-picker juel-file-manager .bar').boundingBox())!.height).toBeLessThan(60);
+    const open = (await pickButton(page).boundingBox())!;
+    expect(open.x + open.width).toBeLessThanOrEqual(360);
+    expect(open.y + open.height).toBeLessThanOrEqual(640);
+    await pickButton(page).click();
+    await expect(log(page)).toHaveText('Chose logo.png');
+});
+
+test('touch: a tap selects; in a one-file picker the next tap moves the selection, in a several-file picker it adds', async ({ page }) => {
+    await page.click('#one-picture');
+    await tap(page, row(page, 'logo.png'));
+    await expect(row(page, 'logo.png')).toHaveAttribute('aria-selected', 'true');
+    await expect(pickButton(page)).toBeEnabled();
+    await tap(page, row(page, 'Pictures'));
+    await expect(row(page, 'Pictures')).toHaveAttribute('aria-selected', 'true');
+    await expect(row(page, 'logo.png')).not.toHaveAttribute('aria-selected', 'true');
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Escape');
+    await expect(picker(page)).toHaveCount(0);
+
+    await page.click('#many');
+    await tap(page, row(page, 'logo.png'), 650);
+    await tap(page, row(page, 'notes.md'));
+    await expect(page.locator('juel-file-picker footer .summary')).toHaveText('2 items');
+    // A touch never starts a row drag.
+    const dataTransfer = await page.evaluateHandle(() => new DataTransfer());
+    await row(page, 'notes.md').dispatchEvent('dragstart', { dataTransfer });
+    expect(await dataTransfer.evaluate(d => d.types.length)).toBe(0);
+    await pickButton(page).click();
+    await expect(log(page)).toHaveText('Chose logo.png, notes.md');
+});
+
+test('dark: the footer, the rows and the manager inside take the dark tokens', async ({ page }) => {
+    await page.locator('#dark').check();
+    await page.click('#many');
+    const footer = page.locator('juel-file-picker footer');
+    expect(await footer.evaluate(el => getComputedStyle(el).borderTopColor)).toBe('rgb(56, 56, 56)');
+    expect(await page.locator('juel-file-picker juel-file-manager').evaluate(el => getComputedStyle(el).backgroundColor)).toBe('rgb(31, 31, 31)');
+    expect(await labels(page).first().evaluate(el => getComputedStyle(el).color)).toBe('rgb(240, 240, 240)');
+    await page.keyboard.press('Escape');
+});
+
+test('selected: it opens with the file already chosen selected, ready to Open; a path that isn\'t there is skipped', async ({ page }) => {
+    const choose = (selected: string[]) => page.evaluate(selected => {
+        const storage = (document.querySelector('juel-file-picker') as any).storage;
+        void (window as any).juel.files.pick({ storage, accept: 'image/*', path: 'Pictures', selected })
+            .then((records: any[]) => { document.getElementById('log')!.textContent = records.map(r => r.path).join(', ') || 'Cancelled'; });
+    }, selected);
+    await choose(['Pictures/sunset.png']);
+    await expect(row(page, 'Pictures/sunset.png')).toHaveAttribute('aria-selected', 'true');
+    await expect(row(page, 'Pictures/harbour.png')).not.toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('juel-file-picker footer .summary').last()).toHaveText('"sunset.png"');
+    await page.locator('juel-file-picker footer [data-command="pick"]').last().click();
+    await expect(log(page)).toHaveText('Pictures/sunset.png');
+    await choose(['Pictures/gone.png']);
+    await expect(row(page, 'Pictures/sunset.png')).toBeVisible();
+    await expect(page.locator('juel-file-picker juel-file-manager .item[aria-selected="true"]')).toHaveCount(0);
+    await expect(page.locator('juel-file-picker footer [data-command="pick"]').last()).toBeDisabled();
+});

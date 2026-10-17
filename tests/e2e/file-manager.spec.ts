@@ -246,6 +246,49 @@ test('downloads a file as itself, a folder as a .zip', async ({ page }) => {
     expect(bytes.includes(Buffer.from('archive/report 12.txt'))).toBe(true);
 });
 
+test('saves the folder on show, or the selection, to a folder on disk', async ({ page }) => {
+    // A stand-in for showDirectoryPicker: a folder handle that records the paths written.
+    await page.evaluate(() => {
+        const w = window as any;
+        w.written = [];
+        const folder = (path: string, name: string): any => ({
+            name,
+            getDirectoryHandle: async (n: string) => folder(path + n + '/', n),
+            getFileHandle: async (n: string) => ({
+                createWritable: async () => ({ write: async () => { w.written.push(path + n); }, close: async () => {} }),
+            }),
+        });
+        w.showDirectoryPicker = async () => folder('', 'Backup');
+    });
+    const written = () => page.evaluate(() => [...(window as any).written].sort());
+
+    await row(page, 'Pictures').dblclick();
+    await expect(row(page, 'Pictures/sunset.png')).toBeVisible();
+    await command(page, 'save-to-disk').click();
+    await expect(status(page)).toHaveText('Saved 3 files to "Backup"');
+    expect(await written()).toEqual(['2026/conference.png', 'harbour.png', 'sunset.png']); // the folder's contents, not the folder
+
+    await page.locator('juel-file-manager .crumb[data-path=""]').click();
+    await page.evaluate(() => { (window as any).written = []; });
+    await row(page, 'notes.md').click();
+    await row(page, 'Styles').click({ modifiers: ['Control'] });
+    await row(page, 'notes.md').locator('.more-actions').click();
+    await menuItem(page, 'save-to-disk').click();
+    await expect(status(page)).toHaveText('Saved 2 files to "Backup"');
+    expect(await written()).toEqual(['Styles/talk.css', 'notes.md']);
+
+    // Cancelling the folder picker is not an error.
+    await page.evaluate(() => { (window as any).showDirectoryPicker = async () => { throw new DOMException('Cancelled', 'AbortError'); }; });
+    await page.locator('juel-file-manager .chip').click();
+    await command(page, 'save-to-disk').click();
+    await expect(status(page)).not.toHaveClass(/error/);
+
+    // The picker only browses: no Save to disk there.
+    await page.locator('juel-file-manager').evaluate(m => { (m as any).browse = true; });
+    await expect(command(page, 'new-folder')).toBeVisible();
+    await expect(command(page, 'save-to-disk')).toHaveCount(0);
+});
+
 test('the page\'s commands, read-only, and a type filter', async ({ page }) => {
     await row(page, 'logo.png').click();
     await command(page, 'insert').click();
@@ -262,6 +305,16 @@ test('the page\'s commands, read-only, and a type filter', async ({ page }) => {
 
     await page.locator('#accept').selectOption('image/*');
     expect(await names(page)).toEqual(['Data', 'Empty folder', 'Pictures', 'Styles', 'Video', 'logo.png']);
+});
+
+test('announce() puts the page\'s message in the status line', async ({ page }) => {
+    await expect(status(page)).not.toHaveClass(/error/);
+    await page.locator('juel-file-manager').evaluate((m: any) => m.announce('Uploaded a.png as pics/a.png'));
+    await expect(status(page)).toHaveText('Uploaded a.png as pics/a.png');
+    await expect(status(page)).not.toHaveClass(/error/);
+    await page.locator('juel-file-manager').evaluate((m: any) => m.announce('That didn\'t work', true));
+    await expect(status(page)).toHaveText('That didn\'t work');
+    await expect(status(page)).toHaveClass(/error/);
 });
 
 test('changes made elsewhere show at once', async ({ page }) => {
@@ -587,6 +640,16 @@ test('the viewer: double-click opens it, the arrows and keys step through, Escap
     await expect(viewer(page)).toHaveCount(0);
     await expect(page.locator('juel-file-viewer')).toHaveCount(0);
     expect(await selected(page)).toEqual(['Pictures/sunset.png']);
+});
+
+test('the viewer shows a CSV as a table', async ({ page }) => {
+    await row(page, 'Data').dblclick();
+    await row(page, 'Data/sales.csv').dblclick();
+    const table = viewer(page).locator('.table-preview table');
+    await expect(table.locator('th')).toHaveText(['region', 'q1', 'q2']);
+    await expect(table.locator('tbody tr')).toHaveCount(2);
+    await expect(table.locator('tbody tr').first().locator('td')).toHaveText(['North', '120', '140']);
+    await expect(viewer(page).locator('.text-preview')).toHaveCount(0);
 });
 
 test('the viewer shows text, and deletes after asking; a page that handles file-open gets no viewer', async ({ page }) => {

@@ -1,7 +1,7 @@
 // <juel-file-viewer>: a file full-window on a dark background, as OneDrive
 // shows one: the name at the top, ‹ › through the folder's other files, and
-// Download / Delete / ✕. Pictures, video, sound, text and PDFs show; anything
-// else gets its icon and a Download button. See src/Files/README.md.
+// Download / Delete / ✕. Pictures, video, sound, text, tables (CSV, JSON
+// arrays) and PDFs show; anything else gets its icon and a Download button. See src/Files/README.md.
 //
 // <juel-file-manager> opens one for `file-open`; a page can use it alone:
 //   viewer.show(storage, files, index)
@@ -14,6 +14,7 @@ import { FileRecord, IFileStorage } from '../Storage/IFileStorage';
 import { kindOf } from '../Storage/Paths';
 import { icon, kindIcon } from './Icons';
 import { formatSize } from './Format';
+import { tableOf } from './Table';
 
 /** Text files bigger than this show only their start. */
 const MaxText = 256 * 1024;
@@ -234,6 +235,13 @@ export class JuelFileViewer extends LitElement {
         if (this.error) return html`<div class="none">${kindIcon(kindOf(record))}<p class="error">${this.error}</p></div>`;
         if (this.loading && !this.url && this.text === undefined) return html`<div class="none" aria-busy="true"></div>`;
         const kind = kindOf(record);
+        const table = this.text !== undefined ? tableOf(record.name, this.text) : undefined;
+        if (table) {
+            return html`<div class="table-preview" tabindex="0"><table>
+                <thead><tr>${table[0].map(cell => html`<th>${cell}</th>`)}</tr></thead>
+                <tbody>${table.slice(1).map(row => html`<tr>${row.map(cell => html`<td>${cell}</td>`)}</tr>`)}</tbody>
+            </table></div>`;
+        }
         if (this.text !== undefined) {
             return html`<pre class="text-preview" tabindex="0">${this.text}${this.truncated ? html`<span class="more">\n… (the first ${formatSize(MaxText)} of ${formatSize(record.size)})</span>` : nothing}</pre>`;
         }
@@ -311,6 +319,17 @@ export class JuelFileViewer extends LitElement {
             overflow-wrap: anywhere;
         }
         .text-preview .more { color: #adadad; }
+        .table-preview {
+            max-width: min(60rem, 100%);
+            max-height: 100%;
+            overflow: auto;
+            color: #e6e6e6;
+            background: #262626;
+            border-radius: 6px;
+        }
+        .table-preview table { border-collapse: collapse; font-size: 0.8125rem; }
+        .table-preview th, .table-preview td { padding: 0.375rem 0.75rem; text-align: left; white-space: nowrap; border-bottom: 1px solid #3d3d3d; }
+        .table-preview th { position: sticky; top: 0; background: #333; font-weight: 600; }
         .none { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center; }
         .none > .icon { width: 5rem; height: 5rem; color: #adadad; }
         .none p { margin: 0; }

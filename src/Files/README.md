@@ -32,6 +32,10 @@ Shift+F10 and the ContextMenu key). Rename is in place; New folder makes
 `New folder` and starts renaming it. Move to / Copy to open a folder chooser
 (a folder isn't offered inside itself; a name that's taken keeps both).
 Download gives one file as itself, a folder or several items as a .zip.
+In Chrome and Edge, Save to disk writes the folder on show (in the bar with
+nothing selected) or the selection (in the ⋯ menu) into a folder on disk the
+user picks (`showDirectoryPicker`, through `saveToDirectory`); not with
+`browse`.
 Deleting asks first (Juel's message box). Changes made to the storage
 elsewhere show at once.
 
@@ -86,6 +90,7 @@ adds or removes.
 | `accept` | only files of these types: `image/*,.csv` |
 | `sort`, `descending` | `name`, `modified`, `size`, `type` |
 | `readonly` | browse, open and download only (also when the storage can't write) |
+| `browse` | browse, open, download, upload and New folder, but no Rename, Move to, Copy to, Duplicate, Extract or Delete (bar, ⋯ menu, F2, Delete key, viewer, or dragging rows onto a folder) |
 | `no-confirm` | don't ask before deleting |
 | `page-size` | items per `list` call (default 500; "Show more" for the rest) |
 | `view` | `list` (default) or `grid` (tiles) |
@@ -96,7 +101,8 @@ adds or removes.
 
 Methods: `navigate(path)`, `select(paths)`, `reload()`, `startRename(path)`,
 `upload(files, folder?)`, `unpack(zip, name, folder?)`, `search(text)`,
-`open(record)`; `selectedRecords`, `records`, `loaded` (a promise for the
+`open(record)`, `announce(message, error?)` (the page's own message in the
+status line, e.g. after an action from a `header` slot); `selectedRecords`, `records`, `loaded` (a promise for the
 folder on show).
 
 Events (bubbling, composed): `path-changed`, `selection-changed`,
@@ -125,7 +131,8 @@ note, a box to drag rows out into, an event log).
 The full-window, dark view of one file, as OneDrive's: the name at the top,
 "3 of 8", Download, Delete (with `can-delete`) and ✕; ‹ › (or the arrow
 keys, Home/End, a swipe) through the folder's other files. Pictures, video,
-sound, PDFs and text (the first 256 KB) show; anything else gets its icon
+sound, PDFs and text (the first 256 KB) show, a CSV or a JSON array of
+objects as a table (the header and first 20 rows); anything else gets its icon
 and a Download button. The manager opens one for `file-open` and puts it on
 `<body>`, so a panel's transform or overflow can't clip it and Juel's
 message box (z-index 101) shows over it (it's at
@@ -142,9 +149,12 @@ selector, needs jQuery, and has no name bar, download or delete.)
 The file manager in a dialog, to choose files: `accept`ed types only,
 `multiple` or one, Open / Cancel. Upload puts new files in the folder on
 show and selects them; a double-click (or Enter) on a file chooses it; Open
-with one folder selected goes into it. While it's open the rest of the page
-is `inert` (a modal without `<dialog>`, so Juel's message box can still show
-over it); focus goes back afterwards.
+with one folder selected goes into it. It only browses: it sets the
+manager's `browse`, so there is no Rename, Move to, Copy to or Delete. While it's open the rest of the page
+is blocked: it's a modal `<dialog>` (so it opens over a modal dialog the page
+already has open, such as an app's "Insert image" dialog), and the rest of
+the page is `inert` too. Being browse-only it never needs Juel's message box
+over it. Focus goes back afterwards.
 
 ```ts
 const [picture] = await juel.files.pick({ storage, accept: 'image/*', heading: 'Choose a picture' });
@@ -153,7 +163,8 @@ const records = await picker.pick();   // [] on Cancel
 ```
 
 Attributes: `accept`, `multiple`, `path` (follows the user), `root-label`,
-`heading`, `open-label`. Events: `file-picked`, `pick-cancel`. Example:
+`heading`, `open-label`; the `selected` property (paths in `path`) starts
+with those files selected, such as the one already chosen. Events: `file-picked`, `pick-cancel`. Example:
 `examples/Files/file-picker.html`.
 
 ## Storage
