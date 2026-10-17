@@ -809,6 +809,35 @@ test('the quota line shows for a storage that knows its quota, not for memory', 
     await expect(quota.locator('[role="meter"]')).toHaveAttribute('aria-valuemax', /^\d+$/);
 });
 
+test('an upload that would not fit is refused up front, with how much is free', async ({ page }) => {
+    const result = await page.evaluate(async () => {
+        const manager = document.getElementById('files') as any;
+        const storage = manager.storage;
+        Object.defineProperty(storage, 'capabilities', { value: { ...storage.capabilities, quota: true } });
+        storage.quota = async () => ({ usage: 900, quota: 1000, lasting: true });
+        const errors: string[] = [];
+        manager.addEventListener('file-error', (e: CustomEvent) => errors.push(e.detail.error.code));
+        const big = await manager.upload([new File([new Uint8Array(500)], 'big.bin')]);
+        const small = await manager.upload([new File([new Uint8Array(50)], 'small.bin')]);
+        return { big: big.length, small: small.length, errors, status: manager.shadowRoot.querySelector('.status').textContent.trim() };
+    });
+    expect(result.big).toBe(0);
+    expect(result.errors).toEqual(['quota']);
+    expect(result.small).toBe(1);
+    expect(await exists(page, 'big.bin')).toBe(false);
+    expect(await exists(page, 'small.bin')).toBe(true);
+});
+
+test('a write the browser refuses for space says "Out of space"', async ({ page }) => {
+    const status = await page.evaluate(async () => {
+        const manager = document.getElementById('files') as any;
+        manager.storage.write = async () => { throw new DOMException('quota', 'QuotaExceededError'); };
+        await manager.upload([new File(['x'], 'x.txt')]);
+        return manager.shadowRoot.querySelector('.status').textContent.trim();
+    });
+    expect(status).toMatch(/^Out of space/);
+});
+
 // --- Touch and dark on the F3–F5 parts --------------------------------------
 
 /** A touch press on an element, held for `ms`. */
