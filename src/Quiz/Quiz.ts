@@ -172,6 +172,20 @@ export class JuelQuiz extends LitElement {
         this.modal.close();
     };
 
+    /**
+     * Escape with focus inside the quiz (and no dialog open) lets go of the
+     * focus, so a host's keys work again: in a Jetty deck the next → moves on.
+     * Marked handled, like the dialog's Escape.
+     */
+    private onEscape = (e: KeyboardEvent): void => {
+        if (e.key !== 'Escape' || e.defaultPrevented || this.modal?.opened) return;
+        let focused = (this.renderRoot as ShadowRoot).activeElement as HTMLElement | null;
+        if (!focused) return;
+        while (focused.shadowRoot?.activeElement) focused = focused.shadowRoot.activeElement as HTMLElement;
+        e.preventDefault();
+        focused.blur();
+    };
+
     /** Check the answer: marks the items and opens the answer dialog. */
     check(): void { this.apply({ type: 'quiz-check' }); }
     /** Clear the choice and close the dialog. */
@@ -233,6 +247,7 @@ export class JuelQuiz extends LitElement {
     }
 
     protected firstUpdated(): void {
+        this.addEventListener('keydown', this.onEscape);
         this.drag = new PointerDrag({
             root: this.renderRoot as ShadowRoot,
             onDrop: (index, to) => this.move(index, to),
@@ -266,6 +281,7 @@ export class JuelQuiz extends LitElement {
                     </label>`;
                 })}
             </div>
+            ${this.showAnswers && this.explanation() ? html`<div class="explanation" part="explanation">${this.copy(this.explanation())}</div>` : nothing}
             <div class="actions" part="actions">
                 <juel-button class="check" label=${this.checkLabel} ?disabled=${selected.length === 0}
                     @click=${() => this.check()}></juel-button>

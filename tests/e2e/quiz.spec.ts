@@ -112,10 +112,32 @@ test('state: messages, quiz-change, and setting it back', async ({ page }) => {
     await expect(item(page, 'one', 'Jupiter').locator('input')).toBeChecked();
 });
 
-test('show-answers marks the key and hides the buttons', async ({ page }) => {
+test('show-answers marks the key, shows the explanation and hides the buttons', async ({ page }) => {
     await expect(item(page, 'key', 'Jupiter')).toHaveClass(/right/);
     await expect(quiz(page, 'key').locator('.item.right')).toHaveCount(1);
     await expect(quiz(page, 'key').locator('.actions')).toBeHidden();
+    await expect(quiz(page, 'key').locator(':scope > .explanation, .items + .explanation')).toContainText('twice the mass');
+    // Without show-answers a choice quiz keeps its explanation for the dialog.
+    await expect(quiz(page, 'one').locator('.items + .explanation')).toHaveCount(0);
+});
+
+test('Escape lets go of the focus (no dialog open), so the host gets its keys back', async ({ page }) => {
+    await page.evaluate(() => {
+        (window as any).unhandled = 0;
+        addEventListener('keydown', e => { if (e.key === 'Escape') setTimeout(() => { if (!e.defaultPrevented) (window as any).unhandled++; }); }, true);
+    });
+    await item(page, 'one', 'Mars').click();
+    const inside = () => page.evaluate(() => document.activeElement?.id === 'one');
+    expect(await inside()).toBe(true);
+    await page.keyboard.press('Escape');
+    expect(await inside()).toBe(false);
+    await page.waitForTimeout(50);
+    expect(await page.evaluate(() => (window as any).unhandled)).toBe(0);
+    // Sort: a focused chip lets go too.
+    await quiz(page, 'sort').locator('.chip').first().focus();
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('sort');
+    await page.keyboard.press('Escape');
+    expect(await page.evaluate(() => document.activeElement?.id)).not.toBe('sort');
 });
 
 // Sort: drag a chip (by its text) onto a group (by its name), with the mouse.

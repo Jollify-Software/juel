@@ -71,7 +71,7 @@ as right in the other's slot; the same goes for one sort item written into two g
 | `type` | `choice` (the default), `sort` or `match`. |
 | `seed` | Seeds the shuffle. Default: a hash of the question text, so every screen showing the same quiz shows the same order. |
 | `no-shuffle` | Keep source order. A list of two or fewer items is never shuffled. |
-| `show-answers` | Mark the right items and hide the buttons (a printed answer key). |
+| `show-answers` | Mark the right items, show the explanation and hide the buttons (a printed answer key). |
 | `check-label`, `reset-label`, `right-label`, `wrong-label`, `answer-label`, `show-label`, `try-again-label`, `ok-label` | Text, for other languages. `answer-label` is the dialog's title and starts the line naming the right answer. |
 
 ## State and messages
@@ -112,15 +112,17 @@ Tokens on the host: `--quiz-color`, `--quiz-background`, `--quiz-border`, `--qui
 The items are native radios/checkboxes (arrows move between radios, Space toggles), and the
 buttons and dialog are `juel-button` and `juel-modal` (Escape closes it, and the quiz marks that keydown handled with `preventDefault()`, so
 a host that acts on an unhandled Escape, such as the Jollify Player leaving full screen, leaves it alone). A host that uses arrow
-keys itself should ignore key events whose composed path holds a `juel-quiz`.
+keys itself should ignore key events whose composed path holds a `juel-quiz`. **Escape** with
+focus in the quiz (no dialog open) lets go of the focus, and is marked handled the same way, so the
+host's keys work again (in a Jetty deck, the next → moves on).
 
 Sort and match: the chips are one tab stop (roving `tabindex`). **Ctrl+←/→** (or ↑/↓) picks the
 previous/next chip in the order shown; plain arrows move the focused chip, grid-like, between
 places. The pool sits above the places. Sort's groups run across: **←/→** step through the pool
 and the groups (wrapping round), **↑** goes back to the pool, **↓** from the pool goes to the
 first group. Match's slots run down: **↑/↓** step through the pool and the slots, **←** goes back
-to the pool, **→** from the pool goes to the first slot. Focus is the pick, so there is nothing
-for Escape to drop; it bubbles as usual. The quiz stops the arrow keys from bubbling.
+to the pool, **→** from the pool goes to the first slot. Focus is the pick, so Escape just lets go
+of it (as above). The quiz stops the arrow keys from bubbling.
 
 ## Tests
 
