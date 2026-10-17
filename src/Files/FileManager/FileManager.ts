@@ -610,6 +610,7 @@ export class JuelFileManager extends LitElement {
         const renamed: string[] = [];
         let files = 0;
         try {
+            if (!await this.roomFor(items.reduce((n, item) => n + (item.file?.size ?? 0), 0))) return [];
             for (const item of items) {
                 const path = join(folder, item.relative);
                 if (!item.file) { added.push(await storage.makeFolder(path)); continue; }
@@ -1101,7 +1102,26 @@ export class JuelFileManager extends LitElement {
         if (!error) this.messageTimer = window.setTimeout(() => { this.message = ''; }, 8000);
     }
 
+    /**
+     * Whether `bytes` more fit, for a storage that knows its quota: if not, says so
+     * (a `file-error` with a `quota` FileStorageError) and the upload doesn't start,
+     * rather than failing part-way. No fixed size limit.
+     */
+    private async roomFor(bytes: number): Promise<boolean> {
+        const storage = this.storage;
+        if (!bytes || !storage?.capabilities.quota || !storage.quota) return true;
+        const { usage, quota } = await storage.quota().catch(() => ({ usage: undefined, quota: undefined }));
+        if (usage === undefined || !quota || usage + bytes <= quota) return true;
+        this.fail(new FileStorageError('quota',
+            `Not enough space: that needs ${formatSize(bytes)}, and ${formatSize(Math.max(0, quota - usage))} is free. Delete something first.`));
+        return false;
+    }
+
     private fail(error: unknown) {
+        // A write the browser refused for space says so plainly, whatever the storage threw.
+        if (error instanceof DOMException && error.name === 'QuotaExceededError'
+            || error instanceof FileStorageError && error.code === 'quota' && !/^Not enough space/.test(error.message))
+            error = new FileStorageError('quota', 'Out of space: the browser has no room for more files. Delete something first.');
         const message = error instanceof Error ? error.message : String(error);
         this.say(message, true);
         this.dispatch('file-error', { error, message });

@@ -58,7 +58,10 @@ backup calls `unpack(zip, name, folder, { inPlace: true })` to put everything
 straight back where it was. A file already there with the same bytes is left
 alone, and any other clash keeps both. A storage that
 knows its quota (`capabilities.quota`) gets a "1.2 MB of 10 GB used" line
-with a meter.
+with a meter, and an upload that wouldn't fit is refused before it starts
+("Not enough space: that needs 40 MB, and 12 MB is free"), as a `file-error`
+with a `quota` FileStorageError. There's no fixed size limit. A write the
+browser refuses anyway (`QuotaExceededError`) says "Out of space".
 
 Drag and drop:
 
