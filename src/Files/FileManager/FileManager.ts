@@ -640,9 +640,11 @@ export class JuelFileManager extends LitElement {
 
     /**
      * Unpacks a zip into a folder, as Extract All does: a zip that holds one folder gives that
-     * folder; anything else goes into a new folder named after the zip. A clash keeps both.
+     * folder; anything else goes into a new folder named after the zip. With `inPlace` (restoring
+     * a backup) everything goes straight into `folder`, as it was in the zip. A clash keeps both,
+     * and a file already there with the same bytes is left alone.
      */
-    async unpack(zip: Blob, name: string, folder = this.path): Promise<FileRecord | undefined> {
+    async unpack(zip: Blob, name: string, folder = this.path, options: { inPlace?: boolean } = {}): Promise<FileRecord | undefined> {
         const storage = this.storage;
         if (!storage || !this.canWrite) return undefined;
         try {
@@ -651,17 +653,23 @@ export class JuelFileManager extends LitElement {
             const tops = new Set(entries.map(e => e.path.split('/')[0]));
             const oneFolder = tops.size === 1 && entries.every(e => e.path.includes('/') || e.folder);
             let target = folder;
-            if (!oneFolder) {
+            if (!oneFolder && !options.inPlace) {
                 target = await storage.uniquePath(join(folder, name.replace(/\.zip$/i, '') || 'Unpacked'));
                 await storage.makeFolder(target);
             }
             const result = await unzipInto(storage, zip, target, 'keep-both');
-            const made = await storage.stat(oneFolder ? join(folder, [...tops][0]) : target);
+            // What appeared: the zip's top-level items in place, else the one folder it made.
+            const added = options.inPlace
+                ? (await Promise.all([...tops].map(t => storage.stat(join(folder, t))))).filter((r): r is FileRecord => !!r)
+                : [await storage.stat(oneFolder ? join(folder, [...tops][0]) : target)].filter((r): r is FileRecord => !!r);
+            const made = options.inPlace ? undefined : added[0];
             this.say(`Unpacked ${result.files} ${result.files === 1 ? 'file' : 'files'} from "${name}"` +
+                (result.same ? `; ${result.same} already there` : '') +
                 (result.renamed.length ? `; kept both where names clashed: ${result.renamed.map(r => nameOf(r.to)).join(', ')}` : ''));
-            if (made) this.dispatch('file-added', { records: [made] });
+            if (added.length) this.dispatch('file-added', { records: added });
             await this.load(true);
-            if (made && folderOf(made.path) === this.path) this.select([made.path]);
+            const shown = added.filter(r => folderOf(r.path) === this.path);
+            if (shown.length) this.select(shown.map(r => r.path));
             return made;
         } catch (error) {
             this.fail(error);
