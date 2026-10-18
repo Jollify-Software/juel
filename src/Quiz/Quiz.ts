@@ -16,6 +16,7 @@ import { customElement, property, query, state } from 'lit/decorators.js';
 import { QuizStyles } from './QuizStyles';
 import { QuizMessage, QuizState, QuizType, displayOrder, hashSeed, initialState, isCorrect, marks, parseAnswer, placesItems, reduce } from './QuizState';
 import { PointerDrag } from './Drag';
+import { QuizSource, readQuizData } from './QuizData';
 import type { JuelModal } from '../Dialog/Modal/Modal';
 import '../Dialog/Modal/Modal';
 import '../Buttons/Button/Button';
@@ -68,16 +69,23 @@ export class JuelQuiz extends LitElement {
         return { ...this.current, selected: [...this.current.selected], ...(placed ? { placed: [...placed] } : {}) };
     }
     set state(value: QuizState) {
-        const base = initialState(this.type, this.items.length);
-        const next: QuizState = { ...base, ...value, type: this.type, selected: [...(value?.selected ?? [])] };
-        if (base.placed) next.placed = base.placed.map((_, i) => value?.placed?.[i] ?? null);
+        const count = this.items.length, places = this.groups.length;
+        const base = initialState(this.type, count);
+        // It may come off the network (a console, a remote): what isn't an item, group or slot is
+        // dropped, as `reduce` ignores it. With no items yet, any index is kept for when they come.
+        const isIndex = (v: unknown, below: number) => Number.isInteger(v) && (v as number) >= 0 && (count === 0 || (v as number) < below);
+        const selected = Array.isArray(value?.selected) ? [...new Set(value.selected.filter(i => isIndex(i, count)))].sort((a, b) => a - b) : [];
+        const next: QuizState = { ...base, ...value, type: this.type, selected, checked: value?.checked === true, revealed: value?.revealed === true };
+        const placed = Array.isArray(value?.placed) ? value.placed : [];
+        if (base.placed) next.placed = base.placed.map((_, i) => isIndex(placed[i], places) ? placed[i] : null);
         else delete next.placed;
         this.current = next;
     }
 
     /** The answer key: source indices of the right items. */
     get answer(): number[] {
-        return parseAnswer(this.dataset.answer);
+        const island = this.island();
+        return island && !this.hasAttribute('data-answer') ? [...island.answer] : parseAnswer(this.dataset.answer);
     }
 
     /** More than one right item: checkboxes, not radios. */
@@ -88,8 +96,8 @@ export class JuelQuiz extends LitElement {
     /** The items' light-DOM elements, in source order: the choices, or what's dragged (match: the partners). */
     get items(): HTMLLIElement[] {
         return listItems(this.type === 'match'
-            ? this.querySelector(':scope > [data-partners]')
-            : this.querySelector(':scope > ul:not([data-groups], [data-partners]), :scope > ol:not([data-groups], [data-partners])'));
+            ? this.source.querySelector(':scope > [data-partners]')
+            : this.source.querySelector(':scope > ul:not([data-groups], [data-partners]), :scope > ol:not([data-groups], [data-partners])'));
     }
 
     /**
@@ -97,8 +105,8 @@ export class JuelQuiz extends LitElement {
      * or match's left column (the list that isn't `[data-partners]`).
      */
     get groups(): HTMLLIElement[] {
-        if (this.type === 'sort') return listItems(this.querySelector(':scope > [data-groups]'));
-        if (this.type === 'match') return listItems(this.querySelector(':scope > ul:not([data-partners]), :scope > ol:not([data-partners])'));
+        if (this.type === 'sort') return listItems(this.source.querySelector(':scope > [data-groups]'));
+        if (this.type === 'match') return listItems(this.source.querySelector(':scope > ul:not([data-partners]), :scope > ol:not([data-partners])'));
         return [];
     }
 
@@ -145,7 +153,7 @@ export class JuelQuiz extends LitElement {
         return isCorrect(this.current, placesItems(this.type) ? this.checkKey : this.answer);
     }
 
-    /** Apply a message (`quiz-select`, `quiz-check`, `quiz-reveal`, `quiz-reset`) and fire `quiz-change`. */
+    /** Apply a message (`quiz-select`, `quiz-move`, `quiz-check`, `quiz-reveal`, `quiz-reset`) and fire `quiz-change`. */
     apply(message: QuizMessage): void {
         const next = reduce(this.current, message, this.multiple, this.items.length, this.groups.length, this.placeKey);
         if (next === this.current) return;
@@ -217,12 +225,51 @@ export class JuelQuiz extends LitElement {
         };
     }
 
+    /**
+     * Where the question, lists and explanation are read from: the light DOM, or,
+     * when it has no list, the quiz built from a `<script type="application/json">`
+     * island (QuizData.ts).
+     */
+    private get source(): Element {
+        return this.island()?.root ?? this;
+    }
+
+    /** Whether the page wrote `type` (read before the first render reflects the default). */
+    private authoredType = false;
+
+    connectedCallback(): void {
+        if (!this.hasUpdated) this.authoredType = this.hasAttribute('type');
+        super.connectedCallback();
+    }
+
+    private islandCache?: { text: string; source: (QuizSource & { root: HTMLElement }) | null };
+    /** The island last warned about for disagreeing with the page's `type`. */
+    private typeWarned?: QuizSource;
+
+    /** The JSON island's quiz, when the light DOM has no list of its own; null otherwise (or when it's bad: a warning). */
+    private island(): (QuizSource & { root: HTMLElement }) | null {
+        const script = this.querySelector<HTMLScriptElement>(':scope > script[type="application/json"]');
+        if (!script || this.querySelector(':scope > ul, :scope > ol')) return null;
+        const text = script.textContent ?? '';
+        if (this.islandCache?.text === text) return this.islandCache.source;
+        const read = readQuizData(text);
+        let source: (QuizSource & { root: HTMLElement }) | null = null;
+        if ('error' in read) console.warn(`juel-quiz: ${read.error}`, this);
+        else {
+            const root = document.createElement('div');
+            root.innerHTML = read.html;
+            source = { ...read, root };
+        }
+        this.islandCache = { text, source };
+        return source;
+    }
+
     private question(): Element | null {
-        return Array.from(this.children).find(el => !el.matches('ul, ol, blockquote, script, template')) ?? null;
+        return Array.from(this.source.children).find(el => !el.matches('ul, ol, blockquote, script, template')) ?? null;
     }
 
     private explanation(): Element | null {
-        return this.querySelector(':scope > blockquote');
+        return this.source.querySelector(':scope > blockquote');
     }
 
     private order(): number[] {
@@ -240,6 +287,13 @@ export class JuelQuiz extends LitElement {
     }
 
     protected willUpdate(_changed: PropertyValues): void {
+        // A quiz from data says its own type, unless the element does.
+        const island = this.island();
+        if (island && !this.authoredType) this.type = island.type;
+        else if (island && island.type !== this.type && this.typeWarned !== island) {
+            this.typeWarned = island; // once per island, not on every update
+            console.warn(`juel-quiz: type="${this.type}" but the quiz data is a ${island.type} quiz, so it plays as ${this.type}; leave out type`, this);
+        }
         // The type, or the number of items (the light DOM changed), no longer fits the state: start again.
         const count = this.items.length;
         if (this.current.type !== this.type || (this.current.placed && this.current.placed.length !== count))
@@ -291,7 +345,9 @@ export class JuelQuiz extends LitElement {
                 <p class="verdict ${right ? 'right' : 'wrong'}">${right ? this.rightLabel : this.wrongLabel}</p>
                 ${right ? nothing : html`<p class="key">${this.answerLabel}: ${[...answer].sort((a, b) => a - b).map(i => items[i]?.textContent?.trim()).join(', ')}</p>`}
                 <div class="explanation" part="explanation">${this.copy(this.explanation())}</div>
-                <juel-button slot="buttons" class="ok" label=${this.okLabel} autofocus @click=${() => this.modal.close('ok')}></juel-button>
+                <!-- No autofocus: juel-modal focuses OK anyway (the only control), and the
+                     attribute is a console error in a cross-origin frame (the app's preview). -->
+                <juel-button slot="buttons" class="ok" label=${this.okLabel} @click=${() => this.modal.close('ok')}></juel-button>
             </juel-modal>`;
     }
 
@@ -362,14 +418,15 @@ export class JuelQuiz extends LitElement {
         const places = this.type === 'match'
             ? html`<div class="pairs" part="pairs">
                 ${groups.map((g, k) => html`<div class="pair" part="pair">
-                    <div class="left">${this.copy(g)}</div>
-                    <div class="slot" part="slot" data-drop=${k}>${at(k)}</div>
+                    <div class="left" id="left-${k}">${this.copy(g)}</div>
+                    <div class="slot" part="slot" data-drop=${k} role="group" aria-labelledby="left-${k}">${at(k)}</div>
                 </div>`)}
             </div>`
             : html`<div class="groups" part="groups">
                 ${groups.map((g, k) => html`<div class="group" part="group" data-drop=${k}
+                        role="group" aria-labelledby="group-${k}"
                         style="--group-colour: ${g.dataset.colour || PALETTE[k % PALETTE.length]}">
-                    <div class="group-name">${this.copy(g)}</div>
+                    <div class="group-name" id="group-${k}">${this.copy(g)}</div>
                     <div class="group-items">${at(k)}</div>
                 </div>`)}
             </div>`;

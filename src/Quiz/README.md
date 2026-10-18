@@ -25,8 +25,9 @@ The plan is `jollify/QUIZ-PLAN.md`. Q1 built the choice kind; Q2 adds sort and m
   Yes/no is just two items. The key is kept off what's shown, so a build for students can leave
   it (and the `<blockquote>`) out.
 
-The light DOM stays as written; the element shows copies of it in its shadow tree. Changing its
-children re-renders.
+The light DOM stays as written; the element shows copies of it in its shadow tree. Adding,
+removing or replacing its children re-renders; editing inside one (a new `<li>` in a list) doesn't,
+so replace the list. For a JSON island, replace the `<script>` rather than its text.
 
 ## Sort
 
@@ -44,7 +45,8 @@ otherwise a built-in palette); the items are the other list, shuffled into a poo
 into a group, or back to the pool, with the mouse, a pen or a finger (pointer events, one path;
 `Drag.ts`). **Check** marks each placed item ✓/✗ and says right or wrong (no dialog); **Show the
 answer** slides every item to its group (FLIP, skipped under `prefers-reduced-motion`) and shows
-the `<blockquote>`; **Try again** resets. `show-answers` shows them placed, with no buttons and no (empty) pool.
+the `<blockquote>`; **Try again** resets. `show-answers` shows them placed, with no buttons and no (empty) pool. Each group (and each match slot) is a
+`role="group"` named by its visible name, so a screen reader says where a chip is.
 
 ## Match
 
@@ -61,7 +63,36 @@ entry; the partners are shuffled into the pool and dragged into the slots. A slo
 partner: dropping another sends the first back to the pool. Check, Show the answer, Try again
 and `show-answers` work as for sort. Every partner needs an entry (no distractors yet). Two
 partners written the same (`<li>mammal</li>` twice) can't be told apart, so Check takes either
-as right in the other's slot; the same goes for one sort item written into two groups.
+as right in the other's slot; the same goes for one sort item written into two groups. Slots
+written the same (two left entries alike, two groups of one name) are still marked by position;
+Slipway warns about them.
+
+## From data (a JSON island)
+
+```html
+<juel-quiz>
+  <script type="application/json">
+    { "type": "sort", "question": "Odd or even?",
+      "groups": [{ "name": "Odd", "colour": "#ea580c", "items": ["1", "3"] }, { "name": "Even", "items": ["2", "4"] }],
+      "explanation": "Shown with the answer." }
+  </script>
+</juel-quiz>
+```
+
+When the element has no `<ul>`/`<ol>` child, it reads the quiz from a `<script type="application/json">`
+child instead: what Slipway writes for `::: quiz data=quiz.json`. The shape mirrors the Markdown:
+
+- `type`: `choice` (the default), `sort` or `match`. The element's own `type` attribute wins if the page wrote one (with a `console.warn` when it disagrees with the data).
+- `question`, and optionally `explanation`.
+- choice: `items: [{ "text": "…", "right": true }]` (one right item gives radios, several checkboxes);
+  sort: `groups: [{ "name": "…", "colour": "#…", "items": ["…"] }]` (`colour`, or `color`, is optional); match: `pairs: [["left", "right"]]`.
+
+The texts are **inline HTML** (Slipway renders a data file's inline Markdown before writing the
+island), so they're as trusted as the rest of the page. The key comes from the data (`data-answer`
+on the element, if present, wins). Everything else (state, messages, keyboard, `show-answers`,
+print) is as for markup. Bad data (not JSON, a missing question, no right item, …) logs a
+`console.warn` saying what's wrong and shows an empty quiz; it never throws. The pure part is
+`QuizData.ts` (`readQuizData`, `quizDataError`, `quizSource`).
 
 ## Attributes
 
@@ -89,14 +120,15 @@ It changes only through `quiz.apply(message)`:
 | Message | |
 |---|---|
 | `{ type: 'quiz-select', index, on }` | Choose or unchoose an item (a radio quiz clears the others). Clears `checked`; choosing what is already chosen changes nothing. |
-| `{ type: 'quiz-check' }` | Marks the chosen items right/wrong and opens the answer dialog. |
+| `{ type: 'quiz-check' }` | Marks the chosen items right/wrong. A choice quiz opens the answer dialog; sort and match say right or wrong under the groups. |
 | `{ type: 'quiz-move', index, to }` | Sort/match: put item `index` in group or slot `to` (null: the pool). Clears `checked`; a move to where the item already is changes nothing. |
 | `{ type: 'quiz-reveal' }` | Marks the right items; sort and match place every item in its group or slot. |
 | `{ type: 'quiz-reset' }` | Back to the start; closes the dialog. |
 
 Every change fires `quiz-change` (bubbles, composed) with `{ message, state }`, whether it came
 from a click or from `apply()`. Setting `quiz.state = saved` restores a state without firing and
-without opening the dialog. `check()`, `reset()`, `reveal()` and `move(index, to)` are shorthands; `correct` and `answer` read
+without opening the dialog. Indices that aren't an item, group or slot, and anything not of the
+right kind, are dropped (as `apply()` ignores them), so a state off the network never throws. `check()`, `reset()`, `reveal()` and `move(index, to)` are shorthands; `correct` and `answer` read
 the result and the key. The pure functions (`reduce`, `isCorrect`, `displayOrder`, …) are exported
 from `QuizState.ts`.
 
@@ -127,5 +159,6 @@ of it (as above). The quiz stops the arrow keys from bubbling.
 ## Tests
 
 - `tests/Quiz/QuizState.test.ts` (Jest): the reducer, the key, the seeded shuffle.
+- `tests/Quiz/QuizData.test.ts` (Jest): the JSON island's shape, markup and key, and its errors.
 - `tests/e2e/quiz.spec.ts` (Playwright, on `examples/Quiz/quiz.html`): radios and checkboxes,
-  the dialog right and wrong, keyboard only, Reset, state round trip, `show-answers`.
+  the dialog right and wrong, keyboard only, Reset, state round trip, `show-answers`, sort and match by mouse, touch and keyboard, reduced motion, named groups, Tab order, re-rendering when a child is replaced, junk in a set `state`, and quizzes from a JSON island.

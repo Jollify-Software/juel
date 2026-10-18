@@ -64,6 +64,35 @@
         <blockquote><p>Hastings, Waterloo, then Apollo 11.</p></blockquote>
     </juel-quiz>
 
+    <h2>From data</h2>
+    <p>No lists: the quiz is a JSON island (<code>&lt;script type="application/json"&gt;</code>), as Slipway writes for <code>::: quiz data=</code>. Texts are inline HTML. The type comes from the data.</p>
+
+    <juel-quiz id="data-choice">
+        <script type="application/json">
+            { "question": "Which gas do plants take in?",
+              "items": [{ "text": "Oxygen" }, { "text": "Carbon <em>dioxide</em>", "right": true }, { "text": "Helium" }],
+              "explanation": "They take in CO<sub>2</sub> and give out oxygen." }
+        </script>
+    </juel-quiz>
+
+    <juel-quiz id="data-sort">
+        <script type="application/json">
+            { "type": "sort", "question": "Odd or even?",
+              "groups": [{ "name": "Odd", "colour": "#ea580c", "items": ["1", "3"] }, { "name": "Even", "items": ["2", "4"] }] }
+        </script>
+    </juel-quiz>
+
+    <juel-quiz id="data-match">
+        <script type="application/json">
+            { "type": "match", "question": "Match each capital to its country.",
+              "pairs": [["Paris", "France"], ["Rome", "Italy"]], "explanation": "Both are also their country's largest city." }
+        </script>
+    </juel-quiz>
+
+    <juel-quiz id="data-bad">
+        <script type="application/json">{ "question": "Not a quiz yet", "items": [] }</script>
+    </juel-quiz>
+
     <div id="log"></div>
     <script>
         const log = document.getElementById('log');
