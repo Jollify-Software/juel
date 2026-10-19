@@ -23,6 +23,16 @@ export class Colour extends LitElement {
             --padding: 0;
             --border-radius: 4px;
             --button-border-color: #ccc;
+            position: relative;
+        }
+        /* No value: the opt-in look's "no colour" mark (a slash). Without the look, nothing changes. */
+        .swatch.empty::after {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            border-radius: 3px;
+            background: var(--juel-swatch-none, none);
+            pointer-events: none;
         }
         .popup {
             position: absolute;
@@ -187,7 +197,7 @@ export class Colour extends LitElement {
     render() {
         const hex = this.toHex(this.value);
         return html`
-            <juel-button type="plain" class="swatch" style="--background-color: ${this.value}; --hover-background-color: ${this.value}" @click=${() => this.open = !this.open} button-label="Choose colour"></juel-button>
+            <juel-button type="plain" class="swatch ${this.value ? '' : 'empty'}" style="--background-color: ${this.value}; --hover-background-color: ${this.value}" @click=${() => this.open = !this.open} button-label="Choose colour"></juel-button>
             <div class="popup ${this.end ? 'end' : ''}" ?open=${this.open}>
                 <input type="color" .value=${hex} @input=${this.handleColorInput} />
                 <input type="text" .value=${hex} @change=${this.handleHexInput} />

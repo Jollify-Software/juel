@@ -74,9 +74,10 @@ const writerChrome = EditorView.theme({
   '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--juel-text, black)' },
 });
 
-/** The writer look. basicSetup's default style is only a fallback, so this replaces it. */
+/** The writer look. basicSetup's default style is only a fallback, so this replaces it.
+ *  Long lines soft-wrap, as in a word processor. */
 export function writerLook(): Extension {
-  return [syntaxHighlighting(writerHighlight), writerChrome];
+  return [syntaxHighlighting(writerHighlight), writerChrome, EditorView.lineWrapping];
 }
 
 /** A proportional font for the text; code, front matter and the gutter stay monospace. */

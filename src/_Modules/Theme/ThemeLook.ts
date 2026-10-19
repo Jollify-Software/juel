@@ -51,7 +51,8 @@ const shared = `
     --juel-dark-hover: #3a3c42;
     --juel-dark-active-shadow: none;
     --juel-danger-text: var(--juel-surface);
-    --juel-danger-active-shadow: none;`;
+    --juel-danger-active-shadow: none;
+    --juel-swatch-none: linear-gradient(to top right, transparent calc(50% - 1px), #e5484d calc(50% - 1px), #e5484d calc(50% + 1px), transparent calc(50% + 1px)), var(--juel-surface);`;
 
 const light = `
     color-scheme: light;
@@ -88,6 +89,13 @@ const dark = `
     --juel-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.4);`;
 
 const root = `:root[${LookAttribute}]`;
+
+/**
+ * The dark look's tokens as declarations, for a part of a page that is always
+ * dark and wears the look on its own, without `data-juel-look` on <html>
+ * (Jetty's presenter console: `.host { ${LookDarkDeclarations} }`).
+ */
+export const LookDarkDeclarations = `${shared}${dark}`;
 
 export const LookCss = `
 ${root} {${shared}${light}

@@ -100,3 +100,42 @@ test('front-matter-chip: the front matter folds into a named chip; it opens and 
     await page.evaluate(() => { (document.getElementById('chip') as any).content = '---\ntitle: x\n\n# A\n'; });
     await expect(page.locator('#chip .cm-juel-fm-chip')).toHaveCount(0);
 });
+
+const long = 'This paragraph is long enough to need several visual lines in an editor of ordinary width, '.repeat(4);
+// Fills editor `id` with one long line, puts the cursor at its start and focuses it.
+async function fillLong(page: Page, id: string) {
+    await page.evaluate(([id, long]) => {
+        const ed = document.getElementById(id) as any;
+        ed.content = long;
+    }, [id, long]);
+    await expect.poll(() => page.evaluate(id => (document.getElementById(id) as any).editorView.state.doc.length, id)).toBe(long.length);
+    await page.evaluate(id => { const ed = document.getElementById(id) as any; ed.setCursor(0); ed.focus(); }, id);
+}
+const overflows = (page: Page, id: string) => page.evaluate(id => {
+    const s = document.querySelector(`#${id} .cm-scroller`) as HTMLElement;
+    return s.scrollWidth > s.clientWidth + 1;
+}, id);
+
+test('writer: long lines soft-wrap; by default they run off the edge, as before', async ({ page }) => {
+    await open(page);
+    await fillLong(page, 'writer');
+    await fillLong(page, 'plain');
+    expect(await overflows(page, 'writer')).toBe(false);
+    expect(await overflows(page, 'plain')).toBe(true);
+});
+
+test('writer: End and ArrowDown move by visual line inside a wrapped paragraph', async ({ page }) => {
+    await open(page);
+    await fillLong(page, 'writer');
+    const cursor = () => page.evaluate(() => (document.getElementById('writer') as any).cursor as number);
+    await page.keyboard.press('End');
+    const end = await cursor();
+    expect(end).toBeGreaterThan(0);
+    expect(end).toBeLessThan(long.length);
+    await page.keyboard.press('Home');
+    expect(await cursor()).toBe(0);
+    await page.keyboard.press('ArrowDown');
+    const down = await cursor();
+    expect(down).toBeGreaterThan(0);
+    expect(down).toBeLessThan(long.length);
+});

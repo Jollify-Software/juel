@@ -39,3 +39,19 @@ test('colour: the popup opens leftwards at a scrolling panel\'s right edge, and 
     await page.locator('#picker .swatch').click();
     expect((await inside('picker')).end).toBe(false);
 });
+
+// The unset swatch's overlay: 'none' unless the opt-in look gives it the "no colour" mark.
+const unsetMark = (page: import('@playwright/test').Page, id: string) => page.locator(`#${id}`).evaluate(el =>
+    getComputedStyle(el.shadowRoot!.querySelector('.swatch')!, '::after').backgroundImage);
+
+test('an unset swatch is unchanged without the look, and shows the "no colour" slash with it', async ({ page }) => {
+    await page.goto('examples/Editors/Colour/colour.html');
+    await page.locator('#unset').evaluate(el => (el as any).updateComplete);
+    expect(await unsetMark(page, 'unset')).toBe('none');
+    await page.evaluate(() => (window as any).juel.theme.useLook());
+    await expect.poll(() => unsetMark(page, 'unset')).toContain('linear-gradient');
+    // A swatch with a colour never shows it, and setting a value clears it.
+    expect(await unsetMark(page, 'picker')).toBe('none');
+    await page.locator('#unset').evaluate(el => { (el as any).value = '#ff0000'; });
+    await expect.poll(() => unsetMark(page, 'unset')).toBe('none');
+});

@@ -127,7 +127,8 @@ button that opens a menu (`--button-caret-size`, default 12px). Example: `exampl
 `writer` gives `juel-markdown-editor` a calmer look for prose: headings bold and a little larger
 but not underlined, syntax marks (`#`, `*`, `` ` ``, `>`) dimmed (`--juel-muted`), and a leading
 `---` … `---` front-matter block read as front matter (without it, the YAML's last line parses
-as a setext heading). `prose` sets the text in a proportional font (`--juel-font-prose`, then
+as a setext heading). Long lines soft-wrap at the editor's edge (Home/End and the arrow keys
+then move by visual line, as in a word processor). `prose` sets the text in a proportional font (`--juel-font-prose`, then
 `--juel-font`); code, front matter and the gutter stay monospace. Both are off by default, and
 the editor then looks as it always has. Example: `examples/Editors/MarkdownEditor/writer.html`.
 
@@ -146,7 +147,9 @@ unclosed block (still being typed) gets no chip. Off by default (same example).
 `.palette` replaces the built-in eight swatches (colours, or `{ value, label }` to name one: theme
 colours, an accent); `.recent` adds a "Recent" row (the page keeps the list). Parts `palette`,
 `recent`, `swatch`. The popup opens rightwards from the swatch, or leftwards when that would run past
-the window or a scrolling ancestor (a narrow side panel). Example: `examples/Editors/Colour/colour.html`.
+the window or a scrolling ancestor (a narrow side panel). With `value=""` (no colour) and the opt-in
+look on, the swatch shows a "no colour" slash (`--juel-swatch-none`); without the look it is unchanged.
+Example: `examples/Editors/Colour/colour.html`.
 
 ### Number
 

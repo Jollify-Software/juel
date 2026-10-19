@@ -31,7 +31,10 @@ export type ToolbarAnchor = string | Element | AnchorRect | (() => AnchorRect | 
  * `overflow` keeps it to one row: items that don't fit are hidden from the
  * end (`data-overflowed`) and offered in a "…" menu at its end, which clicks
  * a hidden button, or lists a hidden juel-menu's items and fires that menu's
- * `menu-select`. `.spacer` and `.gap` children are never listed.
+ * `menu-select`. `.spacer` and `.gap` children are never listed; a `.gap`
+ * goes when the group on either side of it has gone. Items go in order of
+ * `data-overflow-priority` (a number, 0 if unset): the lowest first, and among
+ * equals the last first, so with none set it is simply from the end.
  */
 @customElement('juel-toolbar')
 export class JuelToolbar extends LitElement {
@@ -251,20 +254,41 @@ export class JuelToolbar extends LitElement {
     for (const el of items) el.removeAttribute('data-overflowed');
     const more = this.renderRoot.querySelector<HTMLElement>('.more');
     more?.removeAttribute('hidden');
-    const candidates = items.filter(el => !el.classList.contains('spacer'));
-    const hidden: HTMLElement[] = [];
+    const isGap = (el: HTMLElement) => el.classList.contains('gap');
+    const priority = (el: HTMLElement) => Number(el.dataset.overflowPriority) || 0;
+    // The order they go in: lowest priority first, the last first among equals.
+    const candidates = items.filter(el => !el.classList.contains('spacer') && !isGap(el))
+      .map((el, i) => ({ el, i }))
+      .sort((a, b) => priority(a.el) - priority(b.el) || b.i - a.i)
+      .map(c => c.el);
     while (bar.scrollWidth > bar.clientWidth + 1 && candidates.length) {
-      const el = candidates.pop()!;
-      el.setAttribute('data-overflowed', '');
-      hidden.unshift(el);
+      candidates.shift()!.setAttribute('data-overflowed', '');
+      JuelToolbar.tidyGaps(items);
     }
-    // A gap left at the end of what's shown goes too.
-    const last = candidates[candidates.length - 1];
-    if (hidden.length && last?.classList.contains('gap')) last.setAttribute('data-overflowed', '');
-    const listed = hidden.filter(el => !el.classList.contains('gap'));
+    const listed = items.filter(el => el.hasAttribute('data-overflowed') && !isGap(el));
     more?.toggleAttribute('hidden', !listed.length);
     if (listed.length !== this.overflowed.length || listed.some((el, i) => el !== this.overflowed[i])) this.overflowed = listed;
   };
+
+  /**
+   * Show a gap only between two groups that still show something: it needs a
+   * shown item since the last gap shown, and one before the next gap.
+   */
+  private static tidyGaps(items: HTMLElement[]) {
+    const shown = (el: HTMLElement) => !el.hasAttribute('data-overflowed') && !el.classList.contains('spacer');
+    let before = false;
+    items.forEach((el, i) => {
+      if (!el.classList.contains('gap')) { if (shown(el)) before = true; return; }
+      let after = false;
+      for (const next of items.slice(i + 1)) {
+        if (next.classList.contains('gap')) break;
+        if (shown(next)) { after = true; break; }
+      }
+      const show = before && after;
+      el.toggleAttribute('data-overflowed', !show);
+      if (show) before = false;
+    });
+  }
 
   private onMore = (e: CustomEvent<{ value: string | null }>) => {
     e.stopPropagation();

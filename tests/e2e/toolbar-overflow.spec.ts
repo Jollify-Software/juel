@@ -40,3 +40,22 @@ test('overflow: the items of a hidden menu are listed and fire its menu-select',
     await more.locator('juel-menu-item[label="Table"]').click();
     await expect(page.locator('#log')).toHaveText('insert table');
 });
+
+test('overflow: data-overflow-priority picks what goes first; the "…" menu keeps the row order', async ({ page }) => {
+    await page.goto('examples/Navigation/Toolbar/overflow.html');
+    await page.waitForFunction(() => (window as any).exampleReady);
+    const bar = page.locator('#ranked');
+    await expect(bar.locator('.more')).toBeVisible();
+    // The ranked ends of the row stay; Quote and Link (-1) go before Bold or Italic (0).
+    await expect(page.locator('#ranked-insert')).toBeVisible();
+    await expect(page.locator('#ranked-image')).toBeVisible();
+    await expect(bar.locator('juel-button[button-label="Quote"]')).toBeHidden();
+    await expect(bar.locator('juel-button[button-label="Link"]')).toBeHidden();
+    await expect(bar.locator('juel-button[button-label="Bold"]')).toBeVisible();
+    // One gap stays between the groups still showing (Bold… | Image, Insert); the other goes.
+    const gaps = await bar.evaluate(b => [...b.querySelectorAll(':scope > .gap')].map(g => g.hasAttribute('data-overflowed')));
+    expect(gaps.filter(hidden => !hidden)).toHaveLength(1);
+    await bar.locator('.more juel-button[slot=trigger]').click();
+    const listed = await bar.locator('.more juel-menu-item').evaluateAll(items => items.map(i => i.getAttribute('label')));
+    expect(listed.indexOf('Quote')).toBeLessThan(listed.indexOf('Link'));
+});

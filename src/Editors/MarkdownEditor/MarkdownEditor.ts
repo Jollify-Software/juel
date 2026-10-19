@@ -4,6 +4,8 @@ import { basicSetup, EditorView } from "codemirror";
 import { Annotation, ChangeSet, Compartment, EditorSelection, EditorState, MapMode } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown';
 import { Diagnostic, setDiagnostics } from '@codemirror/lint';
+import { redo, redoDepth, selectAll, undo, undoDepth } from '@codemirror/commands';
+import { openSearchPanel } from '@codemirror/search';
 import { FrontMatter, proseFont, writerLook } from './WriterLook';
 import { dividers, MarkdownDivider, setDividersEffect } from './Dividers';
 import { frontMatterChip } from './FrontMatterChip';
@@ -28,10 +30,12 @@ const External = Annotation.define<boolean>();
  * `wrapSelection(before, after?, placeholder?)`, `toggleLinePrefix(prefix, numbered?)`,
  * `insertBlock(text)`, `replaceRange(from, to, text)`,
  * `replaceRanges([{ from, to, text }])`, `selectedText`,
- * `setWarnings(list)`, `setDividers([{ offset, label? }])`, `focus()`.
+ * `setWarnings(list)`, `setDividers([{ offset, label? }])`, `focus()`,
+ * `undo()`, `redo()`, `undoDepth`, `redoDepth` (the editor's own history, for an
+ * app that keeps one Undo across several editors), `selectAll()`, `openSearch()`.
  *
  * Attributes: `readonly`; `writer`, an opt-in calmer look (headings bold, not
- * underlined; syntax marks dimmed; a leading `---` front-matter block read as
+ * underlined; syntax marks dimmed; long lines soft-wrap; a leading `---` front-matter block read as
  * such, not as a setext heading); `prose`, a proportional font for the text
  * (`--juel-font-prose`), with code and front matter kept monospace;
  * `front-matter-chip="Deck settings"`, a leading `---` front-matter block
@@ -159,6 +163,37 @@ export class JuelMarkdownEditor extends LitElement {
       this.writer ? [markdown({ extensions: FrontMatter }), writerLook()] : markdown(),
       this.prose ? proseFont() : [],
     ];
+  }
+
+  /** How many steps the editor's own history can undo / redo. */
+  get undoDepth(): number {
+    return this.editorView ? undoDepth(this.editorView.state) : 0;
+  }
+  get redoDepth(): number {
+    return this.editorView ? redoDepth(this.editorView.state) : 0;
+  }
+
+  /** One step of the editor's own history (as Ctrl+Z / Ctrl+Y). False if there's none. */
+  undo(): boolean {
+    return this.editorView && !this.readonly ? undo(this.editorView) : false;
+  }
+  redo(): boolean {
+    return this.editorView && !this.readonly ? redo(this.editorView) : false;
+  }
+
+  /** Selects the whole text and focuses the editor. */
+  selectAll() {
+    const view = this.editorView;
+    if (!view) return;
+    selectAll(view);
+    view.focus();
+  }
+
+  /** Opens the find (and replace) panel. */
+  openSearch() {
+    const view = this.editorView;
+    if (!view) return;
+    openSearchPanel(view);
   }
 
   /** The cursor's offset in the text (0-based). */
