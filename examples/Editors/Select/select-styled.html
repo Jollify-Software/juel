@@ -1,0 +1,17 @@
+<html>
+    <script src="../../../dist/juel.js"></script>
+    <body>
+        <h2>Options with a style</h2>
+        <p><code>style-field="style"</code>: each item's <code>style</code> styles its option, here a font list in each font.</p>
+        <juel-select id="fonts" label="Font" placeholder="theme" style-field="style"></juel-select>
+        <h2>Without it</h2>
+        <juel-select id="plain" label="Font"></juel-select>
+        <script>
+            const fonts = ['serif', 'sans-serif', 'monospace', 'Georgia, serif'];
+            const data = fonts.map(f => ({ text: f, value: f, style: `font-family: ${f}` }));
+            document.querySelector('#fonts').data = data;
+            document.querySelector('#plain').data = data;
+            customElements.whenDefined('juel-select').then(() => { window.exampleReady = true; });
+        </script>
+    </body>
+</html>

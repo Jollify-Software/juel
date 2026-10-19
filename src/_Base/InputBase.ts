@@ -13,6 +13,7 @@ import { classMap } from "lit/directives/class-map";
 import { NextAllMatching } from "../_Utils/dom/NextAllMatching";
 import { FocusNextTabbable } from "../_Utils/dom/FocusNextTabbable";
 
+import { lucideIcon } from "../_Modules/Icons/Lucide";
 export class InputBase extends JuelComponent {
 
     static InputElementNames: string = "juel-text, juel-memo, juel-range, juel-tickbox, juel-radio";
@@ -159,7 +160,8 @@ export class InputBase extends JuelComponent {
     getIconStyle() {
         let iconStyle = {};
         if (this.glyph) {
-            iconStyle["mask-image"] = `var(--icon-${this.glyph})`;
+            const lucide = lucideIcon(this.glyph);
+            iconStyle["mask-image"] = lucide ? `url("${lucide}")` : `var(--icon-${this.glyph})`;
             iconStyle["mask-repeat"] = "no-repeat";
             iconStyle["mask-position"] = "center";
         }

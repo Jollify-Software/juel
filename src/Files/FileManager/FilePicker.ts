@@ -229,32 +229,32 @@ export class JuelFilePicker extends LitElement {
             width: min(60rem, 100%);
             height: min(40rem, 100%);
             overflow: hidden;
-            color: var(--file-manager-color, #242424);
-            background: var(--file-manager-background, #fff);
+            color: var(--file-manager-color, var(--juel-text, #242424));
+            background: var(--file-manager-background, var(--juel-surface, #fff));
             border-radius: var(--file-manager-radius, 8px);
             box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
             font: var(--file-manager-font, 0.875rem/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
         }
-        :host-context([data-theme="dark"]) .panel { color: var(--file-manager-color, #f0f0f0); background: var(--file-manager-background, #1f1f1f); }
+        :host-context([data-theme="dark"]) .panel { color: var(--file-manager-color, var(--juel-text, #f0f0f0)); background: var(--file-manager-background, var(--juel-surface, #1f1f1f)); }
         header { display: flex; align-items: center; padding: 0.75rem 0.75rem 0.25rem 1.25rem; }
         h2 { margin: 0 auto 0 0; font-size: 1.125rem; font-weight: 600; }
         juel-file-manager { flex: 1; min-height: 0; }
-        footer { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; border-top: 1px solid var(--file-manager-border, #e3e3e3); }
-        :host-context([data-theme="dark"]) footer { border-color: var(--file-manager-border, #383838); }
-        .summary { margin-right: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--file-manager-muted, #616161); }
+        footer { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; border-top: 1px solid var(--file-manager-border, var(--juel-border, #e3e3e3)); }
+        :host-context([data-theme="dark"]) footer { border-color: var(--file-manager-border, var(--juel-border, #383838)); }
+        .summary { margin-right: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--file-manager-muted, var(--juel-muted, #616161)); }
         button {
             height: 2.25rem;
             padding: 0 1rem;
             font: inherit;
             color: inherit;
             background: none;
-            border: 1px solid var(--file-manager-border, #c8c8c8);
+            border: 1px solid var(--file-manager-border, var(--juel-border, #c8c8c8));
             border-radius: 6px;
             cursor: pointer;
         }
-        button:focus-visible { outline: 2px solid var(--file-manager-accent, #0f6cbd); outline-offset: 1px; }
+        button:focus-visible { outline: 2px solid var(--file-manager-accent, var(--juel-accent, #0f6cbd)); outline-offset: 1px; }
         button:disabled { opacity: 0.45; cursor: default; }
-        .primary { color: #fff; background: var(--file-manager-accent, #0f6cbd); border-color: var(--file-manager-accent, #0f6cbd); }
+        .primary { color: var(--juel-accent-contrast, #fff); background: var(--file-manager-accent, var(--juel-accent, #0f6cbd)); border-color: var(--file-manager-accent, var(--juel-accent, #0f6cbd)); }
         .close { display: grid; place-items: center; width: 2.25rem; padding: 0; border: 0; }
         .close .icon { width: 1.25rem; height: 1.25rem; }
         .close:hover { background: rgba(127, 127, 127, 0.15); }

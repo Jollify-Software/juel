@@ -1,0 +1,102 @@
+// juel-markdown-editor's opt-in writer look, on examples/Editors/MarkdownEditor/writer.html.
+import { expect, Page, test } from '@playwright/test';
+
+async function open(page: Page) {
+    await page.goto('examples/Editors/MarkdownEditor/writer.html');
+    await page.waitForFunction(() => (window as any).exampleReady);
+    await page.locator('#writer .cm-line').first().waitFor();
+}
+// The computed style of the innermost element holding `text` in editor `id`.
+const styleOf = (page: Page, id: string, text: string) => page.evaluate(([id, text]) => {
+    const all = [...document.querySelectorAll(`#${id} .cm-content *`)] as HTMLElement[];
+    const el = all.reverse().find(e => e.textContent!.includes(text))!;
+    const cs = getComputedStyle(el);
+    let underline = false;
+    for (let e: HTMLElement | null = el; e && !e.classList.contains('cm-content'); e = e.parentElement)
+        if (getComputedStyle(e).textDecorationLine.includes('underline')) underline = true;
+    return { underline, weight: cs.fontWeight, family: cs.fontFamily };
+}, [id, text]);
+
+test('by default the heading is underlined, as before', async ({ page }) => {
+    await open(page);
+    expect((await styleOf(page, 'plain', 'A heading')).underline).toBe(true);
+    // ...and so is the front matter's last line, read as a setext heading.
+    expect((await styleOf(page, 'plain', 'theme: dark')).underline).toBe(true);
+});
+
+test('writer: headings bold, not underlined; front matter is not a heading', async ({ page }) => {
+    await open(page);
+    const h = await styleOf(page, 'writer', 'A heading');
+    expect(h.underline).toBe(false);
+    expect(Number(h.weight)).toBeGreaterThanOrEqual(700);
+    const fm = await styleOf(page, 'writer', 'theme: dark');
+    expect(fm.underline).toBe(false);
+    expect(Number(fm.weight)).toBeLessThan(700);
+    expect(fm.family).toMatch(/mono|Consolas/i);
+});
+
+test('prose: the text is proportional, code stays monospace', async ({ page }) => {
+    await open(page);
+    expect((await styleOf(page, 'writer', 'Some')).family).not.toMatch(/mono|Consolas/i);
+    expect((await styleOf(page, 'writer', 'code')).family).toMatch(/mono|Consolas/i);
+    expect((await styleOf(page, 'plain', 'Some')).family).toMatch(/mono|Consolas/i);
+});
+
+test('writer can be turned on and off after the editor is made', async ({ page }) => {
+    await open(page);
+    await page.evaluate(() => { (document.getElementById('plain') as any).writer = true; });
+    await expect.poll(async () => (await styleOf(page, 'plain', 'A heading')).underline).toBe(false);
+    await page.evaluate(() => { (document.getElementById('plain') as any).writer = false; });
+    await expect.poll(async () => (await styleOf(page, 'plain', 'A heading')).underline).toBe(true);
+});
+
+test('setDividers: a rule above each slide, its number in the gutter, following edits', async ({ page }) => {
+    await open(page);
+    const state = () => page.evaluate(() => {
+        const ed = document.getElementById('divided')!;
+        const lines = [...ed.querySelectorAll('.cm-line')] as HTMLElement[];
+        return {
+            ruled: lines.filter(l => l.classList.contains('cm-juel-divider')).map(l => l.textContent),
+            labels: [...ed.querySelectorAll('.cm-juel-divider-gutter .cm-gutterElement')].map(g => g.textContent).filter(Boolean),
+            plainGutter: !!document.querySelector('#plain .cm-juel-divider-gutter'),
+        };
+    });
+    let s = await state();
+    expect(s.ruled).toEqual(['# One', '# Two', '# Three']);
+    expect(s.labels).toEqual(['1', '2', '3']);
+    expect(s.plainGutter).toBe(false); // no gutter until setDividers is called
+    // Typing above a divider moves it with its line.
+    await page.evaluate(() => (document.getElementById('divided') as any).replaceRange(0, 0, 'Intro\n\n'));
+    s = await state();
+    expect(s.ruled).toEqual(['# One', '# Two', '# Three']);
+    await page.evaluate(() => (document.getElementById('divided') as any).setDividers([{ offset: 0, label: 'A' }]));
+    s = await state();
+    expect(s.ruled).toEqual(['Intro']);
+    expect(s.labels).toEqual(['A']);
+});
+
+test('front-matter-chip: the front matter folds into a named chip; it opens and expands', async ({ page }) => {
+    await open(page);
+    const chip = page.locator('#chip .cm-juel-fm-chip');
+    await expect(chip).toHaveCount(1);
+    await expect(chip.locator('.cm-juel-fm-name')).toHaveText('Deck settings');
+    // Collapsed: the YAML isn't drawn, the rest of the text is.
+    await expect(page.locator('#chip .cm-content')).not.toContainText('theme: dark');
+    await expect(page.locator('#chip .cm-content')).toContainText('A heading');
+    // The other editors have no chip.
+    await expect(page.locator('#writer .cm-juel-fm-chip')).toHaveCount(0);
+    // The name fires front-matter-open.
+    await chip.locator('.cm-juel-fm-name').click();
+    await expect(page.locator('#chip-log')).toHaveText('front-matter-open 1');
+    // The chevron shows the YAML (with the chip still above it), and hides it again.
+    await chip.locator('.cm-juel-fm-toggle').click();
+    await expect(page.locator('#chip .cm-content')).toContainText('theme: dark');
+    await expect(page.locator('#chip .cm-juel-fm-toggle')).toHaveAttribute('aria-expanded', 'true');
+    await page.locator('#chip .cm-juel-fm-toggle').click();
+    await expect(page.locator('#chip .cm-content')).not.toContainText('theme: dark');
+    // The text itself is unchanged by all this.
+    expect(await page.evaluate(() => (document.getElementById('chip') as any).content)).toContain('theme: dark\n---\n');
+    // Without a closing ---, there's no chip.
+    await page.evaluate(() => { (document.getElementById('chip') as any).content = '---\ntitle: x\n\n# A\n'; });
+    await expect(page.locator('#chip .cm-juel-fm-chip')).toHaveCount(0);
+});

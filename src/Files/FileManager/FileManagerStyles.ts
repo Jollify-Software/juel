@@ -8,17 +8,17 @@ import { css } from 'lit';
 // `-shadow`, `-radius`, `-row-height`, `-font`, `-folder`, `-folder-back`.
 export const FileManagerStyles = css`
     :host {
-        --_bg: var(--file-manager-background, #ffffff);
-        --_fg: var(--file-manager-color, #242424);
-        --_muted: var(--file-manager-muted, #616161);
-        --_border: var(--file-manager-border, #e3e3e3);
-        --_hover: var(--file-manager-hover, #f5f5f5);
-        --_selected: var(--file-manager-selected, #e5f0fb);
-        --_selected-hover: var(--file-manager-selected-hover, #d6e7f8);
-        --_accent: var(--file-manager-accent, #0f6cbd);
-        --_danger: var(--file-manager-danger, #c42b1c);
-        --_menu-bg: var(--file-manager-menu-background, #ffffff);
-        --_shadow: var(--file-manager-shadow, 0 8px 24px rgba(0, 0, 0, 0.14), 0 0 2px rgba(0, 0, 0, 0.12));
+        --_bg: var(--file-manager-background, var(--juel-surface, #ffffff));
+        --_fg: var(--file-manager-color, var(--juel-text, #242424));
+        --_muted: var(--file-manager-muted, var(--juel-muted, #616161));
+        --_border: var(--file-manager-border, var(--juel-border, #e3e3e3));
+        --_hover: var(--file-manager-hover, var(--juel-hover, #f5f5f5));
+        --_selected: var(--file-manager-selected, var(--juel-selection, #e5f0fb));
+        --_selected-hover: var(--file-manager-selected-hover, var(--juel-selection-hover, #d6e7f8));
+        --_accent: var(--file-manager-accent, var(--juel-accent, #0f6cbd));
+        --_danger: var(--file-manager-danger, var(--juel-danger, #c42b1c));
+        --_menu-bg: var(--file-manager-menu-background, var(--juel-surface, #ffffff));
+        --_shadow: var(--file-manager-shadow, var(--juel-shadow-2, 0 8px 24px rgba(0, 0, 0, 0.14), 0 0 2px rgba(0, 0, 0, 0.12)));
         --_radius: var(--file-manager-radius, 8px);
         --_row: var(--file-manager-row-height, 2.75rem);
 
@@ -33,31 +33,31 @@ export const FileManagerStyles = css`
         position: relative;
     }
     :host([theme="dark"]) {
-        --_bg: var(--file-manager-background, #1f1f1f);
-        --_fg: var(--file-manager-color, #f0f0f0);
-        --_muted: var(--file-manager-muted, #adadad);
-        --_border: var(--file-manager-border, #383838);
-        --_hover: var(--file-manager-hover, #2a2a2a);
-        --_selected: var(--file-manager-selected, #1f3a5a);
-        --_selected-hover: var(--file-manager-selected-hover, #264872);
-        --_accent: var(--file-manager-accent, #5aa9f0);
-        --_danger: var(--file-manager-danger, #ff7b6b);
-        --_menu-bg: var(--file-manager-menu-background, #2b2b2b);
-        --_shadow: var(--file-manager-shadow, 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 2px rgba(0, 0, 0, 0.5));
+        --_bg: var(--file-manager-background, var(--juel-surface, #1f1f1f));
+        --_fg: var(--file-manager-color, var(--juel-text, #f0f0f0));
+        --_muted: var(--file-manager-muted, var(--juel-muted, #adadad));
+        --_border: var(--file-manager-border, var(--juel-border, #383838));
+        --_hover: var(--file-manager-hover, var(--juel-hover, #2a2a2a));
+        --_selected: var(--file-manager-selected, var(--juel-selection, #1f3a5a));
+        --_selected-hover: var(--file-manager-selected-hover, var(--juel-selection-hover, #264872));
+        --_accent: var(--file-manager-accent, var(--juel-accent, #5aa9f0));
+        --_danger: var(--file-manager-danger, var(--juel-danger, #ff7b6b));
+        --_menu-bg: var(--file-manager-menu-background, var(--juel-surface, #2b2b2b));
+        --_shadow: var(--file-manager-shadow, var(--juel-shadow-2, 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 2px rgba(0, 0, 0, 0.5)));
     }
     /* A rule of its own: a browser without :host-context (Firefox) drops just this one. */
     :host-context([data-theme="dark"]) {
-        --_bg: var(--file-manager-background, #1f1f1f);
-        --_fg: var(--file-manager-color, #f0f0f0);
-        --_muted: var(--file-manager-muted, #adadad);
-        --_border: var(--file-manager-border, #383838);
-        --_hover: var(--file-manager-hover, #2a2a2a);
-        --_selected: var(--file-manager-selected, #1f3a5a);
-        --_selected-hover: var(--file-manager-selected-hover, #264872);
-        --_accent: var(--file-manager-accent, #5aa9f0);
-        --_danger: var(--file-manager-danger, #ff7b6b);
-        --_menu-bg: var(--file-manager-menu-background, #2b2b2b);
-        --_shadow: var(--file-manager-shadow, 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 2px rgba(0, 0, 0, 0.5));
+        --_bg: var(--file-manager-background, var(--juel-surface, #1f1f1f));
+        --_fg: var(--file-manager-color, var(--juel-text, #f0f0f0));
+        --_muted: var(--file-manager-muted, var(--juel-muted, #adadad));
+        --_border: var(--file-manager-border, var(--juel-border, #383838));
+        --_hover: var(--file-manager-hover, var(--juel-hover, #2a2a2a));
+        --_selected: var(--file-manager-selected, var(--juel-selection, #1f3a5a));
+        --_selected-hover: var(--file-manager-selected-hover, var(--juel-selection-hover, #264872));
+        --_accent: var(--file-manager-accent, var(--juel-accent, #5aa9f0));
+        --_danger: var(--file-manager-danger, var(--juel-danger, #ff7b6b));
+        --_menu-bg: var(--file-manager-menu-background, var(--juel-surface, #2b2b2b));
+        --_shadow: var(--file-manager-shadow, var(--juel-shadow-2, 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 2px rgba(0, 0, 0, 0.5)));
     }
     *, *::before, *::after { box-sizing: border-box; }
     [hidden] { display: none !important; }
@@ -174,7 +174,7 @@ export const FileManagerStyles = css`
         padding: 0 0.5rem;
         border-radius: 999px;
         background: var(--_accent);
-        color: #fff;
+        color: var(--juel-accent-contrast, #fff);
         font-size: 0.75rem;
         font-weight: 600;
         line-height: 1.25rem;
@@ -235,7 +235,7 @@ export const FileManagerStyles = css`
     }
     .check .icon { width: 0.875rem; height: 0.875rem; stroke-width: 2.5; }
     .item:hover .check, .check:focus-visible, :host([selecting]) .check, .head .check.some { opacity: 1; }
-    .check[aria-checked="true"], .check[aria-checked="mixed"] { opacity: 1; background: var(--_accent); border-color: var(--_accent); color: #fff; }
+    .check[aria-checked="true"], .check[aria-checked="mixed"] { opacity: 1; background: var(--_accent); border-color: var(--_accent); color: var(--juel-accent-contrast, #fff); }
     .head .check:hover, .head .check:focus-visible { opacity: 1; }
 
     .name { display: flex; align-items: center; gap: 0.625rem; }

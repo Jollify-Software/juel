@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Toolbar: overflow — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        #narrow { width: 260px; }
+    </style>
+</head>
+
+<body>
+    <header class="example-header">
+        <h1>Toolbar: overflow</h1>
+        <p><code>overflow</code> keeps the toolbar to one row: what doesn't fit goes into a "…" menu at its end.
+            A hidden button is clicked from there; a hidden menu's items are listed and fire its <code>menu-select</code>.</p>
+    </header>
+
+    <juel-toolbar id="narrow" overflow>
+        <juel-button type="plain" glyph="lucide-bold" button-label="Bold" class="b"></juel-button>
+        <juel-button type="plain" glyph="lucide-italic" button-label="Italic"></juel-button>
+        <span class="gap"></span>
+        <juel-button type="plain" glyph="lucide-list" button-label="Bulleted list"></juel-button>
+        <juel-button type="plain" glyph="lucide-quote" button-label="Quote"></juel-button>
+        <span class="gap"></span>
+        <juel-button type="plain" glyph="lucide-link" button-label="Link"></juel-button>
+        <juel-button type="plain" glyph="lucide-image" button-label="Image"></juel-button>
+        <juel-menu id="insert" trigger="click">
+            <juel-button slot="trigger" type="plain" glyph="lucide-plus" label="Insert"></juel-button>
+            <juel-menu-item value="slide" label="Slide"></juel-menu-item>
+            <juel-menu-item value="table" label="Table"></juel-menu-item>
+        </juel-menu>
+    </juel-toolbar>
+    <p id="log"></p>
+
+    <script>
+        const log = document.getElementById('log');
+        for (const b of document.querySelectorAll('#narrow > juel-button'))
+            b.addEventListener('click', () => { log.textContent = 'clicked ' + b.getAttribute('button-label'); });
+        document.getElementById('insert').addEventListener('menu-select', e => { log.textContent = 'insert ' + e.detail.value; });
+        customElements.whenDefined('juel-toolbar').then(() => document.getElementById('narrow').updateComplete)
+            .then(() => { window.exampleReady = true; });
+    </script>
+</body>
+
+</html>

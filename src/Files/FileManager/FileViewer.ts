@@ -290,7 +290,7 @@ export class JuelFileViewer extends LitElement {
             cursor: pointer;
         }
         button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); }
-        button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #5aa9f0; outline-offset: -2px; }
+        button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--juel-accent, #5aa9f0); outline-offset: -2px; }
         .viewer:focus-visible { outline: none; }
         button:disabled { opacity: 0.3; cursor: default; }
         header { display: flex; align-items: center; gap: 0.25rem; padding: 0.5rem 0.75rem; }
@@ -335,8 +335,8 @@ export class JuelFileViewer extends LitElement {
         .none p { margin: 0; }
         .muted { color: #adadad; }
         .error { color: #ff7b6b; }
-        .primary { margin-top: 0.5rem; padding: 0 1rem; background: #0f6cbd; color: #fff; }
-        .primary:hover:not(:disabled) { background: #115ea3; }
+        .primary { margin-top: 0.5rem; padding: 0 1rem; background: var(--juel-accent, #0f6cbd); color: var(--juel-accent-contrast, #fff); }
+        .primary:hover:not(:disabled) { background: var(--juel-primary-hover, #115ea3); }
         @media (max-width: 640px) {
             header .text, .count { display: none; }
             .step { position: absolute; z-index: 1; width: 2.5rem; height: 2.5rem; }

@@ -44,7 +44,34 @@
         </div>
     </section>
 
+    <section class="example-section">
+        <h2>Palette and recent</h2>
+        <p><code>.palette</code> replaces the eight swatches (a name each, e.g. theme colours and an accent);
+            <code>.recent</code> adds a "Recent" row.</p>
+        <div class="example-demo row">
+            <juel-colour id="themed" value="#112233"></juel-colour>
+            <output id="themed-log"></output>
+        </div>
+    </section>
+
+    <section class="example-section">
+        <h2>Near a right edge</h2>
+        <p>In a narrow scrolling panel, a swatch at the right edge opens its popup leftwards, so the panel doesn't clip it.</p>
+        <div class="example-demo">
+            <div id="narrow" style="width: 180px; overflow: auto; border: 1px dashed #ccc; padding: 8px; text-align: right;">
+                <juel-colour id="edge" value="#2f9e44"></juel-colour>
+            </div>
+        </div>
+    </section>
+
     <script>
+        customElements.whenDefined('juel-colour').then(() => {
+            const themed = document.getElementById('themed');
+            themed.palette = [{ value: '#0b1f33', label: 'Background' }, { value: '#f4f4f4', label: 'Text' }, { value: '#f27a1a', label: 'Accent' }];
+            themed.recent = ['#123456', '#abcdef'];
+            themed.addEventListener('value-changed', e => { document.getElementById('themed-log').textContent = e.detail.value; });
+            return themed.updateComplete;
+        }).then(() => { window.exampleReady = true; });
         const picker = document.getElementById('picker');
         const card = document.getElementById('card');
         card.style.background = picker.value;

@@ -34,10 +34,10 @@ export class JuelMenuItem extends LitElement {
     }
     .item:hover,
     :host(:focus-visible) .item {
-      background: var(--menu-item-hover-background, #eef3ff);
+      background: var(--menu-item-hover-background, var(--juel-hover, #eef3ff));
     }
     :host(:focus-visible) .item {
-      outline: 2px solid var(--primary, #0d6efd);
+      outline: 2px solid var(--juel-focus, var(--primary, #0d6efd));
       outline-offset: -2px;
     }
     .submenu {
@@ -45,8 +45,8 @@ export class JuelMenuItem extends LitElement {
       top: 0;
       left: 100%;
       display: none;
-      background: white;
-      border: 1px solid #ccc;
+      background: var(--juel-surface, white);
+      border: 1px solid var(--juel-border, #ccc);
       min-width: 160px;
       z-index: 1000;
     }

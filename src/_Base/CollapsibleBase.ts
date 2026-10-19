@@ -47,6 +47,11 @@ export class CollapsibleBase extends JuelComponent {
     return null;
   }
 
+  /** What the floating content is placed against: the trigger (a subclass may give a point). */
+  protected floatingReference(): any {
+    return this.getTriggerElement();
+  }
+
   /** Options for createFloating (floating-ui computePosition). */
   protected floatingOptions(): any {
     return { placement: this.placement };
@@ -96,7 +101,7 @@ export class CollapsibleBase extends JuelComponent {
     if (this.collapseMode === 'floating') {
       el.style.visibility = this.opened ? 'visible' : 'hidden';
       if (this.opened && !this.floatingInstance) {
-        this.floatingInstance = createFloating(this.getTriggerElement(), el, this.floatingOptions());
+        this.floatingInstance = createFloating(this.floatingReference(), el, this.floatingOptions());
       } else if (!this.opened) {
         this.stopFloating();
       }

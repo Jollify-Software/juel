@@ -1,5 +1,5 @@
 import { LitElement, html, css, PropertyValues } from 'lit-element';
-import { customElement, property } from 'lit/decorators';
+import { customElement, property, state } from 'lit/decorators';
 import { autoUpdate, computePosition, flip, offset, shift, Placement, VirtualElement } from '@floating-ui/dom';
 
 /** A box in the window's px, as `getBoundingClientRect()` gives. */
@@ -27,6 +27,11 @@ export type ToolbarAnchor = string | Element | AnchorRect | (() => AnchorRect | 
  * - `keep-selection`: pressing it doesn't take focus or the text selection
  *   away from what it formats.
  * It positions itself absolutely, against its offset parent.
+ *
+ * `overflow` keeps it to one row: items that don't fit are hidden from the
+ * end (`data-overflowed`) and offered in a "…" menu at its end, which clicks
+ * a hidden button, or lists a hidden juel-menu's items and fires that menu's
+ * `menu-select`. `.spacer` and `.gap` children are never listed.
  */
 @customElement('juel-toolbar')
 export class JuelToolbar extends LitElement {
@@ -36,13 +41,19 @@ export class JuelToolbar extends LitElement {
   @property({ type: Number, attribute: 'anchor-offset' }) anchorOffset = 8;
   @property({ type: String }) boundary: string | null = null;
   @property({ type: Boolean, attribute: 'keep-selection' }) keepSelection = false;
+  /** One row; what doesn't fit goes into a "…" menu (see above). */
+  @property({ type: Boolean, reflect: true }) overflow = false;
+  @state() private overflowed: HTMLElement[] = [];
+  private resizeObserver: ResizeObserver | null = null;
+  /** A hidden menu's items can change (or still be parsing) without a `slotchange`. */
+  private mutationObserver: MutationObserver | null = null;
 
   static styles = css`
     :host {
       display: block;
-      box-shadow: var(--toolbar-box-shadow, 0px 2px 4px rgba(0, 0, 0, 0.1));
-      background-color: var(--toolbar-background-color, #ffffff);
-      color: var(--toolbar-color, #000000);
+      box-shadow: var(--toolbar-box-shadow, var(--juel-shadow-1, 0px 2px 4px rgba(0, 0, 0, 0.1)));
+      background-color: var(--toolbar-background-color, var(--juel-surface, #ffffff));
+      color: var(--toolbar-color, var(--juel-text, #000000));
       padding: var(--toolbar-padding, 0.5rem 1rem);
     }
 
@@ -94,6 +105,23 @@ export class JuelToolbar extends LitElement {
     ::slotted(.spacer) {
       flex-grow: 1;
     }
+
+    :host([overflow]) .toolbar {
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+
+    ::slotted([data-overflowed]) {
+      display: none !important;
+    }
+
+    .more {
+      flex-shrink: 0;
+    }
+
+    .more[hidden] {
+      display: none;
+    }
   `;
 
   /** What floating-ui positions against: reads `anchor` afresh each time. */
@@ -123,9 +151,14 @@ export class JuelToolbar extends LitElement {
     super.disconnectedCallback();
     this.removeEventListener('mousedown', this.onMouseDown);
     this.unanchor();
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
+    this.mutationObserver?.disconnect();
+    this.mutationObserver = null;
   }
 
   updated(changed: PropertyValues) {
+    if (changed.has('overflow')) this.watchOverflow();
     if (!['anchor', 'placement', 'anchorOffset', 'boundary'].some(p => changed.has(p))) return;
     const anchor = this.resolveAnchor();
     if (!anchor) {
@@ -165,10 +198,88 @@ export class JuelToolbar extends LitElement {
   render() {
     return html`
       <div class="toolbar" role="toolbar" aria-orientation="${this.direction}">
-        <slot></slot>
+        <slot @slotchange=${this.fit}></slot>
+        ${this.overflow ? html`
+          <juel-menu class="more" part="more" trigger="click" ?hidden=${!this.overflowed.length} @menu-select=${this.onMore}>
+            <juel-button slot="trigger" type="plain" glyph="lucide-ellipsis" button-label="More" title="More"></juel-button>
+            ${this.overflowed.flatMap((el, i) => el.localName === 'juel-menu'
+              ? JuelToolbar.menuItems(el).map((item, j) =>
+                html`<juel-menu-item value="${i}:${j}" label=${item.getAttribute('label') ?? item.textContent?.trim() ?? ''}></juel-menu-item>`)
+              : html`<juel-menu-item value="${i}" label=${JuelToolbar.labelOf(el)}></juel-menu-item>`)}
+          </juel-menu>` : ''}
       </div>
     `;
   }
+
+  /** A menu's own items (not a nested menu's). */
+  private static menuItems(menu: HTMLElement): HTMLElement[] {
+    return [...menu.querySelectorAll<HTMLElement>('juel-menu-item')].filter(item => item.closest('juel-menu') === menu);
+  }
+
+  private static labelOf(el: HTMLElement) {
+    return el.getAttribute('button-label') || el.getAttribute('label') || el.getAttribute('title') || el.textContent?.trim() || '';
+  }
+
+  private watchOverflow() {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
+    this.mutationObserver?.disconnect();
+    this.mutationObserver = null;
+    if (this.overflow) {
+      this.resizeObserver = new ResizeObserver(() => this.fit());
+      this.resizeObserver.observe(this);
+      this.mutationObserver = new MutationObserver(() => { if (this.overflowed.length) this.requestUpdate(); });
+      this.mutationObserver.observe(this, { childList: true, subtree: true, attributes: true, attributeFilter: ['label', 'button-label', 'title'] });
+      this.fit();
+    } else {
+      for (const el of this.slottedItems()) el.removeAttribute('data-overflowed');
+      this.overflowed = [];
+    }
+  }
+
+  private slottedItems(): HTMLElement[] {
+    const slot = this.renderRoot?.querySelector('slot');
+    return (slot?.assignedElements() ?? []) as HTMLElement[];
+  }
+
+  /** Hides trailing items until the row fits (the "…" button's room kept while it measures). */
+  private fit = () => {
+    if (!this.overflow) return;
+    const bar =this.renderRoot.querySelector<HTMLElement>('.toolbar');
+    if (!bar) return;
+    const items = this.slottedItems();
+    for (const el of items) el.removeAttribute('data-overflowed');
+    const more = this.renderRoot.querySelector<HTMLElement>('.more');
+    more?.removeAttribute('hidden');
+    const candidates = items.filter(el => !el.classList.contains('spacer'));
+    const hidden: HTMLElement[] = [];
+    while (bar.scrollWidth > bar.clientWidth + 1 && candidates.length) {
+      const el = candidates.pop()!;
+      el.setAttribute('data-overflowed', '');
+      hidden.unshift(el);
+    }
+    // A gap left at the end of what's shown goes too.
+    const last = candidates[candidates.length - 1];
+    if (hidden.length && last?.classList.contains('gap')) last.setAttribute('data-overflowed', '');
+    const listed = hidden.filter(el => !el.classList.contains('gap'));
+    more?.toggleAttribute('hidden', !listed.length);
+    if (listed.length !== this.overflowed.length || listed.some((el, i) => el !== this.overflowed[i])) this.overflowed = listed;
+  };
+
+  private onMore = (e: CustomEvent<{ value: string | null }>) => {
+    e.stopPropagation();
+    const [i, j] = (e.detail.value ?? '').split(':').map(Number);
+    const el = this.overflowed[i];
+    if (!el) return;
+    if (j === undefined || Number.isNaN(j)) {
+      el.click();
+      return;
+    }
+    const item = JuelToolbar.menuItems(el)[j];
+    if (item) el.dispatchEvent(new CustomEvent('menu-select', {
+      detail: { item, value: item.getAttribute('value') }, bubbles: true, composed: true,
+    }));
+  };
 
   private resolveAnchor(): Element | AnchorRect | null {
     const anchor = this.anchor;

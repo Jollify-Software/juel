@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Juel's opt-in look</title>
+    <script src="../../dist/juel.js"></script>
+    <style>
+        body { margin: 0; padding: 1rem; font: 14px/1.4 system-ui, sans-serif; }
+        h1 { font-size: 1.1rem; margin: 0 0 0.75rem; }
+        .row { display: flex; gap: 8px; align-items: center; margin: 0 0 1rem; }
+    </style>
+</head>
+<body>
+    <h1>Juel's opt-in look</h1>
+    <p>Without <code>data-juel-look</code> on &lt;html&gt; Juel looks as it always has. Open this page
+        with <code>?look</code> to turn the look on, and <code>&amp;theme=light|dark</code> to override the system.</p>
+    <div class="row">
+        <juel-button id="light" type="light" label="Light"></juel-button>
+        <juel-button id="primary" type="primary" label="Primary"></juel-button>
+        <juel-button id="dark" type="dark" label="Dark"></juel-button>
+        <juel-button id="danger" type="danger" label="Danger"></juel-button>
+        <juel-menu id="menu" trigger="click">
+            <juel-button slot="trigger" type="light" label="Menu"></juel-button>
+            <juel-menu-item value="one" label="One"></juel-menu-item>
+            <juel-menu-item value="two" label="Two"></juel-menu-item>
+        </juel-menu>
+    </div>
+    <juel-modal id="modal" title="A dialog"><p>In the look's surface colour.</p></juel-modal>
+    <juel-toolbar id="toolbar" aria-label="Example">
+        <juel-button type="light" label="Bold"></juel-button>
+        <juel-button type="light" label="Italic"></juel-button>
+    </juel-toolbar>
+    <div class="row">
+        <juel-text id="text" label="Text" value="Hello"></juel-text>
+        <juel-check id="check" label="Check" value="true"></juel-check>
+        <juel-number id="number" label="Number" value="3"></juel-number>
+    </div>
+    <juel-tabs id="tabs" style="height: 120px">
+        <juel-tab title="One">First tab</juel-tab>
+        <juel-tab title="Two">Second tab</juel-tab>
+    </juel-tabs>
+    <div style="height: 140px; margin: 1rem 0">
+        <juel-mdi id="mdi" order="row">
+            <div data-title="Left">Left panel</div>
+            <div data-title="Right">Right panel</div>
+        </juel-mdi>
+    </div>
+    <juel-file-manager id="files" root-label="Files" style="height: 160px; margin: 1rem 0"></juel-file-manager>
+    <juel-file-picker id="picker" heading="Choose a file"></juel-file-picker>
+    <div class="row">
+        <juel-button id="look" type="light" label="Look on/off"></juel-button>
+        <juel-button id="to-light" type="light" label="Light"></juel-button>
+        <juel-button id="to-dark" type="light" label="Dark"></juel-button>
+        <juel-button id="to-system" type="light" label="System"></juel-button>
+    </div>
+    <script>
+        const params = new URLSearchParams(location.search);
+        if (params.has('look')) juel.theme.useLook();
+        if (params.get('theme')) juel.theme.set(params.get('theme'), { persist: false });
+        document.getElementById('look').addEventListener('click', () => juel.theme.useLook(!juel.theme.usesLook()));
+        document.getElementById('to-light').addEventListener('click', () => juel.theme.set('light', { persist: false }));
+        document.getElementById('to-dark').addEventListener('click', () => juel.theme.set('dark', { persist: false }));
+        document.getElementById('to-system').addEventListener('click', () => juel.theme.clear({ persist: false }));
+        window.exampleReady = true;
+    </script>
+</body>
+</html>
