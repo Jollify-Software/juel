@@ -51,7 +51,8 @@ const HandlePx = 9;
  * - **History:** `undo()` / `redo()` (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z), its own, like
  *   `juel-markdown-editor`'s; `canUndo` / `canRedo`; `history-changed` bubbles.
  * - **API:** `selection` (ids), `select(ids)`, `setAttributes(ids, { name: value | null })`,
- *   `deleteSelection()`, `fit()`, `zoom(factor)`, `itemAttributes(id)`.
+ *   `setLevelAttributes(level, { … })` (a storey's name, height), `deleteSelection()`, `fit()`,
+ *   `zoom(factor)`, `itemAttributes(id)`.
  * - **Events:** `plan-changed` `{ svg, reason }` after each change you make;
  *   `selection-changed` `{ ids, attributes }`; `shape-created` `{ id, kind }`.
  *   Setting `svg` from outside fires none of them, and starts a new history.
@@ -246,6 +247,18 @@ export class JuelPlanEditor extends LitElement {
         this.commit('attributes');
         // Their attributes changed, and the app may be showing them.
         this.fireSelection();
+    }
+
+    /**
+     * Sets (or, with null, removes) attributes on storey `level`'s group (made when
+     * there's none): its `data-label`, `data-height`… One history entry.
+     */
+    setLevelAttributes(level: number, attributes: Record<string, string | null>) {
+        if (this.readonly) return;
+        const group = containerFor(this.docGroup, level, true);
+        setAttributesOf(group, attributes);
+        this.applyLevelStyle();
+        this.commit('attributes');
     }
 
     deleteSelection() {

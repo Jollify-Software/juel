@@ -195,12 +195,16 @@ export function rectFrom(a: Point, b: Point, min = 0): { x: number; y: number; w
     return { x, y, width: Math.max(min, Math.abs(b.x - a.x)), height: Math.max(min, Math.abs(b.y - a.y)) };
 }
 
-/** The group new shapes on storey `level` go in: its storey group, made if there's none (level 0 without groups: the root). */
-export function containerFor(root: Element, level: number): Element {
+/**
+ * The group new shapes on storey `level` go in: its storey group, made if there's
+ * none (level 0 without groups: the root, unless `group` asks for a group anyway,
+ * to give the storey a name or height).
+ */
+export function containerFor(root: Element, level: number, group = false): Element {
     const groups = Array.from(root.children).filter(isLevelGroup);
     const found = groups.find(g => levelOf(g) === level);
     if (found) return found;
-    if (level === 0 && !groups.length) return root;
+    if (level === 0 && !groups.length && !group) return root;
     const g = root.ownerDocument.createElementNS(SvgNs, 'g');
     g.setAttribute('data-fixture', 'level');
     g.setAttribute('data-level', String(level));

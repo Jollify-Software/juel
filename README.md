@@ -186,7 +186,8 @@ one storey with the others faint and unpickable; `grid` (plan units, every tenth
 what it touches, a drag moves the selection, the arrow keys nudge it (Shift: ten steps), Delete
 removes it, Escape clears it; the wheel zooms, the middle button or Space+drag pans, `0` fits.
 Its own history: `undo()` / `redo()` (Ctrl+Z, Ctrl+Y), `canUndo` / `canRedo`. API: `selection`,
-`select(ids)`, `setAttributes(ids, { name: value | null })` (one undo step), `deleteSelection()`,
+`select(ids)`, `setAttributes(ids, { name: value | null })` (one undo step), `setLevelAttributes(level, { … })`
+(a storey group's name or height, the group made if need be), `deleteSelection()`,
 `itemAttributes(id)`, `fit()`, `zoom(factor)`. `selection-changed` `{ ids, attributes }`.
 Drawing (`tool`): `rect` and `circle` by dragging, `polygon` and `polyline` by clicking points
 (Enter, a double-click or the first point again to finish; Backspace takes a point back, Escape

@@ -246,3 +246,12 @@ test('handles: a rect\'s corner resizes it; a polygon\'s point moves; double-cli
     await page.keyboard.down('Alt'); await page.mouse.click(q.x, q.y); await page.keyboard.up('Alt');
     expect(await attr(page, 'mezzanine', 'points')).toBe('40,40 260,60 260,200 160,260 60,260');
 });
+
+test('setLevelAttributes names a storey (making its group if need be), one undo step', async ({ page }) => {
+    await open(page);
+    await page.evaluate(() => (document.getElementById('plan') as any).setLevelAttributes(2, { 'data-label': 'Roof terrace', 'data-height': '3' }));
+    const svg: string = await page.evaluate(() => (document.getElementById('plan') as any).svg);
+    expect(svg).toMatch(/<g data-fixture="level" data-level="1"[^>]*>[\s\S]*<\/g><g data-fixture="level" data-level="2" data-label="Roof terrace" data-height="3"\/>/);
+    await page.evaluate(() => (document.getElementById('plan') as any).undo());
+    expect(await page.evaluate(() => (document.getElementById('plan') as any).svg.includes('Roof terrace'))).toBe(false);
+});
