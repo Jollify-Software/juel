@@ -17,8 +17,12 @@
     <h1>juel-plan-editor</h1>
     <p>A floor plan as SVG (here in Parterre's annotations, two storeys). Click a shape to select it (Shift adds),
         drag on empty space for a box, drag the selection to move it (snapped to the grid; Alt: free), arrow keys
-        to nudge, Delete to remove, Ctrl+Z / Ctrl+Y. Wheel to zoom, middle button or Space+drag to pan, 0 to fit.</p>
+        to nudge, Delete to remove, Ctrl+Z / Ctrl+Y. Wheel to zoom, middle button or Space+drag to pan, 0 to fit. Drawing: Rect and Circle by dragging; Polygon and
+        Polyline by clicking points (Enter, a double-click or the first point to finish; Backspace, Escape);
+        Point by a click. Points snap to corners nearby, else the grid; Shift keeps 45°, Alt is free. One selected
+        shape shows handles; double-click a polygon's edge to add a point, Alt+click a point to remove it.</p>
     <div class="controls">
+        <juel-segmented id="tools" label="Tool" value="select"></juel-segmented>
         <juel-segmented id="levels" label="Storey" value="0"></juel-segmented>
         <juel-button id="undo" type="light" label="Undo"></juel-button>
         <juel-button id="redo" type="light" label="Redo"></juel-button>
@@ -43,6 +47,12 @@
         const editor = document.getElementById('plan');
         const log = document.getElementById('log');
         Promise.all(['juel-plan-editor', 'juel-segmented'].map(t => customElements.whenDefined(t))).then(async () => {
+            const tools = document.getElementById('tools');
+            tools.options = ['select', 'rect', 'polygon', 'polyline', 'circle', 'point'].map(v => ({ value: v, label: v[0].toUpperCase() + v.slice(1) }));
+            tools.addEventListener('value-changed', e => { editor.tool = e.detail.value; });
+            // New shapes: a room's look (the app sets data-fixture from its tool).
+            editor.newAttributes = { 'data-fixture': 'room', fill: '#f5ecd6', stroke: '#555' };
+            editor.addEventListener('shape-created', e => { log.textContent = `created ${e.detail.kind}: ${e.detail.id}`; });
             const levels = document.getElementById('levels');
             levels.options = [{ value: '0', label: 'Ground' }, { value: '1', label: 'First' }];
             levels.addEventListener('value-changed', e => { editor.level = Number(e.detail.value); });
@@ -54,6 +64,7 @@
             editor.svg = plan;
             await editor.updateComplete;
             await levels.updateComplete;
+            await tools.updateComplete;
             window.exampleReady = true;
         });
     </script>

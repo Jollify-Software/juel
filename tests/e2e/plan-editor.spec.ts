@@ -126,3 +126,123 @@ test('plan editor: setAttributes is one undoable change; the wheel zooms', async
     const after = await viewBox();
     expect(after[2]).toBeLessThan(before[2]);
 });
+
+// --- drawing (L2) ---
+
+/** A point in plan units on screen. */
+const at = (page: Page, x: number, y: number) => page.evaluate(([x, y]) => {
+    const g = document.getElementById('plan')!.shadowRoot!.querySelector('g.doc') as SVGGElement;
+    const p = new DOMPoint(x, y).matrixTransform(g.getScreenCTM()!);
+    return { x: p.x, y: p.y };
+}, [x, y]);
+const tool = (page: Page, name: string) => page.locator(`#tools juel-button[data-value="${name}"]`).click();
+const lastShape = (page: Page) => page.evaluate(() => {
+    const p = document.getElementById('plan') as any;
+    const id = p.selection[0];
+    const el = p.shadowRoot.getElementById(id);
+    return { id, tag: el?.localName, parent: el?.parentElement?.getAttribute('data-level') ?? null, attrs: p.itemAttributes(id) };
+});
+const drag = async (page: Page, from: { x: number; y: number }, to: { x: number; y: number }) => {
+    await page.mouse.move(from.x, from.y);
+    await page.mouse.down();
+    await page.mouse.move(to.x, to.y, { steps: 8 });
+    await page.mouse.up();
+};
+
+test('drawing: a rect by dragging, on the grid, with newAttributes, in the storey\'s group', async ({ page }) => {
+    await open(page);
+    await tool(page, 'rect');
+    await drag(page, await at(page, 302, 398), await at(page, 383, 437));
+    const s = await lastShape(page);
+    expect(s.tag).toBe('rect');
+    expect([s.attrs.x, s.attrs.y, s.attrs.width, s.attrs.height]).toEqual(['300', '400', '80', '40']);
+    expect(s.attrs['data-fixture']).toBe('room');
+    expect(s.parent).toBe('0');
+    await expect(page.locator('#log')).toHaveText(`created rect: ${s.id}`);
+    await page.keyboard.press('Control+z');
+    expect(await page.evaluate(id => !!document.getElementById('plan')!.shadowRoot!.getElementById(id), s.id)).toBe(false);
+});
+
+test('drawing: a point snaps to a corner nearby before the grid', async ({ page }) => {
+    await open(page);
+    await tool(page, 'rect');
+    // The partition's corner is at (388, 140), off the 20 grid.
+    await drag(page, await at(page, 389, 141), await at(page, 440, 200));
+    const s = await lastShape(page);
+    expect([s.attrs.x, s.attrs.y]).toEqual(['388', '140']);
+});
+
+test('drawing: a polygon by clicks, closed on its first point; Escape drops one', async ({ page }) => {
+    await open(page);
+    await tool(page, 'polygon');
+    for (const [x, y] of [[300, 400], [360, 400], [360, 420]]) { const p = await at(page, x, y); await page.mouse.click(p.x, p.y); }
+    const first = await at(page, 301, 401);
+    await page.mouse.click(first.x, first.y);
+    const s = await lastShape(page);
+    expect(s.tag).toBe('polygon');
+    expect(s.attrs.points).toBe('300,400 360,400 360,420');
+    // Escape drops a polygon being drawn.
+    for (const [x, y] of [[100, 400], [140, 400]]) { const p = await at(page, x, y); await page.mouse.click(p.x, p.y); }
+    await page.keyboard.press('Escape');
+    expect((await lastShape(page)).id).toBe(s.id);
+});
+
+test('drawing: a polyline ends with Enter; Backspace takes a point back; Shift keeps 45°', async ({ page }) => {
+    await open(page);
+    await tool(page, 'polyline');
+    const a = await at(page, 100, 400); await page.mouse.click(a.x, a.y);
+    const b = await at(page, 160, 413);
+    await page.keyboard.down('Shift'); await page.mouse.click(b.x, b.y); await page.keyboard.up('Shift');
+    const c = await at(page, 200, 300); await page.mouse.click(c.x, c.y);
+    await page.keyboard.press('Backspace');
+    await page.keyboard.press('Enter');
+    const s = await lastShape(page);
+    expect(s.tag).toBe('polyline');
+    expect(s.attrs.points).toBe('100,400 160,400');
+});
+
+test('drawing: a circle by dragging its radius; a point by a click', async ({ page }) => {
+    await open(page);
+    await tool(page, 'circle');
+    await drag(page, await at(page, 460, 400), await at(page, 500, 400));
+    let s = await lastShape(page);
+    expect([s.tag, s.attrs.cx, s.attrs.cy, s.attrs.r]).toEqual(['circle', '460', '400', '40']);
+    await tool(page, 'point');
+    const p = await at(page, 421, 99); await page.mouse.click(p.x, p.y);
+    s = await lastShape(page);
+    expect([s.tag, s.attrs.cx, s.attrs.cy, s.attrs.r]).toEqual(['circle', '420', '100', '5']);
+});
+
+test('drawing: on the first floor, a new shape goes in that storey\'s group', async ({ page }) => {
+    await open(page);
+    await page.locator('#levels juel-button[data-value="1"]').click();
+    await tool(page, 'rect');
+    await drag(page, await at(page, 300, 300), await at(page, 340, 340));
+    expect((await lastShape(page)).parent).toBe('1');
+});
+
+test('handles: a rect\'s corner resizes it; a polygon\'s point moves; double-click adds one, Alt+click removes one', async ({ page }) => {
+    await open(page);
+    const hall = await centre(page, 'hall');
+    await page.mouse.click(hall.x, hall.y);
+    // The hall's bottom-right corner (260, 380) out to (300, 400).
+    await drag(page, await at(page, 260, 380), await at(page, 301, 399));
+    expect([await attr(page, 'hall', 'width'), await attr(page, 'hall', 'height')]).toEqual(['240', '340']);
+    await page.keyboard.press('Control+z');
+    expect(await attr(page, 'hall', 'width')).toBe('200');
+
+    await page.locator('#levels juel-button[data-value="1"]').click();
+    const m = await centre(page, 'mezzanine');
+    await page.mouse.click(m.x, m.y);
+    await drag(page, await at(page, 60, 60), await at(page, 41, 39));
+    expect(await attr(page, 'mezzanine', 'points')).toBe('40,40 260,60 260,200 160,260 60,260');
+    // Double-click the top edge (from 40,40 to 260,60) at its middle.
+    const mid = await at(page, 150, 50);
+    await page.mouse.dblclick(mid.x, mid.y);
+    expect((await attr(page, 'mezzanine', 'points'))!.split(' ')).toHaveLength(6);
+    // Alt+click that new point removes it.
+    const added = (await attr(page, 'mezzanine', 'points'))!.split(' ')[1].split(',').map(Number);
+    const q = await at(page, added[0], added[1]);
+    await page.keyboard.down('Alt'); await page.mouse.click(q.x, q.y); await page.keyboard.up('Alt');
+    expect(await attr(page, 'mezzanine', 'points')).toBe('40,40 260,60 260,200 160,260 60,260');
+});

@@ -123,6 +123,95 @@ export function attributesOf(el: Element): Record<string, string> {
 /** `value` to the nearest multiple of `step` (unchanged when step is 0 or less). */
 export const snapTo = (value: number, step: number) => step > 0 ? Math.round(value / step) * step : value;
 
+export interface Point { x: number; y: number }
+
+/** `x,y x,y` (or `x y x y`) as points. */
+export function parsePoints(points: string): Point[] {
+    const values = (points.match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi) ?? []).map(Number);
+    const out: Point[] = [];
+    for (let i = 0; i + 1 < values.length; i += 2) out.push({ x: values[i], y: values[i + 1] });
+    return out;
+}
+
+/** Points as a `points` attribute: `x,y x,y`. */
+export const formatPoints = (points: Point[]) => points.map(p => `${fmt(p.x)},${fmt(p.y)}`).join(' ');
+
+/**
+ * `to`, its angle from `from` snapped to 45° steps (horizontal, vertical,
+ * diagonal), keeping its distance along that direction: Shift while drawing.
+ */
+export function snapAngle(from: Point, to: Point): Point {
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const length = Math.hypot(dx, dy);
+    if (!length) return { ...to };
+    const angle = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * (Math.PI / 4);
+    // Project onto the snapped direction, so a near-horizontal line keeps its length along x.
+    const along = dx * Math.cos(angle) + dy * Math.sin(angle);
+    return { x: from.x + Math.round(along * Math.cos(angle) * 1000) / 1000, y: from.y + Math.round(along * Math.sin(angle) * 1000) / 1000 };
+}
+
+/** The corners and vertices an item offers to snap to, in its own (parent's) units; [] for transformed ones and paths. */
+export function cornersOf(el: Element): Point[] {
+    if (el.getAttribute('transform')) return [];
+    const n = (name: string) => Number(el.getAttribute(name) ?? 0) || 0;
+    switch (el.localName) {
+        case 'rect': { const x = n('x'), y = n('y'), w = n('width'), h = n('height'); return [{ x, y }, { x: x + w, y }, { x: x + w, y: y + h }, { x, y: y + h }]; }
+        case 'line': return [{ x: n('x1'), y: n('y1') }, { x: n('x2'), y: n('y2') }];
+        case 'polygon': case 'polyline': return parsePoints(el.getAttribute('points') ?? '');
+        case 'circle': case 'ellipse': return [{ x: n('cx'), y: n('cy') }];
+        default: return [];
+    }
+}
+
+/** The nearest of `candidates` to `p` within `tolerance`, or undefined. */
+export function nearestPoint(candidates: Point[], p: Point, tolerance: number): Point | undefined {
+    let best: Point | undefined, bestD = tolerance;
+    for (const c of candidates) {
+        const d = Math.hypot(c.x - p.x, c.y - p.y);
+        if (d <= bestD) { best = c; bestD = d; }
+    }
+    return best;
+}
+
+/** Where on a polyline/polygon's edges `p` lands within `tolerance`: the edge's index (the point goes after it) and the point on it. */
+export function nearestEdge(points: Point[], closed: boolean, p: Point, tolerance: number): { index: number; at: Point } | undefined {
+    let best: { index: number; at: Point } | undefined, bestD = tolerance;
+    const count = closed ? points.length : points.length - 1;
+    for (let i = 0; i < count; i++) {
+        const a = points[i], b = points[(i + 1) % points.length];
+        const lx = b.x - a.x, ly = b.y - a.y, len2 = lx * lx + ly * ly;
+        if (!len2) continue;
+        const t = Math.max(0, Math.min(1, ((p.x - a.x) * lx + (p.y - a.y) * ly) / len2));
+        const at = { x: a.x + t * lx, y: a.y + t * ly };
+        const d = Math.hypot(at.x - p.x, at.y - p.y);
+        if (d <= bestD) { best = { index: i, at }; bestD = d; }
+    }
+    return best;
+}
+
+/** A rect's attributes from two corners (any order), at least `min` each way. */
+export function rectFrom(a: Point, b: Point, min = 0): { x: number; y: number; width: number; height: number } {
+    const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
+    return { x, y, width: Math.max(min, Math.abs(b.x - a.x)), height: Math.max(min, Math.abs(b.y - a.y)) };
+}
+
+/** The group new shapes on storey `level` go in: its storey group, made if there's none (level 0 without groups: the root). */
+export function containerFor(root: Element, level: number): Element {
+    const groups = Array.from(root.children).filter(isLevelGroup);
+    const found = groups.find(g => levelOf(g) === level);
+    if (found) return found;
+    if (level === 0 && !groups.length) return root;
+    const g = root.ownerDocument.createElementNS(SvgNs, 'g');
+    g.setAttribute('data-fixture', 'level');
+    g.setAttribute('data-level', String(level));
+    // In storey order among the others.
+    const after = groups.filter(o => levelOf(o) < level).pop();
+    if (after) after.after(g);
+    else if (groups.length) groups[0].before(g);
+    else root.appendChild(g);
+    return g;
+}
+
 /** The plan's own area: its viewBox, else its width and height, else 1000 square. */
 export function planBounds(root: Element): { x: number; y: number; width: number; height: number } {
     const box = (root.getAttribute('viewBox') ?? '').split(/[\s,]+/).map(Number);

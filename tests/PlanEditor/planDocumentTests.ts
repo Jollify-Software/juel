@@ -73,3 +73,50 @@ describe('planDocument', () => {
         expect(() => parsePlan('<html/>')).toThrow('Not an SVG plan');
     });
 });
+
+import { containerFor, cornersOf, formatPoints, nearestEdge, nearestPoint, parsePoints, rectFrom, snapAngle } from '../../src/Editors/PlanEditor/planDocument';
+
+describe('planDocument: drawing', () => {
+    test('points parse and format', () => {
+        expect(parsePoints('0,0 10 5, 20,20')).toEqual([{ x: 0, y: 0 }, { x: 10, y: 5 }, { x: 20, y: 20 }]);
+        expect(formatPoints([{ x: 1.23456, y: 2 }])).toBe('1.235,2');
+    });
+
+    test('Shift snaps to 45° steps, keeping the distance along the snapped direction', () => {
+        expect(snapAngle({ x: 0, y: 0 }, { x: 100, y: 8 })).toEqual({ x: 100, y: 0 });
+        expect(snapAngle({ x: 0, y: 0 }, { x: -6, y: 50 })).toEqual({ x: 0, y: 50 });
+        const d = snapAngle({ x: 0, y: 0 }, { x: 50, y: 45 });
+        expect(d.x).toBeCloseTo(47.5, 2);
+        expect(d.y).toBeCloseTo(47.5, 2);
+    });
+
+    test('corners to snap to, the nearest within tolerance, and edges to add a point on', () => {
+        const root = parsePlan(`<svg xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="100" height="50"/><polygon points="0,0 10,0 10,10"/><rect transform="rotate(5)" x="0" y="0" width="1" height="1"/></svg>`);
+        const [rect, poly, turned] = Array.from(root.children);
+        expect(cornersOf(rect)).toEqual([{ x: 10, y: 10 }, { x: 110, y: 10 }, { x: 110, y: 60 }, { x: 10, y: 60 }]);
+        expect(cornersOf(poly)).toHaveLength(3);
+        expect(cornersOf(turned)).toEqual([]);
+        expect(nearestPoint(cornersOf(rect), { x: 107, y: 12 }, 5)).toEqual({ x: 110, y: 10 });
+        expect(nearestPoint(cornersOf(rect), { x: 60, y: 30 }, 5)).toBeUndefined();
+        expect(nearestEdge(cornersOf(rect), true, { x: 60, y: 12 }, 5)).toEqual({ index: 0, at: { x: 60, y: 10 } });
+        expect(nearestEdge(cornersOf(rect), true, { x: 12, y: 30 }, 5)).toEqual({ index: 3, at: { x: 10, y: 30 } });
+        expect(nearestEdge(cornersOf(rect), false, { x: 12, y: 30 }, 5)).toBeUndefined();
+    });
+
+    test('rects from two corners, at least a minimum size', () => {
+        expect(rectFrom({ x: 50, y: 40 }, { x: 10, y: 10 })).toEqual({ x: 10, y: 10, width: 40, height: 30 });
+        expect(rectFrom({ x: 0, y: 0 }, { x: 0, y: 5 }, 10)).toEqual({ x: 0, y: 0, width: 10, height: 10 });
+    });
+
+    test('new shapes go in their storey\'s group, made in order when missing', () => {
+        const flat = parsePlan('<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>');
+        expect(containerFor(flat, 0)).toBe(flat);
+        const root = parsePlan('<svg xmlns="http://www.w3.org/2000/svg"><g data-fixture="level" data-level="0"/><g data-fixture="level" data-level="2"/></svg>');
+        expect(containerFor(root, 2)).toBe(root.children[1]);
+        const one = containerFor(root, 1);
+        expect(Array.from(root.children).map(g => g.getAttribute('data-level'))).toEqual(['0', '1', '2']);
+        expect(one.getAttribute('data-fixture')).toBe('level');
+        containerFor(root, -1);
+        expect(Array.from(root.children).map(g => g.getAttribute('data-level'))).toEqual(['-1', '0', '1', '2']);
+    });
+});

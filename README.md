@@ -187,8 +187,15 @@ what it touches, a drag moves the selection, the arrow keys nudge it (Shift: ten
 removes it, Escape clears it; the wheel zooms, the middle button or Space+drag pans, `0` fits.
 Its own history: `undo()` / `redo()` (Ctrl+Z, Ctrl+Y), `canUndo` / `canRedo`. API: `selection`,
 `select(ids)`, `setAttributes(ids, { name: value | null })` (one undo step), `deleteSelection()`,
-`itemAttributes(id)`, `fit()`, `zoom(factor)`. `selection-changed` `{ ids, attributes }`. Drawing
-tools come next. Example: `examples/Editors/PlanEditor/plan-editor.html`.
+`itemAttributes(id)`, `fit()`, `zoom(factor)`. `selection-changed` `{ ids, attributes }`.
+Drawing (`tool`): `rect` and `circle` by dragging, `polygon` and `polyline` by clicking points
+(Enter, a double-click or the first point again to finish; Backspace takes a point back, Escape
+drops the shape), `point` by a click. New shapes get `newAttributes` (an app's `data-fixture`,
+`fill`…), go in the storey's group, are selected and fire `shape-created` `{ id, kind }`. Points
+snap to corners nearby, else the grid; Shift keeps a line to 45°, Alt is free. One selected shape
+shows handles: a rect's corners, a polygon's, polyline's or line's points (double-click an edge to
+add one, Alt+click a point to remove it), a circle's radius. Example:
+`examples/Editors/PlanEditor/plan-editor.html`.
 
 ## Layout
 
