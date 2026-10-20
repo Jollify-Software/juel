@@ -192,7 +192,7 @@ Its own history: `undo()` / `redo()` (Ctrl+Z, Ctrl+Y), `canUndo` / `canRedo`. AP
 Drawing (`tool`): `rect` and `circle` by dragging, `polygon` and `polyline` by clicking points
 (Enter, a double-click or the first point again to finish; Backspace takes a point back, Escape
 drops the shape), `point` by a click. New shapes get `newAttributes` (an app's `data-fixture`,
-`fill`…), go in the storey's group, are selected and fire `shape-created` `{ id, kind }`. Points
+`fill`…; `{id}` in a value is the shape's own id, e.g. `data-id: '{id}'`), go in the storey's group, are selected and fire `shape-created` `{ id, kind }`. Points
 snap to corners nearby, else the grid; Shift keeps a line to 45°, Alt is free. One selected shape
 shows handles: a rect's corners, a polygon's, polyline's or line's points (double-click an edge to
 add one, Alt+click a point to remove it), a circle's radius. Example:

@@ -255,3 +255,13 @@ test('setLevelAttributes names a storey (making its group if need be), one undo 
     await page.evaluate(() => (document.getElementById('plan') as any).undo());
     expect(await page.evaluate(() => (document.getElementById('plan') as any).svg.includes('Roof terrace'))).toBe(false);
 });
+
+test('newAttributes: {id} in a value is the new shape\'s id', async ({ page }) => {
+    await open(page);
+    await page.evaluate(() => { (document.getElementById('plan') as any).newAttributes = { 'data-fixture': 'room', 'data-id': '{id}', title: 'room {id}' }; });
+    await tool(page, 'rect');
+    await drag(page, await at(page, 300, 400), await at(page, 340, 430));
+    const s = await lastShape(page);
+    expect(s.attrs['data-id']).toBe(s.id);
+    expect(s.attrs.title).toBe(`room ${s.id}`);
+});

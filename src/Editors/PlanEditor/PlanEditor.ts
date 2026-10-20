@@ -39,7 +39,8 @@ const HandlePx = 9;
  *   (click the corners; click the first again, double-click or Enter to close) and
  *   `polyline` (double-click or Enter to finish), Backspace taking the last point
  *   back and Escape dropping the shape; `point` (a small circle, for a model or a
- *   label). New shapes get `newAttributes` (the app's `data-fixture`, fill…), are
+ *   label). New shapes get `newAttributes` (the app's `data-fixture`, fill…; `{id}` in a
+ *   value is the new shape's id), are
  *   selected, and fire `shape-created` `{ id, kind }`.
  * - **Snapping:** to other shapes' corners nearby, else to the grid unless `snap`
  *   is off; Alt turns both off, and Shift keeps a line to 45° steps.
@@ -90,7 +91,7 @@ export class JuelPlanEditor extends LitElement {
     @property({ type: Boolean, reflect: true }) readonly = false;
     /** What a click or drag on the plan does. */
     @property({ type: String }) tool: PlanTool = 'select';
-    /** Attributes every new shape gets (the app's `data-fixture`, `fill`, `stroke`…). */
+    /** Attributes every new shape gets (the app's `data-fixture`, `fill`, `stroke`…); `{id}` in a value is the shape's id. */
     @property({ attribute: false }) newAttributes: Record<string, string> = {};
 
     @state() private view: Box = { x: 0, y: 0, width: 1000, height: 1000 };
@@ -382,6 +383,9 @@ export class JuelPlanEditor extends LitElement {
         if (container === this.docGroup && this.level !== 0) el.setAttribute('data-level', String(this.level));
         container.appendChild(el);
         ensureIds(this.docGroup);
+        // `{id}` in a new attribute's value is the shape's own id (an app's data-id="{id}").
+        for (const [name, value] of Object.entries(this.newAttributes))
+            if (value.includes('{id}')) el.setAttribute(name, value.split('{id}').join(el.id));
         this.selected = [el.id];
         this.applyLevelStyle();
         this.commit('draw');
