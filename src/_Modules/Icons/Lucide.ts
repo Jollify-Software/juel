@@ -42,6 +42,7 @@ import sunMoon from 'data-url:lucide-static/icons/sun-moon.svg';
 import panelLeft from 'data-url:lucide-static/icons/panel-left.svg';
 import panelRight from 'data-url:lucide-static/icons/panel-right.svg';
 import settings from 'data-url:lucide-static/icons/settings.svg';
+import folderOpen from 'data-url:lucide-static/icons/folder-open.svg';
 import eyeOff from 'data-url:lucide-static/icons/eye-off.svg';
 import copy from 'data-url:lucide-static/icons/copy.svg';
 import trash2 from 'data-url:lucide-static/icons/trash-2.svg';
@@ -97,6 +98,7 @@ export const LucideIcons: Record<string, string> = {
     'panel-left': panelLeft,
     'panel-right': panelRight,
     'settings': settings,
+    'folder-open': folderOpen,
     'eye-off': eyeOff,
     'copy': copy,
     'trash-2': trash2,
