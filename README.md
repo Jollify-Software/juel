@@ -120,6 +120,15 @@ there to use another. `type="plain"` is a borderless tool button with a hover fi
 always reports `aria-pressed`. `caret` adds a small down chevron after the content, for a
 button that opens a menu (`--button-caret-size`, default 12px). Example: `examples/Buttons/Button/tool-buttons.html`.
 
+## Display
+
+### Card
+
+`juel-card` has `header`, `image` and `footer` slots around its content. Its box and sections are
+parts, `part="card"`, `header`, `image`, `body` and `footer`, so a page can restyle them with
+`::part()` (stretch the box to a grid cell, hide a section it doesn't use); nothing changes without
+it. Example: `examples/Display/Card/card.html`.
+
 ## Editors
 
 ### Markdown Editor

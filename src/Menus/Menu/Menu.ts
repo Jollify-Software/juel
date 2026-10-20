@@ -206,7 +206,10 @@ export class JuelMenu extends CollapsibleBase {
   private onContentKeydown = (e: KeyboardEvent) => {
     const items = this.items;
     if (!items.length) return;
-    const current = items.findIndex(item => item === document.activeElement || item.contains(document.activeElement));
+    // The focused element as the menu's own root sees it: inside a shadow root,
+    // document.activeElement is only the host.
+    const active = (this.getRootNode() as Document | ShadowRoot).activeElement;
+    const current = items.findIndex(item => item === active || item.contains(active));
     let next = -1;
     if (e.key === 'ArrowDown') next = (current + 1) % items.length;
     else if (e.key === 'ArrowUp') next = (current - 1 + items.length) % items.length;

@@ -414,23 +414,23 @@ ${ef} body {
       background: #f4f4f4;
     }
   `,h$([e5({type:String})],hU.prototype,"image",void 0),h$([e5({type:Number})],hU.prototype,"height",void 0),h$([e5({type:Number})],hU.prototype,"intensity",void 0),hU=h$([eA("juel-parallax")],hU);let hq=class extends t${render(){return tO`
-      <div class="card">
-        <div class="card-header">
+      <div class="card" part="card">
+        <div class="card-header" part="header">
           <slot name="header"></slot>
         </div>
-        <div class="card-image">
+        <div class="card-image" part="image">
           <slot name="image"></slot>
         </div>
-        <div class="card-body">
+        <div class="card-body" part="body">
           <slot></slot>
         </div>
-        <div class="card-footer">
+        <div class="card-footer" part="footer">
           <slot name="footer"></slot>
         </div>
       </div>
     `}};hq.styles=eq`
     .card {
-    background: var(--light)l
+    background: var(--light);
       border: 1px solid #e0e0e0;
       border-radius: 0.5rem;
       display: inline-flex;
@@ -2934,7 +2934,7 @@ ${vP(this.code(e,t))}
       <div part="content" role="menu" @click=${this.onContentClick} @keydown=${this.onContentKeydown}>
         <slot></slot>
       </div>
-    `}constructor(){super(),this.openedByKeyboard=!1,this.point=null,this.onTriggerKeydown=e=>{"ArrowDown"!==e.key||this.opened?("Enter"===e.key||" "===e.key)&&(this.openedByKeyboard=!0):(e.preventDefault(),this.openedByKeyboard=!0,this.show())},this.onContentKeydown=e=>{let t=this.items;if(!t.length)return;let r=t.findIndex(e=>e===document.activeElement||e.contains(document.activeElement)),n=-1;if("ArrowDown"===e.key)n=(r+1)%t.length;else if("ArrowUp"===e.key)n=(r-1+t.length)%t.length;else if("Home"===e.key)n=0;else if("End"===e.key)n=t.length-1;else if("Tab"===e.key)return void this.hide();n<0||(e.preventDefault(),t[n].focus())},this.onContentClick=e=>{let t=this.items,r=e.composedPath().find(e=>t.includes(e));if(!r||r.querySelector(':scope > juel-menu-item, :scope > [role="menuitem"]'))return;this.dispatchEvent(new CustomEvent("menu-select",{detail:{item:r,value:r.getAttribute("value")},bubbles:!0,composed:!0}));let n=0===e.detail;this.hide(),n&&this.focusTrigger()},this.placement="bottom-start"}};Qn.styles=eq`
+    `}constructor(){super(),this.openedByKeyboard=!1,this.point=null,this.onTriggerKeydown=e=>{"ArrowDown"!==e.key||this.opened?("Enter"===e.key||" "===e.key)&&(this.openedByKeyboard=!0):(e.preventDefault(),this.openedByKeyboard=!0,this.show())},this.onContentKeydown=e=>{let t=this.items;if(!t.length)return;let r=this.getRootNode().activeElement,n=t.findIndex(e=>e===r||e.contains(r)),i=-1;if("ArrowDown"===e.key)i=(n+1)%t.length;else if("ArrowUp"===e.key)i=(n-1+t.length)%t.length;else if("Home"===e.key)i=0;else if("End"===e.key)i=t.length-1;else if("Tab"===e.key)return void this.hide();i<0||(e.preventDefault(),t[i].focus())},this.onContentClick=e=>{let t=this.items,r=e.composedPath().find(e=>t.includes(e));if(!r||r.querySelector(':scope > juel-menu-item, :scope > [role="menuitem"]'))return;this.dispatchEvent(new CustomEvent("menu-select",{detail:{item:r,value:r.getAttribute("value")},bubbles:!0,composed:!0}));let n=0===e.detail;this.hide(),n&&this.focusTrigger()},this.placement="bottom-start"}};Qn.styles=eq`
     :host {
       display: inline-block;
       position: relative;
