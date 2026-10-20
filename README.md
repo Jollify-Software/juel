@@ -175,6 +175,21 @@ is unchanged. Example: `examples/Editors/Number/number.html`.
 showing each font: `{ text, value, style: 'font-family: Georgia' }`). Without it options are
 unstyled, as before. Example: `examples/Editors/Select/select-styled.html`.
 
+### Plan Editor
+
+`juel-plan-editor` edits an SVG plan, a floor plan most often (the Jollify app's virtual
+layouts use Parterre's annotated SVG). Set `svg` (the text; read it back, or listen for
+`plan-changed` `{ svg, reason }`). Its items are the root's shapes and groups and those in storey
+groups (`<g data-fixture="level" data-level="n">`); each gets an `id` if it has none. `level` shows
+one storey with the others faint and unpickable; `grid` (plan units, every tenth line darker) and
+`snap` set the grid the selection moves on. Click selects (Shift adds), a box on empty space selects
+what it touches, a drag moves the selection, the arrow keys nudge it (Shift: ten steps), Delete
+removes it, Escape clears it; the wheel zooms, the middle button or Space+drag pans, `0` fits.
+Its own history: `undo()` / `redo()` (Ctrl+Z, Ctrl+Y), `canUndo` / `canRedo`. API: `selection`,
+`select(ids)`, `setAttributes(ids, { name: value | null })` (one undo step), `deleteSelection()`,
+`itemAttributes(id)`, `fit()`, `zoom(factor)`. `selection-changed` `{ ids, attributes }`. Drawing
+tools come next. Example: `examples/Editors/PlanEditor/plan-editor.html`.
+
 ## Layout
 
 ### Mdi
