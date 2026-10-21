@@ -59,6 +59,7 @@ import textAlignJustify from 'data-url:lucide-static/icons/text-align-justify.sv
 import caseUpper from 'data-url:lucide-static/icons/case-upper.svg';
 import caseLower from 'data-url:lucide-static/icons/case-lower.svg';
 import caseSensitive from 'data-url:lucide-static/icons/case-sensitive.svg';
+import calculator from 'data-url:lucide-static/icons/calculator.svg';
 
 export const LucideIcons: Record<string, string> = {
     'bold': bold,
@@ -116,6 +117,7 @@ export const LucideIcons: Record<string, string> = {
     'case-upper': caseUpper,
     'case-lower': caseLower,
     'case-sensitive': caseSensitive,
+    'calculator': calculator,
 };
 
 /** The data URL of the Lucide icon for a `lucide-<name>` glyph, if bundled. */
