@@ -45,3 +45,25 @@ test('segmented: stretch shares the width; without it the group keeps its own si
     const host = await page.locator('#align').evaluate(e => e.getBoundingClientRect().width);
     expect(host).toBeLessThan(page.viewportSize()!.width / 2);
 });
+
+test('segmented: a long label stays on one line in a narrow container', async ({ page }) => {
+    await page.goto('examples/Buttons/Segmented/segmented.html');
+    await page.waitForFunction(() => (window as any).exampleReady);
+    // As an app's tool bar: a wrapping flex row narrower than the group (nine tools in 520px).
+    const heights = await page.evaluate(async () => {
+        const box = document.createElement('div');
+        box.style.cssText = 'display:flex;flex-wrap:wrap;width:520px';
+        box.innerHTML = '<juel-segmented label="Tool"></juel-segmented><juel-segmented label="One"></juel-segmented>';
+        document.body.append(box);
+        const [tools, one] = [...box.querySelectorAll('juel-segmented')] as any[];
+        tools.options = ['Select', 'Room', 'Room (any shape)', 'Wall', 'Ground', 'Stairs', 'Door', 'Model', 'Platform'].map(label => ({ value: label, label }));
+        one.options = [{ value: 'select', label: 'Select' }];
+        for (const seg of [tools, one]) {
+            await seg.updateComplete;
+            await Promise.all([...seg.shadowRoot.querySelectorAll('juel-button')].map((b: any) => b.updateComplete));
+        }
+        return [tools, one].map(seg => Math.round(seg.getBoundingClientRect().height));
+    });
+    // The nine-tool group is as tall as a one-word one: no label wrapped onto more lines.
+    expect(heights[0], `heights ${heights}`).toBe(heights[1]);
+});

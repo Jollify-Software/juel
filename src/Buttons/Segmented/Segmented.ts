@@ -35,6 +35,9 @@ export class JuelSegmented extends LitElement {
             --button-min-width: var(--segmented-min, 24px);
             --button-min-height: var(--segmented-min, 24px);
         }
+        /* A label stays on one line: a narrow group overflows its container rather than
+           wrapping "Room (any shape)" onto three lines inside one segment. */
+        juel-button::part(button) { white-space: nowrap; }
         :host([stretch]) { display: flex; }
         :host([stretch]) .group { display: flex; flex: 1 1 auto; min-width: 0; }
         :host([stretch]) juel-button { flex: 1 1 0; min-width: var(--segmented-min, 24px); }
