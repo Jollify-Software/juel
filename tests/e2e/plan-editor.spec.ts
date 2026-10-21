@@ -265,3 +265,26 @@ test('newAttributes: {id} in a value is the new shape\'s id', async ({ page }) =
     expect(s.attrs['data-id']).toBe(s.id);
     expect(s.attrs.title).toBe(`room ${s.id}`);
 });
+
+test('marks: drawn over the plan in plan units, not part of svg and not pickable', async ({ page }) => {
+    await open(page);
+    const before: string = await page.evaluate(() => (document.getElementById('plan') as any).svg);
+    await page.evaluate(async () => {
+        const plan = document.getElementById('plan') as any;
+        const hall = plan.shadowRoot.getElementById('hall');
+        const b = hall.getBBox();
+        plan.marks = `<circle class="mark" cx="${b.x + b.width / 2}" cy="${b.y + b.height / 2}" r="10" fill="red"/>`;
+        await plan.updateComplete;
+    });
+    const mark = page.locator('#plan .overlay .marks circle.mark');
+    await expect(mark).toHaveCount(1);
+    // On screen where the hall is (plan units follow the view).
+    const hall = await centre(page, 'hall');
+    const box = (await mark.boundingBox())!;
+    expect(Math.abs(box.x + box.width / 2 - hall.x)).toBeLessThan(2);
+    expect(Math.abs(box.y + box.height / 2 - hall.y)).toBeLessThan(2);
+    expect(await page.evaluate(() => (document.getElementById('plan') as any).svg)).toBe(before);
+    // A click on the mark picks the hall under it.
+    await page.mouse.click(hall.x, hall.y);
+    expect(await selection(page)).toEqual(['hall']);
+});

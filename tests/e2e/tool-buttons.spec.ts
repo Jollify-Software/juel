@@ -56,3 +56,20 @@ test('pressed: aria-pressed and a fill; toggle says false when off, a plain butt
     expect(on.background).not.toBe('rgba(0, 0, 0, 0)');
     await expect(page.locator('#bold')).toHaveAttribute('pressed', '');
 });
+
+test('glyph-end: the glyph after the label (Previous / Next)', async ({ page }) => {
+    await open(page);
+    const order = (id: string) => page.locator(`#${id}`).evaluate(el => {
+        const button = el.shadowRoot!.querySelector('button')!;
+        const icon = button.querySelector('.icon:not(.caret)') as HTMLElement;
+        const text = [...button.querySelector('slot')!.childNodes].find(n => n.nodeType === 3 && n.textContent!.trim()) as Text;
+        const range = document.createRange(); range.selectNodeContents(text);
+        const t = range.getBoundingClientRect(), i = icon.getBoundingClientRect();
+        return { iconFirst: i.right <= t.left + 1, iconLast: i.left >= t.right - 1, mask: getComputedStyle(icon).maskImage || (getComputedStyle(icon) as any).webkitMaskImage };
+    });
+    const previous = await order('previous'), next = await order('next');
+    expect(previous.mask).toMatch(/^url\("?data:image\/svg/);
+    expect(previous.iconFirst).toBe(true);
+    expect(next.iconLast).toBe(true);
+    expect(next.iconFirst).toBe(false);
+});

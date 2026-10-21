@@ -139,3 +139,30 @@ test('writer: End and ArrowDown move by visual line inside a wrapped paragraph',
     expect(down).toBeGreaterThan(0);
     expect(down).toBeLessThan(long.length);
 });
+
+// Link text's contrast on `bg` with the app's light orange accent and the theme's text colour `text`.
+const linkContrast = (page: Page, text: string, bg: string) => page.evaluate(async ([text, bg]) => {
+    document.documentElement.style.setProperty('--juel-accent', '#F4803C');
+    document.documentElement.style.setProperty('--juel-text', text);
+    const ed = document.getElementById('writer') as any;
+    ed.content = 'See [a link](https://example.com) here.\n';
+    await new Promise(r => setTimeout(r, 100));
+    const all = [...document.querySelectorAll('#writer .cm-content *')] as HTMLElement[];
+    const el = all.reverse().find(e => e.textContent === 'a link')!;
+    // The canvas turns any computed colour (color-mix gives color(srgb ...)) into bytes.
+    const rgb = (c: string) => {
+        const x = document.createElement('canvas').getContext('2d')!;
+        x.fillStyle = c; x.fillRect(0, 0, 1, 1);
+        return [...x.getImageData(0, 0, 1, 1).data.slice(0, 3)];
+    };
+    const lum = (c: number[]) => c.map(v => v / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)
+        .reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+    const [a, b] = [lum(rgb(getComputedStyle(el).color)), lum(rgb(bg))];
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+}, [text, bg]);
+
+test('writer: link text keeps WCAG AA contrast with a light accent, light and dark', async ({ page }) => {
+    await open(page);
+    expect(await linkContrast(page, '#1d1f23', '#ffffff')).toBeGreaterThanOrEqual(4.5);
+    expect(await linkContrast(page, '#e8e9ec', '#1e1f22')).toBeGreaterThanOrEqual(4.5);
+});

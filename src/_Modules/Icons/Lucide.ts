@@ -18,6 +18,7 @@ import smile from 'data-url:lucide-static/icons/smile.svg';
 import sparkles from 'data-url:lucide-static/icons/sparkles.svg';
 import chevronDown from 'data-url:lucide-static/icons/chevron-down.svg';
 import chevronRight from 'data-url:lucide-static/icons/chevron-right.svg';
+import chevronLeft from 'data-url:lucide-static/icons/chevron-left.svg';
 import move from 'data-url:lucide-static/icons/move.svg';
 import locateFixed from 'data-url:lucide-static/icons/locate-fixed.svg';
 import undo2 from 'data-url:lucide-static/icons/undo-2.svg';
@@ -74,6 +75,7 @@ export const LucideIcons: Record<string, string> = {
     'sparkles': sparkles,
     'chevron-down': chevronDown,
     'chevron-right': chevronRight,
+    'chevron-left': chevronLeft,
     'move': move,
     'locate-fixed': locateFixed,
     'undo-2': undo2,

@@ -118,7 +118,8 @@ than on `:root`, so pages don't carry them (ISC licence, `icons/lucide/LICENSE`)
 there to use another. `type="plain"` is a borderless tool button with a hover fill;
 `pressed` gives it a pressed state (`aria-pressed`), and `toggle` makes it an on/off button that
 always reports `aria-pressed`. `caret` adds a small down chevron after the content, for a
-button that opens a menu (`--button-caret-size`, default 12px). Example: `examples/Buttons/Button/tool-buttons.html`.
+button that opens a menu (`--button-caret-size`, default 12px). `glyph-end` puts the glyph after the
+label (`glyph="lucide-chevron-right" label="Next" glyph-end`). Example: `examples/Buttons/Button/tool-buttons.html`.
 
 ## Display
 
@@ -134,7 +135,8 @@ it. Example: `examples/Display/Card/card.html`.
 ### Markdown Editor
 
 `writer` gives `juel-markdown-editor` a calmer look for prose: headings bold and a little larger
-but not underlined, syntax marks (`#`, `*`, `` ` ``, `>`) dimmed (`--juel-muted`), and a leading
+but not underlined, syntax marks (`#`, `*`, `` ` ``, `>`) dimmed (`--juel-muted`), link text in the accent mixed 60/40 with `--juel-text` (so a light accent
+still reads at 4.5:1, light and dark), and a leading
 `---` … `---` front-matter block read as front matter (without it, the YAML's last line parses
 as a setext heading). Long lines soft-wrap at the editor's edge (Home/End and the arrow keys
 then move by visual line, as in a word processor). `prose` sets the text in a proportional font (`--juel-font-prose`, then
@@ -195,7 +197,8 @@ drops the shape), `point` by a click. New shapes get `newAttributes` (an app's `
 `fill`…; `{id}` in a value is the shape's own id, e.g. `data-id: '{id}'`), go in the storey's group, are selected and fire `shape-created` `{ id, kind }`. Points
 snap to corners nearby, else the grid; Shift keeps a line to 45°, Alt is free. One selected shape
 shows handles: a rect's corners, a polygon's, polyline's or line's points (double-click an edge to
-add one, Alt+click a point to remove it), a circle's radius. Example:
+add one, Alt+click a point to remove it), a circle's radius. `marks` is SVG markup in plan units
+drawn over the plan (an app's own arrows or labels): not in `svg`, not pickable, no history. Example:
 `examples/Editors/PlanEditor/plan-editor.html`.
 
 ## Layout

@@ -44,6 +44,9 @@ export const FrontMatter: MarkdownConfig = {
 
 const mono = 'var(--juel-font-mono, ui-monospace, SFMono-Regular, Consolas, monospace)';
 const muted = 'var(--juel-muted, #6b7280)';
+/** Link and image text: the accent pulled toward the text colour, so a light accent (the app's orange)
+ *  still reads at WCAG AA (4.5:1) on the surface, in light and dark. */
+const linkText = 'color-mix(in srgb, var(--juel-accent, #2563eb) 60%, var(--juel-text, black))';
 
 /** Headings bold and larger, never underlined; marks (#, *, `, >) dimmed. */
 const writerHighlight = HighlightStyle.define([
@@ -57,7 +60,7 @@ const writerHighlight = HighlightStyle.define([
   { tag: tags.emphasis, fontStyle: 'italic' },
   { tag: tags.strong, fontWeight: '700' },
   { tag: tags.strikethrough, textDecoration: 'line-through' },
-  { tag: tags.link, color: 'var(--juel-accent, #2563eb)' },
+  { tag: tags.link, color: linkText },
   { tag: tags.url, color: muted },
   { tag: tags.monospace, fontFamily: mono },
 ]);

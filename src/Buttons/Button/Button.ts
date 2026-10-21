@@ -29,6 +29,9 @@ export class JuelButton extends InputBase {
     // A small down chevron after the content, for a button that opens a
     // menu (a juel-menu trigger). Shown with slotted content too.
     @property({ type: Boolean }) caret: boolean = false;
+    // The glyph after the label instead of before it (a Next button's
+    // right chevron, say). No effect without a label.
+    @property({ type: Boolean, attribute: 'glyph-end' }) glyphEnd: boolean = false;
 
     constructor() {
         super();
@@ -63,7 +66,7 @@ export class JuelButton extends InputBase {
         let klass = this.getInputClass();
         return html`<button ${ref(this.input)} type="${this.submit ? "submit" : "button"}" part="button" class="${klass}"
                 ?disabled=${this.disabled} aria-label=${ifDefined(this.buttonLabel || undefined)}
-                aria-pressed=${ifDefined(this.toggle || this.pressed ? String(!!this.pressed) : undefined)} @click="${this.onClick}"><slot>${when(this.glyph, () => html`<div class="icon sm ${this.label ? 'labelled' : ''}" style="${styleMap(iconStyle)}"></div>`)}${this.label}</slot>${when(this.caret, () => html`<div class="icon caret" part="caret" aria-hidden="true"
+                aria-pressed=${ifDefined(this.toggle || this.pressed ? String(!!this.pressed) : undefined)} @click="${this.onClick}"><slot>${when(this.glyph && !(this.glyphEnd && this.label), () => html`<div class="icon sm ${this.label ? 'labelled' : ''}" style="${styleMap(iconStyle)}"></div>`)}${this.label}${when(this.glyph && this.glyphEnd && this.label, () => html`<div class="icon sm labelled end" style="${styleMap(iconStyle)}"></div>`)}</slot>${when(this.caret, () => html`<div class="icon caret" part="caret" aria-hidden="true"
                     style="${styleMap({ 'mask-image': `url("${lucideIcon('lucide-chevron-down')}")`, 'mask-repeat': 'no-repeat', 'mask-position': 'center' })}"></div>`)}</button>`;
     }
 }

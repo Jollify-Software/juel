@@ -62,6 +62,8 @@
             editor.addEventListener('selection-changed', e => { log.textContent = `selected: ${e.detail.ids.join(', ') || '(none)'}`; });
             editor.addEventListener('plan-changed', e => { log.textContent = `changed (${e.detail.reason})`; window.lastPlan = e.detail.svg; });
             editor.svg = plan;
+            // marks: the app's own drawing over the plan (not in svg): which way the stairs climb.
+            editor.marks = '<path d="M110 312 V348 M100 338 L110 348 L120 338" fill="none" stroke="#d9480f" stroke-width="3"/>';
             await editor.updateComplete;
             await levels.updateComplete;
             await tools.updateComplete;

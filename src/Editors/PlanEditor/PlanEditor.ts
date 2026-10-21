@@ -1,5 +1,6 @@
 import { LitElement, css, html, svg as svgTemplate, nothing } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators';
+import { unsafeSVG } from 'lit/directives/unsafe-svg';
 import { HistoryController } from '../../_Base/HistoryController';
 import {
     attributesOf, containerFor, cornersOf, ensureIds, formatPoints, isLevelGroup, levelOf, nearestEdge, nearestPoint,
@@ -54,6 +55,8 @@ const HandlePx = 9;
  * - **API:** `selection` (ids), `select(ids)`, `setAttributes(ids, { name: value | null })`,
  *   `setLevelAttributes(level, { … })` (a storey's name, height), `deleteSelection()`, `fit()`,
  *   `zoom(factor)`, `itemAttributes(id)`.
+ * - **Marks:** `marks`, SVG markup in plan units drawn over the plan (an app's arrows, labels):
+ *   not part of `svg`, not pickable, not in the history.
  * - **Events:** `plan-changed` `{ svg, reason }` after each change you make;
  *   `selection-changed` `{ ids, attributes }`; `shape-created` `{ id, kind }`.
  *   Setting `svg` from outside fires none of them, and starts a new history.
@@ -93,6 +96,11 @@ export class JuelPlanEditor extends LitElement {
     @property({ type: String }) tool: PlanTool = 'select';
     /** Attributes every new shape gets (the app's `data-fixture`, `fill`, `stroke`…); `{id}` in a value is the shape's id. */
     @property({ attribute: false }) newAttributes: Record<string, string> = {};
+    /**
+     * SVG markup in plan units, drawn over the plan and under the selection: an app's own
+     * marks (which way stairs climb, say). Not part of `svg`, not pickable, no history.
+     */
+    @property({ attribute: false }) marks = '';
 
     @state() private view: Box = { x: 0, y: 0, width: 1000, height: 1000 };
     @state() private selected: string[] = [];
@@ -666,7 +674,7 @@ export class JuelPlanEditor extends LitElement {
                 @pointercancel=${this.onPointerUp} @dblclick=${this.onDoubleClick} @wheel=${this.onWheel} role="img" aria-label="Plan">
                 ${this.renderGrid()}
                 <g class="doc"></g>
-                <g class="overlay">${this.renderSelection()}${this.renderDraft()}${this.renderHandles()}</g>
+                <g class="overlay"><g class="marks">${this.marks ? unsafeSVG(this.marks) : nothing}</g>${this.renderSelection()}${this.renderDraft()}${this.renderHandles()}</g>
             </svg>`;
     }
 
