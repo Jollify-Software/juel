@@ -1,0 +1,43 @@
+:host {
+    display: inline-grid;
+    place-items: center;
+    position: relative;
+    width: var(--juel-progress-size, 48px);
+    height: var(--juel-progress-size, 48px);
+    vertical-align: middle;
+    flex: none;
+  }
+  .ring {
+    /* Driven by the `value` property (inline, see ProgressCircle.ts) OR, when no value
+       is set, by the `--juel-progress` custom property, as the bar is. */
+    --juel-progress-circle-sweep: var(--juel-progress, 0%);
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(from var(--juel-progress-start, 0deg),
+      var(--juel-progress-fill, var(--primary, #007bff)) var(--juel-progress-circle-sweep),
+      var(--juel-progress-track, #f0f0f0) 0);
+    /* cut the middle out, leaving a ring --juel-progress-thickness wide */
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--juel-progress-thickness, 6px) - 0.5px), #000 calc(100% - var(--juel-progress-thickness, 6px)));
+    mask: radial-gradient(farthest-side, transparent calc(100% - var(--juel-progress-thickness, 6px) - 0.5px), #000 calc(100% - var(--juel-progress-thickness, 6px)));
+    transition: --juel-progress-circle-sweep var(--juel-progress-transition, 0.3s ease);
+  }
+  .content {
+    position: relative;
+    box-sizing: border-box;
+    width: calc(100% - 2 * (var(--juel-progress-thickness, 6px) + var(--juel-progress-gap, 4px)));
+    height: calc(100% - 2 * (var(--juel-progress-thickness, 6px) + var(--juel-progress-gap, 4px)));
+    border-radius: 50%;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    line-height: 1;
+  }
+  ::slotted(img),
+  ::slotted(svg) {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }

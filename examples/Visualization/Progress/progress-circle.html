@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <script src="../../../dist/juel.js"></script>
+        <style>
+            body { font-family: sans-serif; display: flex; gap: 32px; align-items: center; padding: 32px; }
+            .big { --juel-progress-size: 140px; --juel-progress-thickness: 10px; --juel-progress-gap: 12px; }
+            .bound { --done: 3; --total: 9; --juel-progress: calc(var(--done) / var(--total) * 100%); --juel-progress-fill: tomato; }
+        </style>
+    </head>
+    <body>
+        <juel-progress-circle value="25"></juel-progress-circle>
+        <juel-progress-circle class="big" id="logo" value="60"><img src="../../../icons/access.svg" alt="Logo"></juel-progress-circle>
+        <juel-progress-circle class="big bound"><strong>3 / 9</strong></juel-progress-circle>
+        <button onclick="var p = document.getElementById('logo'); p.value = (p.value + 10) % 110">+10</button>
+    </body>
+</html>
