@@ -111,6 +111,10 @@ export class JuelChart extends LitElement {
     const width = this.clientWidth;
     const height = this.clientHeight;
     const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+    // Not laid out yet (detached, display:none, or being measured by a
+    // paginator): drawing now gives negative bar heights. The ResizeObserver
+    // draws again once the chart has a size.
+    if (width <= margin.left + margin.right || height <= margin.top + margin.bottom) return;
 
     const allSeries: ChartSeries[] = this.seriesElements.map(el => {
       let s: ChartSeries = {
