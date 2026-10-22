@@ -8,6 +8,8 @@ import "./src/Dialog/Imports";
 import "./src/Display/Import";
 import "./src/Document/Import";
 import "./src/Editors/Import";
+import "./src/Files/Import";
+import "./src/Quiz/Import";
 import "./src/Gallery/Import";
 import "./src/Layout/Import";
 import "./src/Menus/Import";

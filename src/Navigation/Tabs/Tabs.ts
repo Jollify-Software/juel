@@ -19,7 +19,7 @@ export class JuelTab extends LitElement {
       display: none;
       height: 100%;
       padding: 16px;
-      border: 1px solid #ccc;
+      border: 1px solid var(--juel-border, #ccc);
       border-top: none;
       box-sizing: border-box;
       overflow: auto;
@@ -61,7 +61,7 @@ export class JuelTabs extends NavigationBase {
     :host {
       display: block;
       height: 100%;
-      font-family: Arial, sans-serif;
+      font-family: var(--juel-font, Arial, sans-serif);
     }
     .tabs-container {
       display: flex;
@@ -74,12 +74,12 @@ export class JuelTabs extends NavigationBase {
     .tabs {
       display: flex;
       flex-direction: var(--direction, row);
-      border-bottom: 1px solid #dee2e6;
+      border-bottom: 1px solid var(--juel-border, #dee2e6);
     }
     :host([direction="vertical"]) .tabs {
       flex-direction: column;
       border-bottom: none;
-      border-right: 1px solid #dee2e6;
+      border-right: 1px solid var(--juel-border, #dee2e6);
     }
     .tab {
       position: relative;
@@ -90,7 +90,7 @@ export class JuelTabs extends NavigationBase {
       border: 1px solid transparent;
       border-bottom: none;
       border-radius: 0.25rem 0.25rem 0 0;
-      background-color: #f8f9fa;
+      background-color: var(--juel-raised, #f8f9fa);
       margin-right: 4px;
       transition: background-color 0.2s, border-color 0.2s;
       user-select: none;
@@ -103,36 +103,36 @@ export class JuelTabs extends NavigationBase {
       margin-bottom: 4px;
     }
     .tab:hover {
-      background-color: #e9ecef;
-      border-color: #ced4da;
+      background-color: var(--juel-sunken, #e9ecef);
+      border-color: var(--juel-border, #ced4da);
     }
     .tab[selected] {
       font-weight: bold;
-      border: 1px solid #ced4da;
-      border-bottom: 1px solid white;
-      background-color: var(--active, #e7f1ff);
-      color: #495057;
+      border: 1px solid var(--juel-border, #ced4da);
+      border-bottom: 1px solid var(--juel-surface, white);
+      background-color: var(--active, var(--juel-surface, #e7f1ff));
+      color: var(--juel-text, #495057);
     }
     :host([direction="vertical"]) .tab[selected] {
-      border-bottom: 1px solid #ced4da;
-      border-right: 1px solid white;
+      border-bottom: 1px solid var(--juel-border, #ced4da);
+      border-right: 1px solid var(--juel-surface, white);
     }
     .tab:focus-visible,
     .sub-tab:focus-visible {
-      outline: 2px solid #0d6efd;
+      outline: 2px solid var(--juel-focus, #0d6efd);
       outline-offset: -2px;
     }
     .tab-content {
       flex: 1;
       min-height: 0;
       padding: 16px;
-      border: 1px solid #ccc;
+      border: 1px solid var(--juel-border, #ccc);
       border-left: none;
       overflow: auto;
       box-sizing: border-box;
     }
     :host([direction="vertical"]) .tab-content {
-      border-left: 1px solid #dee2e6;
+      border-left: 1px solid var(--juel-border, #dee2e6);
     }
     .sub-tabs {
       display: none;
@@ -149,28 +149,28 @@ export class JuelTabs extends NavigationBase {
     :host([direction="vertical"]) .sub-tabs {
       flex-direction: column;
       margin-left: 16px;
-      border-left: 1px solid #dee2e6;
+      border-left: 1px solid var(--juel-border, #dee2e6);
     }
     :host([direction="horizontal"]) .sub-tabs {
-      border-top: 1px solid #dee2e6;
-      border-bottom: 1px solid #dee2e6;
+      border-top: 1px solid var(--juel-border, #dee2e6);
+      border-bottom: 1px solid var(--juel-border, #dee2e6);
     }
     .sub-tab {
       position: relative;
       padding: 8px 12px;
       cursor: pointer;
-      background-color: #f1f3f5;
+      background-color: var(--juel-raised, #f1f3f5);
       border: 1px solid transparent;
       transition: background-color 0.2s, border-color 0.2s;
     }
     .sub-tab:hover {
-      background-color: #e9ecef;
-      border-color: #ced4da;
+      background-color: var(--juel-sunken, #e9ecef);
+      border-color: var(--juel-border, #ced4da);
     }
     .sub-tab[selected] {
       font-weight: bold;
-      background-color: var(--active, #e7f1ff);
-      color: #495057;
+      background-color: var(--active, var(--juel-surface, #e7f1ff));
+      color: var(--juel-text, #495057);
     }
     /* Close and expand/collapse are juel-buttons (type="plain", a glyph). */
     .expand-collapse-button,
@@ -181,14 +181,14 @@ export class JuelTabs extends NavigationBase {
       --border-radius: 50%;
       --button-icon-size: 14px;
       --button-glyph-size: 75%;
-      --hover-background-color: rgba(0, 0, 0, 0.1);
+      --hover-background-color: var(--juel-hover, rgba(0, 0, 0, 0.1));
     }
     .tab.dragging {
       opacity: 0.6;
       z-index: 1;
     }
     .tab.drop-target {
-      border-color: #0d6efd;
+      border-color: var(--juel-accent, #0d6efd);
     }
   `;
 
@@ -214,7 +214,7 @@ export class JuelTabs extends NavigationBase {
   render() {
     return html`
       <div class="tabs-container" style="--container-direction: ${this.direction === 'vertical' ? 'row' : 'column'};">
-        <div class="tabs" role="tablist" aria-orientation="${this.direction}" style="--direction: ${this.direction === 'vertical' ? 'column' : 'row'};">
+        <div class="tabs" part="tabs" role="tablist" aria-orientation="${this.direction}" style="--direction: ${this.direction === 'vertical' ? 'column' : 'row'};">
           <slot name="prepend"></slot>
           ${map(this._tabs, (tab, index) => {
             const selected = this.selectedIndex === index;
@@ -223,6 +223,7 @@ export class JuelTabs extends NavigationBase {
             return html`
             <div
               class="tab"
+              part="tab${selected ? ' selected' : ''}"
               role="tab"
               id="tab-${index}"
               data-index="${index}"
@@ -257,7 +258,7 @@ export class JuelTabs extends NavigationBase {
           })}
           <slot name="append"></slot>
         </div>
-        <div class="tab-content" id="tab-content" role="tabpanel" aria-labelledby="tab-${this.selectedIndex}">
+        <div class="tab-content" part="content" id="tab-content" role="tabpanel" aria-labelledby="tab-${this.selectedIndex}">
           <slot @slotchange=${this._handleSlotChange}></slot>
         </div>
       </div>

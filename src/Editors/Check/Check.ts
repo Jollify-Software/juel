@@ -22,18 +22,18 @@ export class JuelCheck extends JuelComponent {
       appearance: none;
       width: 24px;
       height: 24px;
-      border: 2px solid var(--primary, #007bff);
+      border: 2px solid var(--juel-accent, var(--primary, #007bff));
       border-radius: 4px;
       outline: none;
       cursor: pointer;
       transition: background-color 0.2s, border-color 0.2s;
     }
     .checkbox-container input[type="checkbox"]:checked {
-      background-color: var(--primary, #007bff);
-      border-color: var(--primary, #007bff);
+      background-color: var(--juel-accent, var(--primary, #007bff));
+      border-color: var(--juel-accent, var(--primary, #007bff));
     }
     .checkbox-container input[type="checkbox"]:focus-visible {
-      outline: 2px solid var(--primary, #007bff);
+      outline: 2px solid var(--juel-focus, var(--primary, #007bff));
       outline-offset: 2px;
     }
     .checkbox-container input[type="checkbox"]:checked::after {
@@ -43,7 +43,7 @@ export class JuelCheck extends JuelComponent {
       height: 20px;
       mask-image: var(--glyph, var(--icon-tick));
       mask-repeat: no-repeat;
-      background-color: white;
+      background-color: var(--juel-accent-contrast, white);
     }
     .checkbox-container label {
       margin-left: 8px;

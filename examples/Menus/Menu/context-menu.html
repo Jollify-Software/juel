@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>juel-menu as a context menu — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <style>
+        body { margin: 0; padding: 1rem; font: 14px/1.4 system-ui, sans-serif; }
+        #area { width: 400px; height: 200px; border: 1px dashed #999; display: grid; place-items: center; }
+    </style>
+</head>
+<body>
+    <h1>juel-menu as a context menu</h1>
+    <p>Right-click the box (or focus it and press Shift+F10 or the context-menu key): the menu opens
+        with <code>openAt(x, y)</code>, at the pointer, without a trigger.</p>
+    <div id="area" tabindex="0">Right-click here</div>
+    <juel-menu id="menu" trigger="click">
+        <juel-menu-item value="duplicate">Duplicate</juel-menu-item>
+        <juel-menu-item value="delete">Delete</juel-menu-item>
+    </juel-menu>
+    <p>Chose: <output id="chose"></output></p>
+    <script>
+        const area = document.getElementById('area');
+        const menu = document.getElementById('menu');
+        area.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            // From the keyboard the event has no pointer position: open at the box instead.
+            const box = area.getBoundingClientRect();
+            const keyboard = e.button !== 2;
+            menu.openAt(keyboard ? box.left + 8 : e.clientX, keyboard ? box.bottom : e.clientY, { focusFirst: keyboard });
+        });
+        menu.addEventListener('menu-select', e => { document.getElementById('chose').value = e.detail.value; });
+        customElements.whenDefined('juel-menu').then(() => { window.exampleReady = true; });
+    </script>
+</body>
+</html>

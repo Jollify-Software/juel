@@ -23,5 +23,15 @@
         </p>
         <juel-button label="Hello there"></juel-button>
     </juel-card>
+    <style>
+        /* A tile through the card's parts: stretched to its cell, no header or footer. */
+        #tile { display: block; width: 220px; }
+        #tile::part(card) { display: flex; height: 100%; border-color: #3b6fd8; }
+        #tile::part(header), #tile::part(footer) { display: none; }
+        #tile::part(body) { padding: 8px 10px; }
+    </style>
+    <juel-card id="tile">
+        <p>A tile: only the body, in a blue box.</p>
+    </juel-card>
 </body>
 </html>

@@ -10,6 +10,7 @@ import { when } from "lit/directives/when";
 import { styleMap } from "lit/directives/style-map";
 import { ref } from "lit/directives/ref";
 import { ifDefined } from "lit/directives/if-defined";
+import { lucideIcon } from "../../_Modules/Icons/Lucide";
 
 @customElement("juel-button")
 export class JuelButton extends InputBase {
@@ -20,6 +21,17 @@ export class JuelButton extends InputBase {
     // The accessible name of the inner <button>, for a button whose content
     // is only an icon or a symbol. Separate from `label`, which is shown.
     @property({ attribute: 'button-label' }) buttonLabel: string;
+    // A pressed (on) state, for a tool button such as Bold. With `toggle` the
+    // inner <button> always says whether it's pressed (aria-pressed true or
+    // false); without it, only when pressed.
+    @property({ type: Boolean, reflect: true }) pressed: boolean = false;
+    @property({ type: Boolean }) toggle: boolean = false;
+    // A small down chevron after the content, for a button that opens a
+    // menu (a juel-menu trigger). Shown with slotted content too.
+    @property({ type: Boolean }) caret: boolean = false;
+    // The glyph after the label instead of before it (a Next button's
+    // right chevron, say). No effect without a label.
+    @property({ type: Boolean, attribute: 'glyph-end' }) glyphEnd: boolean = false;
 
     constructor() {
         super();
@@ -53,6 +65,8 @@ export class JuelButton extends InputBase {
         let iconStyle = this.getIconStyle();
         let klass = this.getInputClass();
         return html`<button ${ref(this.input)} type="${this.submit ? "submit" : "button"}" part="button" class="${klass}"
-                ?disabled=${this.disabled} aria-label=${ifDefined(this.buttonLabel || undefined)} @click="${this.onClick}"><slot>${when(this.glyph, () => html`<div class="icon sm ${this.label ? 'labelled' : ''}" style="${styleMap(iconStyle)}"></div>`)}${this.label}</slot></button>`;
+                ?disabled=${this.disabled} aria-label=${ifDefined(this.buttonLabel || undefined)}
+                aria-pressed=${ifDefined(this.toggle || this.pressed ? String(!!this.pressed) : undefined)} @click="${this.onClick}"><slot>${when(this.glyph && !(this.glyphEnd && this.label), () => html`<div class="icon sm ${this.label ? 'labelled' : ''}" style="${styleMap(iconStyle)}"></div>`)}${this.label}${when(this.glyph && this.glyphEnd && this.label, () => html`<div class="icon sm labelled end" style="${styleMap(iconStyle)}"></div>`)}</slot>${when(this.caret, () => html`<div class="icon caret" part="caret" aria-hidden="true"
+                    style="${styleMap({ 'mask-image': `url("${lucideIcon('lucide-chevron-down')}")`, 'mask-repeat': 'no-repeat', 'mask-position': 'center' })}"></div>`)}</button>`;
     }
 }

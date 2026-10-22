@@ -5,7 +5,7 @@ import { customElement } from 'lit/decorators.js';
 export class JuelCard extends LitElement {
   static styles = css`
     .card {
-    background: var(--light)l
+    background: var(--light);
       border: 1px solid #e0e0e0;
       border-radius: 0.5rem;
       display: inline-flex;
@@ -49,17 +49,17 @@ export class JuelCard extends LitElement {
 
   render() {
     return html`
-      <div class="card">
-        <div class="card-header">
+      <div class="card" part="card">
+        <div class="card-header" part="header">
           <slot name="header"></slot>
         </div>
-        <div class="card-image">
+        <div class="card-image" part="image">
           <slot name="image"></slot>
         </div>
-        <div class="card-body">
+        <div class="card-body" part="body">
           <slot></slot>
         </div>
-        <div class="card-footer">
+        <div class="card-footer" part="footer">
           <slot name="footer"></slot>
         </div>
       </div>

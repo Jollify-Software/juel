@@ -5,6 +5,8 @@ export const MarkdownEditorEvents = {
     legacyContentChanged: 'ContentChanged',
     /** The cursor moved: {@link MarkdownCursor}. */
     cursorChanged: 'cursor-changed',
+    /** The name on the front-matter chip was clicked (`front-matter-chip`). */
+    frontMatterOpen: 'front-matter-open',
 } as const;
 
 /** `content-changed` detail. */

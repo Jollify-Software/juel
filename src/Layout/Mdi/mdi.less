@@ -23,8 +23,8 @@
     flex-wrap: wrap;
     gap: 4px;
     padding: 4px 6px;
-    background: var(--secondary-background, #f1f3f5);
-    border-bottom: 1px solid var(--border-color, #dee2e6);
+    background: var(--secondary-background, var(--juel-raised, #f1f3f5));
+    border-bottom: 1px solid var(--border-color, var(--juel-border, #dee2e6));
 }
 
 .minimized-tab {
@@ -61,8 +61,8 @@ juel-splitter {
     padding: 6px 10px;
     font-weight: bold;
     font-size: 0.875rem;
-    background: var(--secondary-background, #f1f3f5);
-    border-bottom: 1px solid var(--border-color, #dee2e6);
+    background: var(--secondary-background, var(--juel-raised, #f1f3f5));
+    border-bottom: 1px solid var(--border-color, var(--juel-border, #dee2e6));
     cursor: grab;
     touch-action: none;
     user-select: none;
@@ -74,7 +74,7 @@ juel-splitter {
 }
 
 .pane.drop-target {
-    outline: 2px dashed #0d6efd;
+    outline: 2px dashed var(--juel-accent, #0d6efd);
     outline-offset: -2px;
 }
 
@@ -128,7 +128,7 @@ juel-splitter {
     --border-radius: 50%;
     --button-icon-size: 14px;
     --button-glyph-size: 75%;
-    --hover-background-color: rgba(0, 0, 0, 0.1);
+    --hover-background-color: var(--juel-hover, rgba(0, 0, 0, 0.1));
 }
 
 .pane.maximized {
@@ -139,4 +139,65 @@ juel-splitter {
     flex: 1;
     overflow: auto;
     padding: 10px;
+}
+
+// chrome="minimal": one quiet header style for a fixed, docked layout.
+// Muted normal-weight titles, and the maximise/close buttons only show on
+// hover or keyboard focus (the minimise button isn't rendered at all).
+:host([chrome="minimal"]) .pane-title {
+    padding: 4px 8px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--juel-muted, #6c757d);
+    background: var(--juel-surface, transparent);
+    cursor: default;
+}
+:host([chrome="minimal"]) .pane-title .window-button:not(.collapse-button) {
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+:host([chrome="minimal"]) .pane-title:hover .window-button,
+:host([chrome="minimal"]) .pane-title:focus-within .window-button {
+    opacity: 1;
+}
+
+// Collapsed side panes (collapsible): narrow strips beside the splitter.
+.with-strips {
+    display: flex;
+    height: 100%;
+}
+.strips-middle {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+}
+.collapsed-strip {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 32px;
+    padding: 6px 0;
+    box-sizing: border-box;
+    background: var(--secondary-background, var(--juel-raised, #f1f3f5));
+    color: var(--juel-muted, #6c757d);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.collapsed-strip.left {
+    border-right: 1px solid var(--border-color, var(--juel-border, #dee2e6));
+}
+.collapsed-strip.right {
+    border-left: 1px solid var(--border-color, var(--juel-border, #dee2e6));
+}
+.collapsed-strip .window-button {
+    margin-left: 0;
+}
+.collapsed-title {
+    writing-mode: vertical-rl;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 0;
 }

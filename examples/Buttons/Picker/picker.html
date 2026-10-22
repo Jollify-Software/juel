@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Picker — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .swatch { height: 60px; border-radius: 4px; }
+        figure { margin: 0; }
+        figcaption { font-size: 13px; text-align: center; margin-top: 4px; }
+    </style>
+</head>
+
+<body>
+    <h1>juel-picker</h1>
+    <p>One of several choices, as tiles: each child with a <code>value</code> is a tile. Arrow keys, Home and End move the choice.</p>
+    <juel-picker id="themes" label="Theme" value="dusk" style="max-width: 520px">
+        <figure value="plain"><div class="swatch" style="background: #fff; border: 1px solid #ccc"></div><figcaption>Plain</figcaption></figure>
+        <figure value="dusk"><div class="swatch" style="background: #2b2440"></div><figcaption>Dusk</figcaption></figure>
+        <figure value="report"><div class="swatch" style="background: #f4efe6"></div><figcaption>Report</figcaption></figure>
+        <figure value="cinema"><div class="swatch" style="background: #000"></div><figcaption>Cinema</figcaption></figure>
+    </juel-picker>
+    <p id="log"></p>
+    <script>
+        const log = document.getElementById('log');
+        customElements.whenDefined('juel-picker').then(() => {
+            const themes = document.getElementById('themes');
+            themes.addEventListener('value-changed', e => { log.textContent = `theme: ${e.detail.value}`; });
+            return themes.updateComplete;
+        }).then(() => { window.exampleReady = true; });
+    </script>
+</body>
+
+</html>

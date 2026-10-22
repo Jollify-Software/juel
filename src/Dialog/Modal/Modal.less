@@ -6,15 +6,15 @@
 
 dialog {
     padding: 0;
-    border: 1px solid var(--border-color, rgba(0, 0, 0, .2));
-    border-radius: var(--modal-border-radius, .4rem);
+    border: 1px solid var(--border-color, var(--juel-border, rgba(0, 0, 0, .2)));
+    border-radius: var(--modal-border-radius, var(--juel-radius-lg, .4rem));
     width: var(--modal-width, auto);
     min-width: var(--modal-min-width, min(22rem, 90vw));
     max-width: var(--modal-max-width, min(40rem, 90vw));
     max-height: 90vh;
     color: inherit;
-    background: var(--modal-background, #fff);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+    background: var(--modal-background, var(--juel-surface, #fff));
+    box-shadow: var(--juel-shadow-2, 0 10px 40px rgba(0, 0, 0, .25));
     font: inherit;
 }
 
@@ -39,7 +39,7 @@ dialog::backdrop {
     justify-content: space-between;
     gap: .5rem;
     padding: var(--modal-header-padding, .75rem 1rem);
-    border-bottom: 1px solid var(--border-color, #dee2e6);
+    border-bottom: 1px solid var(--border-color, var(--juel-border, #dee2e6));
 }
 
 .title {

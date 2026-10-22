@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tool buttons with Lucide icons — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <style>
+        body { margin: 0; padding: 1rem; font: 14px/1.4 system-ui, sans-serif; }
+        .row { display: flex; gap: 2px; align-items: center; margin: 0 0 1rem; }
+    </style>
+</head>
+<body>
+    <h1>Tool buttons</h1>
+    <p><code>type="plain"</code> buttons with a Lucide icon (<code>glyph="lucide-bold"</code>), a
+        hover fill, and a pressed state (<code>pressed</code>, with <code>toggle</code> for an on/off
+        button). Open with <code>?look</code> for Juel's opt-in look.</p>
+    <juel-toolbar aria-label="Format">
+        <div class="row">
+            <juel-button id="bold" type="plain" glyph="lucide-bold" button-label="Bold" toggle></juel-button>
+            <juel-button id="italic" type="plain" glyph="lucide-italic" button-label="Italic" toggle pressed></juel-button>
+            <juel-button id="link" type="plain" glyph="lucide-link" button-label="Link"></juel-button>
+            <juel-button id="image" type="plain" glyph="lucide-image" label="Image"></juel-button>
+            <juel-button id="insert" type="plain" glyph="lucide-plus" label="Insert" caret></juel-button>
+            <juel-button id="previous" type="light" glyph="lucide-chevron-left" label="Previous"></juel-button>
+            <juel-button id="next" type="light" glyph="lucide-chevron-right" label="Next" glyph-end></juel-button>
+        </div>
+    </juel-toolbar>
+    <script>
+        if (new URLSearchParams(location.search).has('look')) juel.theme.useLook();
+        for (const id of ['bold', 'italic']) {
+            const b = document.getElementById(id);
+            b.addEventListener('click', () => b.pressed = !b.pressed);
+        }
+        window.exampleReady = true;
+    </script>
+</body>
+</html>

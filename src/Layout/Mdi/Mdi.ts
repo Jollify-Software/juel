@@ -40,6 +40,8 @@ export interface MdiLayout {
     minimized?: string[];
     /** Index into `panes` of the maximised pane, if one is. */
     maximized?: number;
+    /** Ids of the panels in collapsed side panes (`collapsible` row layouts). */
+    collapsed?: string[];
 }
 
 interface MdiPanel {
@@ -109,6 +111,15 @@ export class JuelMdi extends LitElement {
     // calling restorePanel() and re-reading on layout-changed.
     @property({ attribute: 'minimized-bar' })
     minimizedBar: ('top' | 'none') = 'top';
+    // "minimal" is a quieter title bar for an app's fixed, docked layout:
+    // normal-weight muted titles, no minimise button, and maximise only on
+    // hover or focus. "full" (the default) is the title bar as it always was.
+    @property({ reflect: true })
+    chrome: ('full' | 'minimal') = 'full';
+    // In a row layout, the first and last panes get a collapse button that
+    // folds them to a narrow strip at that side (expand from the strip).
+    @property({ type: Boolean })
+    collapsible: boolean = false;
 
     @state()
     private _panels: MdiPanel[] = [];
@@ -123,6 +134,10 @@ export class JuelMdi extends LitElement {
     // left out of the render — so restoring it puts it back where it was.
     @state()
     private _minimized: string[] = [];
+    // Panel ids in collapsed side panes (see collapsible). A pane is
+    // collapsed while any of its panels is listed here.
+    @state()
+    private _collapsed: string[] = [];
 
     private _panelIds = new WeakMap<HTMLElement, string>();
     private _observer?: MutationObserver;
@@ -182,7 +197,7 @@ export class JuelMdi extends LitElement {
 
     updated(changed: Map<PropertyKey, unknown>) {
         this._wireDocking();
-        if (changed.has('_slots') || changed.has('_minimized') || changed.has('_maximizedId') || changed.has('order')) {
+        if (changed.has('_slots') || changed.has('_minimized') || changed.has('_collapsed') || changed.has('_maximizedId') || changed.has('order')) {
             this._layoutChanged();
         }
     }
@@ -422,6 +437,7 @@ export class JuelMdi extends LitElement {
             })),
             minimized: [...this._minimized],
             ...(maximized >= 0 ? { maximized } : {}),
+            ...(this._collapsed.length ? { collapsed: [...this._collapsed] } : {}),
         };
     }
 
@@ -493,6 +509,51 @@ export class JuelMdi extends LitElement {
         return true;
     }
 
+    /** Collapse the side pane holding this panel to a narrow strip (a `collapsible` row layout, first or last pane only). */
+    collapsePanel(id: string): boolean {
+        const slot = this._slots.find(s => s.panels.some(p => p.id === id));
+        if (!slot || !this._canCollapse(slot) || this._isCollapsed(slot)) return false;
+        this._captureSizes();
+        this._collapsed = [...this._collapsed, ...slot.panels.map(p => p.id)];
+        this.dispatchEvent(new CustomEvent('panel-collapsed', { detail: { id }, bubbles: true, composed: true }));
+        return true;
+    }
+
+    /** Expand the collapsed side pane holding this panel. */
+    expandPanel(id: string): boolean {
+        const slot = this._slots.find(s => s.panels.some(p => p.id === id));
+        if (!slot || !this._isCollapsed(slot)) return false;
+        const ids = new Set(slot.panels.map(p => p.id));
+        this._collapsed = this._collapsed.filter(c => !ids.has(c));
+        this.dispatchEvent(new CustomEvent('panel-expanded', { detail: { id }, bubbles: true, composed: true }));
+        return true;
+    }
+
+    /** True when this panel's pane is collapsed to a side strip. */
+    isCollapsed(id: string): boolean {
+        const slot = this._slots.find(s => s.panels.some(p => p.id === id));
+        return !!slot && this._isCollapsed(slot) && this._canCollapse(slot);
+    }
+
+    private _isCollapsed(slot: MdiSlot): boolean {
+        return slot.panels.some(p => this._collapsed.includes(p.id));
+    }
+
+    // Which side a pane can collapse to: only the first and last of the
+    // rendered panes of a collapsible row, and never the only one.
+    private _collapseSide(slot: MdiSlot): 'left' | 'right' | undefined {
+        if (!this.collapsible || this.order !== 'row' || this.useTabs()) return undefined;
+        const slots = this._slots.filter(s => this._visiblePanels(s).length > 0);
+        if (slots.length < 2) return undefined;
+        if (slots[0] === slot) return 'left';
+        if (slots[slots.length - 1] === slot) return 'right';
+        return undefined;
+    }
+
+    private _canCollapse(slot: MdiSlot): boolean {
+        return this._collapseSide(slot) !== undefined;
+    }
+
     /** The minimised panels, in tab order, with their titles. */
     get minimizedPanels(): { id: string; title: string }[] {
         return this._minimized
@@ -521,6 +582,7 @@ export class JuelMdi extends LitElement {
             const remaining = this._panels.filter(p => !ordered.includes(p));
             [...ordered, ...remaining].forEach(p => this.appendChild(p.element));
             this._minimized = [];
+            this._collapsed = [];
             this._maximizedId = undefined;
             return;
         }
@@ -543,6 +605,7 @@ export class JuelMdi extends LitElement {
 
         this._slots = slots;
         this._minimized = (layout.minimized ?? []).filter(id => byId.has(id));
+        this._collapsed = (layout.collapsed ?? []).filter(id => byId.has(id));
         // layout.maximized indexes layout.panes, which may include panes
         // dropped above for having no current panels, so resolve it by panel.
         const maximizedPane = layout.maximized !== undefined ? layout.panes[layout.maximized] : undefined;
@@ -787,13 +850,21 @@ export class JuelMdi extends LitElement {
     }
 
     private _renderWindowButtons(slot: MdiSlot, visible: MdiPanel[], maximized: boolean, label: string) {
-        return html`<juel-button
+        const side = maximized ? undefined : this._collapseSide(slot);
+        return html`${side ? html`<juel-button
+                type="plain"
+                class="window-button collapse-button"
+                glyph="lucide-panel-${side}"
+                title="Collapse"
+                button-label="Collapse ${label}"
+                @click=${() => this.collapsePanel(visible[0].id)}></juel-button>` : ''}
+            ${this.chrome === 'minimal' ? '' : html`<juel-button
                 type="plain"
                 class="window-button minimize-button"
                 glyph="minimize"
                 title="Minimise"
                 button-label="Minimise ${label}"
-                @click=${() => visible.forEach(p => this.minimizePanel(p.id))}></juel-button>
+                @click=${() => visible.forEach(p => this.minimizePanel(p.id))}></juel-button>`}
             ${maximized || this._canMaximize(slot) ? html`<juel-button
                 type="plain"
                 class="window-button ${maximized ? 'restore-button' : 'maximize-button'}"
@@ -889,15 +960,44 @@ export class JuelMdi extends LitElement {
         </div>`;
     }
 
+    // A collapsed side pane: a narrow strip with an expand button and the
+    // pane's title running down it.
+    private _renderCollapsed(slot: MdiSlot, side: 'left' | 'right') {
+        const visible = this._visiblePanels(slot);
+        const title = visible.map(p => p.title).join(' · ');
+        return html`<div class="collapsed-strip ${side}" part="collapsed-strip" data-slot-id="${slot.id}" data-panel-id="${visible[0].id}">
+            <juel-button
+                type="plain"
+                class="window-button expand-button"
+                glyph="lucide-panel-${side}"
+                title="Expand ${title}"
+                button-label="Expand ${title}"
+                @click=${() => this.expandPanel(visible[0].id)}></juel-button>
+            <span class="collapsed-title">${title}</span>
+        </div>`;
+    }
+
     private _renderLayout() {
         const maximized = this._maximizedId ? this._slots.find(s => s.id === this._maximizedId) : undefined;
         if (maximized) {
             return this._renderSlot(maximized, true);
         }
 
-        const slots = this._slots.filter(s => this._visiblePanels(s).length > 0);
+        let slots = this._slots.filter(s => this._visiblePanels(s).length > 0);
         if (slots.length === 0) {
             return html`<div class="all-minimized">All panels are minimised.</div>`;
+        }
+
+        // Collapsed side panes sit outside the splitter, as strips.
+        const first = slots[0], last = slots[slots.length - 1];
+        const left = this._isCollapsed(first) && this._collapseSide(first) === 'left' ? first : undefined;
+        const right = last !== first && this._isCollapsed(last) && this._collapseSide(last) === 'right' ? last : undefined;
+        if (left || right) {
+            slots = slots.filter(s => s !== left && s !== right);
+            const middle = slots.length === 1
+                ? this._renderSlot(slots[0], false)
+                : html`<juel-splitter @resized=${() => this._layoutChanged()}>${repeat(slots, s => s.id, slot => this._renderSlot(slot, false))}</juel-splitter>`;
+            return html`<div class="with-strips">${left ? this._renderCollapsed(left, 'left') : ''}<div class="strips-middle">${middle}</div>${right ? this._renderCollapsed(right, 'right') : ''}</div>`;
         }
 
         // A row/column left with a single slot doesn't need a splitter

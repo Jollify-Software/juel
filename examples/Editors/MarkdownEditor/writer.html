@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Markdown Editor: the writer look — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-markdown-editor {
+            display: block;
+            height: 220px;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="example-header">
+        <h1>Markdown Editor: the writer look</h1>
+        <p>
+            <code>writer</code> turns on a calmer look: headings bold and not underlined, syntax marks
+            dimmed, and a leading <code>---</code> front-matter block read as front matter (without it,
+            its last line parses as a setext heading). <code>prose</code> sets the text in a proportional
+            font (<code>--juel-font-prose</code>); code and front matter stay monospace. Both are off by
+            default, and the editor then looks as it always has.
+        </p>
+    </header>
+
+    <h2>Default</h2>
+    <juel-markdown-editor id="plain"></juel-markdown-editor>
+    <h2><code>writer prose</code></h2>
+    <juel-markdown-editor id="writer" writer prose></juel-markdown-editor>
+    <h2><code>setDividers</code></h2>
+    <p><code>setDividers([{ offset, label }])</code> draws a rule above the line at each offset, with its label in a
+        gutter beside it (here, a slide number for each <code>#</code> heading).</p>
+    <juel-markdown-editor id="divided" writer></juel-markdown-editor>
+    <h2><code>front-matter-chip</code></h2>
+    <p><code>front-matter-chip="Deck settings"</code> folds the leading front matter into a chip with that name.
+        Clicking the name fires <code>front-matter-open</code>; the chevron shows or hides the YAML.</p>
+    <juel-markdown-editor id="chip" writer front-matter-chip="Deck settings"></juel-markdown-editor>
+    <p id="chip-log"></p>
+
+    <script>
+        const text = '---\ntitle: My deck\ntheme: dark\n---\n\n# A heading\n\nSome *text* with `code` in it.\n';
+        document.getElementById('plain').content = text;
+        document.getElementById('writer').content = text;
+        const chip = document.getElementById('chip');
+        chip.content = text;
+        chip.addEventListener('front-matter-open', () => {
+            const log = document.getElementById('chip-log');
+            log.textContent = 'front-matter-open ' + (Number(log.dataset.count || 0) + 1);
+            log.dataset.count = String(Number(log.dataset.count || 0) + 1);
+        });
+        const deck = '# One\n\nFirst slide.\n\n# Two\n\nSecond slide.\n\n# Three\n';
+        const divided = document.getElementById('divided');
+        divided.content = deck;
+        customElements.whenDefined('juel-markdown-editor').then(() => divided.updateComplete).then(() => {
+            const marks = [...deck.matchAll(/^# /gm)].map((m, i) => ({ offset: m.index, label: String(i + 1) }));
+            divided.setDividers(marks);
+            window.exampleReady = true;
+        });
+    </script>
+</body>
+
+</html>

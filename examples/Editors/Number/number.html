@@ -27,6 +27,28 @@
             <juel-number label="Age"></juel-number>
         </div>
     </section>
+
+    <section class="example-section">
+        <h2>With units</h2>
+        <p>
+            <code>units="px,em,rem,%"</code> makes it a quantity: type <code>48px</code> or <code>3</code>,
+            ArrowUp/ArrowDown step it (Shift for ten), and the menu changes the unit. Empty is allowed.
+            Events carry <code>{ value, unit, text }</code>.
+        </p>
+        <div class="example-demo">
+            <juel-number id="size" label="Font size" units="px,em,rem,%" placeholder="theme"></juel-number>
+        </div>
+        <p>Changed: <output id="changed"></output> · Committed: <output id="committed"></output></p>
+    </section>
+    <script>
+        customElements.whenDefined('juel-number').then(() => {
+            const size = document.getElementById('size');
+            size.value = null;
+            size.addEventListener('value-changed', e => { document.getElementById('changed').textContent = JSON.stringify(e.detail); });
+            size.addEventListener('value-committed', e => { document.getElementById('committed').textContent = JSON.stringify(e.detail); });
+            return size.updateComplete;
+        }).then(() => { window.exampleReady = true; });
+    </script>
 </body>
 
 </html>

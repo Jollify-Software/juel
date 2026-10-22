@@ -19,5 +19,7 @@ import "./HtmlEditor/HtmlEditor";
 
 import "./MarkdownEditor/MarkdownEditor";
 
+import "./PlanEditor/PlanEditor";
+
 import "./Theme/ThemeToggle";
 import "./Theme/ThemeSelect";

@@ -18,30 +18,37 @@
         @{var}-text: @lightened;
     })
 }
+// The --juel-@{key}… fallbacks come from Juel's opt-in look
+// (_Modules/Theme/ThemeLook.ts); without it they're unset and nothing changes.
 each(@colours, {
     @var: ~'var(--@{key})';
+    @jbg: ~'--juel-@{key}';
+    @jtext: ~'--juel-@{key}-text';
+    @jborder: ~'--juel-@{key}-border';
+    @jhover: ~'--juel-@{key}-hover';
+    @jactive: ~'--juel-@{key}-active-shadow';
     @lightened: if(luma(@value) < 50%, lighten(@value, 32%), darken(@value, 32%));
     .@{key} {
-        background-color: var(--background-color, @var);
-        color: var(--color, if(luma(@value) > 50%, black, white));
-        border: 1px solid var(--background-color, @var);
+        background-color: var(--background-color, var(@jbg, @var));
+        color: var(--color, var(@jtext, if(luma(@value) > 50%, black, white)));
+        border: 1px solid var(--background-color, var(@jborder, var(@jbg, @var)));
         &.alert {
             background-color: var(--background-color, @lightened);
         color: var(--color, @var) !important;
         }
         .icon:not(.empty) {
-            background-color: var(--color, if(luma(@value) > 50%, black, white));
+            background-color: var(--color, var(@jtext, if(luma(@value) > 50%, black, white)));
         }
         &:hover {
-            background-color: var(--hover-background-color, var(--color, @lightened));
-            color: var(--hover-color, if(luma(@value) > 50%, black, white));
-            border-color: var(--hover-border-color, @lightened);
+            background-color: var(--hover-background-color, var(@jhover, var(--color, @lightened)));
+            color: var(--hover-color, var(@jtext, if(luma(@value) > 50%, black, white)));
+            border-color: var(--hover-border-color, var(@jhover, @lightened));
             .icon:not(.empty) {
                 background-color: var(--hover-color, var(--color, if(luma(@value) > 50%, black, white)));
             }
         }
         &:active {
-            box-shadow: 0 0 10px var(--background-color, @var);
+            box-shadow: var(@jactive, 0 0 10px var(--background-color, @var));
         }
         &.outline {
             background-color: initial;
@@ -59,7 +66,8 @@ each(@colours, {
             border-left: 1px solid var(--background-color, @var);
         }
     }
+    // InputBase's wrapper ring; under the look it matches the button's own border.
     .@{key}-border {
-        border: 1px solid var(--background-color, darken(@value, 20%));
+        border: 1px solid var(--background-color, var(@jborder, var(@jbg, darken(@value, 20%))));
     }
 })

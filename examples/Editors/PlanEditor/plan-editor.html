@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Plan Editor — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-plan-editor { height: 420px; border: 1px solid #ccc; }
+        .controls { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
+        #log { font-family: monospace; font-size: 12px; min-height: 1.5em; }
+    </style>
+</head>
+
+<body>
+    <h1>juel-plan-editor</h1>
+    <p>A floor plan as SVG (here in Parterre's annotations, two storeys). Click a shape to select it (Shift adds),
+        drag on empty space for a box, drag the selection to move it (snapped to the grid; Alt: free), arrow keys
+        to nudge, Delete to remove, Ctrl+Z / Ctrl+Y. Wheel to zoom, middle button or Space+drag to pan, 0 to fit. Drawing: Rect and Circle by dragging; Polygon and
+        Polyline by clicking points (Enter, a double-click or the first point to finish; Backspace, Escape);
+        Point by a click. Points snap to corners nearby, else the grid; Shift keeps 45°, Alt is free. One selected
+        shape shows handles; double-click a polygon's edge to add a point, Alt+click a point to remove it.</p>
+    <div class="controls">
+        <juel-segmented id="tools" label="Tool" value="select"></juel-segmented>
+        <juel-segmented id="levels" label="Storey" value="0"></juel-segmented>
+        <juel-button id="undo" type="light" label="Undo"></juel-button>
+        <juel-button id="redo" type="light" label="Redo"></juel-button>
+        <juel-button id="fit" type="light" label="Fit"></juel-button>
+    </div>
+    <juel-plan-editor id="plan" grid="20"></juel-plan-editor>
+    <p id="log"></p>
+    <script>
+        const plan = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 440">
+  <rect data-fixture="ground" x="20" y="20" width="560" height="400" fill="#7BC8A4"/>
+  <g data-fixture="level" data-level="0" data-label="Ground floor">
+    <rect id="hall" data-fixture="room" data-label="Entrance Hall" x="60" y="60" width="200" height="320" fill="#e8e8e8" stroke="#555"/>
+    <rect id="gallery" data-fixture="room" data-label="Main Gallery" x="260" y="60" width="280" height="320" fill="#dfe6ef" stroke="#555"/>
+    <rect id="partition" data-fixture="wall" x="380" y="140" width="8" height="160" fill="#888"/>
+    <rect id="stairs" data-fixture="stairs" x="80" y="300" width="60" height="60" fill="#c9b18f"/>
+  </g>
+  <g data-fixture="level" data-level="1" data-label="First floor">
+    <polygon id="mezzanine" data-fixture="room" data-label="Mezzanine" points="60,60 260,60 260,200 160,260 60,260" fill="#f3e3c7" stroke="#555"/>
+  </g>
+  <text x="120" y="230" font-size="14">Hall</text>
+</svg>`;
+        const editor = document.getElementById('plan');
+        const log = document.getElementById('log');
+        Promise.all(['juel-plan-editor', 'juel-segmented'].map(t => customElements.whenDefined(t))).then(async () => {
+            const tools = document.getElementById('tools');
+            tools.options = ['select', 'rect', 'polygon', 'polyline', 'circle', 'point'].map(v => ({ value: v, label: v[0].toUpperCase() + v.slice(1) }));
+            tools.addEventListener('value-changed', e => { editor.tool = e.detail.value; });
+            // New shapes: a room's look (the app sets data-fixture from its tool).
+            editor.newAttributes = { 'data-fixture': 'room', fill: '#f5ecd6', stroke: '#555' };
+            editor.addEventListener('shape-created', e => { log.textContent = `created ${e.detail.kind}: ${e.detail.id}`; });
+            const levels = document.getElementById('levels');
+            levels.options = [{ value: '0', label: 'Ground' }, { value: '1', label: 'First' }];
+            levels.addEventListener('value-changed', e => { editor.level = Number(e.detail.value); });
+            document.getElementById('undo').addEventListener('click', () => editor.undo());
+            document.getElementById('redo').addEventListener('click', () => editor.redo());
+            document.getElementById('fit').addEventListener('click', () => editor.fit());
+            editor.addEventListener('selection-changed', e => { log.textContent = `selected: ${e.detail.ids.join(', ') || '(none)'}`; });
+            editor.addEventListener('plan-changed', e => { log.textContent = `changed (${e.detail.reason})`; window.lastPlan = e.detail.svg; });
+            editor.svg = plan;
+            // marks: the app's own drawing over the plan (not in svg): which way the stairs climb.
+            editor.marks = '<path d="M110 312 V348 M100 338 L110 348 L120 338" fill="none" stroke="#d9480f" stroke-width="3"/>';
+            await editor.updateComplete;
+            await levels.updateComplete;
+            await tools.updateComplete;
+            window.exampleReady = true;
+        });
+    </script>
+</body>
+
+</html>

@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import '../../Buttons/Button/Button';
@@ -24,6 +25,9 @@ export class JuelSelect extends LitElement {
   @property({ type: String, attribute: "text-field" }) textField: string = 'text';
   @property({ type: String, attribute: "value-field" }) valueField: string = 'value';
   @property({ type: String, attribute: "children-field" }) childrenField: string = 'children';
+  // An item field holding a style for its option (e.g. a font list in each
+  // font). Unset: options are unstyled, as before.
+  @property({ type: String, attribute: "style-field" }) styleField: string | undefined;
   @property({ type: String }) placeholder: string = '-- Select an option --';
   // Shows a Clear button next to the list. Off by default: the empty
   // (placeholder) option already clears a value.
@@ -59,8 +63,10 @@ export class JuelSelect extends LitElement {
       padding: 0.5em;
       margin-bottom: 0.5em;
       font-size: 1em;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      border: 1px solid var(--juel-border, #ccc);
+      background: var(--juel-surface, Field);
+      color: var(--juel-text, FieldText);
+      border-radius: var(--juel-radius-sm, 4px);
       box-sizing: border-box;
     }
 
@@ -71,15 +77,15 @@ export class JuelSelect extends LitElement {
       padding: var(--select-padding, 5px 7px);
       font: inherit;
       color: inherit;
-      background: var(--select-background, #fff);
-      border: 1px solid var(--border-color, #bbb);
-      border-radius: 4px;
+      background: var(--select-background, var(--juel-surface, #fff));
+      border: 1px solid var(--border-color, var(--juel-border, #bbb));
+      border-radius: var(--juel-radius-sm, 4px);
       box-sizing: border-box;
     }
 
     select:focus {
       outline: none;
-      border-color: #0078d4;
+      border-color: var(--juel-focus, #0078d4);
       box-shadow: 0 0 3px rgba(0, 120, 212, 0.5);
     }
 
@@ -174,7 +180,8 @@ export class JuelSelect extends LitElement {
         `;
       } else {
         return html`
-          <option value='${JSON.stringify(item[this.valueField])}' ?selected="${JSON.stringify(this.value) === JSON.stringify(item[this.valueField])}">
+          <option value='${JSON.stringify(item[this.valueField])}' ?selected="${JSON.stringify(this.value) === JSON.stringify(item[this.valueField])}"
+            style=${ifDefined(this.styleField ? item[this.styleField] : undefined)}>
             ${item[this.textField]}
           </option>
         `;

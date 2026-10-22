@@ -23,6 +23,11 @@ export interface MenuSelectDetail {
  *
  * The content floats with `position: fixed`, so a scrolling or clipped
  * ancestor (a juel-mdi pane, say) doesn't cut it off.
+ *
+ * As a context menu: `openAt(x, y)` opens it at a point in the viewport
+ * (e.g. a `contextmenu` event's `clientX`/`clientY`) instead of under its
+ * trigger, which it then needn't have. Escape, or choosing an item from
+ * the keyboard, returns focus to where it was.
  */
 @customElement('juel-menu')
 export class JuelMenu extends CollapsibleBase {
@@ -33,6 +38,9 @@ export class JuelMenu extends CollapsibleBase {
   private contentElement!: HTMLElement;
 
   private openedByKeyboard = false;
+
+  /** Set while opened by `openAt`: the point, and the focus to go back to. */
+  private point: { x: number; y: number; returnFocus: HTMLElement | null } | null = null;
 
   static styles = css`
     :host {
@@ -58,11 +66,11 @@ export class JuelMenu extends CollapsibleBase {
       z-index: 1000;
       min-width: var(--menu-min-width, 10rem);
       padding: var(--menu-padding, 4px 0);
-      color: var(--menu-color, inherit);
-      background: var(--menu-background, white);
-      border: 1px solid var(--menu-border-color, rgba(0, 0, 0, 0.12));
-      border-radius: var(--menu-border-radius, 6px);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      color: var(--menu-color, var(--juel-text, inherit));
+      background: var(--menu-background, var(--juel-surface, white));
+      border: 1px solid var(--menu-border-color, var(--juel-border, rgba(0, 0, 0, 0.12)));
+      border-radius: var(--menu-border-radius, var(--juel-radius-md, 6px));
+      box-shadow: var(--juel-shadow-2, 0 4px 16px rgba(0, 0, 0, 0.15));
       box-sizing: border-box;
     }
 
@@ -96,6 +104,31 @@ export class JuelMenu extends CollapsibleBase {
     return this.contentElement;
   }
 
+  protected floatingReference(): any {
+    const p = this.point;
+    if (!p) return super.floatingReference();
+    // A floating-ui virtual element: a zero-size box at the point.
+    return {
+      getBoundingClientRect: () => ({ x: p.x, y: p.y, left: p.x, top: p.y, right: p.x, bottom: p.y, width: 0, height: 0 }),
+      contextElement: this,
+    };
+  }
+
+  /**
+   * Open at a point in the viewport, as a context menu. With `focusFirst`
+   * (opened from the keyboard, say) focus moves to the first item.
+   */
+  async openAt(x: number, y: number, { focusFirst = false }: { focusFirst?: boolean } = {}) {
+    const returnFocus = this.point?.returnFocus ?? (document.activeElement as HTMLElement | null);
+    if (this.opened) {
+      this.hide();
+      await this.updateComplete;
+    }
+    this.point = { x, y, returnFocus };
+    this.openedByKeyboard = focusFirst;
+    this.show();
+  }
+
   protected floatingOptions(): any {
     return {
       placement: this.placement,
@@ -125,11 +158,19 @@ export class JuelMenu extends CollapsibleBase {
     this.syncTriggerAria();
   }
 
+  protected updated(changed) {
+    super.updated(changed);
+    // Closed: the next show() is under the trigger again (the point is
+    // only needed while the content is placed, on opening).
+    if (changed.has('opened') && !this.opened) this.point = null;
+  }
+
   protected onDismissedByKey() {
     this.focusTrigger();
   }
 
   private focusTrigger() {
+    if (this.point) { this.point.returnFocus?.focus(); return; }
     const trigger = this.triggerSlotted();
     trigger?.focus();
   }
@@ -165,7 +206,10 @@ export class JuelMenu extends CollapsibleBase {
   private onContentKeydown = (e: KeyboardEvent) => {
     const items = this.items;
     if (!items.length) return;
-    const current = items.findIndex(item => item === document.activeElement || item.contains(document.activeElement));
+    // The focused element as the menu's own root sees it: inside a shadow root,
+    // document.activeElement is only the host.
+    const active = (this.getRootNode() as Document | ShadowRoot).activeElement;
+    const current = items.findIndex(item => item === active || item.contains(active));
     let next = -1;
     if (e.key === 'ArrowDown') next = (current + 1) % items.length;
     else if (e.key === 'ArrowUp') next = (current - 1 + items.length) % items.length;

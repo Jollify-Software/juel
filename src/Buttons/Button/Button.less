@@ -31,6 +31,9 @@ button {
     // A fixed size, for a swatch or an icon-only button.
     width: var(--button-width, auto);
     height: var(--button-height, auto);
+    // A smallest size, e.g. 24px for WCAG 2.5.8 target size (unset: as before).
+    min-width: var(--button-min-width, auto);
+    min-height: var(--button-min-height, auto);
     justify-content: center;
 }
 // type="plain": a tool or window button (juel-mdi's, juel-tabs' close,
@@ -46,11 +49,16 @@ button.plain {
     border-radius: var(--border-radius, 4px);
 }
 button.plain:hover {
-    background-color: var(--hover-background-color, rgba(0, 0, 0, 0.08));
+    background-color: var(--hover-background-color, var(--juel-hover, rgba(0, 0, 0, 0.08)));
     color: var(--hover-color, var(--color, inherit));
 }
+// Pressed (the `pressed` property): a firmer fill, and the accent for the text.
+button.plain[aria-pressed="true"] {
+    background-color: var(--pressed-background-color, var(--juel-pressed, rgba(0, 0, 0, 0.14)));
+    color: var(--pressed-color, var(--juel-accent, var(--color, inherit)));
+}
 button.plain:focus-visible {
-    outline: 2px solid var(--focus-color, #0d6efd);
+    outline: 2px solid var(--focus-color, var(--juel-focus, #0d6efd));
     outline-offset: 1px;
 }
 // A glyph (mask icon) sized by --icon-size; beside a label it keeps apart.
@@ -63,6 +71,18 @@ button .icon {
 }
 button .icon.labelled {
     margin-right: 0.5rem;
+}
+// `glyph-end`: the glyph after the label.
+button .icon.labelled.end {
+    margin-right: 0;
+    margin-left: 0.5rem;
+}
+// The `caret` chevron, for a menu trigger: smaller, a little apart, fainter.
+button .icon.caret {
+    width: var(--button-caret-size, 12px);
+    height: var(--button-caret-size, 12px);
+    margin-left: 3px;
+    opacity: 0.7;
 }
 
 // A disabled button takes no pointer events at all, so a click can't reach

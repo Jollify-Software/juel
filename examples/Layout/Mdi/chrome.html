@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mdi: minimal chrome and collapsible sides — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <style>
+        body { margin: 0; padding: 1rem; font: 14px/1.4 system-ui, sans-serif; }
+        juel-mdi { height: 260px; border: 1px solid #dee2e6; margin-bottom: 1rem; }
+        juel-mdi > div { height: 100%; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <h1>juel-mdi chrome</h1>
+    <p><code>chrome="minimal"</code>: quiet titles, no minimise button, maximise and close only on
+        hover or focus. <code>collapsible</code>: the first and last panes of a row fold to a strip.
+        Open with <code>?look</code> for Juel's opt-in look.</p>
+    <h2>Default (unchanged)</h2>
+    <juel-mdi id="full" order="row">
+        <div id="full-a" data-title="Slides">Slides</div>
+        <div id="full-b" data-title="Designer">Designer</div>
+        <div id="full-c" data-title="Style">Style</div>
+    </juel-mdi>
+    <h2>Minimal, collapsible</h2>
+    <juel-mdi id="minimal" order="row" chrome="minimal" collapsible>
+        <div id="min-a" data-title="Slides">Slides</div>
+        <div id="min-b" data-title="Designer">Designer</div>
+        <div id="min-c" data-title="Style">Style</div>
+    </juel-mdi>
+    <script>
+        if (new URLSearchParams(location.search).has('look')) juel.theme.useLook();
+        customElements.whenDefined('juel-mdi').then(() => { window.exampleReady = true; });
+    </script>
+</body>
+</html>

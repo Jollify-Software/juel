@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Segmented — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+</head>
+
+<body>
+    <h1>juel-segmented</h1>
+    <p>One of a few choices, as joined buttons. Arrow keys, Home and End move the choice.</p>
+    <juel-segmented id="align" label="Text align" value="left"></juel-segmented>
+    <p>With <code>clearable</code>, choosing the chosen one again clears it:</p>
+    <juel-segmented id="weight" label="Weight" clearable></juel-segmented>
+    <p>With <code>stretch</code>, the buttons share the width (here 240px):</p>
+    <div style="width: 240px"><juel-segmented id="stretched" label="Stretched" stretch></juel-segmented></div>
+    <p id="log"></p>
+    <script>
+        const log = document.getElementById('log');
+        customElements.whenDefined('juel-segmented').then(() => {
+            const align = document.getElementById('align');
+            align.options = ['left', 'center', 'right', 'justify'].map(v => ({ value: v, label: v[0].toUpperCase() + v.slice(1) }));
+            const weight = document.getElementById('weight');
+            weight.options = [{ value: '300', label: 'Light' }, { value: 'normal', label: 'Regular' }, { value: 'bold', label: 'Bold' }];
+            const stretched = document.getElementById('stretched');
+            stretched.options = ['A', 'B', 'C'].map(v => ({ value: v }));
+            for (const s of [align, weight]) s.addEventListener('value-changed', e => { log.textContent = `${s.id}: ${e.detail.value}`; });
+            return Promise.all([align.updateComplete, weight.updateComplete, stretched.updateComplete]);
+        }).then(() => { window.exampleReady = true; });
+    </script>
+</body>
+
+</html>

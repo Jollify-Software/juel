@@ -46,9 +46,9 @@ export class JuelText extends LitElement {
       padding: var(--text-padding, 5px 7px);
       font: inherit;
       color: inherit;
-      background: var(--text-background, #fff);
-      border: 1px solid var(--border-color, #bbb);
-      border-radius: 4px;
+      background: var(--text-background, var(--juel-surface, #fff));
+      border: 1px solid var(--border-color, var(--juel-border, #bbb));
+      border-radius: var(--juel-radius-sm, 4px);
       box-sizing: border-box;
     }
 
@@ -63,7 +63,7 @@ export class JuelText extends LitElement {
     }
 
     input:focus-visible, textarea:focus-visible {
-      outline: 2px solid var(--primary, #0d6efd);
+      outline: 2px solid var(--juel-focus, var(--primary, #0d6efd));
       outline-offset: 1px;
     }
   `;

@@ -50,6 +50,9 @@ DomReady().then(() => {
                 a.setAttribute('href', ReverseString(href));
             }
         }
+        // Turned round once: a generator's own script (Jellyfish's) skips it, and its
+        // `.reverse` CSS no longer mirrors the text back.
+        a.classList.remove("reverse");
     }
     
     Iconify();

@@ -4,6 +4,11 @@ import { basicSetup, EditorView } from "codemirror";
 import { Annotation, ChangeSet, Compartment, EditorSelection, EditorState, MapMode } from '@codemirror/state'
 import { markdown } from '@codemirror/lang-markdown';
 import { Diagnostic, setDiagnostics } from '@codemirror/lint';
+import { redo, redoDepth, selectAll, undo, undoDepth } from '@codemirror/commands';
+import { openSearchPanel } from '@codemirror/search';
+import { FrontMatter, proseFont, writerLook } from './WriterLook';
+import { dividers, MarkdownDivider, setDividersEffect } from './Dividers';
+import { frontMatterChip } from './FrontMatterChip';
 import { MarkdownEditorEvents, MarkdownContentChanged, MarkdownCursor, MarkdownWarning } from './MarkdownEditorEvents';
 
 /** Marks changes made through the API, which don't fire `content-changed`. */
@@ -25,7 +30,17 @@ const External = Annotation.define<boolean>();
  * `wrapSelection(before, after?, placeholder?)`, `toggleLinePrefix(prefix, numbered?)`,
  * `insertBlock(text)`, `replaceRange(from, to, text)`,
  * `replaceRanges([{ from, to, text }])`, `selectedText`,
- * `setWarnings(list)`, `focus()`.
+ * `setWarnings(list)`, `setDividers([{ offset, label? }])`, `focus()`,
+ * `undo()`, `redo()`, `undoDepth`, `redoDepth` (the editor's own history, for an
+ * app that keeps one Undo across several editors), `selectAll()`, `openSearch()`.
+ *
+ * Attributes: `readonly`; `writer`, an opt-in calmer look (headings bold, not
+ * underlined; syntax marks dimmed; long lines soft-wrap; a leading `---` front-matter block read as
+ * such, not as a setext heading); `prose`, a proportional font for the text
+ * (`--juel-font-prose`), with code and front matter kept monospace;
+ * `front-matter-chip="Deck settings"`, a leading `---` front-matter block
+ * folded into a chip with that name: clicking the name fires
+ * `front-matter-open`, the chevron shows or hides the YAML.
  */
 @customElement('juel-markdown-editor')
 export class JuelMarkdownEditor extends LitElement {
@@ -36,8 +51,23 @@ export class JuelMarkdownEditor extends LitElement {
   @property({ type: Boolean, reflect: true })
   readonly: boolean = false;
 
+  /** The opt-in writer look (see above). Off by default: the look is unchanged. */
+  @property({ type: Boolean, reflect: true })
+  writer: boolean = false;
+
+  /** A proportional font for the text; code stays monospace. */
+  @property({ type: Boolean, reflect: true })
+  prose: boolean = false;
+
+  /** Folds the leading front matter into a chip with this name. Empty (the default): no chip. */
+  @property({ type: String, attribute: 'front-matter-chip', reflect: true })
+  frontMatterChip: string = '';
+
   private editorView?: EditorView;
   private readonlyCompartment = new Compartment();
+  private lookCompartment = new Compartment();
+  private dividerCompartment = new Compartment();
+  private chipCompartment = new Compartment();
   private lastCursor = -1;
 
   createRenderRoot() {
@@ -63,6 +93,7 @@ export class JuelMarkdownEditor extends LitElement {
   private createView() {
     const editorContainer = this.querySelector<HTMLElement>(':scope > .juel-markdown-editor-container');
     if (!editorContainer) return;
+    this.hasDividers = false; // a new view starts without the gutter
 
     this.editorView = new EditorView({
       parent: editorContainer,
@@ -75,7 +106,9 @@ export class JuelMarkdownEditor extends LitElement {
         doc: this.content,
         extensions: [
           basicSetup,
-          markdown(),
+          this.lookCompartment.of(this.lookExtensions()),
+          this.dividerCompartment.of([]),
+          this.chipCompartment.of(this.chipExtensions()),
           this.readonlyCompartment.of(EditorState.readOnly.of(this.readonly)),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
@@ -105,11 +138,62 @@ export class JuelMarkdownEditor extends LitElement {
         });
       }
     }
+    if ((changed.has('writer') || changed.has('prose')) && this.editorView) {
+      this.editorView.dispatch({ effects: this.lookCompartment.reconfigure(this.lookExtensions()) });
+    }
+    if (changed.has('frontMatterChip') && changed.get('frontMatterChip') !== undefined) {
+      this.editorView.dispatch({ effects: this.chipCompartment.reconfigure(this.chipExtensions()) });
+    }
     if (changed.has('readonly')) {
       this.editorView.dispatch({
         effects: this.readonlyCompartment.reconfigure(EditorState.readOnly.of(this.readonly)),
       });
     }
+  }
+
+  private chipExtensions() {
+    return this.frontMatterChip
+      ? frontMatterChip(this.frontMatterChip, () => this.dispatchEvent(
+        new CustomEvent(MarkdownEditorEvents.frontMatterOpen, { bubbles: true, composed: true })))
+      : [];
+  }
+
+  private lookExtensions() {
+    return [
+      this.writer ? [markdown({ extensions: FrontMatter }), writerLook()] : markdown(),
+      this.prose ? proseFont() : [],
+    ];
+  }
+
+  /** How many steps the editor's own history can undo / redo. */
+  get undoDepth(): number {
+    return this.editorView ? undoDepth(this.editorView.state) : 0;
+  }
+  get redoDepth(): number {
+    return this.editorView ? redoDepth(this.editorView.state) : 0;
+  }
+
+  /** One step of the editor's own history (as Ctrl+Z / Ctrl+Y). False if there's none. */
+  undo(): boolean {
+    return this.editorView && !this.readonly ? undo(this.editorView) : false;
+  }
+  redo(): boolean {
+    return this.editorView && !this.readonly ? redo(this.editorView) : false;
+  }
+
+  /** Selects the whole text and focuses the editor. */
+  selectAll() {
+    const view = this.editorView;
+    if (!view) return;
+    selectAll(view);
+    view.focus();
+  }
+
+  /** Opens the find (and replace) panel. */
+  openSearch() {
+    const view = this.editorView;
+    if (!view) return;
+    openSearchPanel(view);
   }
 
   /** The cursor's offset in the text (0-based). */
@@ -280,6 +364,22 @@ export class JuelMarkdownEditor extends LitElement {
     });
     view.dispatch(setDiagnostics(view.state, diagnostics));
   }
+
+  /**
+   * Draws a rule above the line at each offset, with its `label` (a slide
+   * number, say) in a gutter beside it; they follow edits until the next call.
+   * The gutter only appears once this is first called.
+   */
+  setDividers(list: MarkdownDivider[]) {
+    const view = this.editorView;
+    if (!view) return;
+    if (!this.hasDividers) {
+      this.hasDividers = true;
+      view.dispatch({ effects: this.dividerCompartment.reconfigure(dividers()) });
+    }
+    view.dispatch({ effects: setDividersEffect.of(list) });
+  }
+  private hasDividers = false;
 
   focus() {
     this.editorView?.focus();

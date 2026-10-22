@@ -30,7 +30,7 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
       :host {
         display: block;
         font-family: inherit;
-        --_border: var(--border-color, #ced4da);
+        --_border: var(--juel-border, var(--border-color, #ced4da));
       }
       .se-root {
         flex-direction: column;
@@ -41,7 +41,7 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
         padding: 0.625rem;
         border: 1px solid var(--_border);
         border-radius: 8px;
-        background: var(--surface, #fff);
+        background: var(--juel-surface, var(--surface, #fff));
       }
       .row {
         display: flex;
@@ -65,7 +65,7 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
         --hover-background-color: #fff;
       }
       .chip[data-active] {
-        outline: 2px solid var(--primary, #4f46e5);
+        outline: 2px solid var(--juel-accent, var(--primary, #4f46e5));
         outline-offset: 1px;
         border-radius: 4px;
       }
@@ -103,7 +103,7 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
         width: 90px;
         height: 60px;
         border-radius: 8px;
-        background: var(--surface, #fff);
+        background: var(--juel-surface, var(--surface, #fff));
         cursor: grab;
         touch-action: none;
       }
