@@ -212,6 +212,23 @@ test('moves and copies with the folder chooser; duplicates', async ({ page }) =>
     expect(await selected(page)).toEqual(['Data/sales (2).csv']);
 });
 
+test('the chooser\'s primary button takes --juel-accent-contrast, white without it', async ({ page }) => {
+    const primaryColour = async () => {
+        await row(page, 'logo.png').click();
+        await command(page, 'move').click();
+        const dialog = page.locator('juel-file-manager dialog[open]');
+        const colour = await dialog.locator('footer button.primary').evaluate(b => getComputedStyle(b).color);
+        await dialog.locator('footer button:not(.primary)').click();
+        await expect(dialog).toHaveCount(0);
+        return colour;
+    };
+    await page.locator('juel-file-manager').evaluate(fm => (fm as HTMLElement).style.removeProperty('--juel-accent-contrast'));
+    const before = await page.locator('juel-file-manager').evaluate(fm => getComputedStyle(fm).getPropertyValue('--juel-accent-contrast').trim());
+    if (!before) expect(await primaryColour()).toBe('rgb(255, 255, 255)');
+    await page.locator('juel-file-manager').evaluate(fm => (fm as HTMLElement).style.setProperty('--juel-accent-contrast', '#1f1300'));
+    expect(await primaryColour()).toBe('rgb(31, 19, 0)');
+});
+
 test('deletes after asking, with the page\'s notes; Cancel keeps it', async ({ page }) => {
     await row(page, 'logo.png').click();
     await page.keyboard.press('Delete');

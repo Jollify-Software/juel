@@ -400,7 +400,7 @@ export const FileManagerStyles = css`
     dialog button.folder[aria-selected="true"] { background: var(--_selected); }
     dialog footer { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 0.75rem 1.25rem 1rem; }
     dialog footer button { height: 2.25rem; padding: 0 1rem; border: 1px solid var(--_border); }
-    dialog footer button.primary { color: #fff; background: var(--_accent); border-color: var(--_accent); }
+    dialog footer button.primary { color: var(--juel-accent-contrast, #fff); background: var(--_accent); border-color: var(--_accent); }
 
     @container (max-width: 1100px) {
         .end .command .text { display: none; }

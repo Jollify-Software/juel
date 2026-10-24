@@ -36,6 +36,9 @@ Geometric shapes skew to fill a non-square box (normal `clip-path` behaviour).
 `direction` (`n ne e se s sw w nw`) rotates the shape layer; slotted content
 stays upright.
 
+All of `type`, `src`, `hover`, `fit`, `args`, `direction` and `regular` can change
+after the first paint (a live preview, say): the shape is repainted.
+
 ## `ClipShapes.ts` — the geometric registry
 
 ```ts
