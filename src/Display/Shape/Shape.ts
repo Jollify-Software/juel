@@ -128,8 +128,11 @@ export class JuelShape extends LitElement {
     protected updated(changed: PropertyValues): void {
         super.updated(changed);
         if (changed.has("label")) this.applyLabel();
+        if (changed.has("regular")) this.classList.toggle("juel-shape--regular", this.regular);
         if (this.hasTemplate) return;
-        if (!this.paintedOnce || SHAPE_PROPS.some((p) => changed.has(p))) {
+        // A new direction re-renders the layers' class (render()), which drops
+        // the classes applyShape() put there, so it repaints them too.
+        if (!this.paintedOnce || changed.has("direction") || SHAPE_PROPS.some((p) => changed.has(p))) {
             this.applyShape();
             this.paintedOnce = true;
         }

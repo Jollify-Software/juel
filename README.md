@@ -90,7 +90,7 @@ juel.theme.usesLook();
 `--juel-shadow-1/2`. Dark follows `prefers-color-scheme` unless `data-theme` is `light` or
 `dark` (with the look on and no stored choice, Juel drops `init()`'s one-off guess so the system decides live; `clear()` returns to that). Override any token on `:root[data-juel-look]` (e.g. your brand's `--juel-accent`).
 With the look on, focus rings (buttons, menu items, tabs, `juel-text`) use `--juel-focus`, ahead of a page's `--primary`.
-With the look on, `juel-file-manager` takes its colours from the tokens too (its own `--file-manager-…` properties still win).
+With the look on, `juel-file-manager` takes its colours from the tokens too (its own `--file-manager-…` properties still win); text on its accent, the chooser's primary button included, is `--juel-accent-contrast` (white without the look).
 With the look on, `juel-gradient-editor` and `juel-shadow-editor` take their box and border from `--juel-surface` / `--juel-border`.
 
 ## `juel.params`
@@ -213,6 +213,11 @@ them to a 32px strip at that side; the strip's button expands them again. `colla
 `panel-expanded` events, and `getLayout()` / `setLayout()` keep the collapsed panes
 (`collapsed`). Without either attribute the panes look and behave as before. Example:
 `examples/Layout/Mdi/chrome.html`.
+
+Dragging a panel's tab out of the workspace pops it into its own window, which gets copies of
+the document's stylesheets only. A panel with `data-poppable="false"` (one styled from a
+shadow root, say) snaps back instead, and `popPanel(id)` returns `null` for it. Example: the
+"No popout" section of `chrome.html`.
 
 ## Menus
 

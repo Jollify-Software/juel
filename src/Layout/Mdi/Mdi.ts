@@ -50,6 +50,8 @@ interface MdiPanel {
     closable: boolean;
     /** False when the panel opted out of maximising (data-maximizable="false"). */
     maximizable: boolean;
+    /** False when the panel opted out of popping out into its own window (data-poppable="false"). */
+    poppable: boolean;
     element: HTMLElement;
     /** Content for the panel's title bar: a child with data-header-for="<panel id>". */
     header?: HTMLElement;
@@ -233,6 +235,7 @@ export class JuelMdi extends LitElement {
                     title: element.dataset.title ?? 'Panel',
                     closable: this.defaultClosable && element.dataset.closable !== 'false',
                     maximizable: element.dataset.maximizable !== 'false',
+                    poppable: element.dataset.poppable !== 'false',
                     element,
                     header: headers.get(id),
                 };
@@ -354,8 +357,10 @@ export class JuelMdi extends LitElement {
      * document's stylesheets/scripts into the popout so custom elements
      * keep working and styling matches; the moved element is the same live
      * object (adopted, not re-parsed), so its internal state survives the
-     * move. Returns null if the panel doesn't exist, is already popped, or
-     * the popup was blocked.
+     * move. Returns null if the panel doesn't exist, opted out with
+     * data-poppable="false" (a panel styled from a shadow root, say: the
+     * popout only gets the document's stylesheets), or the popup was blocked.
+     * An already-popped panel returns its existing window.
      *
      * Verified 2026-09-12 via a real Playwright click-through (multi-window,
      * cross-window BroadcastChannel, redock-on-close and programmatic
@@ -367,7 +372,7 @@ export class JuelMdi extends LitElement {
     popPanel(id: string, features = 'width=640,height=480'): Window | null {
         if (this._popouts.has(id)) return this._popouts.get(id)!.window;
         const panel = this._panels.find(p => p.id === id);
-        if (!panel) return null;
+        if (!panel || !panel.poppable) return null;
 
         const popout = window.open('', '_blank', features);
         if (!popout) return null; // popup blocked
@@ -750,6 +755,7 @@ export class JuelMdi extends LitElement {
     // bounds either landed on a valid dock/reorder target already (handled
     // separately, by whichever dropzone matched) or in a gap (splitter
     // gutter, tab bar padding) with nothing to do, so it just snaps back.
+    // A panel with data-poppable="false" snaps back too (popPanel refuses it).
     private _popOutIfReleasedOutside(panelId: string, client: { x: number; y: number }) {
         const rect = this.getBoundingClientRect();
         if (client.x < rect.left || client.x > rect.right || client.y < rect.top || client.y > rect.bottom) {

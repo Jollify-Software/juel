@@ -28,6 +28,14 @@
         <div id="min-b" data-title="Designer">Designer</div>
         <div id="min-c" data-title="Style">Style</div>
     </juel-mdi>
+    <h2>No popout for one panel</h2>
+    <p><code>data-poppable="false"</code>: dragging the Outline tab out of the workspace snaps it back
+        instead of opening it in its own window, and <code>popPanel()</code> returns null for it. Use it for a
+        panel styled from a shadow root, which a popout (document stylesheets only) can't carry.</p>
+    <juel-mdi id="nopop" order="row" chrome="minimal">
+        <div id="nopop-a" data-title="Outline" data-poppable="false">Outline</div>
+        <div id="nopop-b" data-title="Writer">Writer</div>
+    </juel-mdi>
     <script>
         if (new URLSearchParams(location.search).has('look')) juel.theme.useLook();
         customElements.whenDefined('juel-mdi').then(() => { window.exampleReady = true; });
