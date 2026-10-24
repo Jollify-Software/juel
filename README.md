@@ -208,7 +208,9 @@ drawn over the plan (an app's own arrows or labels): not in `svg`, not pickable,
 `chrome="minimal"` gives `juel-mdi` a quieter title bar for an app's fixed, docked layout:
 small muted titles, no minimise button, and maximise/close shown only on hover or keyboard
 focus. `collapsible` (row layouts) gives the first and last panes a collapse button that folds
-them to a 32px strip at that side; the strip's button expands them again. `collapsePanel(id)`,
+them to a 32px strip at that side; a click anywhere on the strip (its icon, title or empty
+space) expands them again, and from the keyboard the strip's expand button does the same
+(Enter/Space). The strip is styled through `::part(collapsed-strip)`. `collapsePanel(id)`,
 `expandPanel(id)` and `isCollapsed(id)` do the same from script, with `panel-collapsed` /
 `panel-expanded` events, and `getLayout()` / `setLayout()` keep the collapsed panes
 (`collapsed`). Without either attribute the panes look and behave as before. Example:

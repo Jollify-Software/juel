@@ -39,6 +39,7 @@ export class JuelFileViewer extends LitElement {
     @state() private error = '';
 
     @query('.close') private closeButton?: HTMLButtonElement;
+    @query('dialog') private dialog?: HTMLDialogElement;
 
     /** The URL on show, and whether it's ours to revoke. */
     private shown?: { key: string; url: string; own: boolean };
@@ -59,6 +60,9 @@ export class JuelFileViewer extends LitElement {
         this.index = Math.max(0, this.files.indexOf(files[index]));
         this.open = true;
         await this.updateComplete;
+        // A modal <dialog> (the top layer): over a page's own modal dialog too, which would
+        // otherwise leave the viewer under it and inert (a file manager in a juel-modal).
+        if (this.dialog && !this.dialog.open) this.dialog.showModal();
         this.closeButton?.focus();
     }
 
@@ -70,6 +74,7 @@ export class JuelFileViewer extends LitElement {
     close() {
         if (!this.open) return;
         this.open = false;
+        if (this.dialog?.open) this.dialog.close();
         this.release();
         this.dispatch('viewer-close', { record: this.current });
         this.returnFocus?.focus?.();
@@ -205,6 +210,12 @@ export class JuelFileViewer extends LitElement {
         else if (dx >= Swipe) this.previous();
     }
 
+    /** Escape on the <dialog>: the viewer's own close (the keydown handler does the same; the dialog mustn't close itself under it). */
+    private onCancel = (e: Event) => {
+        e.preventDefault();
+        this.close();
+    };
+
     private dispatch(name: string, detail: unknown, cancelable = false): boolean {
         return this.dispatchEvent(new CustomEvent(name, { detail, bubbles: true, composed: true, cancelable }));
     }
@@ -214,7 +225,8 @@ export class JuelFileViewer extends LitElement {
         if (!this.open || !record) return nothing;
         const first = this.index === 0, last = this.index === this.files.length - 1;
         return html`
-            <div class="viewer" part="viewer" role="dialog" aria-modal="true" aria-label=${record.name} tabindex="-1">
+            <dialog part="dialog" aria-label=${record.name} @cancel=${this.onCancel}>
+            <div class="viewer" part="viewer" tabindex="-1">
                 <header part="header">
                     <span class="name" title=${record.name}>${kindIcon(kindOf(record))}<span>${record.name}</span></span>
                     <span class="count">${this.index + 1} of ${this.files.length}</span>
@@ -228,7 +240,8 @@ export class JuelFileViewer extends LitElement {
                     <div class="content">${this.renderContent(record)}</div>
                     <button class="step next" aria-label="Next" title="Next" ?disabled=${last} @click=${this.next}>${icon('chevron')}</button>
                 </div>
-            </div>`;
+            </div>
+            </dialog>`;
     }
 
     private renderContent(record: FileRecord) {
@@ -265,6 +278,10 @@ export class JuelFileViewer extends LitElement {
     static styles = css`
         :host { display: contents; }
         *, *::before, *::after { box-sizing: border-box; }
+        /* The native dialog only puts the viewer in the top layer: no box of its own. */
+        dialog { position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none;
+            margin: 0; padding: 0; border: 0; background: transparent; overflow: visible; }
+        dialog::backdrop { background: transparent; }
         .viewer {
             position: fixed;
             inset: 0;

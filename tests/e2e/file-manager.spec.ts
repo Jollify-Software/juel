@@ -659,6 +659,29 @@ test('the viewer: double-click opens it, the arrows and keys step through, Escap
     expect(await selected(page)).toEqual(['Pictures/sunset.png']);
 });
 
+test('the viewer works over a modal dialog the file manager is in (it is a modal dialog itself)', async ({ page }) => {
+    // A page that shows its file manager in a modal <dialog> (as an app's Files… dialog): the viewer goes on the
+    // body, so without its own top-layer dialog it was under that modal and inert.
+    await page.evaluate(() => {
+        const dialog = document.createElement('dialog');
+        dialog.id = 'host';
+        dialog.style.cssText = 'width: 80vw; height: 70vh;';
+        document.body.append(dialog);
+        const files = document.getElementById('files')!;
+        files.style.height = '100%';
+        dialog.append(files);
+        dialog.showModal();
+    });
+    await row(page, 'notes.md').dblclick();
+    await expect(viewer(page).locator('.text-preview')).toContainText('Things to do.');
+    await viewer(page).locator('[data-command="close"]').click();
+    await expect(viewer(page)).toHaveCount(0);
+    await row(page, 'notes.md').dblclick();
+    await page.keyboard.press('Escape');
+    await expect(viewer(page)).toHaveCount(0);
+    expect(await page.evaluate(() => (document.getElementById('host') as HTMLDialogElement).open), 'Escape closes only the viewer').toBe(true);
+});
+
 test('the viewer shows a CSV as a table', async ({ page }) => {
     await row(page, 'Data').dblclick();
     await row(page, 'Data/sales.csv').dblclick();

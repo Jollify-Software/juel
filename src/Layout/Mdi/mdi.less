@@ -185,6 +185,15 @@ juel-splitter {
     font-size: 0.75rem;
     font-weight: 600;
 }
+.collapsed-strip {
+    cursor: pointer;
+    transition: color 0.15s;
+}
+// Hover: darken whatever the strip's background is, and lift the title.
+.collapsed-strip:hover {
+    background-image: linear-gradient(var(--juel-hover, rgba(0, 0, 0, 0.06)), var(--juel-hover, rgba(0, 0, 0, 0.06)));
+    color: var(--juel-text, #212529);
+}
 .collapsed-strip.left {
     border-right: 1px solid var(--border-color, var(--juel-border, #dee2e6));
 }

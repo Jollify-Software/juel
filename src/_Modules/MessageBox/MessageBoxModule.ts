@@ -61,7 +61,7 @@ export module MessageBoxModule {
                 resolve(value);
             };
 
-            let msgBox = ElementFromHtml(`<div id="overlay">
+            let overlay = ElementFromHtml(`<div id="overlay">
         <style>${Styles}</style>
         <div id="dialog">
         <div id="dialog-title">
@@ -75,6 +75,15 @@ export module MessageBoxModule {
         <div id="dialog-footer"></div>
         </div>
         </div>`);
+            // In a modal <dialog> (the top layer), so it shows, and takes clicks, over a page's own modal
+            // dialog (a juel-modal, a file viewer) too: anything else is under that and inert. The dialog
+            // has no box of its own (the overlay is the backdrop); removing it, as every button does, closes it.
+            let msgBox = document.createElement("dialog");
+            msgBox.className = "juel-message-box";
+            msgBox.style.cssText = "position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; overflow: visible;";
+            // Escape mustn't close the dialog under the message box's own buttons (it needs an explicit choice).
+            msgBox.addEventListener("cancel", e => e.preventDefault());
+            msgBox.append(overlay);
 
             // Clicking the dimmed backdrop doesn't dismiss the dialog (a
             // message box always needs an explicit choice via its buttons)
@@ -83,7 +92,7 @@ export module MessageBoxModule {
             // (rather than some descendant) is exactly "clicked the
             // backdrop, not the dialog or anything in it."
             msgBox.addEventListener("click", (e: MouseEvent) => {
-                if (e.target !== msgBox) {
+                if (e.target !== overlay) {
                     return;
                 }
                 let dialog = msgBox.querySelector("#dialog") as HTMLElement;
@@ -136,6 +145,8 @@ export module MessageBoxModule {
             // its descendants) can't receive focus at all, and this used to
             // run in the opposite order.
             document.body.append(msgBox);
+            if (typeof msgBox.showModal === "function") msgBox.showModal();
+            else msgBox.setAttribute("open", "");
 
             if (prompt == false) {
                 // The primary/confirm button isn't necessarily first in DOM

@@ -967,19 +967,23 @@ export class JuelMdi extends LitElement {
     }
 
     // A collapsed side pane: a narrow strip with an expand button and the
-    // pane's title running down it.
+    // pane's title running down it. The whole strip is the click target
+    // (icon, title and the empty space below); the expand button stays the
+    // one focusable control, so keyboard users get Enter/Space and an
+    // accessible name, and its click simply bubbles up to the strip.
     private _renderCollapsed(slot: MdiSlot, side: 'left' | 'right') {
         const visible = this._visiblePanels(slot);
         const title = visible.map(p => p.title).join(' · ');
-        return html`<div class="collapsed-strip ${side}" part="collapsed-strip" data-slot-id="${slot.id}" data-panel-id="${visible[0].id}">
+        return html`<div class="collapsed-strip ${side}" part="collapsed-strip" data-slot-id="${slot.id}" data-panel-id="${visible[0].id}"
+                title="Expand ${title}"
+                @click=${() => this.expandPanel(visible[0].id)}>
             <juel-button
                 type="plain"
                 class="window-button expand-button"
                 glyph="lucide-panel-${side}"
                 title="Expand ${title}"
-                button-label="Expand ${title}"
-                @click=${() => this.expandPanel(visible[0].id)}></juel-button>
-            <span class="collapsed-title">${title}</span>
+                button-label="Expand ${title}"></juel-button>
+            <span class="collapsed-title" aria-hidden="true">${title}</span>
         </div>`;
     }
 
