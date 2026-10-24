@@ -67,3 +67,39 @@ test('collapsible: a side pane folds to a strip and back, and the layout keeps i
     await mdi.evaluate((m: any, l) => m.setLayout(l), layout);
     await expect.poll(() => panes(page, 'minimal').then(p => p.strips)).toEqual(['collapsed-strip left']);
 });
+
+test('collapsible: clicking anywhere on the strip (not just the icon) expands the pane', async ({ page }) => {
+    await open(page);
+    const mdi = page.locator('#minimal');
+    const events: string[] = [];
+    await page.exposeFunction('onExpanded', (id: string) => events.push(id));
+    await mdi.evaluate(m => m.addEventListener('panel-expanded', (e: any) => (window as any).onExpanded(e.detail.id)));
+
+    await page.click('#minimal >> .collapse-button >> nth=0');
+    await expect.poll(() => panes(page, 'minimal').then(p => p.strips)).toEqual(['collapsed-strip left']);
+    // The whole strip reads as clickable.
+        expect(await mdi.evaluate(m => getComputedStyle(m.shadowRoot!.querySelector('.collapsed-strip')!).cursor)).toBe('pointer');
+
+    // Click the vertical title, well away from the expand icon.
+    await page.click('#minimal >> .collapsed-title');
+    await expect.poll(() => panes(page, 'minimal').then(p => p.panes)).toBe(3);
+    expect(await mdi.evaluate((m: any) => m.isCollapsed('min-a'))).toBe(false);
+    await expect.poll(() => events).toEqual(['min-a']);
+
+    // And the empty space below the title.
+    await page.click('#minimal >> .collapse-button >> nth=0');
+    await expect.poll(() => panes(page, 'minimal').then(p => p.strips)).toEqual(['collapsed-strip left']);
+    const strip = page.locator('#minimal >> .collapsed-strip');
+    const box = (await strip.boundingBox())!;
+    await strip.click({ position: { x: box.width / 2, y: box.height - 8 } });
+    await expect.poll(() => panes(page, 'minimal').then(p => p.panes)).toBe(3);
+
+    // The expand button still works from the keyboard, and fires the event once.
+    await page.click('#minimal >> .collapse-button >> nth=0');
+    await expect.poll(() => panes(page, 'minimal').then(p => p.strips)).toEqual(['collapsed-strip left']);
+    events.length = 0;
+    await mdi.evaluate(m => (m.shadowRoot!.querySelector('.expand-button') as any).focus());
+    await page.keyboard.press('Enter');
+    await expect.poll(() => panes(page, 'minimal').then(p => p.panes)).toBe(3);
+    await expect.poll(() => events).toEqual(['min-a']);
+});
