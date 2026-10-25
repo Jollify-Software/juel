@@ -9,6 +9,7 @@ import { openSearchPanel } from '@codemirror/search';
 import { FrontMatter, proseFont, writerLook } from './WriterLook';
 import { dividers, MarkdownDivider, setDividersEffect } from './Dividers';
 import { frontMatterChip } from './FrontMatterChip';
+import { SuggestCallback, Suggestion, suggestionsExtension } from './Suggestions';
 import { MarkdownEditorEvents, MarkdownContentChanged, MarkdownCursor, MarkdownWarning } from './MarkdownEditorEvents';
 
 /** Marks changes made through the API, which don't fire `content-changed`. */
@@ -41,6 +42,17 @@ const External = Annotation.define<boolean>();
  * `front-matter-chip="Deck settings"`, a leading `---` front-matter block
  * folded into a chip with that name: clicking the name fires
  * `front-matter-open`, the chevron shows or hides the YAML.
+ *
+ * Suggestions while typing: `suggestions` (property) is a list of
+ * `{ after, label, detail?, insert?, info? }`. After its trigger (`after`:
+ * `:::` at a line start, `![`, `[`, `](`, `{`, `in=`, a front-matter key) a
+ * list drops down, filtered by what's typed; Enter or Tab takes one, and its
+ * `insert` snippet goes in with the cursor on the first `${…}` field (Tab to
+ * the next). `info` (HTML) shows beside the list with a "More in the guide"
+ * link that fires `suggestion-help` `{ label }`. `suggest` (property) is a
+ * callback `({ after, typed }) => Suggestion[]` (or a promise) for lists that
+ * change, asked at every trigger. `suggestions-live` (default on;
+ * `suggestions-live="false"` turns it off): off, only Ctrl+Space opens the list.
  */
 @customElement('juel-markdown-editor')
 export class JuelMarkdownEditor extends LitElement {
@@ -63,7 +75,20 @@ export class JuelMarkdownEditor extends LitElement {
   @property({ type: String, attribute: 'front-matter-chip', reflect: true })
   frontMatterChip: string = '';
 
+  /** Suggestions while typing (see above). Empty with no `suggest`: no list. */
+  @property({ attribute: false })
+  suggestions: Suggestion[] = [];
+
+  /** Suggestions for lists that change, asked at each trigger (see above). */
+  @property({ attribute: false })
+  suggest?: SuggestCallback;
+
+  /** The list opens while typing (on by default); off, only Ctrl+Space opens it. */
+  @property({ attribute: 'suggestions-live', reflect: true, converter: { fromAttribute: (value: string | null) => value !== 'false', toAttribute: (value: boolean) => value ? 'true' : 'false' } })
+  suggestionsLive: boolean = true;
+
   private editorView?: EditorView;
+  private suggestionsCompartment = new Compartment();
   private readonlyCompartment = new Compartment();
   private lookCompartment = new Compartment();
   private dividerCompartment = new Compartment();
@@ -109,6 +134,7 @@ export class JuelMarkdownEditor extends LitElement {
           this.lookCompartment.of(this.lookExtensions()),
           this.dividerCompartment.of([]),
           this.chipCompartment.of(this.chipExtensions()),
+          this.suggestionsCompartment.of(this.suggestionExtensions()),
           this.readonlyCompartment.of(EditorState.readOnly.of(this.readonly)),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
@@ -144,6 +170,9 @@ export class JuelMarkdownEditor extends LitElement {
     if (changed.has('frontMatterChip') && changed.get('frontMatterChip') !== undefined) {
       this.editorView.dispatch({ effects: this.chipCompartment.reconfigure(this.chipExtensions()) });
     }
+    if (changed.has('suggestions') || changed.has('suggest') || changed.has('suggestionsLive')) {
+      this.editorView.dispatch({ effects: this.suggestionsCompartment.reconfigure(this.suggestionExtensions()) });
+    }
     if (changed.has('readonly')) {
       this.editorView.dispatch({
         effects: this.readonlyCompartment.reconfigure(EditorState.readOnly.of(this.readonly)),
@@ -156,6 +185,17 @@ export class JuelMarkdownEditor extends LitElement {
       ? frontMatterChip(this.frontMatterChip, () => this.dispatchEvent(
         new CustomEvent(MarkdownEditorEvents.frontMatterOpen, { bubbles: true, composed: true })))
       : [];
+  }
+
+  private suggestionExtensions() {
+    return suggestionsExtension({
+      suggestions: this.suggestions ?? [],
+      suggest: this.suggest,
+      live: this.suggestionsLive,
+      onHelp: suggestion => this.dispatchEvent(new CustomEvent(MarkdownEditorEvents.suggestionHelp, {
+        detail: { label: suggestion.label }, bubbles: true, composed: true,
+      })),
+    });
   }
 
   private lookExtensions() {

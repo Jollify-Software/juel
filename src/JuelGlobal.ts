@@ -25,6 +25,10 @@ import { DomReady } from "./_Utils/DomReady";
 // <body> exists, avoids a flash of the wrong theme on load.
 JuelModule.theme.init();
 
+// Juel tooltips for every `title` / `data-tip` (DOCS-PLAN H1); listeners only,
+// so it is safe before <body> exists.
+JuelModule.tips.enable();
+
 // A large number of components (ListBase, Toggle, Lightbox, Modal, etc.) reference
 // the bare global `$`/`jQuery` with no local import of their own. jQuery does NOT
 // self-attach to window when bundled via a CommonJS-style import (Parcel), so this

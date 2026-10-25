@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Markdown Editor Suggestions — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-markdown-editor {
+            display: block;
+            width: 100%;
+            height: 280px;
+            border: 1px solid var(--border-color, #ced4da);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Markdown Editor: suggestions while typing</h1>
+        <p>
+            Give <code>&lt;juel-markdown-editor&gt;</code> a <code>suggestions</code> list of
+            <code>{ after, label, detail, insert, info }</code>. Type <code>:::</code> at the start of a line
+            and a list drops down; Enter or Tab takes one, with the cursor on its first <code>${…}</code> field
+            (Tab to the next). <code>![</code> asks the <code>suggest</code> callback (here, a list of images).
+            The info panel's "More in the guide" fires <code>suggestion-help</code>.
+            <code>suggestions-live="false"</code> (the second editor) opens the list only on Ctrl+Space.
+            Open with <code>?look&amp;theme=dark</code> for the dark look.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <h2>Live (the default)</h2>
+        <div class="example-demo">
+            <juel-markdown-editor id="live" content="# Suggestions&#10;&#10;"></juel-markdown-editor>
+        </div>
+        <p id="help">No help asked for yet.</p>
+    </section>
+
+    <section class="example-section">
+        <h2>Only on Ctrl+Space</h2>
+        <div class="example-demo">
+            <juel-markdown-editor id="quiet" suggestions-live="false" content="# Quiet&#10;&#10;"></juel-markdown-editor>
+        </div>
+    </section>
+
+    <script>
+        const suggestions = [
+            { after: ':::', label: 'columns', detail: 'side by side', insert: 'columns\n${left}\n:::\n${right}\n:::',
+              info: 'Two or more columns. Separate them with a <code>:::</code> line.' },
+            { after: ':::', label: 'note', detail: 'a boxed note', insert: 'note\n${text}\n:::',
+              info: 'A boxed note beside the text.' },
+            { after: ':::', label: 'shape', detail: 'a drawn shape', insert: 'shape ${kind}\n${text}\n:::' },
+        ];
+        window.suggestCalls = [];
+        const suggest = ({ after, typed }) => {
+            window.suggestCalls.push({ after, typed });
+            return after === '![' ? [
+                { after: '![', label: 'logo.png', insert: '${alt}](logo.png)', detail: 'image' },
+                { after: '![', label: 'map.svg', insert: '${alt}](map.svg)', detail: 'image' },
+            ] : [];
+        };
+        customElements.whenDefined('juel-markdown-editor').then(() => {
+            if (juel.params.look !== null) {
+                juel.theme.useLook();
+                if (juel.params.theme) juel.theme.set(juel.params.theme);
+            }
+            for (const el of document.querySelectorAll('juel-markdown-editor')) {
+                el.suggestions = suggestions;
+                el.suggest = suggest;
+            }
+            document.addEventListener('suggestion-help', e => {
+                document.getElementById('help').textContent = `Help asked for: ${e.detail.label}`;
+            });
+            window.exampleReady = true;
+        });
+    </script>
+</body>
+
+</html>

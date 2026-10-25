@@ -4,6 +4,7 @@ import { GuideModule } from "./Guide/GuideModule";
 import { IconsModule } from "./Icons/IconsModule";
 import { MessageBoxModule } from "./MessageBox/MessageBoxModule";
 import { ThemeModule } from "./Theme/ThemeModule";
+import { TipsModule } from "./Tips/TipsModule";
 import { ToastModule } from "./Toast/ToastModule";
 
 export module JuelModule {
@@ -21,4 +22,7 @@ export module JuelModule {
     export var device = DeviceModule;
 
     export var theme = ThemeModule;
+
+    /** The page's tooltips: on once juel.js loads; `juel.tips.disable()` turns them off. */
+    export var tips = TipsModule;
 }

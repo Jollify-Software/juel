@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/Jollify-Software/juel#readme",
   "dependencies": {
+    "@codemirror/autocomplete": "^6.18.4",
     "@codemirror/lang-markdown": "^6.3.2",
     "@floating-ui/dom": "^1.6.12",
     "@interactjs/interactjs": "^1.10.28",

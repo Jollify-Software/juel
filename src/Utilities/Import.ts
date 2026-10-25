@@ -13,3 +13,5 @@ import './CodeHighlight/CodeHighlight';
 import './Device/Device';
 import './Preload/Preload';
 import './Observer/Observer';
+import './Guide/Guide';
+
