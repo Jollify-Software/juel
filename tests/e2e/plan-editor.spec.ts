@@ -288,3 +288,41 @@ test('marks: drawn over the plan in plan units, not part of svg and not pickable
     await page.mouse.click(hall.x, hall.y);
     expect(await selection(page)).toEqual(['hall']);
 });
+
+test('plan editor: a ghost is drawn and dragged by one press, one undo takes it back', async ({ page }) => {
+    await open(page);
+    const plan = page.locator('#plan');
+    const before: string = await plan.evaluate((p: any) => p.svg);
+    // A ghost on the hall's centre (ghosts lie over the plan, so it's the ghost that's pressed).
+    await plan.evaluate((p: any) => {
+        const hall = p.shadowRoot.getElementById('hall');
+        const b = hall.getBBox();
+        p.ghosts = [{ id: 'auto-2', cx: b.x + b.width / 2, cy: b.y + b.height / 2, r: 20, label: '2', attributes: { 'data-fixture': 'platform', 'data-slide': 'b' } }];
+        (window as any).drawn = [];
+        p.addEventListener('ghost-drawn', (e: CustomEvent) => (window as any).drawn.push(e.detail));
+    });
+    const ghost = plan.locator('.ghost');
+    await expect(ghost).toHaveCount(1);
+    await expect(plan.locator('.ghost text')).toHaveText('2');
+    const box = (await ghost.locator('circle').boundingBox())!;
+    const [x, y] = [box.x + box.width / 2, box.y + box.height / 2];
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 60, y, { steps: 5 });
+    await page.mouse.move(x + 120, y, { steps: 5 });
+    await page.mouse.up();
+
+    const drawn = await page.evaluate(() => (window as any).drawn);
+    expect(drawn).toHaveLength(1);
+    expect(drawn[0].ghost).toBe('auto-2');
+    const svg: string = await plan.evaluate((p: any) => p.svg);
+    const circle = svg.match(/<circle data-fixture="platform" data-slide="b" cx="([-\d.]+)"[^>]*>/);
+    expect(circle, 'the ghost is a real circle in the plan').not.toBeNull();
+    const ghostX = (await plan.evaluate((p: any) => { const b = p.shadowRoot.getElementById('hall').getBBox(); return b.x + b.width / 2; }));
+    expect(Number(circle![1])).toBeGreaterThan(ghostX + 1);   // dragged on, not left where it was
+    expect(await selection(page)).toEqual([drawn[0].id]);
+    await expect(ghost).toHaveCount(0);
+
+    await plan.evaluate((p: any) => p.undo());
+    expect(await plan.evaluate((p: any) => p.svg)).toBe(before);
+});
