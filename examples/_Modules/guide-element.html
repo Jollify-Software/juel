@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Guide element — Juel Examples</title>
+    <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../_Shared/examples.css" />
+    <style>
+        .row { display: flex; gap: 12px; align-items: center; margin: 1rem 0; flex-wrap: wrap; }
+        .target { padding: 0.75rem 1rem; border: 1px solid var(--juel-border, #dee2e6); border-radius: 0.375rem; }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Guide element</h1>
+        <p>
+            <code>&lt;juel-guide&gt;</code> holds a tour as markup: each <code>&lt;juel-guide-step&gt;</code>
+            has a <code>target</code> (a selector; <code>&gt;&gt;&gt;</code> crosses into a shadow root),
+            a <code>title</code>, optional <code>placement</code> and <code>wait</code>, and its content is
+            the step's HTML body. A step whose target isn't on the page is skipped. Arrow keys move,
+            Escape skips the tour, and <code>storage-key</code> remembers that it was seen.
+            Open with <code>?look&amp;theme=dark</code> for the dark look.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <div class="row">
+            <div id="first" class="target">The first target</div>
+            <shadow-panel id="panel"></shadow-panel>
+            <div id="last" class="target">The last target</div>
+        </div>
+        <div class="row">
+            <juel-button type="primary" label="Start tour" id="start"></juel-button>
+            <juel-button type="secondary" render-style="outline" label="Forget it was seen" id="forget"></juel-button>
+            <span id="seen"></span>
+        </div>
+    </section>
+
+    <juel-guide id="tour" storage-key="example-tour">
+        <juel-guide-step target="#first" title="First">This is <b>the first</b> thing to notice.</juel-guide-step>
+        <juel-guide-step target="#not-on-this-page" title="Missing">This step's target isn't here, so it's skipped.</juel-guide-step>
+        <juel-guide-step target="#panel >>> .save" title="Inside a shadow root" placement="right">The Save button lives in a shadow root.</juel-guide-step>
+        <juel-guide-step target="#last" title="Last" placement="above">That's the tour.</juel-guide-step>
+    </juel-guide>
+
+    <script>
+        customElements.define('shadow-panel', class extends HTMLElement {
+            connectedCallback() {
+                if (this.shadowRoot) return;
+                this.attachShadow({ mode: 'open' }).innerHTML =
+                    '<span class="save" style="display:inline-block;padding:8px 12px;border:1px solid #888;border-radius:4px">Save</span>';
+            }
+        });
+        if (juel.params.look !== null) {
+            juel.theme.useLook();
+            if (juel.params.theme) juel.theme.set(juel.params.theme);
+        }
+        const tour = document.getElementById('tour');
+        const showSeen = () => document.getElementById('seen').textContent = tour.seen ? 'Seen' : 'Not seen yet';
+        document.getElementById('start').addEventListener('click', () => tour.start());
+        document.getElementById('forget').addEventListener('click', () => { tour.resetSeen(); showSeen(); });
+        tour.addEventListener('guide-end', showSeen);
+        showSeen();
+    </script>
+</body>
+
+</html>

@@ -7,7 +7,14 @@ export const MarkdownEditorEvents = {
     cursorChanged: 'cursor-changed',
     /** The name on the front-matter chip was clicked (`front-matter-chip`). */
     frontMatterOpen: 'front-matter-open',
+    /** "More in the guide" was clicked in a suggestion's info panel: {@link MarkdownSuggestionHelp}. */
+    suggestionHelp: 'suggestion-help',
 } as const;
+
+/** `suggestion-help` detail: the suggestion's label. */
+export interface MarkdownSuggestionHelp {
+    label: string;
+}
 
 /** `content-changed` detail. */
 export interface MarkdownContentChanged {

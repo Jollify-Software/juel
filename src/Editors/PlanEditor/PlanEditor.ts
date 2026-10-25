@@ -14,6 +14,15 @@ interface Box { x: number; y: number; width: number; height: number }
 /** What a click or drag does: pick and move, or draw a shape of that kind. */
 export type PlanTool = 'select' | 'rect' | 'polygon' | 'polyline' | 'circle' | 'point';
 
+/**
+ * A placeholder the app shows on the plan for a shape that isn't in it yet (an app's
+ * auto-placed platform): a dashed circle in plan units on storey `level` (default 0), with an
+ * optional `label`. Pressing one (the select tool) draws it for real, a `<circle>` with its
+ * `attributes`, and drags it on: one history entry, `plan-changed` `{ reason: 'draw' }`, then
+ * `ghost-drawn` `{ ghost, id }`. Ghosts are the app's: not part of `svg`, not in the history.
+ */
+export interface PlanGhost { id: string; cx: number; cy: number; r: number; level?: number; label?: string; attributes?: Record<string, string> }
+
 /** Why the plan changed (`plan-changed`'s `reason`). */
 export type PlanChangeReason = 'move' | 'delete' | 'attributes' | 'draw' | 'reshape' | 'undo' | 'redo';
 
@@ -57,6 +66,8 @@ const HandlePx = 9;
  *   `zoom(factor)`, `itemAttributes(id)`.
  * - **Marks:** `marks`, SVG markup in plan units drawn over the plan (an app's arrows, labels):
  *   not part of `svg`, not pickable, not in the history.
+ * - **Ghosts:** `ghosts` (`PlanGhost[]`), dashed placeholders an app shows for shapes it would
+ *   place itself; pressing one draws it into the plan and drags it (`ghost-drawn` `{ ghost, id }`).
  * - **Events:** `plan-changed` `{ svg, reason }` after each change you make;
  *   `selection-changed` `{ ids, attributes }`; `shape-created` `{ id, kind }`.
  *   Setting `svg` from outside fires none of them, and starts a new history.
@@ -79,6 +90,10 @@ export class JuelPlanEditor extends LitElement {
             stroke-width: 1.5; vector-effect: non-scaling-stroke; }
         .draft.open { fill: none; }
         .handle { fill: #fff; stroke: var(--juel-accent, #3b6fd8); stroke-width: 1.5; vector-effect: non-scaling-stroke; pointer-events: all; cursor: move; }
+        .ghost circle { fill: color-mix(in srgb, var(--juel-accent, #3b6fd8) 10%, transparent); stroke: var(--juel-accent, #3b6fd8);
+            stroke-width: 1.5; stroke-dasharray: 5 3; vector-effect: non-scaling-stroke; cursor: grab; }
+        .ghost text { fill: var(--juel-accent, #3b6fd8); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+        :host([readonly]) .ghost { pointer-events: none; }
         .snap-mark { fill: none; stroke: var(--juel-accent, #3b6fd8); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
     `;
 
@@ -101,6 +116,8 @@ export class JuelPlanEditor extends LitElement {
      * marks (which way stairs climb, say). Not part of `svg`, not pickable, no history.
      */
     @property({ attribute: false }) marks = '';
+    /** Placeholders for shapes the app would place itself (see `PlanGhost`): pressing one draws it. */
+    @property({ attribute: false }) ghosts: PlanGhost[] = [];
 
     @state() private view: Box = { x: 0, y: 0, width: 1000, height: 1000 };
     @state() private selected: string[] = [];
@@ -125,6 +142,8 @@ export class JuelPlanEditor extends LitElement {
         kind: 'move' | 'pan' | 'box' | 'draw' | 'handle';
         start: Point; last: { dx: number; dy: number }; moved: boolean; screen: { x: number; y: number };
         additive: boolean; before: string[]; handle?: number;
+        /** A move that began on a ghost: the ghost's id (committed as one 'draw'). */
+        ghost?: string;
     };
 
     connectedCallback(): void {
@@ -402,6 +421,28 @@ export class JuelPlanEditor extends LitElement {
         return el;
     }
 
+    /** The ghost under a pointer event's target, if any. */
+    private ghostAt(target: EventTarget | null): PlanGhost | undefined {
+        const id = (target as Element | null)?.closest?.('[data-ghost]')?.getAttribute('data-ghost');
+        return id == null ? undefined : this.ghosts.find(g => g.id === id);
+    }
+
+    /** A pressed ghost becomes a `<circle>` on its storey (previewed: the gesture's end commits it), selected; the ghost goes. */
+    private drawGhost(ghost: PlanGhost) {
+        const el = document.createElementNS(SvgNs, 'circle');
+        for (const [name, value] of Object.entries({ ...ghost.attributes, cx: fmt(ghost.cx), cy: fmt(ghost.cy), r: fmt(ghost.r) })) el.setAttribute(name, String(value));
+        const container = containerFor(this.docGroup, this.level);
+        if (container === this.docGroup && this.level !== 0) el.setAttribute('data-level', String(this.level));
+        container.appendChild(el);
+        ensureIds(this.docGroup);
+        this.ghosts = this.ghosts.filter(g => g.id !== ghost.id);
+        this.selected = [el.id];
+        this.applyLevelStyle();
+        this.revision++;
+        this.history?.preview(this.serialize());
+        this.fireSelection();
+    }
+
     /** The polygon or polyline being drawn is done (a polygon needs three corners, a polyline two). */
     private finishDraft() {
         const d = this.draft;
@@ -472,6 +513,10 @@ export class JuelPlanEditor extends LitElement {
         } else if (this.tool !== 'select') {
             if (this.readonly) return;
             this.pointerDraw(e, raw, base);
+        } else if (!this.readonly && this.ghostAt(e.target)) {
+            const ghost = this.ghostAt(e.target)!;
+            this.drawGhost(ghost);
+            this.gesture = { kind: 'move', ...base, ghost: ghost.id };
         } else {
             const handle = this.handleAt(raw);
             const el = this.selected.length === 1 ? this.item(this.selected[0]) : undefined;
@@ -577,7 +622,10 @@ export class JuelPlanEditor extends LitElement {
         this.gesture = undefined;
         if (!g) return;
         (e.currentTarget as Element).releasePointerCapture?.(e.pointerId);
-        if (g.kind === 'move' && (g.last.dx || g.last.dy)) this.commit('move');
+        if (g.kind === 'move' && g.ghost) {
+            this.commit('draw');
+            this.dispatchEvent(new CustomEvent('ghost-drawn', { detail: { ghost: g.ghost, id: this.selected[0] }, bubbles: true, composed: true }));
+        } else if (g.kind === 'move' && (g.last.dx || g.last.dy)) this.commit('move');
         else if (g.kind === 'move') this.history?.discardPreview();
         if (g.kind === 'handle') { if (g.moved) this.commit('reshape'); else this.history?.discardPreview(); }
         if (g.kind === 'draw') this.finishDrag(g.start, g.moved ? this.draft?.cursor ?? g.start : undefined);
@@ -674,6 +722,8 @@ export class JuelPlanEditor extends LitElement {
                 @pointercancel=${this.onPointerUp} @dblclick=${this.onDoubleClick} @wheel=${this.onWheel} role="img" aria-label="Plan">
                 ${this.renderGrid()}
                 <g class="doc"></g>
+                <g class="ghosts">${this.ghosts.filter(g => (g.level ?? 0) === this.level).map(g => svgTemplate`<g class="ghost" data-ghost=${g.id}>
+                    <circle cx=${g.cx} cy=${g.cy} r=${g.r}></circle>${g.label ? svgTemplate`<text x=${g.cx} y=${g.cy} font-size=${g.r * 0.8}>${g.label}</text>` : nothing}</g>`)}</g>
                 <g class="overlay"><g class="marks">${this.marks ? unsafeSVG(this.marks) : nothing}</g>${this.renderSelection()}${this.renderDraft()}${this.renderHandles()}</g>
             </svg>`;
     }

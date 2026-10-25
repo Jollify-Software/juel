@@ -51,8 +51,49 @@ juel.icon.iconify();
 ## `juel.guide`
 
 ```js
-juel.guide.start(steps?, options?);  // guided tour / walkthrough overlay
-juel.guide.end();
+juel.guide.start(steps?, options?);  // guided tour / walkthrough overlay; returns the guide
+juel.guide.end();                    // ends it, as skipped
+juel.guide.seen(key); juel.guide.resetSeen(key);
+```
+
+A step is `{ target, title, html, placement, wait }`: `target` is a selector (` >>> ` crosses
+into an open shadow root: `"my-panel >>> .save"`), an element, or a function returning one;
+`html` is the body; `placement` is `auto` (default), `above`, `below`, `left` or `right`; a step
+whose target isn't there is skipped, after waiting up to `wait` ms. The older
+`{ selector, title, description }` steps still work (`description` is plain text). Options:
+`onStart`, `onEnd`, `onNext`, `onPrev`, `host` (where the events go; default the document) and
+`storageKey` (remember the guide as seen). The card shows "2 of 7", Back / Next / Done and Skip;
+arrow keys move, Escape skips, Tab stays in the card; it follows Juel's light/dark look tokens,
+and with reduced motion there's no pulse or sliding. Events: `guide-step`
+(`{ index, step, target }`) and `guide-end` (`{ finished }`, true only for Done on the last step).
+
+The same as markup (`examples/_Modules/guide-element.html`):
+
+```html
+<juel-guide id="tour" storage-key="home-tour">
+  <juel-guide-step target="#new" title="New">Starts a <b>new</b> document.</juel-guide-step>
+  <juel-guide-step target="my-panel >>> .save" title="Save" placement="left" wait="500">…</juel-guide-step>
+</juel-guide>
+<script>
+  const tour = document.getElementById("tour");
+  if (!tour.seen) tour.start();   // also tour.end(), tour.resetSeen()
+</script>
+```
+
+## `juel.tips`
+
+Every element with a `title` (or `data-tip`), in the page or inside an open shadow root, gets a
+Juel tooltip instead of the browser's: after a short hover, at once on keyboard focus, on a long
+press on touch; Escape hides it. One tooltip element for the page, kept on screen, in the look's
+light/dark tokens. `data-shortcut="Ctrl+Z"`, or a trailing `(Ctrl+Z)` in the text, shows key caps.
+While it shows, the native `title` is taken off (and put back after); its text goes to
+`aria-description` for screen readers. Elements whose component declares a `title` property
+(`juel-tab`, …) are skipped: there it's a label. `juel-tooltip` is unchanged. Example:
+`examples/_Modules/tips.html`.
+
+```js
+juel.tips.disable();          // native titles again; juel.tips.enable() turns it back on
+juel.tips.show(el); juel.tips.hide();
 ```
 
 ## `juel.device`
@@ -152,6 +193,18 @@ that name. Clicking the name fires `front-matter-open` (open your own settings d
 shows the YAML for editing and hides it again, and moving the cursor into the block shows it too. An
 unclosed block (still being typed) gets no chip. Off by default (same example).
 
+Suggestions while typing (on `@codemirror/autocomplete`): set `.suggestions` to a list of
+`{ after, label, detail?, insert?, info? }`. After its trigger (`after`: `:::` at the start of a line,
+`![`, `[`, `](`, `{`, `in=`, or a front-matter key such as `theme:`, which also matches with spaces
+after its colon) a list drops down, filtered by what's typed after it; ↑ ↓ move, Enter or Tab takes one, Escape closes. `insert` is a snippet: its first `${…}` field is
+selected, Tab moves to the next. `info` (HTML) shows beside the list with a "More in the guide" link
+that fires `suggestion-help` `{ label }`. `.suggest` is a callback `({ after, typed }) => Suggestion[]`
+(or a promise) for lists that change (files, pages), asked at every trigger and merged after the fixed
+ones. `suggestions-live="false"` stops the list opening while typing; Ctrl+Space still opens it. The
+list follows `--juel-raised`, `--juel-text`, `--juel-border` and `--juel-accent`, so light and dark.
+With no suggestions and no `suggest`, nothing changes. Example:
+`examples/Editors/MarkdownEditor/suggestions.html`.
+
 ### Colour
 
 `juel-colour` is a click-to-open picker (colour input, hex field, swatches), firing `value-changed`.
@@ -198,7 +251,11 @@ drops the shape), `point` by a click. New shapes get `newAttributes` (an app's `
 snap to corners nearby, else the grid; Shift keeps a line to 45°, Alt is free. One selected shape
 shows handles: a rect's corners, a polygon's, polyline's or line's points (double-click an edge to
 add one, Alt+click a point to remove it), a circle's radius. `marks` is SVG markup in plan units
-drawn over the plan (an app's own arrows or labels): not in `svg`, not pickable, no history. Example:
+drawn over the plan (an app's own arrows or labels): not in `svg`, not pickable, no history.
+`ghosts` (`{ id, cx, cy, r, level?, label?, attributes? }[]`, plan units) are dashed placeholders for
+shapes the app would place itself (the Jollify app's auto-placed VR platforms): pressing one with the
+select tool draws it into the plan as a `<circle>` with its `attributes` and drags it on, as one undo
+step (`plan-changed` `{ reason: 'draw' }`, then `ghost-drawn` `{ ghost, id }`). Example:
 `examples/Editors/PlanEditor/plan-editor.html`.
 
 ## Layout

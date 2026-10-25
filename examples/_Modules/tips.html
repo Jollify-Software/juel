@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Tooltips — Juel Examples</title>
+    <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../_Shared/examples.css" />
+    <style>
+        .row { display: flex; gap: 12px; align-items: center; margin: 1rem 0; flex-wrap: wrap; }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Tooltips</h1>
+        <p>
+            <code>window.juel.tips</code> gives every element with a <code>title</code> (or
+            <code>data-tip</code>) a Juel tooltip, in the page and inside shadow roots: after a short
+            hover, at once on keyboard focus, or on a long press on touch. Escape hides it.
+            <code>data-shortcut="Ctrl+Z"</code>, or a trailing <code>(Ctrl+Z)</code> in the text, shows key
+            caps. It is on once <code>juel.js</code> loads; <code>juel.tips.disable()</code> turns it off.
+            Open with <code>?look&amp;theme=dark</code> for the dark look.
+        </p>
+    </header>
+
+    <div class="row">
+        <juel-button id="undo" type="light" label="Undo" title="Undo the last change (Ctrl+Z)"></juel-button>
+        <button id="plain" title="A plain button's title">Plain button</button>
+        <span id="data" data-tip="Save a copy" data-shortcut="Ctrl+Shift+S" tabindex="0">data-tip</span>
+        <tip-host id="host"></tip-host>
+        <juel-button id="off" type="light" label="Turn tooltips off"></juel-button>
+    </div>
+
+    <script>
+        // A shadow root with a titled button inside, as the app's editors have.
+        customElements.define('tip-host', class extends HTMLElement {
+            connectedCallback() {
+                if (this.shadowRoot) return;
+                this.attachShadow({ mode: 'open' }).innerHTML =
+                    '<button id="inner" title="Inside a shadow root">Shadow button</button>';
+            }
+        });
+        if (juel.params.look !== null) {
+            juel.theme.useLook();
+            if (juel.params.theme) juel.theme.set(juel.params.theme);
+        }
+        document.getElementById('off').addEventListener('click', () => juel.tips.disable());
+    </script>
+</body>
+
+</html>
