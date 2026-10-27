@@ -66,6 +66,9 @@ const HandlePx = 9;
  *   `zoom(factor)`, `itemAttributes(id)`.
  * - **Marks:** `marks`, SVG markup in plan units drawn over the plan (an app's arrows, labels):
  *   not part of `svg`, not pickable, not in the history.
+ * - **Plan style:** `planStyle`, CSS for the plan's own shapes on screen only, nested in the
+ *   drawing (`[data-fixture="room"]:not([fill]) { fill: #e8e8e8 }`): a look for shapes the
+ *   file leaves unstyled, never written to `svg`.
  * - **Ghosts:** `ghosts` (`PlanGhost[]`), dashed placeholders an app shows for shapes it would
  *   place itself; pressing one draws it into the plan and drags it (`ghost-drawn` `{ ghost, id }`).
  * - **Events:** `plan-changed` `{ svg, reason }` after each change you make;
@@ -116,6 +119,12 @@ export class JuelPlanEditor extends LitElement {
      * marks (which way stairs climb, say). Not part of `svg`, not pickable, no history.
      */
     @property({ attribute: false }) marks = '';
+    /**
+     * CSS for the plan's shapes on screen only, nested in the drawing, so its selectors match
+     * the plan's own elements (`[data-fixture="room"]:not([fill]) { fill: #e8e8e8 }`). Not part
+     * of `svg`. A presentation attribute (`fill="…"`) loses to it, so say `:not([fill])`.
+     */
+    @property({ attribute: false }) planStyle = '';
     /** Placeholders for shapes the app would place itself (see `PlanGhost`): pressing one draws it. */
     @property({ attribute: false }) ghosts: PlanGhost[] = [];
 
@@ -166,6 +175,10 @@ export class JuelPlanEditor extends LitElement {
     protected updated(changed: Map<string, unknown>): void {
         if (changed.has('svg') && this.svg !== this.known) this.load(this.svg);
         if (changed.has('level')) { this.applyLevelStyle(); this.draft = null; }
+        if (changed.has('planStyle')) {
+            const style = this.renderRoot.querySelector('style.plan-style');
+            if (style) style.textContent = this.planStyle ? `.doc { ${this.planStyle} }` : '';
+        }
         if (changed.has('tool')) {
             this.toggleAttribute('drawing', this.tool !== 'select');
             this.draft = null;
@@ -716,7 +729,7 @@ export class JuelPlanEditor extends LitElement {
     render() {
         const v = this.view;
         void this.revision;
-        return html`<style class="levels"></style>
+        return html`<style class="levels"></style><style class="plan-style"></style>
             <svg class="view" viewBox="${v.x} ${v.y} ${v.width} ${v.height}" preserveAspectRatio="xMidYMid meet"
                 @pointerdown=${this.onPointerDown} @pointermove=${this.onPointerMove} @pointerup=${this.onPointerUp}
                 @pointercancel=${this.onPointerUp} @dblclick=${this.onDoubleClick} @wheel=${this.onWheel} role="img" aria-label="Plan">

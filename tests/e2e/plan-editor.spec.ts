@@ -289,6 +289,23 @@ test('marks: drawn over the plan in plan units, not part of svg and not pickable
     expect(await selection(page)).toEqual(['hall']);
 });
 
+test('planStyle: styles shapes with no fill on screen only, not part of svg', async ({ page }) => {
+    await open(page);
+    const before: string = await page.evaluate(() => (document.getElementById('plan') as any).svg);
+    const fill = (id: string) => page.evaluate(id => getComputedStyle(document.getElementById('plan')!.shadowRoot!.getElementById(id)!).fill, id);
+    const hallBefore = await fill('hall');
+    // A shape without a fill attribute takes it; one with a fill keeps its own.
+    await page.evaluate(async () => {
+        const plan = document.getElementById('plan') as any;
+        plan.shadowRoot.getElementById('gallery').removeAttribute('fill');
+        plan.planStyle = '[data-fixture="room"]:not([fill]) { fill: rgb(1, 2, 3); }';
+        await plan.updateComplete;
+    });
+    expect(await fill('gallery')).toBe('rgb(1, 2, 3)');
+    expect(await fill('hall')).toBe(hallBefore);
+    expect(await page.evaluate(() => (document.getElementById('plan') as any).svg)).toBe(before);
+});
+
 test('plan editor: a ghost is drawn and dragged by one press, one undo takes it back', async ({ page }) => {
     await open(page);
     const plan = page.locator('#plan');
