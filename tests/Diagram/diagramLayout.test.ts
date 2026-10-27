@@ -83,9 +83,9 @@ describe('org', () => {
         expect(noOverlaps(l.boxes)).toBe('');
         const upright = layoutDiagram(starterDiagram('org'));
         const side = layoutDiagram({ ...starterDiagram('org'), options: { direction: 'across' } });
-        // On its side: what was wide is tall; the top of the tree is at the left.
-        expect(side.height).toBeGreaterThan(side.width);
-        expect(side.height).toBeGreaterThan(upright.height);
+        // On its side: the levels are columns (the top of the tree at the left, its reports in one column), narrower than upright.
+        expect(side.width).toBeLessThan(upright.width);
+        expect(new Set(['ops', 'sales', 'fin'].map(id => side.boxes.find(b => b.id === id)!.x)).size).toBe(1);
         expect(Math.min(...side.boxes.map(b => b.x))).toBe(side.boxes.find(b => b.id === 'ceo')!.x);
         expect(noOverlaps(side.boxes)).toBe('');
     });

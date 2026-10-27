@@ -220,8 +220,11 @@ function layoutOrg(d: Diagram, m: LayoutMetrics): DiagramLayout {
         const t = byId.get(n.id)!;
         if (n.parent !== undefined && byId.has(n.parent)) byId.get(n.parent)!.children.push(t); else roots.push(t);
     }
-    // Equal boxes per depth look tidier: every box the widest of the chart.
-    const w = Math.max(...d.nodes.map(n => byId.get(n.id)!.size.w)), h = Math.max(...d.nodes.map(n => byId.get(n.id)!.size.h));
+    // Equal boxes per depth look tidier: every box the widest of the chart. On its side
+    // (`across`), the tree is laid out in a transposed space (a box "wide" by its real
+    // height) and the swap at the end puts every box back at its real size.
+    const realW = Math.max(...d.nodes.map(n => byId.get(n.id)!.size.w)), realH = Math.max(...d.nodes.map(n => byId.get(n.id)!.size.h));
+    const w = across ? realH : realW, h = across ? realW : realH;
     const stackGap = m.gap * 0.4, stackIndent = m.gap * 0.6;
     const measure = (t: TreeNode): number => {
         if (!t.children.length) { t.span = w; return t.span; }

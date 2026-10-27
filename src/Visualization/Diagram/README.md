@@ -18,7 +18,7 @@ Built in pieces (night 13, 2026-10-27):
 |---|---|---|
 | C1 | `diagramModel.ts`: the schema, `parseDiagram` (errors and warnings, with the node named), `diagramText`, `starterDiagram` | Done |
 | C2 | `diagramLayout.ts`: pure layout, boxes + edges in diagram units; `wrapText`, `measureNode`, `routeOrthogonal` | Done |
-| C3 | `<juel-diagram>`: draws a layout as SVG, themed from the page's tokens, scaled to its box | |
+| C3 | `<juel-diagram>`: draws a layout as SVG, themed from the page's tokens, scaled to its box | Done |
 | C5 | `<juel-diagram-editor>`: the outline (process, org, timeline) and the canvas (flowchart), undo/redo | |
 
 ## The model
@@ -63,5 +63,30 @@ tidier than a ragged row. Edges are polylines; `arrow` says whether to draw a he
 a `label` sits at `labelAt`, the middle of the longest segment. `routeOrthogonal(a, b)`
 leaves by the side facing the other box and bends once or twice in the gap.
 
+## `<juel-diagram>`
+
+```html
+<juel-diagram src="assets/diagrams/onboarding.json"></juel-diagram>
+<juel-diagram><script type="application/json">{ "type": "process", "nodes": [ … ] }</script></juel-diagram>
+<script>document.querySelector('juel-diagram').data = juel.diagram.starterDiagram('org');</script>
+```
+
+The model comes from the `data` property (an object or JSON text), a
+`<script type="application/json">` child (how Slipway writes a deck's diagram inline, so the
+page is self-contained), or a `src` URL. It draws the layout as one `<svg>` with a `viewBox`
+in diagram units and `width: 100%; height: auto`, so it scales to its box and prints as it
+shows. Colours are the page's tokens with plain fallbacks: `--chart-1` / `--chart-2` /
+`--chart-3` (else `--accent`) fill nodes by depth (org) or kind (flowchart: decisions and
+start/end pills take the second), `--chart-on-fill` is the text on them, `--ink` /
+`--muted` / `--line` / `--card` / `--bg` the rest, so one asset draws in any deck's look,
+light or dark. A node's own `colour` wins. A model with errors draws the problems as text
+(`.problem`). `diagram-drawn` fires with `{ layout, warnings }`; `currentLayout` is the
+last layout (the editor reads it to find what was clicked). The helpers are also on
+`window.juel.diagram` (`parseDiagram`, `diagramText`, `starterDiagram`, `layoutDiagram`)
+for pages on the CDN build. Not yet drawn: a node's `icon`.
+
 Tests: `tests/Diagram/diagramModel.test.ts` and `tests/Diagram/diagramLayout.test.ts`
-(jest): every node placed, no boxes overlapping, sizes growing with text, routes by side.
+(jest): every node placed, no boxes overlapping, sizes growing with text, routes by side;
+`tests/e2e/diagram.spec.ts` (Playwright) on `examples/Visualization/Diagram/diagram.html`:
+each type draws inside its box with nothing overlapping, a broken model shows its problems,
+the drawing scales, a dark look recolours it.

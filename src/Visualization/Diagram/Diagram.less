@@ -1,0 +1,64 @@
+// <juel-diagram>: the drawing fills its box, scaled with the page. Colours come from the
+// page's tokens (a Jetty deck's --ink / --accent / --line / --chart-N, a brand's), with
+// plain fallbacks, so one diagram asset draws in any deck's look, light or dark.
+:host {
+    display: block;
+    width: 100%;
+    container-type: inline-size;
+    // Node fills by depth (org) or kind (flowchart); the text on them; lines and labels.
+    --diagram-1: var(--chart-1, var(--accent, #3d6a8a));
+    --diagram-2: var(--chart-2, var(--deck-primary, #5b8db8));
+    --diagram-3: var(--chart-3, var(--diagram-2));
+    --diagram-on-fill: var(--chart-on-fill, #ffffff);
+    --diagram-ink: var(--ink, #1f2430);
+    --diagram-muted: var(--muted, #6b7280);
+    --diagram-line: var(--line, #9aa3b2);
+    --diagram-card: var(--card, #eef1f7);
+    --diagram-font: var(--font, system-ui, sans-serif);
+}
+
+svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    font-family: var(--diagram-font);
+    overflow: visible;
+}
+
+.title { fill: var(--diagram-ink); font-weight: 600; }
+
+.node rect, .node polygon { stroke: none; }
+.node text { fill: var(--diagram-on-fill); }
+.node .detail { fill: var(--diagram-on-fill); opacity: .85; }
+.node[data-depth="0"] .fill { fill: var(--diagram-1); }
+.node[data-depth="1"] .fill { fill: var(--diagram-2); }
+.node[data-depth="2"] .fill, .node[data-depth="3"] .fill, .node[data-depth="4"] .fill, .node[data-depth="5"] .fill { fill: var(--diagram-3); }
+// Process steps and flowchart shapes: one colour, decisions and ends the second.
+.process .node .fill { fill: var(--diagram-1); }
+.flowchart .node .fill { fill: var(--diagram-1); }
+.flowchart .node[data-shape="decision"] .fill, .flowchart .node[data-shape="start-end"] .fill { fill: var(--diagram-2); }
+// A timeline's labels are cards in the page's ink, not filled blocks.
+.timeline .node .fill { fill: var(--diagram-card); stroke: var(--diagram-line); stroke-width: 1; }
+.timeline .node text { fill: var(--diagram-ink); }
+.timeline .node .detail { fill: var(--diagram-muted); }
+.timeline .node .date { fill: var(--diagram-ink); font-weight: 600; }
+.timeline .axis { stroke: var(--diagram-line); stroke-width: 3; stroke-linecap: round; }
+.timeline .marker { fill: var(--diagram-1); stroke: var(--diagram-card); stroke-width: 3; }
+.timeline .stem { stroke: var(--diagram-line); stroke-width: 2; }
+.node.own .fill { fill: var(--own-colour); }
+
+.edge path { fill: none; stroke: var(--diagram-line); stroke-width: 2; stroke-linejoin: round; }
+.edge.arrow path { marker-end: url(#juel-diagram-arrow); }
+.edge .label { fill: var(--diagram-ink); paint-order: stroke; stroke: var(--bg, #ffffff); stroke-width: 4px; stroke-linejoin: round; }
+#juel-diagram-arrow path { fill: var(--diagram-line); }
+
+.problem {
+    font: 14px var(--diagram-font);
+    color: var(--diagram-ink);
+    background: var(--diagram-card);
+    border-left: 4px solid #b00020;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+.problem ul { margin: 4px 0 0; padding-left: 18px; }
