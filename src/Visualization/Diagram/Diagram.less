@@ -43,6 +43,11 @@ svg {
 .process .node .fill { fill: var(--diagram-1); }
 .flowchart .node .fill { fill: var(--diagram-1); }
 .flowchart .node[data-shape="decision"] .fill, .flowchart .node[data-shape="start-end"] .fill { fill: var(--diagram-2); }
+// The second looks: chevrons (a process) keep the step colour; cards (an org chart) are pale with a band.
+.look-cards .node .card { fill: var(--diagram-card); stroke: var(--diagram-line); stroke-width: 1; }
+.look-cards .node text { fill: var(--diagram-ink); }
+.look-cards .node .detail { fill: var(--diagram-muted); }
+.look-cards .node svg.icon { color: var(--diagram-ink); }
 // A timeline's labels are cards in the page's ink, not filled blocks.
 .timeline .node .fill { fill: var(--diagram-card); stroke: var(--diagram-line); stroke-width: 1; }
 .timeline .node text { fill: var(--diagram-ink); }

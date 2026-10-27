@@ -35,6 +35,8 @@
         <div class="card"><h2>Flowchart (data property)</h2><juel-diagram id="flowchart"></juel-diagram></div>
         <div class="card"><h2>A broken one</h2><juel-diagram id="broken"></juel-diagram></div>
         <div class="card"><h2>Many reports (stacked), across</h2><juel-diagram id="stacked"></juel-diagram></div>
+        <div class="card"><h2>Process, look=chevrons</h2><juel-diagram id="chevrons"></juel-diagram></div>
+        <div class="card"><h2>Org chart, look=cards</h2><juel-diagram id="cards"></juel-diagram></div>
     </div>
     <script>
         customElements.whenDefined('juel-diagram').then(() => {
@@ -42,6 +44,8 @@
             document.getElementById('process').data = d.starterDiagram('process');
             document.getElementById('flowchart').data = d.starterDiagram('flowchart');
             document.getElementById('broken').data = { type: 'org', nodes: [{ id: 'a', text: 'A', parent: 'zz' }, { id: 'a', text: 'B' }] };
+            document.getElementById('chevrons').data = { ...d.starterDiagram('process'), options: { look: 'chevrons' } };
+            document.getElementById('cards').data = { ...d.starterDiagram('org'), options: { look: 'cards' } };
             document.getElementById('stacked').data = { type: 'org', options: { direction: 'across' }, nodes: [{ id: 'm', text: 'Manager' },
                 ...Array.from({ length: 6 }, (_, i) => ({ id: `r${i}`, text: `Report ${i + 1}`, parent: 'm' }))] };
             window.exampleReady = true;

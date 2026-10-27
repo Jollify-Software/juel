@@ -86,7 +86,7 @@ export class JuelDiagram extends LitElement {
         const l = this.layout;
         if (!l) return nothing;
         const title = l.title ? svg`<text class="title" x=${l.titleAt!.x} y=${l.titleAt!.y} text-anchor="middle" dominant-baseline="middle" font-size=${DefaultMetrics.fontSize * 1.3}>${l.title}</text>` : nothing;
-        return html`<svg class=${l.type} viewBox="0 0 ${l.width} ${l.height}" width=${l.width} height=${l.height} role="img" aria-label=${l.title ?? `${l.type} diagram`} xmlns="http://www.w3.org/2000/svg">
+        return html`<svg class="${l.type}${l.look ? ` look-${l.look}` : ''}" viewBox="0 0 ${l.width} ${l.height}" width=${l.width} height=${l.height} role="img" aria-label=${l.title ?? `${l.type} diagram`} xmlns="http://www.w3.org/2000/svg">
             <defs><marker id="juel-diagram-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker></defs>
             ${title}
             ${l.axis ? svg`<line class="axis" x1=${l.axis.x1} y1=${l.axis.y1} x2=${l.axis.x2} y2=${l.axis.y2}></line>` : nothing}
@@ -129,7 +129,7 @@ export class JuelDiagram extends LitElement {
         const lines = b.lines.map(t => { const r = svg`<text x=${cx} y=${y} text-anchor="middle" dominant-baseline="middle" font-size=${m.fontSize}>${t}</text>`; y += lineH; return r; });
         y += b.detailLines.length ? 4 : 0;
         const details = b.detailLines.map(t => { const r = svg`<text class="detail" x=${cx} y=${y} text-anchor="middle" dominant-baseline="middle" font-size=${m.detailFontSize}>${t}</text>`; y += detailH; return r; });
-        const shape = this.renderShape(b);
+        const shape = this.renderShape(b, l);
         const icon = hasIcon ? this.renderIcon(b.icon!, cx - (iconSize + 4) / 2 - Math.max(...b.lines.map(t => t.length)) * m.fontSize * m.charWidth / 2 - iconSize - 2, b.y + (b.h - textH) / 2 + (b.lines.length * lineH - iconSize) / 2, iconSize) : nothing;
         const date = l.type === 'timeline' && b.date !== undefined && l.axis
             ? svg`<text class="date" x=${cx} y=${b.y + b.h / 2 < l.axis.y1 ? l.axis.y1 - 14 : l.axis.y1 + 20} text-anchor="middle" dominant-baseline="middle" font-size=${m.detailFontSize}>${b.date}</text>`
@@ -137,7 +137,18 @@ export class JuelDiagram extends LitElement {
         return svg`<g class="node ${b.colour ? 'own' : ''}" data-id=${b.id} data-depth=${b.depth} data-shape=${b.shape} style=${b.colour ? `--own-colour: ${b.colour}` : ''}>${shape}${icon}${lines}${details}${date}</g>`;
     }
 
-    private renderShape(b: DiagramBox): TemplateResult {
+    /**
+     * The node's shape. A second look per type (`options.look`): a process's `chevrons` are arrow-shaped
+     * steps pointing at the next; an org chart's `cards` are pale cards with a coloured band at the top.
+     */
+    private renderShape(b: DiagramBox, l: DiagramLayout): TemplateResult {
+        if (l.type === 'process' && l.look === 'chevrons') {
+            const k = Math.min(18, b.h / 2.5);
+            return svg`<polygon class="fill chevron" points="${b.x},${b.y} ${b.x + b.w - k},${b.y} ${b.x + b.w},${b.y + b.h / 2} ${b.x + b.w - k},${b.y + b.h} ${b.x},${b.y + b.h} ${b.x + k},${b.y + b.h / 2}"></polygon>`;
+        }
+        if (l.type === 'org' && l.look === 'cards') {
+            return svg`<rect class="card" x=${b.x} y=${b.y} width=${b.w} height=${b.h} rx="6" ry="6"></rect><path class="fill band" d="M ${b.x + 6} ${b.y} h ${b.w - 12} a 6 6 0 0 1 6 6 v 2 h -${b.w} v -2 a 6 6 0 0 1 6 -6 z"></path>`;
+        }
         switch (b.shape) {
             case 'decision': return svg`<polygon class="fill" points="${b.x + b.w / 2},${b.y} ${b.x + b.w},${b.y + b.h / 2} ${b.x + b.w / 2},${b.y + b.h} ${b.x},${b.y + b.h / 2}"></polygon>`;
             case 'start-end': return svg`<rect class="fill" x=${b.x} y=${b.y} width=${b.w} height=${b.h} rx=${b.h / 2} ry=${b.h / 2}></rect>`;

@@ -55,6 +55,8 @@ export interface DiagramLayout {
     title?: string;
     /** Where the title is drawn (above everything). */
     titleAt?: Point;
+    /** A second style per type (`options.look`): process `chevrons`, org `cards`. */
+    look?: string;
 }
 
 /** What the layout assumes about the drawing: tweak through `layoutDiagram`'s second argument. */
@@ -142,6 +144,7 @@ function finish(layout: DiagramLayout, diagram: Diagram, m: LayoutMetrics): Diag
     layout.width = Math.ceil(maxX + m.margin);
     layout.height = Math.ceil(maxY + m.margin);
     if (diagram.title) { layout.title = diagram.title; layout.titleAt = { x: layout.width / 2, y: m.margin + m.titleHeight / 2 }; }
+    if (diagram.options?.look) layout.look = diagram.options.look;
     return layout;
 }
 
@@ -187,7 +190,10 @@ function layoutProcess(d: Diagram, m: LayoutMetrics): DiagramLayout {
         boxes.push(box(n, x, y, { ...sizes[i], w, h }, i, 'rounded'));
     });
     const edges: DiagramEdge[] = [];
-    for (let i = 1; i < boxes.length; i++) {
+    // Chevrons point at the next step themselves: no arrows between them, and the gap is tighter.
+    const chevrons = d.options?.look === 'chevrons' && across;
+    if (chevrons) boxes.forEach((b, i) => { b.x -= i * (m.gap - 8); });
+    for (let i = 1; i < boxes.length && !chevrons; i++) {
         const a = boxes[i - 1], b = boxes[i];
         if (!across) edges.push(edge(a.id, b.id, [{ x: a.x + a.w / 2, y: a.y + a.h }, { x: b.x + b.w / 2, y: b.y }]));
         else if (a.y === b.y) edges.push(edge(a.id, b.id, [{ x: a.x + a.w, y: a.y + a.h / 2 }, { x: b.x, y: b.y + b.h / 2 }]));

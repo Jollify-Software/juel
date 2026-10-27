@@ -53,6 +53,9 @@ test('the drawing scales to its box, and a broken model shows its problems', asy
     const problems = await page.locator('#broken').evaluate(el => [...el.shadowRoot!.querySelectorAll('.problem li')].map(li => li.textContent));
     expect(problems).toEqual(['node 2: the id "a" is used twice.', 'node "a": "parent" names no node ("zz").']);
     expect(await page.locator('#broken').evaluate(el => !!el.shadowRoot!.querySelector('svg'))).toBe(false);
+    // The second looks: chevrons are polygons with no arrows between; cards are pale rects with a band.
+    expect(await page.locator('#chevrons').evaluate(el => { const r = el.shadowRoot!; return { chevrons: r.querySelectorAll('polygon.chevron').length, arrows: r.querySelectorAll('g.edge').length, cls: r.querySelector('svg')!.getAttribute('class') }; })).toEqual({ chevrons: 4, arrows: 0, cls: 'process look-chevrons' });
+    expect(await page.locator('#cards').evaluate(el => { const r = el.shadowRoot!; return { cards: r.querySelectorAll('rect.card').length, bands: r.querySelectorAll('path.band').length, text: getComputedStyle(r.querySelector('g.node text')!).fill }; })).toEqual({ cards: 7, bands: 7, text: 'rgb(31, 36, 48)' });
     // Many reports stack in a column; `across` puts the manager at the left.
     const stacked = await nodes(page, 'stacked');
     expect(stacked.boxes.length).toBe(7);

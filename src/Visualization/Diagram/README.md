@@ -41,7 +41,8 @@ Built in pieces (night 13, 2026-10-27):
 - `links[]`: `from`, `to`, optional `label`. The flowchart's arrows; on the other types an
   extra arrow on top of the layout.
 - `options`: `direction` (`across` | `down`), `wrap` (process, steps per row, default 5),
-  `look` (a second style per type, later).
+  `look`: a second style per type: process `chevrons` (arrow-shaped steps pointing at the next,
+  no arrows between), org `cards` (pale cards with a coloured band at the top, text in ink).
 
 `parseDiagram(textOrObject)` returns `{ diagram, errors, warnings }`: an unknown type, no
 nodes, a duplicate id, a link or parent naming no node, a cycle of managers, or an org chart
