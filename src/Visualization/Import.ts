@@ -11,6 +11,7 @@ import './Map/MapPoint';
 import './Map/MapPolygon';
 import './WordCloud/WordCloud';
 import './Diagram/Diagram';
+import './Diagram/DiagramEditor';
 
 // The diagram model and layout on `window.juel.diagram`, for apps on the CDN build (the
 // Jollify editor parses, validates and lays out diagram assets with the same code the

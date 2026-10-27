@@ -19,7 +19,7 @@ Built in pieces (night 13, 2026-10-27):
 | C1 | `diagramModel.ts`: the schema, `parseDiagram` (errors and warnings, with the node named), `diagramText`, `starterDiagram` | Done |
 | C2 | `diagramLayout.ts`: pure layout, boxes + edges in diagram units; `wrapText`, `measureNode`, `routeOrthogonal` | Done |
 | C3 | `<juel-diagram>`: draws a layout as SVG, themed from the page's tokens, scaled to its box | Done |
-| C5 | `<juel-diagram-editor>`: the outline (process, org, timeline) and the canvas (flowchart), undo/redo | |
+| C5 | `<juel-diagram-editor>`: the outline (process, org, timeline) and the canvas (flowchart), undo/redo | Done |
 
 ## The model
 
@@ -90,3 +90,47 @@ Tests: `tests/Diagram/diagramModel.test.ts` and `tests/Diagram/diagramLayout.tes
 `tests/e2e/diagram.spec.ts` (Playwright) on `examples/Visualization/Diagram/diagram.html`:
 each type draws inside its box with nothing overlapping, a broken model shows its problems,
 the drawing scales, a dark look recolours it.
+
+## `<juel-diagram-editor>`
+
+```html
+<juel-diagram-editor></juel-diagram-editor>
+<script>
+  const editor = document.querySelector('juel-diagram-editor');
+  editor.value = juel.diagram.starterDiagram('org');          // the model in (copied)
+  editor.addEventListener('diagram-changed', e => save(e.detail.diagram)); // { diagram, reason }
+</script>
+```
+
+Edits a model visually, with a live `<juel-diagram>` beside it; **no syntax anywhere**. The
+way of working follows the diagram's type:
+
+- **process, org, timeline: an outline.** A row per node (an org chart's indented by depth):
+  the text, a detail (an org chart's role), a date (timeline), a colour, Remove. **Enter**
+  adds the next one after it (an org chart: a sibling, or the first report of someone who
+  has reports), **Tab** / **Shift+Tab** put a person under the one above or lift them a level
+  (org; the top can't go under anyone, and someone must stay at the top), **Alt+↑/↓** move
+  it among its siblings, **Backspace** on an empty text removes it. The bar has the same as
+  buttons. Clicking a node in the drawing picks its row.
+- **flowchart: a canvas.** The drawing with a transparent overlay on it, sharing its
+  `viewBox`: drag a box to move it (snapped to a 10-unit grid; the transform is taken at the
+  start of the drag, since moving a box can grow the drawing), drag from a picked box's
+  **port** (the four circles) onto another box to link them, double-click a box to edit its
+  text in place, pick a link to give it a label, **Delete** removes what's picked (a box takes
+  its links with it), Escape clears the pick. The bar adds a box, rounded box, decision or
+  start/end pill (named after its shape, in edit at once); the strip below changes a picked
+  box's shape and colour.
+
+Undo/redo is `HistoryController` (`src/_Core/History/README.md`): one entry per gesture (a
+typed field is previewed live and recorded when it loses focus or before a structural
+change; a drag is previewed and recorded on release). Ctrl+Z / Ctrl+Y work outside a text
+field. A new `value` reseeds the history (`HistoryController.reseed`, added for this), so
+there is nothing to undo past the model given. `diagram-changed` carries the model and a
+`reason` (`text`, `add`, `remove`, `indent`, `move`, `link`, `label`, `shape`, `colour`,
+`history`); `diagram` is the model as it stands. Not yet: editing a node's `icon`, dragging
+rows in the outline, resizing a flowchart box.
+
+Tests: `tests/e2e/diagram-editor.spec.ts` (Playwright, 5) on
+`examples/Visualization/Diagram/diagram-editor.html`: typing, Enter, Backspace, Alt+↓ and
+undo in the outline; Tab / Shift+Tab and the drawing's click in an org chart; dates on a
+timeline; add, drag on the grid, link from a port, edit in place, Delete and undo on a flowchart.

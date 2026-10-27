@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Diagram editor — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .pick { display: flex; gap: 6px; margin: 8px 0; }
+        juel-diagram-editor { border: 1px solid #ccc; border-radius: 8px; padding: 12px; min-height: 420px; }
+        #log { font-family: monospace; font-size: 12px; white-space: pre-wrap; max-height: 8em; overflow: auto; }
+    </style>
+</head>
+
+<body>
+    <h1>juel-diagram-editor</h1>
+    <p>Edit a diagram visually (no syntax): an outline for a process, org chart or timeline; a canvas for a flowchart.
+        Undo and redo are the editor's own. The events land in the log.</p>
+    <div class="pick">
+        <juel-button type="light" label="Process" data-type="process"></juel-button>
+        <juel-button type="light" label="Org chart" data-type="org"></juel-button>
+        <juel-button type="light" label="Timeline" data-type="timeline"></juel-button>
+        <juel-button type="light" label="Flowchart" data-type="flowchart"></juel-button>
+    </div>
+    <juel-diagram-editor id="editor"></juel-diagram-editor>
+    <p id="log"></p>
+    <script>
+        customElements.whenDefined('juel-diagram-editor').then(() => {
+            const editor = document.getElementById('editor'), log = document.getElementById('log');
+            window.events = [];
+            editor.addEventListener('diagram-changed', e => { window.events.push(e.detail); log.textContent = `${e.detail.reason}: ${e.detail.diagram.nodes.length} nodes, ${(e.detail.diagram.links ?? []).length} links\n` + log.textContent; });
+            window.load = type => { editor.value = window.juel.diagram.starterDiagram(type); };
+            for (const b of document.querySelectorAll('.pick juel-button')) b.addEventListener('click', () => window.load(b.dataset.type));
+            window.load('process');
+            window.exampleReady = true;
+        });
+    </script>
+</body>
+
+</html>

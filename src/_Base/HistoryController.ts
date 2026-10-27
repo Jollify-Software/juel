@@ -126,6 +126,16 @@ export class HistoryController<T> implements ReactiveController {
   }
 
   /** Hard-reset to the initial state and apply it. */
+  /**
+   * Start again from `initial` with no past and no future (an editor given a new
+   * value to edit): nothing is applied, since the component already holds it.
+   */
+  reseed(initial: T): void {
+    this.stack = new HistoryStack<T>(initial, this.options);
+    this.host.requestUpdate();
+    this.emit('reset');
+  }
+
   reset(): void {
     this.options.apply(this.stack.reset());
     this.emit('reset');
