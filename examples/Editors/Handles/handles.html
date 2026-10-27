@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Move and Rotate Handles — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .stage { position: relative; height: 320px; border: 1px solid #ccc; margin: 8px 0; }
+        /* An iframe under the drag path, as an app's preview is: moves over it must still reach the handles. */
+        #frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+        #box { position: absolute; left: 200px; top: 110px; width: 160px; height: 90px; background: #3b6fd8; color: #fff;
+            display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+        .bar { display: flex; gap: 4px; }
+        #log { font-family: monospace; font-size: 12px; min-height: 1.5em; }
+    </style>
+</head>
+
+<body>
+    <h1>juel-move-handle and juel-rotate-handle</h1>
+    <p>Drag ✥ to move the box, or focus it and use the arrow keys (Shift for further). Drag ↻ round the box to turn it
+        (Shift snaps to 15°), or focus it and use the arrow keys (→ ↑ clockwise, Shift for 15°). The handles only report
+        what the pointer did: this page turns it into the box's <code>translate</code> and <code>rotate</code>.</p>
+    <div class="bar">
+        <juel-move-handle id="move"></juel-move-handle>
+        <juel-rotate-handle id="rotate"></juel-rotate-handle>
+    </div>
+    <div class="stage"><iframe id="frame" title="A frame under the drag" srcdoc="<body style='margin:0;background:#f4f4f8'></body>"></iframe><div id="box">Box</div></div>
+    <p id="log"></p>
+    <script>
+        const box = document.getElementById('box'), move = document.getElementById('move'), rotate = document.getElementById('rotate');
+        const log = document.getElementById('log');
+        let at = [0, 0], start = [0, 0];
+        const show = () => { box.style.translate = `${at[0]}px ${at[1]}px`; };
+        move.addEventListener('pointerdown', () => { start = [...at]; }, true);
+        move.addEventListener('handle-move', e => {
+            at = [start[0] + e.detail.dx, start[1] + e.detail.dy];
+            show();
+            if (e.detail.commit) log.textContent = `moved to ${at.join(', ')}`;
+        });
+        move.addEventListener('handle-nudge', e => {
+            const step = e.detail.big ? 10 : 1;
+            at = [at[0] + e.detail.dx * step, at[1] + e.detail.dy * step];
+            show();
+            log.textContent = `nudged to ${at.join(', ')}`;
+        });
+        rotate.center = () => { const r = box.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; };
+        rotate.addEventListener('handle-rotate', e => {
+            box.style.rotate = `${e.detail.angle}deg`;
+            if (e.detail.commit) { rotate.value = e.detail.angle; log.textContent = `rotated to ${e.detail.angle}`; }
+        });
+        customElements.whenDefined('juel-rotate-handle').then(() => { window.exampleReady = true; });
+    </script>
+</body>
+
+</html>
