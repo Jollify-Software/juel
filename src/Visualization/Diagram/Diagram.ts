@@ -1,6 +1,6 @@
 // <juel-diagram>: draws a diagram (src/Visualization/Diagram/README.md) as SVG, from a `data`
-// property (the model, or its JSON text), a `<script type="application/json">` child, or a
-// `src` URL. The drawing is in diagram units and scales to the element's box; its colours
+// property (the model, or its JSON text), a `data-model` attribute (its JSON text, as Slipway
+// writes it), a `<script type="application/json">` child, or a `src` URL. The drawing is in diagram units and scales to the element's box; its colours
 // are the page's tokens (a Jetty deck's --ink / --accent / --chart-N), so one asset draws in
 // any look, light or dark, and prints as it shows. A model with errors draws the problems.
 import { CSSResultGroup, html, LitElement, nothing, svg, unsafeCSS, type TemplateResult } from 'lit';
@@ -31,6 +31,10 @@ export class JuelDiagram extends LitElement {
     override connectedCallback() {
         super.connectedCallback();
         if (this.data !== undefined && this.data !== null) return;
+        // The model as a `data-model` attribute (how Slipway writes it: an attribute survives Paged.js
+        // cloning a report's content into pages, which drops <script> children) wins over a script child.
+        const attribute = this.getAttribute('data-model');
+        if (attribute?.trim()) { this.build(attribute); return; }
         // Parsed from HTML with juel.js in <head>, the element connects before its children exist:
         // read the script child once the document is parsed (and now, for an element made later).
         if (!this.readScriptChild() && document.readyState === 'loading')

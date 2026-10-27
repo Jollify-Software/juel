@@ -67,13 +67,15 @@ leaves by the side facing the other box and bends once or twice in the gap.
 
 ```html
 <juel-diagram src="assets/diagrams/onboarding.json"></juel-diagram>
-<juel-diagram><script type="application/json">{ "type": "process", "nodes": [ … ] }</script></juel-diagram>
+<juel-diagram data-model='{ "type": "process", "nodes": [ … ] }'></juel-diagram>
 <script>document.querySelector('juel-diagram').data = juel.diagram.starterDiagram('org');</script>
 ```
 
-The model comes from the `data` property (an object or JSON text), a
-`<script type="application/json">` child (how Slipway writes a deck's diagram inline, so the
-page is self-contained), or a `src` URL. It draws the layout as one `<svg>` with a `viewBox`
+The model comes from the `data` property (an object or JSON text), a `data-model` attribute
+(its JSON text: how Slipway writes a deck's or report's diagram inline, so the page is
+self-contained; an attribute, not a script child, because Paged.js drops `<script>` children
+when it lays a report's content into pages), a `<script type="application/json">` child, or a
+`src` URL. It draws the layout as one `<svg>` with a `viewBox`
 in diagram units and `width: 100%; height: auto`, so it scales to its box and prints as it
 shows. Colours are the page's tokens with plain fallbacks: `--chart-1` / `--chart-2` /
 `--chart-3` (else `--accent`) fill nodes by depth (org) or kind (flowchart: decisions and
