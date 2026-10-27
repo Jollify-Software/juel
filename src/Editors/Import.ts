@@ -21,5 +21,8 @@ import "./MarkdownEditor/MarkdownEditor";
 
 import "./PlanEditor/PlanEditor";
 
+import "./Handles/MoveHandle";
+import "./Handles/RotateHandle";
+
 import "./Theme/ThemeToggle";
 import "./Theme/ThemeSelect";

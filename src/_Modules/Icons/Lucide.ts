@@ -20,6 +20,13 @@ import chevronDown from 'data-url:lucide-static/icons/chevron-down.svg';
 import chevronRight from 'data-url:lucide-static/icons/chevron-right.svg';
 import chevronLeft from 'data-url:lucide-static/icons/chevron-left.svg';
 import move from 'data-url:lucide-static/icons/move.svg';
+import rotateCw from 'data-url:lucide-static/icons/rotate-cw.svg';
+import chartColumn from 'data-url:lucide-static/icons/chart-column.svg';
+import shapes from 'data-url:lucide-static/icons/shapes.svg';
+import pencil from 'data-url:lucide-static/icons/pencil.svg';
+import replace from 'data-url:lucide-static/icons/replace.svg';
+import listChecks from 'data-url:lucide-static/icons/list-checks.svg';
+import snowflake from 'data-url:lucide-static/icons/snowflake.svg';
 import locateFixed from 'data-url:lucide-static/icons/locate-fixed.svg';
 import undo2 from 'data-url:lucide-static/icons/undo-2.svg';
 import redo2 from 'data-url:lucide-static/icons/redo-2.svg';
@@ -78,6 +85,13 @@ export const LucideIcons: Record<string, string> = {
     'chevron-right': chevronRight,
     'chevron-left': chevronLeft,
     'move': move,
+    'rotate-cw': rotateCw,
+    'chart-column': chartColumn,
+    'shapes': shapes,
+    'pencil': pencil,
+    'replace': replace,
+    'list-checks': listChecks,
+    'snowflake': snowflake,
     'locate-fixed': locateFixed,
     'undo-2': undo2,
     'redo-2': redo2,
