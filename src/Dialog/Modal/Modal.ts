@@ -115,7 +115,12 @@ export class JuelModal extends JuelComponent {
         this.dismiss();
     };
 
+    // A `close` event is a queued task, so it can arrive after the dialog
+    // was shown again (closed, then reopened at once): the dialog is open,
+    // so it's stale. Ignore it, or `opened` and `modal-closed` would say
+    // closed while the native modal still covers the page.
     private onClose = () => {
+        if (this.dialog?.open) return;
         this.opened = false;
         this.dispatchEvent(new CustomEvent<ModalClosedDetail>('modal-closed', {
             detail: { returnValue: this.returnValue },
