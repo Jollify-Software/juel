@@ -5,7 +5,9 @@
 // any look, light or dark, and prints as it shows. A model with errors draws the problems.
 import { CSSResultGroup, html, LitElement, nothing, svg, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import Styles from 'bundle-text:./Diagram.less';
+import { lucideIcon } from '../../_Modules/Icons/Lucide';
 import { parseDiagram, type Diagram } from './diagramModel';
 import { DefaultMetrics, layoutDiagram, type DiagramBox, type DiagramEdge, type DiagramLayout } from './diagramLayout';
 
@@ -99,9 +101,24 @@ export class JuelDiagram extends LitElement {
         </g>`;
     }
 
+    /**
+     * A node's icon: a bundled Lucide glyph (`lucide-rocket`, `src/_Modules/Icons/Lucide.ts`) drawn
+     * inline in the node's text colour; another name draws nothing (an mdi name can't be bundled).
+     */
+    private renderIcon(name: string, x: number, y: number, size: number): TemplateResult | typeof nothing {
+        const url = lucideIcon(name);
+        if (!url) return nothing;
+        const svg_ = url.startsWith('data:image/svg+xml;base64,') ? atob(url.slice(26)) : decodeURIComponent(url.slice(url.indexOf(',') + 1));
+        const inner = svg_.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
+        return svg`<svg class="icon" x=${x} y=${y} width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${unsafeSVG(inner)}</svg>`;
+    }
+
     private renderBox(b: DiagramBox, l: DiagramLayout): TemplateResult {
         const m = DefaultMetrics;
-        const cx = b.x + b.w / 2;
+        // With an icon the text sits to its right (the layout kept the room: measureNode's iconWidth).
+        const iconSize = m.fontSize * 1.2;
+        const hasIcon = !!(b.icon && lucideIcon(b.icon));
+        const cx = b.x + b.w / 2 + (hasIcon ? (iconSize + 4) / 2 : 0);
         const lineH = m.fontSize * m.lineHeight, detailH = m.detailFontSize * m.lineHeight;
         const textH = b.lines.length * lineH + b.detailLines.length * detailH + (b.detailLines.length ? 4 : 0);
         let y = b.y + (b.h - textH) / 2 + lineH / 2;
@@ -109,10 +126,11 @@ export class JuelDiagram extends LitElement {
         y += b.detailLines.length ? 4 : 0;
         const details = b.detailLines.map(t => { const r = svg`<text class="detail" x=${cx} y=${y} text-anchor="middle" dominant-baseline="middle" font-size=${m.detailFontSize}>${t}</text>`; y += detailH; return r; });
         const shape = this.renderShape(b);
+        const icon = hasIcon ? this.renderIcon(b.icon!, cx - (iconSize + 4) / 2 - Math.max(...b.lines.map(t => t.length)) * m.fontSize * m.charWidth / 2 - iconSize - 2, b.y + (b.h - textH) / 2 + (b.lines.length * lineH - iconSize) / 2, iconSize) : nothing;
         const date = l.type === 'timeline' && b.date !== undefined && l.axis
             ? svg`<text class="date" x=${cx} y=${b.y + b.h / 2 < l.axis.y1 ? l.axis.y1 - 14 : l.axis.y1 + 20} text-anchor="middle" dominant-baseline="middle" font-size=${m.detailFontSize}>${b.date}</text>`
             : nothing;
-        return svg`<g class="node ${b.colour ? 'own' : ''}" data-id=${b.id} data-depth=${b.depth} data-shape=${b.shape} style=${b.colour ? `--own-colour: ${b.colour}` : ''}>${shape}${lines}${details}${date}</g>`;
+        return svg`<g class="node ${b.colour ? 'own' : ''}" data-id=${b.id} data-depth=${b.depth} data-shape=${b.shape} style=${b.colour ? `--own-colour: ${b.colour}` : ''}>${shape}${icon}${lines}${details}${date}</g>`;
     }
 
     private renderShape(b: DiagramBox): TemplateResult {

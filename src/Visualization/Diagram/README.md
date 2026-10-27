@@ -27,7 +27,7 @@ Built in pieces (night 13, 2026-10-27):
 { "type": "process", "title": "Onboarding",
   "nodes": [
     { "id": "offer", "text": "Offer", "detail": "Contract signed" },
-    { "id": "day1",  "text": "First day", "detail": "Laptop, badge, buddy", "colour": "#2a7", "icon": "mdi-laptop" }
+    { "id": "day1",  "text": "First day", "detail": "Laptop, badge, buddy", "colour": "#2a7", "icon": "lucide-plus" }
   ],
   "links": [ { "from": "offer", "to": "day1", "label": "signed" } ],
   "options": { "direction": "across", "wrap": 5 } }
@@ -35,7 +35,7 @@ Built in pieces (night 13, 2026-10-27):
 
 - `nodes[]`: `id` (text; a number is read as text; missing ids are numbered), `text`, and
   optionally `detail` (a second, smaller line), `colour` (any CSS colour; `color` is read
-  too), `icon` (an mdi name). Per type: `parent` (org), `date` (timeline; any label),
+  too), `icon` (a bundled Lucide glyph name, `lucide-plus`). Per type: `parent` (org), `date` (timeline; any label),
   `shape` (`box` | `rounded` | `decision` | `start-end`) with `x`, `y`, `w`, `h` (flowchart;
   a node with no position is placed in a grid under the rest).
 - `links[]`: `from`, `to`, optional `label`. The flowchart's arrows; on the other types an
@@ -83,7 +83,9 @@ light or dark. A node's own `colour` wins. A model with errors draws the problem
 (`.problem`). `diagram-drawn` fires with `{ layout, warnings }`; `currentLayout` is the
 last layout (the editor reads it to find what was clicked). The helpers are also on
 `window.juel.diagram` (`parseDiagram`, `diagramText`, `starterDiagram`, `layoutDiagram`)
-for pages on the CDN build. Not yet drawn: a node's `icon`.
+for pages on the CDN build. A node's `icon` is a bundled Lucide glyph name (the set is
+`src/_Modules/Icons/Lucide.ts`), drawn inline before the text in the text's colour; any other
+name draws nothing (an mdi name can't be bundled for offline use).
 
 Tests: `tests/Diagram/diagramModel.test.ts` and `tests/Diagram/diagramLayout.test.ts`
 (jest): every node placed, no boxes overlapping, sizes growing with text, routes by side;
@@ -127,7 +129,8 @@ change; a drag is previewed and recorded on release). Ctrl+Z / Ctrl+Y work outsi
 field. A new `value` reseeds the history (`HistoryController.reseed`, added for this), so
 there is nothing to undo past the model given. `diagram-changed` carries the model and a
 `reason` (`text`, `add`, `remove`, `indent`, `move`, `link`, `label`, `shape`, `colour`,
-`history`); `diagram` is the model as it stands. Not yet: editing a node's `icon`, dragging
+`history`); `diagram` is the model as it stands. Each outline row has an Icon field (a Lucide
+name). Not yet: dragging
 rows in the outline, resizing a flowchart box.
 
 Tests: `tests/e2e/diagram-editor.spec.ts` (Playwright, 5) on

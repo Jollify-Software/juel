@@ -28,7 +28,7 @@ export interface DiagramNode {
     detail?: string;
     /** A CSS colour for the node's fill (default: the theme's accent, or `--chart-N` by depth). */
     colour?: string;
-    /** An mdi icon name (`mdi-account`), drawn before the text. */
+    /** A bundled Lucide glyph name (`lucide-plus`), drawn before the text. */
     icon?: string;
     /** org: the manager's id; none for the root. */
     parent?: string;
