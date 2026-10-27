@@ -17,11 +17,14 @@
     --diagram-font: var(--font, system-ui, sans-serif);
 }
 
+// The page caps the height with --diagram-max-height (a deck: 62vh); the drawing then
+// fits both ways, keeping its aspect ratio, centred in the box.
 svg {
     display: block;
     width: 100%;
     height: auto;
-    max-height: 100%;
+    max-height: var(--diagram-max-height, none);
+    margin: 0 auto;
     font-family: var(--diagram-font);
     overflow: visible;
 }
