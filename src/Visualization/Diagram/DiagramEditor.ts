@@ -299,6 +299,8 @@ export class JuelDiagramEditor extends LitElement {
                         @value-changed=${(e: CustomEvent) => this.setField(node.id, 'detail', e.detail.value, true)}></juel-text>
                     <juel-colour class="colour" title="Colour" .value=${node.colour ?? '#3d6a8a'}
                         @value-changed=${(e: CustomEvent) => this.setField(node.id, 'colour', e.detail.value, false)}></juel-colour>
+                    <juel-text class="icon" placeholder="Icon" aria-label="Icon (a Lucide name, e.g. lucide-rocket)" title="An icon: a Lucide glyph name, e.g. lucide-rocket" .value=${node.icon ?? ''}
+                        @value-changed=${(e: CustomEvent) => this.setField(node.id, 'icon', e.detail.value, true)}></juel-text>
                     <juel-button type="plain" glyph="lucide-trash-2" button-label="Remove" title="Remove it" ?disabled=${rows.length <= 1}
                         @click=${() => this.removeNode(node.id)}></juel-button>
                 </div>`)

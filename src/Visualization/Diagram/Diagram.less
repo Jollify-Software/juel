@@ -34,6 +34,8 @@ svg {
 .node rect, .node polygon { stroke: none; }
 .node text { fill: var(--diagram-on-fill); }
 .node .detail { fill: var(--diagram-on-fill); opacity: .85; }
+.node svg.icon { color: var(--diagram-on-fill); overflow: visible; }
+.timeline .node svg.icon { color: var(--diagram-ink); }
 .node[data-depth="0"] .fill { fill: var(--diagram-1); }
 .node[data-depth="1"] .fill { fill: var(--diagram-2); }
 .node[data-depth="2"] .fill, .node[data-depth="3"] .fill, .node[data-depth="4"] .fill, .node[data-depth="5"] .fill { fill: var(--diagram-3); }

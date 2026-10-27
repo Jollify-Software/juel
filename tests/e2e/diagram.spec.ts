@@ -66,6 +66,8 @@ test('the page\'s tokens colour it: a dark look changes the fills and the text',
         const fill = (sel: string) => getComputedStyle(r.querySelector(sel)!).fill;
         return { top: fill('g.node[data-id="ceo"] rect'), second: fill('g.node[data-id="ops"] rect'), own: fill('g.node[data-id="fin"] rect'), text: fill('g.node[data-id="ceo"] text'), line: getComputedStyle(r.querySelector('g.edge path')!).stroke };
     });
+    // A node's icon: a bundled Lucide glyph, inline, in the text colour.
+    expect(await page.locator('#org').evaluate(el => { const i = el.shadowRoot!.querySelector('g.node[data-id="ceo"] svg.icon'); return i ? { paths: i.querySelectorAll('path, line, circle, polyline, polygon, rect').length > 0, color: getComputedStyle(i).color } : null; })).toEqual({ paths: true, color: 'rgb(255, 255, 255)' });
     const light = await colours();
     expect(light.own).toBe('rgb(192, 57, 43)'); // the node's own colour wins
     expect(light.top).not.toBe(light.second);
