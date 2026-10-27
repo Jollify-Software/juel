@@ -50,6 +50,8 @@ export class JuelDiagramEditor extends LitElement {
     private history?: HistoryController<Diagram>;
     private adopted?: Diagram;
     private focusNext: string | null = null;
+    /** A field edited live (previewed) and not yet recorded. */
+    private typing = false;
 
     override connectedCallback() {
         super.connectedCallback();
@@ -101,6 +103,14 @@ export class JuelDiagramEditor extends LitElement {
         this.history?.preview(clone(next));
     }
 
+    /** Typing so far becomes one history entry and is reported (a field left, a structural change coming, undo). */
+    private flushTyping(reason = 'text') {
+        if (!this.typing) return;
+        this.typing = false;
+        this.history?.record(clone(this.model));
+        this.fire(reason);
+    }
+
     private fire(reason: string) {
         this.dispatchEvent(new CustomEvent('diagram-changed', { detail: { diagram: clone(this.model), reason }, bubbles: true, composed: true }));
     }
@@ -115,8 +125,8 @@ export class JuelDiagramEditor extends LitElement {
     }
 
     /** A field still being typed in is an entry first, so undo takes the typing back, not something older. */
-    undo() { this.history?.record(clone(this.model)); if (this.history?.canUndo) this.history.undo(); }
-    redo() { this.history?.record(clone(this.model)); if (this.history?.canRedo) this.history.redo(); }
+    undo() { this.flushTyping(); if (this.history?.canUndo) this.history.undo(); }
+    redo() { this.flushTyping(); if (this.history?.canRedo) this.history.redo(); }
 
     private onKeyDown = (e: KeyboardEvent) => {
         // Ctrl+Z / Ctrl+Y (not inside a text field: it has its own).
@@ -157,7 +167,7 @@ export class JuelDiagramEditor extends LitElement {
         const n = next.nodes.find(n => n.id === id)!;
         if (key === 'text') n.text = value;
         else if (value.trim()) n[key] = value; else delete n[key];
-        if (live) this.preview(next); else this.commit(next, key);
+        if (live) { this.typing = true; this.preview(next); } else this.commit(next, key);
     }
 
     /** A new node after `afterId` (org: a sibling, or the first child when the row has children). */
@@ -256,7 +266,7 @@ export class JuelDiagramEditor extends LitElement {
 
     /** A field edited live (preview): write the entry now, before a structural change. */
     private flushRow(id: string) {
-        this.history?.record(clone(this.model));
+        this.flushTyping();
         void id;
     }
 
@@ -278,7 +288,7 @@ export class JuelDiagramEditor extends LitElement {
             ${rows.length ? repeat(rows, r => r.node.id, ({ node, depth }) => html`
                 <div class="row ${type}" data-id=${node.id} ?data-selected=${this.selected === node.id} style="--depth: ${depth}"
                     @focusin=${() => { this.selected = node.id; }}
-                    @focusout=${() => { this.history?.record(clone(this.model)); }}
+                    @focusout=${() => this.flushTyping()}
                     @keydown=${(e: KeyboardEvent) => this.onRowKey(e, node.id)}>
                     <span class="grip" aria-hidden="true">⋮</span>
                     ${type === 'timeline' ? html`<juel-text class="date" placeholder="Date" aria-label="Date" .value=${node.date ?? ''}
@@ -413,7 +423,7 @@ export class JuelDiagramEditor extends LitElement {
         const next = clone(this.model);
         const link = next.links![this.selectedLink];
         if (value.trim()) link.label = value; else delete link.label;
-        if (live) this.preview(next); else this.commit(next, 'label');
+        if (live) { this.typing = true; this.preview(next); } else this.commit(next, 'label');
     }
 
     private setShape(shape: FlowShape) {
@@ -456,8 +466,8 @@ export class JuelDiagramEditor extends LitElement {
                 ${editing ? html`<div class="inplace" style="left: ${(editing.x + editing.w / 2) / layout.width * 100}%; top: ${(editing.y + editing.h / 2) / layout.height * 100}%">
                     <juel-text class="inplace-text" aria-label="Text" .value=${this.node(editing.id)?.text ?? ''} autofocus
                         @value-changed=${(e: CustomEvent) => this.setField(editing.id, 'text', e.detail.value, true)}
-                        @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); this.history?.record(clone(this.model)); this.editing = null; (this.renderRoot.querySelector('.canvas') as HTMLElement)?.focus(); } }}
-                        @focusout=${() => { this.history?.record(clone(this.model)); this.editing = null; }}></juel-text>
+                        @keydown=${(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); this.flushTyping(); this.editing = null; (this.renderRoot.querySelector('.canvas') as HTMLElement)?.focus(); } }}
+                        @focusout=${() => { this.flushTyping(); this.editing = null; }}></juel-text>
                 </div>` : nothing}
             </div>` : html`<p class="empty">Add a box from the bar above.</p>`}
             <div class="props">
@@ -468,7 +478,7 @@ export class JuelDiagramEditor extends LitElement {
                 : link ? html`<span class="what">Link: ${this.node(link.from)?.text || link.from} → ${this.node(link.to)?.text || link.to}</span>
                     <juel-text class="link-label" placeholder="Label" aria-label="Link label" .value=${link.label ?? ''}
                         @value-changed=${(e: CustomEvent) => this.setLinkLabel(e.detail.value, true)}
-                        @focusout=${() => this.history?.record(clone(this.model))}></juel-text>
+                        @focusout=${() => this.flushTyping('label')}></juel-text>
                     <juel-button type="plain" glyph="lucide-trash-2" button-label="Remove link" title="Remove the link (Delete)" @click=${() => this.removeSelected()}></juel-button>`
                 : html`<span class="what">Drag a box to move it, double-click to edit its text, drag from a picked box's port to another box to link them.</span>`}
             </div>
