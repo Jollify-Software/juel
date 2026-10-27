@@ -67,6 +67,12 @@ import caseUpper from 'data-url:lucide-static/icons/case-upper.svg';
 import caseLower from 'data-url:lucide-static/icons/case-lower.svg';
 import caseSensitive from 'data-url:lucide-static/icons/case-sensitive.svg';
 import calculator from 'data-url:lucide-static/icons/calculator.svg';
+import diamond from 'data-url:lucide-static/icons/diamond.svg';
+import pill from 'data-url:lucide-static/icons/pill.svg';
+import rectangleHorizontal from 'data-url:lucide-static/icons/rectangle-horizontal.svg';
+import indentIncrease from 'data-url:lucide-static/icons/indent-increase.svg';
+import indentDecrease from 'data-url:lucide-static/icons/indent-decrease.svg';
+import chevronUp from 'data-url:lucide-static/icons/chevron-up.svg';
 
 export const LucideIcons: Record<string, string> = {
     'bold': bold,
@@ -132,6 +138,12 @@ export const LucideIcons: Record<string, string> = {
     'case-lower': caseLower,
     'case-sensitive': caseSensitive,
     'calculator': calculator,
+    'diamond': diamond,
+    'pill': pill,
+    'rectangle-horizontal': rectangleHorizontal,
+    'indent-increase': indentIncrease,
+    'indent-decrease': indentDecrease,
+    'chevron-up': chevronUp,
 };
 
 /** The data URL of the Lucide icon for a `lucide-<name>` glyph, if bundled. */

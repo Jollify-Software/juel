@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Diagrams — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card { border: 1px solid #ccc; border-radius: 8px; padding: 12px; background: var(--bg, #fff); color: var(--ink, #1f2430); }
+        .card h2 { margin: 0 0 8px; font-size: 16px; }
+        juel-diagram { max-width: 100%; }
+        /* A deck-like dark look: the tokens a Jetty theme sets. */
+        body.dark { --bg: #14171f; --ink: #f3f4f6; --muted: #b5bcc9; --line: #4b5563; --card: #222733; --accent: #7aa2f7; --chart-1: #7aa2f7; --chart-2: #9ece6a; --chart-on-fill: #0b0f19; background: var(--bg); color: var(--ink); }
+    </style>
+</head>
+
+<body>
+    <h1>juel-diagram</h1>
+    <p>Four kinds of diagram from one JSON model (<code>src/Visualization/Diagram/README.md</code>): a process, an org chart, a
+        timeline and a flowchart. Each draws from the page's tokens: <button id="dark">Toggle a dark look</button></p>
+    <div class="row">
+        <div class="card"><h2>Process (data property)</h2><juel-diagram id="process"></juel-diagram></div>
+        <div class="card"><h2>Org chart (script child)</h2>
+            <juel-diagram id="org"><script type="application/json">{ "type": "org", "title": "Our team", "nodes": [
+                { "id": "ceo", "text": "Alex Morgan", "detail": "Managing Director" },
+                { "id": "ops", "text": "Sam Lee", "detail": "Operations", "parent": "ceo" },
+                { "id": "sales", "text": "Jo Patel", "detail": "Sales", "parent": "ceo" },
+                { "id": "fin", "text": "Chris Diaz", "detail": "Finance", "parent": "ceo", "colour": "#c0392b" },
+                { "id": "ops1", "text": "Dana Kim", "detail": "Logistics", "parent": "ops" },
+                { "id": "ops2", "text": "Riley Chen", "detail": "Support", "parent": "ops" },
+                { "id": "sales1", "text": "Taylor Reed", "detail": "Accounts", "parent": "sales" } ] }</script></juel-diagram></div>
+        <div class="card"><h2>Timeline (src)</h2><juel-diagram id="timeline" src="timeline.json"></juel-diagram></div>
+        <div class="card"><h2>Flowchart (data property)</h2><juel-diagram id="flowchart"></juel-diagram></div>
+        <div class="card"><h2>A broken one</h2><juel-diagram id="broken"></juel-diagram></div>
+        <div class="card"><h2>Many reports (stacked), across</h2><juel-diagram id="stacked"></juel-diagram></div>
+    </div>
+    <script>
+        customElements.whenDefined('juel-diagram').then(() => {
+            const d = window.juel.diagram;
+            document.getElementById('process').data = d.starterDiagram('process');
+            document.getElementById('flowchart').data = d.starterDiagram('flowchart');
+            document.getElementById('broken').data = { type: 'org', nodes: [{ id: 'a', text: 'A', parent: 'zz' }, { id: 'a', text: 'B' }] };
+            document.getElementById('stacked').data = { type: 'org', options: { direction: 'across' }, nodes: [{ id: 'm', text: 'Manager' },
+                ...Array.from({ length: 6 }, (_, i) => ({ id: `r${i}`, text: `Report ${i + 1}`, parent: 'm' }))] };
+            window.exampleReady = true;
+        });
+        document.getElementById('dark').addEventListener('click', () => document.body.classList.toggle('dark'));
+    </script>
+</body>
+
+</html>

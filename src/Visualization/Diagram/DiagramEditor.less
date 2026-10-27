@@ -1,0 +1,67 @@
+// <juel-diagram-editor>: the outline (process, org, timeline) or the canvas (flowchart) on the
+// left, the live drawing on the right, undo/redo and type-specific tools above.
+:host {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 8px;
+    min-height: 320px;
+    font: 13px var(--juel-font, system-ui, sans-serif);
+    color: var(--juel-text, inherit);
+    --editor-line: var(--juel-border, #d7dbe3);
+    --editor-accent: var(--juel-accent, #3b6fd8);
+    --editor-muted: var(--juel-muted, #6b7280);
+}
+.bar { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.bar .sep { width: 1px; height: 20px; background: var(--editor-line); margin: 0 4px; }
+.bar .hint { color: var(--editor-muted); font-size: 12px; margin-left: auto; }
+.bar juel-button { --padding: 4px 8px; --font-size: 13px; }
+.bar juel-button[data-on] { --background: var(--juel-hover, rgba(127, 127, 127, .15)); }
+
+.panes { display: grid; grid-template-columns: minmax(260px, 2fr) minmax(240px, 3fr); gap: 12px; min-height: 0; }
+.panes > * { min-width: 0; min-height: 0; }
+
+// The outline: a row per node, indented by depth (org).
+.outline { display: flex; flex-direction: column; gap: 4px; overflow: auto; padding-right: 4px; }
+.row { display: grid; grid-template-columns: auto minmax(90px, 2fr) minmax(70px, 2fr) auto auto; align-items: center; gap: 4px;
+    padding: 2px 4px 2px calc(4px + var(--depth, 0) * 22px); border-radius: 6px; }
+.row.timeline { grid-template-columns: auto minmax(60px, 1fr) minmax(90px, 2fr) minmax(70px, 2fr) auto auto; }
+.row[data-selected] { background: color-mix(in srgb, var(--editor-accent) 10%, transparent); }
+.row .grip { color: var(--editor-muted); width: 14px; text-align: center; cursor: default; user-select: none; }
+.row juel-text { --padding: 4px 6px; --font-size: 13px; }
+.row juel-text.detail, .row juel-text.date { --font-size: 12px; }
+.row juel-colour { width: 26px; }
+.row juel-button { --padding: 2px 4px; --font-size: 12px; }
+.outline .add { align-self: flex-start; margin-top: 4px; }
+.outline .empty { color: var(--editor-muted); padding: 8px; }
+
+// The drawing (all modes): the diagram, scaled to the pane.
+.preview { position: relative; border: 1px solid var(--editor-line); border-radius: 8px; padding: 8px; background: var(--juel-background, transparent); overflow: hidden; }
+.preview juel-diagram { --diagram-max-height: 60vh; }
+.preview juel-diagram::part(node) { cursor: pointer; }
+
+// The canvas (flowchart): the drawing with a hit-and-handle overlay on it, sharing its viewBox.
+.canvas { position: relative; border: 1px solid var(--editor-line); border-radius: 8px; padding: 8px; overflow: hidden; outline: none; user-select: none; }
+.canvas:focus-visible { outline: 2px solid var(--editor-accent); }
+// The drawing scaled to fit the pane, capped so a small flowchart isn't blown up to the width.
+.canvas .stack { position: relative; max-width: min(100%, 110vh); margin: 0 auto; }
+.canvas .stack > juel-diagram { --diagram-max-height: 60vh; }
+.canvas svg.overlay { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; touch-action: none; }
+.overlay .hit { fill: transparent; stroke: transparent; cursor: move; }
+.overlay .hit:hover { stroke: var(--editor-accent); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.overlay .link-hit { fill: none; stroke: transparent; stroke-width: 14; cursor: pointer; }
+.overlay .link-hit:hover + .link-mark, .overlay .link-mark[data-selected] { stroke: var(--editor-accent); }
+.overlay .link-mark { fill: none; stroke: transparent; stroke-width: 2; pointer-events: none; }
+.overlay .selection { fill: none; stroke: var(--editor-accent); stroke-width: 2; stroke-dasharray: 5 3; pointer-events: none; }
+.overlay .port { fill: #fff; stroke: var(--editor-accent); stroke-width: 2; cursor: crosshair; }
+.overlay .port:hover { fill: var(--editor-accent); }
+.overlay .linking { fill: none; stroke: var(--editor-accent); stroke-width: 2; stroke-dasharray: 6 4; pointer-events: none; }
+.overlay .drop { fill: color-mix(in srgb, var(--editor-accent) 18%, transparent); stroke: var(--editor-accent); stroke-width: 2; pointer-events: none; }
+.canvas .inplace { position: absolute; transform: translate(-50%, -50%); min-width: 120px; }
+.canvas .inplace juel-text { --padding: 4px 6px; --font-size: 13px; }
+.canvas .empty { color: var(--editor-muted); padding: 12px; }
+
+// The properties of what's picked (flowchart), under the canvas.
+.props { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.props juel-text { --padding: 4px 6px; --font-size: 13px; flex: 1 1 160px; }
+.props juel-button { --padding: 4px 6px; --font-size: 12px; }
+.props .what { color: var(--editor-muted); font-size: 12px; }

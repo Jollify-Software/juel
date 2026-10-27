@@ -1,0 +1,10 @@
+{
+  "type": "timeline",
+  "title": "Roadmap",
+  "nodes": [
+    { "id": "q1", "date": "Jan", "text": "Kick-off", "detail": "Team in place" },
+    { "id": "q2", "date": "Mar", "text": "Pilot", "detail": "Three customers" },
+    { "id": "q3", "date": "Jun", "text": "Launch", "detail": "General release" },
+    { "id": "q4", "date": "Sep", "text": "Review", "detail": "What next" }
+  ]
+}
