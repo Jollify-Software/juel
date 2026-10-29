@@ -88,7 +88,9 @@ press on touch; Escape hides it. One tooltip element for the page, kept on scree
 light/dark tokens. `data-shortcut="Ctrl+Z"`, or a trailing `(Ctrl+Z)` in the text, shows key caps.
 While it shows, the native `title` is taken off (and put back after); its text goes to
 `aria-description` for screen readers. Elements whose component declares a `title` property
-(`juel-tab`, …) are skipped: there it's a label. `juel-tooltip` is unchanged. Example:
+(`juel-tab`, …) are skipped: there it's a label. A hover or focus that moves between two nodes of
+one shadow tree never reaches the document, so juel.tips also listens on each shadow root an event
+has passed through. `juel-tooltip` is unchanged. Example:
 `examples/_Modules/tips.html`.
 
 ```js
@@ -194,10 +196,11 @@ shows the YAML for editing and hides it again, and moving the cursor into the bl
 unclosed block (still being typed) gets no chip. Off by default (same example).
 
 Suggestions while typing (on `@codemirror/autocomplete`): set `.suggestions` to a list of
-`{ after, label, detail?, insert?, info? }`. After its trigger (`after`: `:::` at the start of a line,
+`{ after, label, detail?, insert?, info?, consume? }`. After its trigger (`after`: `:::` at the start of a line,
 `![`, `[`, `](`, `{`, `in=`, or a front-matter key such as `theme:`, which also matches with spaces
 after its colon) a list drops down, filtered by what's typed after it; ↑ ↓ move, Enter or Tab takes one, Escape closes. `insert` is a snippet: its first `${…}` field is
-selected, Tab moves to the next. `info` (HTML) shows beside the list with a "More in the guide" link
+selected, Tab moves to the next. `consume` is text the insert also replaces when it comes straight
+after the cursor: `consume: ']'` on a picture after `![` swallows the auto-closed `]`. `info` (HTML) shows beside the list with a "More in the guide" link
 that fires `suggestion-help` `{ label }`. `.suggest` is a callback `({ after, typed }) => Suggestion[]`
 (or a promise) for lists that change (files, pages), asked at every trigger and merged after the fixed
 ones. `suggestions-live="false"` stops the list opening while typing; Ctrl+Space still opens it. The

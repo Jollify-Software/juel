@@ -5,6 +5,12 @@
 // document and find the element through the event's composedPath(), so
 // components need no markup change (a `juel-button title="…"` just works).
 //
+// A pointerover, pointerout, focusin or focusout between two nodes of one
+// shadow tree never reaches the document: target and relatedTarget retarget to
+// the same host, so the DOM stops the event at that shadow root. So each shadow
+// root an event passes through gets the same listeners too (once), and an event
+// seen at both a root and the document is handled once.
+//
 // While the tooltip shows, the element's native `title` is taken off (so the
 // browser's own tooltip can't appear as well) and put back when it hides; its
 // text is copied to `aria-description` so screen readers keep it.
@@ -83,6 +89,46 @@ export module TipsModule {
     let current: Element | null = null;
     let timer: number | undefined;
     let pressTimer: number | undefined;
+    // Shadow roots that have the boundary listeners, and events already handled.
+    const roots = new WeakSet<ShadowRoot>();
+    const handled = new WeakSet<Event>();
+
+    /** Runs a listener once per event, and only while the service is on. */
+    function once<E extends Event>(listener: (event: E) => void) {
+        return (event: E) => {
+            if (!on || handled.has(event)) return;
+            handled.add(event);
+            watchRoots(event);
+            listener(event);
+        };
+    }
+
+    const over = once(onOver);
+    const out = once(onOut);
+    const down = once(onDown);
+    const up = once(onUp);
+    const focusIn = once(onFocusIn);
+    const focusOut = once(onFocusOut);
+    const key = once(onKey);
+    const move = (event: PointerEvent) => { if (on) watchRoots(event); };
+
+    // The events a shadow root keeps to itself when both ends are inside it.
+    const Boundary: [string, EventListener][] = [
+        ["pointerover", over as EventListener],
+        ["pointerout", out as EventListener],
+        ["focusin", focusIn as EventListener],
+        ["focusout", focusOut as EventListener],
+    ];
+
+    /** Puts the boundary listeners on every shadow root in the event's path (once each; they stay, and check `on`). */
+    function watchRoots(event: Event) {
+        for (const node of event.composedPath()) {
+            if (node instanceof ShadowRoot && !roots.has(node)) {
+                roots.add(node);
+                for (const [type, listener] of Boundary) node.addEventListener(type, listener, true);
+            }
+        }
+    }
 
     /** Whether the service is listening (it is once juel.js loads, until disable()). */
     export function enabled() {
@@ -93,14 +139,15 @@ export module TipsModule {
     export function enable() {
         if (on) return;
         on = true;
-        document.addEventListener("pointerover", onOver, true);
-        document.addEventListener("pointerout", onOut, true);
-        document.addEventListener("pointerdown", onDown, true);
-        document.addEventListener("pointerup", onUp, true);
-        document.addEventListener("pointercancel", onUp, true);
-        document.addEventListener("focusin", onFocusIn, true);
-        document.addEventListener("focusout", onFocusOut, true);
-        document.addEventListener("keydown", onKey, true);
+        document.addEventListener("pointerover", over, true);
+        document.addEventListener("pointerout", out, true);
+        document.addEventListener("pointermove", move, true);
+        document.addEventListener("pointerdown", down, true);
+        document.addEventListener("pointerup", up, true);
+        document.addEventListener("pointercancel", up, true);
+        document.addEventListener("focusin", focusIn, true);
+        document.addEventListener("focusout", focusOut, true);
+        document.addEventListener("keydown", key, true);
         window.addEventListener("scroll", hide, true);
         window.addEventListener("blur", hide);
     }
@@ -110,14 +157,15 @@ export module TipsModule {
         if (!on) return;
         hide();
         on = false;
-        document.removeEventListener("pointerover", onOver, true);
-        document.removeEventListener("pointerout", onOut, true);
-        document.removeEventListener("pointerdown", onDown, true);
-        document.removeEventListener("pointerup", onUp, true);
-        document.removeEventListener("pointercancel", onUp, true);
-        document.removeEventListener("focusin", onFocusIn, true);
-        document.removeEventListener("focusout", onFocusOut, true);
-        document.removeEventListener("keydown", onKey, true);
+        document.removeEventListener("pointerover", over, true);
+        document.removeEventListener("pointerout", out, true);
+        document.removeEventListener("pointermove", move, true);
+        document.removeEventListener("pointerdown", down, true);
+        document.removeEventListener("pointerup", up, true);
+        document.removeEventListener("pointercancel", up, true);
+        document.removeEventListener("focusin", focusIn, true);
+        document.removeEventListener("focusout", focusOut, true);
+        document.removeEventListener("keydown", key, true);
         window.removeEventListener("scroll", hide, true);
         window.removeEventListener("blur", hide);
     }

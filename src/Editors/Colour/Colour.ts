@@ -197,7 +197,7 @@ export class Colour extends LitElement {
     render() {
         const hex = this.toHex(this.value);
         return html`
-            <juel-button type="plain" class="swatch ${this.value ? '' : 'empty'}" style="--background-color: ${this.value}; --hover-background-color: ${this.value}" @click=${() => this.open = !this.open} button-label="Choose colour"></juel-button>
+            <juel-button type="plain" class="swatch ${this.value ? '' : 'empty'}" style="--background-color: ${this.value}; --hover-background-color: ${this.value}" @click=${() => this.open = !this.open} button-label="Choose colour" title="Choose colour"></juel-button>
             <div class="popup ${this.end ? 'end' : ''}" ?open=${this.open}>
                 <input type="color" .value=${hex} @input=${this.handleColorInput} />
                 <input type="text" .value=${hex} @change=${this.handleHexInput} />
