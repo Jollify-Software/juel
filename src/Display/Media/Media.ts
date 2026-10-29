@@ -41,6 +41,61 @@ export class JuelMedia extends JuelComponent {
 
     private static readonly FEATHER_EDGES = ['top', 'right', 'bottom', 'left'];
 
+    /** The connected `juel-media` elements, whose background downloads stop when the page is left. */
+    private static readonly connected = new Set<JuelMedia>();
+    private static listening = false;
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        JuelMedia.connected.add(this);
+        JuelMedia.listen();
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        JuelMedia.connected.delete(this);
+    }
+
+    /**
+     * A background video or audio downloads for as long as the page shows it. Leaving the page
+     * stops it: on a host that sends the file whole (no range requests, as GitLab Pages does), the
+     * download otherwise keeps the connection busy and the next page's files queue behind it until
+     * the connection resets (jollify.app's Launch took a minute, or never loaded). `beforeunload`
+     * fires as any navigation starts, `pagehide` is the fallback, and a return from the back/forward
+     * cache (`pageshow` with `persisted`) plays it again.
+     */
+    private static listen() {
+        if (JuelMedia.listening || typeof window === 'undefined') return;
+        JuelMedia.listening = true;
+        const stopAll = () => JuelMedia.connected.forEach(m => m.stopBackground());
+        window.addEventListener('beforeunload', stopAll);
+        window.addEventListener('pagehide', stopAll);
+        window.addEventListener('pageshow', (e: PageTransitionEvent) => {
+            if (e.persisted) JuelMedia.connected.forEach(m => m.resumeBackground());
+        });
+    }
+
+    /** Stops a background video or audio and its download (drops its `src`); nothing for a player with controls. */
+    stopBackground() {
+        const media = this.backgroundMedia();
+        if (!media?.getAttribute('src')) return;
+        media.pause();
+        media.removeAttribute('src');
+        media.load();
+    }
+
+    /** Plays a background video or audio that `stopBackground` stopped. */
+    resumeBackground() {
+        const media = this.backgroundMedia();
+        if (!media || media.getAttribute('src')) return;
+        media.src = this.getSrc();
+        media.play()?.catch(() => { });
+    }
+
+    private backgroundMedia(): HTMLMediaElement | null {
+        return this.background ? this.shadowRoot?.querySelector<HTMLMediaElement>('#container > video, #container > audio') ?? null : null;
+    }
+
     /** Normalised list of edges to feather (empty when the effect is off). */
     get featherEdges(): string[] {
         if (this.feather == null) return [];
