@@ -1,7 +1,7 @@
 // Suggestions while typing in juel-markdown-editor (DOCS-PLAN H6): the data
 // shape, which suggestions apply where the cursor is (matchSuggestions), and
 // the @codemirror/autocomplete extension built on it (suggestionsExtension).
-import { acceptCompletion, autocompletion, Completion, CompletionContext, CompletionResult, snippetCompletion } from '@codemirror/autocomplete';
+import { acceptCompletion, autocompletion, Completion, CompletionContext, CompletionResult, snippet } from '@codemirror/autocomplete';
 import { Prec } from '@codemirror/state';
 import { EditorView, keymap } from '@codemirror/view';
 
@@ -20,6 +20,12 @@ export interface Suggestion {
     insert?: string;
     /** A longer explanation for the info panel. */
     info?: string;
+    /**
+     * Text the insert also replaces when it comes straight after the cursor:
+     * `]` for a suggestion after `![`, where the editor has auto-closed the
+     * bracket (`![|]`), so an insert of `${alt}](photo.png)` doesn't leave `]]`.
+     */
+    consume?: string;
 }
 
 /** The suggestions that apply at the cursor, and where the typed part begins. */
@@ -102,15 +108,25 @@ function infoPanel(s: Suggestion, onHelp: (suggestion: Suggestion) => void): Nod
     return panel;
 }
 
-function toCompletion(s: Suggestion, onHelp: (suggestion: Suggestion) => void): Completion {
-    const base: Completion = {
+/**
+ * A suggestion as a CodeMirror completion: a snippet when its insert has
+ * `${…}` fields, and replacing its `consume` text too when that follows.
+ */
+export function toCompletion(s: Suggestion, onHelp: (suggestion: Suggestion) => void): Completion {
+    const insert = s.insert ?? s.label;
+    const fields = /\$\{/.test(insert);
+    const write = fields ? snippet(insert) : null;
+    return {
         label: s.label,
         detail: s.detail,
         info: s.info ? () => infoPanel(s, onHelp) : undefined,
         type: 'text',
+        apply: !fields && !s.consume ? insert : (view, completion, from, to) => {
+            if (s.consume && view.state.sliceDoc(to, to + s.consume.length) === s.consume) to += s.consume.length;
+            if (write) write(view, completion, from, to);
+            else view.dispatch({ changes: { from, to, insert }, selection: { anchor: from + insert.length }, userEvent: 'input.complete' });
+        },
     };
-    const insert = s.insert ?? s.label;
-    return /\$\{/.test(insert) ? snippetCompletion(insert, base) : { ...base, apply: insert };
 }
 
 const suggestionsLook = EditorView.theme({
