@@ -1,8 +1,10 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { live } from 'lit/directives/live.js';
 import { TableEvents } from './TableEvents';
 import { CellCompare, SortDirection, sortRows } from './sortRows';
+import { TableGrid, addColumn, addRow, isCellBlock, normaliseGrid, pasteCells, readTsv, removeColumn, removeRow, setCell } from './editTable';
 
 export enum SelectionMode {
   None = 'none',
@@ -23,6 +25,17 @@ export enum SelectionMode {
  *
  * Empty: with no rows, one full-width row shows the `empty` slot, or
  * `empty-text` (default "No rows").
+ *
+ * Editable (`<juel-table editable>`): a grid of text the user types into, for data such as a chart's.
+ * The grid is `value` (`string[][]`, the first row being the column headings), not `data` or
+ * `<juel-column>`s, and every edit fires `value-changed` `{ value }` with a new grid. Tab / Shift+Tab,
+ * Enter and the arrow keys move between cells (left and right only at the start or end of the text);
+ * Tab on the last cell, or Enter on the last row, adds a row. **+** adds a column (after the last) or
+ * a row (under the last); **-** on a heading or a row, shown on hover or focus, removes it, never the
+ * last column or body row. Pasting a block of cells (tab-separated lines, as a spreadsheet copies)
+ * into a cell spreads it right and down, growing the grid. Each heading has a slot `column-<i>` and
+ * each body row's first cell a slot `row-<i>` (both from 0) for the page's own controls, such as a
+ * colour per series. Sorting and selection are off while editable.
  */
 @customElement('juel-table')
 export class JuelTable extends LitElement {
@@ -33,6 +46,18 @@ export class JuelTable extends LitElement {
   @property({ type: String, attribute: 'sort-direction', reflect: true }) sortDirection: SortDirection | null = null;
   @property({ type: Boolean, attribute: 'external-sort' }) externalSort = false;
   @property({ type: String, attribute: 'empty-text' }) emptyText = 'No rows';
+  /** Make the table a grid of text to type into (see the class notes); its content is then `value`. */
+  @property({ type: Boolean, reflect: true }) editable = false;
+  /** The editable grid: rows of cells, the first row the column headings. Normalised on each edit (rectangular, at least one column and one body row). */
+  @property({ attribute: false }) value: string[][] = [];
+  /** The editable table's own words, for another language: the add and remove buttons and the cells' accessible names. */
+  @property({ attribute: false }) labels = {
+    addRow: 'Add a row', addColumn: 'Add a column', removeRow: 'Remove this row', removeColumn: 'Remove this column',
+    heading: (column: number) => `Column ${column + 1} heading`, cell: (row: number, column: number) => `Row ${row}, column ${column + 1}`,
+  };
+
+  /** The editable cell to focus after the next render (grid row, column), with the caret at its end. */
+  private pendingFocus: { row: number; column: number } | null = null;
 
   @queryAssignedElements({ slot: 'columns' }) columns?: JuelColumn[];
 
@@ -181,6 +206,122 @@ export class JuelTable extends LitElement {
       </th>`;
   }
 
+  /** The editable grid as shown: `value`, normalised. */
+  private get grid(): TableGrid {
+    return normaliseGrid(this.value);
+  }
+
+  /** Sets the grid and says so (`value-changed`); `focus` names the cell to move to after the render. */
+  private commitGrid(grid: TableGrid, focus?: { row: number; column: number }) {
+    this.value = grid;
+    if (focus) this.pendingFocus = focus;
+    this.dispatchEvent(new CustomEvent(TableEvents.ValueChanged, {
+      detail: { value: grid.map(r => [...r]) },
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  /** Puts the cursor in cell (`row`, `column`) of the editable grid (row 0 is the headings), at the end of its text. */
+  focusCell(row: number, column: number) {
+    this.pendingFocus = { row, column };
+    this.requestUpdate();
+  }
+
+  protected updated(changed: Map<PropertyKey, unknown>) {
+    super.updated?.(changed);
+    const target = this.pendingFocus;
+    if (!target || !this.editable) return;
+    this.pendingFocus = null;
+    const input = this.renderRoot.querySelector<HTMLInputElement>(`input[data-row="${target.row}"][data-column="${target.column}"]`);
+    if (!input) return;
+    input.focus();
+    const end = input.value.length;
+    input.setSelectionRange(end, end);
+  }
+
+  private onCellInput(row: number, column: number, event: Event) {
+    this.commitGrid(setCell(this.grid, row, column, (event.target as HTMLInputElement).value));
+  }
+
+  private onCellPaste(row: number, column: number, event: ClipboardEvent) {
+    const text = event.clipboardData?.getData('text/plain') ?? '';
+    if (!isCellBlock(text)) return; // one cell's text: the input pastes it itself
+    event.preventDefault();
+    const { grid, end } = pasteCells(this.grid, row, column, readTsv(text));
+    this.commitGrid(grid, end);
+  }
+
+  private onCellKeydown(row: number, column: number, event: KeyboardEvent) {
+    const grid = this.grid;
+    const last = { row: grid.length - 1, column: grid[0].length - 1 };
+    const input = event.target as HTMLInputElement;
+    const move = (r: number, c: number) => { event.preventDefault(); this.focusCell(r, c); };
+    switch (event.key) {
+      case 'Tab':
+        if (event.shiftKey) {
+          if (column > 0) move(row, column - 1);
+          else if (row > 0) move(row - 1, last.column);
+          return; // Shift+Tab on the first heading leaves the table
+        }
+        if (column < last.column) move(row, column + 1);
+        else if (row < last.row) move(row + 1, 0);
+        else { event.preventDefault(); this.commitGrid(addRow(grid), { row: row + 1, column: 0 }); }
+        return;
+      case 'Enter':
+        if (row < last.row) move(row + 1, column);
+        else { event.preventDefault(); this.commitGrid(addRow(grid), { row: row + 1, column }); }
+        return;
+      case 'ArrowDown': if (row < last.row) move(row + 1, column); return;
+      case 'ArrowUp': if (row > 0) move(row - 1, column); return;
+      case 'ArrowLeft':
+        if (column > 0 && input.selectionStart === 0 && input.selectionEnd === 0) move(row, column - 1);
+        return;
+      case 'ArrowRight':
+        if (column < last.column && input.selectionStart === input.value.length && input.selectionEnd === input.value.length) move(row, column + 1);
+        return;
+    }
+  }
+
+  private renderEditable() {
+    const grid = this.grid;
+    const width = grid[0].length;
+    const l = this.labels;
+    const input = (row: number, column: number, label: string) => html`<input type="text" class="cell-input" data-row=${row} data-column=${column}
+      aria-label=${label} .value=${live(grid[row][column])}
+      @input=${(e: Event) => this.onCellInput(row, column, e)}
+      @keydown=${(e: KeyboardEvent) => this.onCellKeydown(row, column, e)}
+      @paste=${(e: ClipboardEvent) => this.onCellPaste(row, column, e)}>`;
+    return html`
+      <table class="editable">
+        <thead>
+          <tr>
+            ${grid[0].map((_, column) => html`<th class="edit-heading">
+              <div class="cell-box"><slot name="column-${column}"></slot>${input(0, column, l.heading(column))}
+                <button type="button" class="remove remove-column" tabindex="-1" title=${l.removeColumn} aria-label="${l.removeColumn} (${column + 1})"
+                  ?disabled=${width <= 1} @click=${() => this.commitGrid(removeColumn(grid, column))}>\u2212</button></div>
+            </th>`)}
+            <th class="tools"><button type="button" class="add add-column" title=${l.addColumn} aria-label=${l.addColumn}
+              @click=${() => this.commitGrid(addColumn(grid), { row: 0, column: width })}>+</button></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${grid.slice(1).map((cells, i) => html`<tr>
+            ${cells.map((_, column) => html`<td>
+              <div class="cell-box">${column === 0 ? html`<slot name="row-${i}"></slot>` : ''}${input(i + 1, column, l.cell(i + 1, column))}</div>
+            </td>`)}
+            <td class="tools"><button type="button" class="remove remove-row" tabindex="-1" title=${l.removeRow} aria-label="${l.removeRow} (${i + 1})"
+              ?disabled=${grid.length <= 2} @click=${() => this.commitGrid(removeRow(grid, i + 1))}>\u2212</button></td>
+          </tr>`)}
+        </tbody>
+        <tfoot>
+          <tr><td class="tools" colspan=${width + 1}><button type="button" class="add add-row" title=${l.addRow} aria-label=${l.addRow}
+            @click=${() => this.commitGrid(addRow(grid), { row: grid.length, column: 0 })}>+</button></td></tr>
+        </tfoot>
+      </table>
+      <slot name="columns" hidden></slot>`;
+  }
+
   private renderCellTemplate(template: HTMLTemplateElement, context: any) {
     const fragment = template.content.cloneNode(true) as DocumentFragment;
 
@@ -219,6 +360,11 @@ export class JuelTable extends LitElement {
     :host {
       display: block;
       overflow-x: auto;
+    }
+    /* An editable table doesn't scroll itself: its cells' slotted controls (a colour picker) open
+       popups that a scroller would clip. The page scrolls around it instead. */
+    :host([editable]) {
+      overflow: visible;
     }
     table {
       width: 100%;
@@ -266,6 +412,33 @@ export class JuelTable extends LitElement {
     .sort-indicator { opacity: 0.4; font-size: 0.8em; }
     th[aria-sort="ascending"] .sort-indicator,
     th[aria-sort="descending"] .sort-indicator { opacity: 1; }
+    /* Editable: cells are text boxes; minus shows on the heading's or row's hover/focus, + after the
+       last column and under the last row. */
+    table.editable th, table.editable td { padding: 0; }
+    table.editable th { background-color: var(--juel-raised, #f4f4f4); }
+    table.editable th, table.editable td:not(.tools) { border-color: var(--juel-border, #ddd); }
+    .cell-box { display: flex; align-items: center; gap: 2px; position: relative; }
+    .cell-box ::slotted(*) { flex: none; margin-left: 4px; }
+    input.cell-input {
+      flex: 1; min-width: 4em; box-sizing: border-box; width: 100%;
+      border: 0; margin: 0; padding: 6px 8px; font: inherit; color: inherit; background: transparent;
+    }
+    th input.cell-input { font-weight: 600; }
+    input.cell-input:focus { outline: 2px solid var(--juel-accent, var(--primary, #007bff)); outline-offset: -2px; }
+    td.tools, th.tools { border: 0; background: none; width: 1%; white-space: nowrap; }
+    tfoot td.tools { padding-top: 2px; }
+    button.add, button.remove {
+      font: inherit; line-height: 1; cursor: pointer; border-radius: var(--juel-radius-sm, 4px);
+      border: 1px solid var(--juel-border, #ccc); background: var(--juel-surface, #fff); color: var(--juel-text, inherit);
+      min-width: 1.6em; min-height: 1.6em; padding: 0 4px;
+    }
+    button.add:hover, button.remove:hover { background: var(--juel-hover, #f0f0f0); }
+    button.add:focus-visible, button.remove:focus-visible { outline: 2px solid var(--juel-accent, #007bff); outline-offset: 1px; }
+    button.remove { visibility: hidden; color: var(--juel-danger, #b42318); }
+    button.remove:disabled { display: none; }
+    th.edit-heading:hover button.remove, th.edit-heading:focus-within button.remove,
+    tr:hover button.remove-row, tr:focus-within button.remove-row { visibility: visible; }
+    th.edit-heading button.remove-column { margin-right: 4px; }
     td.empty {
       text-align: center;
       color: var(--secondary, #6c757d);
@@ -274,6 +447,7 @@ export class JuelTable extends LitElement {
   `;
 
   render() {
+    if (this.editable) return this.renderEditable();
     const hasCustomColumns = this.columns && this.columns.length > 0;
     // Allow columns without a field property (unbound columns)
     const columns = hasCustomColumns

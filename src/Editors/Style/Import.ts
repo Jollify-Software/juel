@@ -4,3 +4,5 @@
 import './PositionEditor/PositionEditor';
 import './GradientEditor/GradientEditor';
 import './ShadowEditor/ShadowEditor';
+import './SidesEditor/SidesEditor';
+import './BorderEditor/BorderEditor';

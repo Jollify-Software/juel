@@ -164,6 +164,22 @@ always reports `aria-pressed`. `caret` adds a small down chevron after the conte
 button that opens a menu (`--button-caret-size`, default 12px). `glyph-end` puts the glyph after the
 label (`glyph="lucide-chevron-right" label="Next" glyph-end`). Example: `examples/Buttons/Button/tool-buttons.html`.
 
+## Data
+
+### Table
+
+`juel-table editable` is a grid of text to type into (a chart's data, say). Its content is `value`, a
+`string[][]` whose first row is the column headings (not `data` or `<juel-column>`s), and every edit
+fires `value-changed` `{ value }` with a new grid. Tab / Shift+Tab, Enter and the arrow keys move
+between cells (← → only at the start or end of the text); Tab on the last cell or Enter on the last
+row adds a row. **+** adds a column or a row; **−** on a heading or a row (shown on hover or focus)
+removes it, never the last column or body row. A block of cells pasted into a cell (tab-separated
+lines, as spreadsheets copy, quoted cells too) spreads right and down and grows the grid. Each
+heading has a slot `column-<i>`, each body row's first cell a slot `row-<i>`, for the page's own
+controls (a colour per series). `labels` holds the buttons' and cells' words. Sorting and selection
+are off while editable; without `editable` nothing changes. The model is pure
+(`src/Data/Table/editTable.ts`). Example: `examples/Data/Table/editable.html`.
+
 ## Display
 
 ### Card
@@ -226,6 +242,35 @@ and has a unit menu beside it (`part="quantity"`, `input`, `unit`). It can be em
 `placeholder` shows). `value-changed` and `value-committed` (Enter, leaving the box, a step or a unit)
 carry `{ value, unit, text }`; set it with `text` (`'48px'`) or `value` + `unit`. Without `units` it
 is unchanged. Example: `examples/Editors/Number/number.html`.
+
+### Style editors
+
+`juel-gradient-editor`, `juel-shadow-editor` and `juel-position-editor` edit one CSS property of a
+target element with live preview and undo (`StylePropertyEditorBase`). `juel-shadow-editor
+kind="text"` edits `text-shadow` instead of `box-shadow`: no inset or spread, an "Aa" preview, a
+stack of shadows as before (example: `examples/Editors/Style/ShadowEditor/shadow-editor.html`).
+
+Two editors for properties written several ways leave applying to the page: they read
+`declarations` (the element's declarations, as set) and fire `{ set, clear }`, the shortest CSS and
+every declaration to clear so a leftover longhand can't override it; the page applies the change as
+one undo step and passes the new declarations back.
+
+- `juel-sides-editor property="padding"`: one length per side, with an **All | Top | Right | Bottom |
+  Left** toggle (a dot marks a side with its own value), a number with units and a slider. Reads
+  the shorthand (1–4 values) and the longhands; `sides-changed` `{ set, clear, values }` writes
+  `padding: 12px`, `padding: 12px 24px`, … or longhands when only some sides are set.
+  `allow-auto` (an Auto switch) and `allow-negative` suit margin. With `.spec = { shorthand:
+  'border-radius', prefix: 'border', suffix: 'radius', corners: true }` it edits four corners.
+  Example: `examples/Editors/Style/SidesEditor/sides-editor.html`.
+- `juel-border-editor`: the border side by side (the same toggle) with **Style** (none, solid,
+  dashed, dotted, double, groove, ridge, inset, outset, as swatches), **Colour** (`juel-colour`;
+  `.palette` passes the page's colours) and **Size**, plus **Corners** (`border-radius`, All or each).
+  Reads `border`, `border-<side>`, the `border-width/-style/-color` lists and the longhands;
+  `border-changed` `{ set, clear }` writes `border` when the four sides match, else `border-<side>`.
+  A size or colour on a side with no style makes it `solid`. Example:
+  `examples/Editors/Style/BorderEditor/border-editor.html`.
+
+The parse/write rules are pure and unit-tested (`SidesEditor/SidesValue.ts`, `BorderEditor/BorderValue.ts`).
 
 ### Select
 

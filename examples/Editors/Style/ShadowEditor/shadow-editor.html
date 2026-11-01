@@ -86,8 +86,20 @@
         </div>
     </section>
 
+    <section class="example-section">
+        <h2>Text shadow — <code>kind="text"</code></h2>
+        <p>Edits <code>text-shadow</code>: no inset or spread, and the preview is text.</p>
+        <div class="stage">
+            <div id="headline" style="font-size: 44px; font-weight: 800; color: #1e293b">Headline</div>
+            <div>
+                <juel-shadow-editor id="ed3" kind="text" for="#headline" value="2px 3px 0px rgba(59, 130, 246, 0.6)"></juel-shadow-editor>
+                <div class="readback" id="rb3"></div>
+            </div>
+        </div>
+    </section>
+
     <script>
-        for (const [edId, rbId] of [['ed1', 'rb1'], ['ed2', 'rb2']]) {
+        for (const [edId, rbId] of [['ed1', 'rb1'], ['ed2', 'rb2'], ['ed3', 'rb3']]) {
             const ed = document.getElementById(edId);
             const rb = document.getElementById(rbId);
             const show = () => { rb.textContent = ed.value; };
@@ -96,6 +108,8 @@
             ed.addEventListener('shadow-cancelled', show);
             requestAnimationFrame(show);
         }
+        customElements.whenDefined('juel-shadow-editor').then(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))))
+            .then(() => { window.exampleReady = true; });
     </script>
 </body>
 

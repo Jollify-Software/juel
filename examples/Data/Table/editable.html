@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Editable table — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+</head>
+
+<body>
+    <h1>juel-table editable</h1>
+    <p>A grid of text to type into, such as a chart's data. The first row is the column headings.
+        Tab, Shift+Tab, Enter and the arrow keys move between cells; Tab on the last cell adds a row.
+        <strong>+</strong> adds a column or a row; <strong>−</strong> (on hover or focus) removes one.
+        Paste cells copied from a spreadsheet into a cell and they spread right and down.</p>
+    <juel-table id="sales" editable>
+        <span slot="column-1" class="swatch" style="background: #3b6fd8" title="Sales colour"></span>
+        <span slot="column-2" class="swatch" style="background: #e07a2e" title="Costs colour"></span>
+    </juel-table>
+    <p>The page's own controls go in the slots <code>column-&lt;i&gt;</code> (each heading) and
+        <code>row-&lt;i&gt;</code> (each row's first cell); above, a colour swatch for each series.</p>
+    <pre id="log"></pre>
+    <style>
+        .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+    </style>
+    <script>
+        const log = document.getElementById('log');
+        customElements.whenDefined('juel-table').then(() => {
+            const table = document.getElementById('sales');
+            table.value = [['Quarter', 'Sales', 'Costs'], ['Q1', '12', '8'], ['Q2', '18', '11'], ['Q3', '15', '9']];
+            table.addEventListener('value-changed', e => { log.textContent = JSON.stringify(e.detail.value); });
+            return table.updateComplete;
+        }).then(() => { window.exampleReady = true; });
+    </script>
+</body>
+
+</html>

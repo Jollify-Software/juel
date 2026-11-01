@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Sides Editor — Juel Examples</title>
+    <script src="../../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../../_Shared/examples.css" />
+    <style>
+        .stage { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+        .editors { display: flex; flex-direction: column; gap: 1rem; width: 320px; }
+        #box { background: #e0e7ff; outline: 1px dashed #6366f1; }
+        #box > div { background: #fff; padding: 0.5rem; }
+        pre { font-size: 0.8125rem; background: #f6f8fa; padding: 0.5rem; border-radius: 6px; white-space: pre-wrap; }
+    </style>
+</head>
+
+<body>
+    <header class="example-header">
+        <h1>Sides Editor</h1>
+        <p><code>&lt;juel-sides-editor property="padding"&gt;</code> edits one length per side with an
+            <strong>All | Top | Right | Bottom | Left</strong> toggle (a dot marks a side with its own value).
+            It reads the shorthand and longhands from <code>declarations</code> and fires
+            <code>sides-changed</code> <code>{ set, clear, values }</code>: the shortest CSS, and the
+            declarations to clear. The page applies it and passes the declarations back, as here.
+            <code>allow-auto</code> and <code>allow-negative</code> suit margin.</p>
+    </header>
+
+    <section class="example-section">
+        <div class="stage">
+            <div id="box"><div>Content</div></div>
+            <div class="editors">
+                <juel-sides-editor id="padding" property="padding"></juel-sides-editor>
+                <juel-sides-editor id="margin" property="margin" allow-auto allow-negative></juel-sides-editor>
+                <pre id="css"></pre>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const declarations = { padding: '12px 24px' };
+        const box = document.getElementById('box').firstElementChild;
+        const css = document.getElementById('css');
+        const editors = [document.getElementById('padding'), document.getElementById('margin')];
+        const show = () => {
+            box.removeAttribute('style');
+            for (const [name, value] of Object.entries(declarations)) box.style.setProperty(name, value);
+            css.textContent = Object.entries(declarations).map(([n, v]) => `${n}: ${v};`).join('\n');
+            for (const ed of editors) ed.declarations = { ...declarations };
+        };
+        for (const ed of editors) ed.addEventListener('sides-changed', e => {
+            for (const name of e.detail.clear) delete declarations[name];
+            Object.assign(declarations, e.detail.set);
+            window.lastChange = e.detail;
+            show();
+        });
+        customElements.whenDefined('juel-sides-editor').then(() => { show(); return editors[1].updateComplete; })
+            .then(() => { window.exampleReady = true; });
+    </script>
+</body>
+
+</html>
