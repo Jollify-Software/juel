@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Border Editor — Juel Examples</title>
+    <script src="../../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../../_Shared/examples.css" />
+    <style>
+        .stage { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+        #card { width: 220px; height: 130px; display: grid; place-items: center; background: #fff; font-weight: 600; }
+        juel-border-editor { width: 340px; }
+        pre { font-size: 0.8125rem; background: #f6f8fa; padding: 0.5rem; border-radius: 6px; white-space: pre-wrap; }
+    </style>
+</head>
+
+<body>
+    <header class="example-header">
+        <h1>Border Editor</h1>
+        <p><code>&lt;juel-border-editor&gt;</code> edits an element's border side by side
+            (<strong>All | Top | Right | Bottom | Left</strong>): style, colour and size, and its corner
+            radius (All or each corner). It reads <code>declarations</code> and fires
+            <code>border-changed</code> <code>{ set, clear }</code>: <code>border</code> when the four sides
+            match, else <code>border-&lt;side&gt;</code>, and every declaration to clear. <code>palette</code>
+            passes the page's colours to the colour picker.</p>
+    </header>
+
+    <section class="example-section">
+        <div class="stage">
+            <div id="card">Card</div>
+            <div>
+                <juel-border-editor id="border"></juel-border-editor>
+                <pre id="css"></pre>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const declarations = { border: '2px solid #4f46e5', 'border-radius': '12px' };
+        const card = document.getElementById('card');
+        const css = document.getElementById('css');
+        const editor = document.getElementById('border');
+        const show = () => {
+            card.removeAttribute('style');
+            for (const [name, value] of Object.entries(declarations)) card.style.setProperty(name, value);
+            css.textContent = Object.entries(declarations).map(([n, v]) => `${n}: ${v};`).join('\n');
+            editor.declarations = { ...declarations };
+        };
+        editor.addEventListener('border-changed', e => {
+            for (const name of e.detail.clear) delete declarations[name];
+            Object.assign(declarations, e.detail.set);
+            window.lastChange = e.detail;
+            show();
+        });
+        customElements.whenDefined('juel-border-editor').then(() => {
+            editor.palette = ['#4f46e5', '#0ea5e9', '#f97316', '#111827', '#ffffff'];
+            show();
+            return editor.updateComplete;
+        }).then(() => { window.exampleReady = true; });
+    </script>
+</body>
+
+</html>

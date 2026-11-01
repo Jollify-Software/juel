@@ -1,5 +1,6 @@
 import { css, html } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { PropertyValues } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
 import { StylePropertyEditorBase } from '../StylePropertyEditorBase';
 import { ShadowEditorEvents } from './ShadowEditorEvents';
 import '../../../Buttons/Button/Button';
@@ -21,6 +22,10 @@ import {
  * `inset`, X / Y offset, blur, spread and a colour + opacity. Drag inside the
  * preview to set the offset. Every edit is one undo step — see
  * {@link StylePropertyEditorBase}.
+ *
+ * `kind="text"` edits `text-shadow` instead (its default `css-property`): no
+ * inset and no spread (text shadows have neither), and the preview is text
+ * ("Aa") rather than a box. A stack of shadows works the same.
  */
 @customElement('juel-shadow-editor')
 export class JuelShadowEditor extends StylePropertyEditorBase {
@@ -108,8 +113,23 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
         touch-action: none;
       }
       .preview:active { cursor: grabbing; }
+      /* kind="text": the preview is text, on no box of its own. */
+      .text-preview {
+        display: grid;
+        place-items: center;
+        background: none;
+        font-size: 40px;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--juel-text, #212529);
+        user-select: none;
+      }
+      .text-chip { --font-size: 0.85rem; font-weight: 700; }
     `,
   ];
+
+  /** `box` (the default) for `box-shadow`, `text` for `text-shadow`: no inset or spread, an "Aa" preview. */
+  @property({ type: String, reflect: true }) kind: 'box' | 'text' = 'box';
 
   @state() private model: ShadowList = { shadows: [defaultShadow()] };
   @state() private active = 0;
@@ -125,7 +145,22 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
   }
 
   protected get seedFallback(): string {
-    return '0px 4px 12px rgba(0, 0, 0, 0.25)';
+    return this.kind === 'text' ? '1px 2px 4px rgba(0, 0, 0, 0.35)' : '0px 4px 12px rgba(0, 0, 0, 0.25)';
+  }
+
+  /** The text kind edits `text-shadow` unless the page named another property. */
+  protected willUpdate(changed: PropertyValues): void {
+    if (changed.has('kind')) {
+      if (this.kind === 'text' && this.cssProperty === 'box-shadow') this.cssProperty = 'text-shadow';
+      else if (this.kind !== 'text' && this.cssProperty === 'text-shadow') this.cssProperty = 'box-shadow';
+      if (this.kind === 'text') this.dropBoxParts();
+    }
+  }
+
+  /** Text shadows have no inset or spread: a value pasted from a box shadow loses them. */
+  private dropBoxParts(): void {
+    if (this.kind !== 'text') return;
+    for (const sh of this.model.shadows) { sh.inset = false; sh.spread = '0'; }
   }
   protected get changeEventName(): string {
     return ShadowEditorEvents.Changed;
@@ -134,6 +169,7 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
   protected parse(value: string): void {
     const m = parseShadowList(value);
     if (m) this.model = m;
+    this.dropBoxParts();
     this.active = Math.min(this.active, this.model.shadows.length - 1);
     if (this.active < 0) this.active = 0;
   }
@@ -194,7 +230,7 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
   }
   private addShadow(): void {
     this.edit('add', () => {
-      this.model.shadows.push(defaultShadow());
+      this.model.shadows.push(this.kind === 'text' ? { ...defaultShadow(), x: '1px', y: '2px', blur: '4px', spread: '0' } : defaultShadow());
       this.active = this.model.shadows.length - 1;
     });
   }
@@ -346,7 +382,17 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
     return html`
       <div class="list">
         ${this.model.shadows.map(
-          (sh, i) => html`<juel-button
+          (sh, i) => this.kind === 'text'
+            ? html`<juel-button
+            type="plain"
+            class="chip text-chip"
+            ?data-active=${i === this.active}
+            style="text-shadow:${shadowToString({ ...sh, x: half(sh.x), y: half(sh.y), blur: half(sh.blur) })}"
+            title="Shadow ${i + 1}"
+            button-label="Shadow ${i + 1}"
+            @click=${() => this.select(i)}
+          >A</juel-button>`
+            : html`<juel-button
             type="plain"
             class="chip"
             ?data-active=${i === this.active}
@@ -364,23 +410,30 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
       </div>
 
       <div class="preview-wrap">
-        <div
+        ${this.kind === 'text'
+          ? html`<div
+          class="preview text-preview"
+          style="text-shadow:${this.value === 'none' ? '' : this.value}"
+          @pointerdown=${this.onPreviewPointerDown}
+          title="Drag to set the offset"
+        >Aa</div>`
+          : html`<div
           class="preview"
           style="box-shadow:${this.value === 'none' ? '' : this.value}"
           @pointerdown=${this.onPreviewPointerDown}
           title="Drag to set the offset"
-        ></div>
+        ></div>`}
       </div>
 
-      <label class="row" style="font-size:.8125rem">
+      ${this.kind === 'text' ? '' : html`<label class="row inset" style="font-size:.8125rem">
         <input type="checkbox" .checked=${!!s?.inset} @change=${() => this.toggleInset()} />
         inset
-      </label>
+      </label>`}
 
       ${this.slider('Offset X', 'x', -50, 50)}
       ${this.slider('Offset Y', 'y', -50, 50)}
       ${this.slider('Blur', 'blur', 0, 100)}
-      ${this.slider('Spread', 'spread', -50, 50)}
+      ${this.kind === 'text' ? '' : this.slider('Spread', 'spread', -50, 50)}
 
       <div class="row">
         <span class="lbl">Colour</span>

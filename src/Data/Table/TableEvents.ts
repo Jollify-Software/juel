@@ -8,5 +8,8 @@ export enum TableEvents {
     RowActivated = "row-activated",
     // The sort changed from a header click: { field, direction }, both null
     // when the table went back to unsorted.
-    SortChanged = "sort-changed"
+    SortChanged = "sort-changed",
+    // An editable table's grid changed (a cell typed, a row or column added
+    // or removed, cells pasted): { value: string[][] }, a new grid each time.
+    ValueChanged = "value-changed"
 }
