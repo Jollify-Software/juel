@@ -12,7 +12,11 @@ dialog {
     min-width: var(--modal-min-width, min(22rem, 90vw));
     max-width: var(--modal-max-width, min(40rem, 90vw));
     max-height: 90vh;
-    color: inherit;
+    /* Text and box as a pair: the theme's text on the theme's surface (both from
+       ThemeLook, light or dark), each overridable. Inheriting the host's colour drew
+       a dark host's light text on the white fallback. A host that sets
+       --modal-background sets --modal-color with it. */
+    color: var(--modal-color, var(--juel-text, #1d1f23));
     background: var(--modal-background, var(--juel-surface, #fff));
     box-shadow: var(--juel-shadow-2, 0 10px 40px rgba(0, 0, 0, .25));
     font: inherit;
