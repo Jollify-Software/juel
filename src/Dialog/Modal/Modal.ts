@@ -23,6 +23,11 @@ export interface ModalClosedDetail {
  *
  * Content is slotted, so a `<form>` inside it is the caller's own: handle
  * its submit and call `close(value)`.
+ *
+ * Colours: the box is `--modal-background` (default the theme's
+ * `--juel-surface`, else white) and its text `--modal-color` (default the
+ * theme's `--juel-text`, else near-black): a pair, not the host's colour, so
+ * a modal inside dark text stays readable. Set both together.
  */
 @customElement("juel-modal")
 export class JuelModal extends JuelComponent {
