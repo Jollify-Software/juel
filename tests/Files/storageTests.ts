@@ -10,7 +10,7 @@ import { storageContract } from '../shared/storageContract';
 import { MemoryBackend, MemoryFileStorage, MemoryIndex } from '../../src/Files/Storage/MemoryFileStorage';
 import { LocalFileStorage } from '../../src/Files/Storage/LocalFileStorage';
 import { FileStorageError } from '../../src/Files/Storage/IFileStorage';
-import { accepts, checkPath, kindOf, normalise, uniquePath } from '../../src/Files/Storage/Paths';
+import { acceptWords, accepts, checkPath, kindOf, normalise, uniquePath } from '../../src/Files/Storage/Paths';
 import { hashOf, sha256 } from '../../src/Files/Storage/Hash';
 import { crc32, readZip, writeZip, ZipError } from '../../src/Files/Zip/Zip';
 import { unzipInto, zipFolder } from '../../src/Files/Zip/Transfer';
@@ -102,6 +102,12 @@ describe('paths', () => {
         expect(accepts(['text/css'], file('a.css', 'text/css'))).toBe(true);
         expect(accepts(['image/*', '.csv'], file('a.mp4'))).toBe(false);
         expect(accepts([], file('anything'))).toBe(true);
+    });
+
+    test('an accept list in words, for "not shown here"', () => {
+        expect(acceptWords(['image/*', 'video/*', 'audio/*'])).toBe('pictures, videos and sounds');
+        expect(acceptWords(['.csv'])).toBe('.csv files');
+        expect(acceptWords(['image/*'])).toBe('pictures');
     });
 });
 

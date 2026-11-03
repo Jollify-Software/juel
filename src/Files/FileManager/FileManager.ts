@@ -11,7 +11,7 @@ import { customElement, property, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { computePosition, flip, offset, shift } from '@floating-ui/dom';
 import { FileRecord, FileSortKey, FileStorageError, IFileStorage, ListOptions, PathChange, StorageQuota } from '../Storage/IFileStorage';
-import { folderOf, join, kindOf, nameOf, parentsOf, uniquePath, within } from '../Storage/Paths';
+import { acceptWords, accepts, folderOf, join, kindOf, nameOf, parentsOf, uniquePath, within } from '../Storage/Paths';
 import { canSaveToDisk, entriesUnder, saveToDirectory, unzipInto } from '../Zip/Transfer';
 import { readZip, writeZip, ZipEntry } from '../Zip/Zip';
 import { MessageBoxModule } from '../../_Modules/MessageBox/MessageBoxModule';
@@ -621,7 +621,12 @@ export class JuelFileManager extends LitElement {
             }
             (storage as IFileStorage & { keep?: () => Promise<boolean> }).keep?.();
             const what = added.length === 1 ? `"${added[0].name}"` : files === added.length ? `${files} files` : countLabel(added);
-            this.say(`Uploaded ${what}` + (renamed.length ? `; kept both where names clashed: ${renamed.join(', ')}` : ''));
+            // A file this view's `accept` hides (a .glb dropped on a picture picker) would vanish as it's
+            // uploaded: say it's kept, and why it isn't shown here.
+            const accept = this.accept.split(',').map(a => a.trim()).filter(Boolean);
+            const hidden = added.filter(r => r.kind === 'file' && !accepts(accept, r));
+            this.say(`Uploaded ${what}` + (renamed.length ? `; kept both where names clashed: ${renamed.join(', ')}` : '')
+                + (hidden.length ? `. ${hidden.length === 1 ? `"${hidden[0].name}" isn't` : `${hidden.length} of them aren't`} shown here: this list shows only ${acceptWords(accept)}` : ''));
             if (added.length) this.dispatch('file-added', { records: added });
         } catch (error) {
             this.fail(error);
@@ -1185,7 +1190,7 @@ export class JuelFileManager extends LitElement {
             ${this.renderQuota()}
             ${this.renderMenu()}
             ${this.renderChooser()}
-            <input class="files" type="file" multiple hidden @change=${this.onFilesChosen}>
+            <input class="files" type="file" multiple hidden accept=${this.accept || nothing} @change=${this.onFilesChosen}>
             <input class="folder" type="file" webkitdirectory hidden @change=${this.onFilesChosen}>
             <input class="zip" type="file" accept=".zip,application/zip" multiple hidden @change=${this.onZipChosen}>
         `;
