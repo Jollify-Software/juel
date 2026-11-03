@@ -43,8 +43,10 @@ export class Colour extends LitElement {
             flex-direction: column;
             gap: 8px;
             padding: 10px;
-            background: #fff;
-            border: 1px solid #ccc;
+            /* The page's look (Juel's tokens), so a dark app gets a dark popup. */
+            background: var(--juel-surface, #fff);
+            color: var(--juel-text, inherit);
+            border: 1px solid var(--juel-border, #ccc);
             border-radius: 6px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
