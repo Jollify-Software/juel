@@ -106,3 +106,10 @@ export function accepts(accept: string[] | undefined, record: { type: string; pa
         return type === rule;
     });
 }
+
+/** An `accept` list in words: `image/*,video/*,audio/*` → "pictures, videos and sounds"; `.csv` → ".csv files". */
+export function acceptWords(accept: string[]): string {
+    const Kinds: Record<string, string> = { image: 'pictures', video: 'videos', audio: 'sounds', text: 'text files', font: 'fonts', application: 'documents' };
+    const parts = [...new Set(accept.map(a => a.endsWith('/*') ? Kinds[a.slice(0, -2)] ?? `${a.slice(0, -2)} files` : a.startsWith('.') ? `${a} files` : a))];
+    return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0] ?? 'some kinds of file';
+}

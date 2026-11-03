@@ -93,7 +93,7 @@ adds or removes.
 | `path` | the folder on show (`''` is the top) |
 | `root-label` | the top's name, default `My files` |
 | `selection-mode` | `multiple` (default), `single`, `none` |
-| `accept` | only files of these types: `image/*,.csv` |
+| `accept` | only files of these types: `image/*,.csv`. Upload… offers only those too; a file of another kind dropped in is kept, and the status line says it isn't shown |
 | `sort`, `descending` | `name`, `modified`, `size`, `type` |
 | `readonly` | browse, open and download only (also when the storage can't write) |
 | `browse` | browse, open, download, upload and New folder, but no Rename, Move to, Copy to, Duplicate, Extract or Delete (bar, ⋯ menu, F2, Delete key, viewer, or dragging rows onto a folder) |
