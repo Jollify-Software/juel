@@ -970,3 +970,8 @@ Settings currency in `money()` or drop the field.
 - `MarkdownEditor` throws a CodeMirror `tags is not iterable` highlight crash on mount —
   a Parcel bundling issue (CM facet registry not shared between `basicSetup` and `markdown()`).
   Editing still works; only syntax highlighting is dead. Needs a package.json `alias` pass.
+- `src/_Base/New folder/` (`Filter.ts`, `FilteredList.ts`, `FilteredListService.ts`, from `cc684ba` "Grid filter")
+  is an unused copy: its `FilteredList.ts` also defines `<filtered-list>`, but nothing imports
+  the folder (grep for `New folder` finds only File Manager UI strings), so only
+  `src/Layout/FilteredList/FilteredList.ts` ships. `COMPONENTS.md` lists both. Delete it, or
+  move what the grid filter needs (found 2026-11-04, overnight; not changed).
