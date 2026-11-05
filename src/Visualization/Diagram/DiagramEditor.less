@@ -22,10 +22,9 @@
 
 // The outline: a row per node, indented by depth (org).
 .outline { display: flex; flex-direction: column; gap: 4px; overflow: auto; padding-right: 4px; }
-.row { display: grid; grid-template-columns: auto minmax(90px, 2fr) minmax(70px, 2fr) auto minmax(60px, 1fr) auto; align-items: center; gap: 4px;
+.row { display: grid; grid-template-columns: auto minmax(90px, 2fr) minmax(70px, 2fr) auto auto auto; align-items: center; gap: 4px;
     padding: 2px 4px 2px calc(4px + var(--depth, 0) * 22px); border-radius: 6px; }
-.row.timeline { grid-template-columns: auto minmax(60px, 1fr) minmax(90px, 2fr) minmax(70px, 2fr) auto minmax(60px, 1fr) auto; }
-.row juel-text.icon { --font-size: 12px; }
+.row.timeline { grid-template-columns: auto minmax(60px, 1fr) minmax(90px, 2fr) minmax(70px, 2fr) auto auto auto; }
 .row[data-selected] { background: color-mix(in srgb, var(--editor-accent) 10%, transparent); }
 .row .grip { color: var(--editor-muted); width: 14px; text-align: center; cursor: grab; user-select: none; touch-action: none; }
 .row .grip:hover { color: var(--juel-text, inherit); }

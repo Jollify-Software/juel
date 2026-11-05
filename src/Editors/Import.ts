@@ -26,3 +26,4 @@ import "./Handles/RotateHandle";
 
 import "./Theme/ThemeToggle";
 import "./Theme/ThemeSelect";
+import './IconPicker/IconPicker';

@@ -3,7 +3,7 @@
 //
 //   process, org, timeline — an OUTLINE of the nodes: type the text, Enter adds the next one,
 //     Tab / Shift+Tab put it under a manager (org) or back, Alt+↑/↓ reorder, Backspace on an
-//     empty one removes it; a date (timeline), a colour and an icon per node; clicking a node
+//     empty one removes it; a date (timeline), a colour and an icon (chosen from a grid) per node; clicking a node
 //     in the drawing picks its row.
 //   flowchart — a CANVAS: add a box / rounded / decision / start-end from the bar, drag to move
 //     (snapped to a grid), drag from a picked node's port to another node to link, double-click
@@ -11,6 +11,7 @@
 //
 // `value` is the model in; `diagram-changed` ({ diagram, reason }) reports every edit, and
 // `diagram` is the model as it stands. Undo/redo is HistoryController (one entry per gesture).
+import '../../Editors/IconPicker/IconPicker';
 import { canIndent, canMove, dropRow } from './diagramOutline';
 import { CSSResultGroup, html, LitElement, nothing, svg, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
@@ -306,8 +307,8 @@ export class JuelDiagramEditor extends LitElement {
                         @value-changed=${(e: CustomEvent) => this.setField(node.id, 'detail', e.detail.value, true)}></juel-text>
                     <juel-colour class="colour" title="Colour" .value=${node.colour ?? '#3d6a8a'}
                         @value-changed=${(e: CustomEvent) => this.setField(node.id, 'colour', e.detail.value, false)}></juel-colour>
-                    <juel-text class="icon" placeholder="Icon" aria-label="Icon (a Lucide name, e.g. lucide-rocket)" title="An icon: a Lucide glyph name, e.g. lucide-rocket" .value=${node.icon ?? ''}
-                        @value-changed=${(e: CustomEvent) => this.setField(node.id, 'icon', e.detail.value, true)}></juel-text>
+                    <juel-icon-picker class="icon" label="Icon" .value=${node.icon ?? ''}
+                        @value-changed=${(e: CustomEvent) => this.setField(node.id, 'icon', e.detail.value, false)}></juel-icon-picker>
                     <juel-button type="plain" action="remove" glyph="lucide-trash-2" button-label="Remove" title="Remove it" ?disabled=${rows.length <= 1}
                         @click=${() => this.removeNode(node.id)}></juel-button>
                 </div>`)

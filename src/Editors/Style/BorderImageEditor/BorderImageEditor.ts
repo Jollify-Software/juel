@@ -38,7 +38,7 @@ export class JuelBorderImageEditor extends LitElement {
             background: var(--juel-sunken, rgba(127, 127, 127, 0.08)); border-radius: var(--juel-radius-sm, 4px); overflow: hidden; }
         .preview { width: min(14rem, 100%); min-height: 3.5rem; display: grid; place-items: center; box-sizing: content-box;
             background: var(--juel-surface, #fff); color: var(--juel-text, #212529); }
-        .empty { margin: 0; opacity: 0.75; }
+        .prompt { margin: 0; opacity: 0.75; }
         .source-name { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; opacity: 0.8; }
         .web { flex: 1 1 auto; min-width: 0; font: inherit; padding: 3px 5px; box-sizing: border-box;
             border: 1px solid var(--juel-border, #ccc); border-radius: var(--juel-radius-sm, 4px);
@@ -135,7 +135,7 @@ export class JuelBorderImageEditor extends LitElement {
         const web = /^https?:\/\//i.test(picture);
         return html`
             <div class="stage"><div class="preview" part="preview" style=${styleMap(this.previewStyle(image))}>
-                ${image ? 'Preview' : html`<p class="empty">Choose a picture or a gradient</p>`}</div></div>
+                ${image ? 'Preview' : html`<p class="prompt">Choose a picture or a gradient</p>`}</div></div>
             <div class="row"><span class="lbl">Draw it from</span>
                 <juel-segmented class="kind" label="Draw it from" .value=${kind}
                     .options=${[{ value: 'picture', label: 'Picture' }, { value: 'gradient', label: 'Gradient' }]}
