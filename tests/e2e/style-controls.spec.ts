@@ -85,6 +85,26 @@ test.describe('juel-transform-editor', () => {
         expect(await page.evaluate(() => getComputedStyle(document.getElementById('box')!).rotate)).toBe('15deg');
     });
 
+    test('rotate has a slider for each of X, Y and Z, and all three show on the box together', async ({ page }) => {
+        for (const name of ['rotateX', 'rotateY', 'rotate']) await expect(part(page, name).locator('input[type=range]')).toHaveCount(1);
+        await expect(part(page, 'rotateX').locator('.lbl')).toHaveText('Rotate X');
+        await expect(part(page, 'rotateY').locator('.lbl')).toHaveText('Rotate Y');
+        await expect(part(page, 'rotate').locator('.lbl')).toHaveText('Rotate Z');
+        for (const [name, value] of [['rotateX', '20'], ['rotateY', '30'], ['rotate', '40']]) {
+            await part(page, name).locator('input#number-input').fill(value);
+            await part(page, name).locator('input#number-input').press('Enter');
+        }
+        const text = await css(page);
+        expect(text).toContain('rotate: 40deg;');
+        expect(text).toContain('transform: rotateX(20deg) rotateY(30deg);');
+        const box = await page.evaluate(() => { const s = getComputedStyle(document.getElementById('box')!); return { rotate: s.rotate, transform: s.transform }; });
+        expect(box.rotate).toBe('40deg');
+        expect(box.transform).toMatch(/^matrix3d\(/);
+        await dragSlider(page, part(page, 'rotateY').locator('input[type=range]'), 0.75, false);
+        expect(await css(page)).toMatch(/transform: rotateX\(20deg\) rotateY\(\d+deg\);/);
+        await expect(part(page, 'rotateX').locator('input#number-input')).toHaveValue('20');
+    });
+
     test('a slider moves the box live and commits once', async ({ page }) => {
         await dragSlider(page, part(page, 'rotate').locator('input[type=range]'), 0.75, false);
         expect(await css(page)).toMatch(/rotate: \d+deg;/);
@@ -143,8 +163,124 @@ test.describe('juel-border-image-editor', () => {
     });
     const kind = (page: Page, value: string) => page.locator(`#editor juel-segmented.kind juel-button[data-value="${value}"]`);
 
-    test('a picture: longhands that show in the preview; slice, edges and fill', async ({ page }) => {
+    /** Your own picture: Picture offers the built-in ones first, so asking for one is a click of its own. */
+    const ownPicture = async (page: Page) => {
         await kind(page, 'picture').click();
+        await page.locator('#editor juel-button.choose-picture').click();
+    };
+    const guide = (page: Page, side: string) => page.locator(`#editor .guide[data-side="${side}"]`);
+
+    test('Picture offers the built-in pictures, and asks for nothing until one is wanted', async ({ page }) => {
+        await kind(page, 'picture').click();
+        await expect(page.locator('#editor button.preset')).toHaveCount(18);
+        await expect(page.locator('#css')).toHaveText('');
+        await expect(page.locator('#editor .guide')).toHaveCount(0);
+    });
+
+    test('a built-in picture: its settings, in the preview, marked as chosen, loaded with no error', async ({ page }) => {
+        const errors: string[] = [];
+        page.on('pageerror', e => errors.push(String(e)));
+        await kind(page, 'picture').click();
+        for (const button of await page.locator('#editor button.preset').all()) {
+            await button.click();
+            await expect(button).toHaveAttribute('aria-pressed', 'true');
+            await expect(page.locator('#editor .slicer img')).toBeVisible();
+            expect(await page.locator('#editor .slicer img').evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(90);
+        }
+        await page.locator('#editor button.preset[data-preset="waves"]').click();
+        const text = await css(page);
+        expect(text).toContain('border-image-source: url("data:image/svg+xml,');
+        expect(text).toContain('border-image-slice: 30;');
+        expect(text).toContain('border-image-repeat: round;');
+        expect(text).toContain('border-width: 18px;');
+        const shown = await page.locator('#editor .preview').evaluate(el => getComputedStyle(el).borderImageSource);
+        expect(shown).toContain('data:image/svg');
+        await expect(page.locator('#editor .source-name')).toHaveText('Waves');
+        expect(errors).toEqual([]);
+    });
+
+    test('dragging a guide on All moves all four, and is one edit at the end', async ({ page }) => {
+        await kind(page, 'picture').click();
+        await page.locator('#editor button.preset[data-preset="classic"]').click();
+        await expect(guide(page, 'top')).toBeVisible();
+        await page.locator('#editor .slicer').scrollIntoViewIfNeeded();
+        await page.evaluate(() => {
+            (window as any).commits = 0;
+            document.getElementById('editor')!.addEventListener('border-image-changed', e => { if (!(e as CustomEvent).detail.preview) (window as any).commits++; });
+        });
+        const box = (await page.locator('#editor .slicer').boundingBox())!;
+        const line = (await guide(page, 'top').boundingBox())!;
+        await page.mouse.move(box.x + box.width * 0.5, line.y + line.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.2, { steps: 4 });
+        await page.mouse.up();
+        // 90 px × 0.2 = 18 px on every side, still in px as the preset wrote it.
+        expect(await css(page)).toContain('border-image-slice: 18;');
+        expect(await page.evaluate(() => (window as any).commits)).toBe(1);
+    });
+
+    test('with one side chosen, a guide moves alone, and dragging another guide chooses it', async ({ page }) => {
+        await kind(page, 'picture').click();
+        await page.locator('#editor button.preset[data-preset="classic"]').click();
+        await page.locator('#editor button.place[data-place="top"]').click();
+        await page.locator('#editor .slicer').scrollIntoViewIfNeeded();
+        const box = (await page.locator('#editor .slicer').boundingBox())!;
+        const line = (await guide(page, 'left').boundingBox())!;
+        await page.mouse.move(line.x + line.width / 2, box.y + box.height * 0.5);
+        await page.mouse.down();
+        await page.mouse.move(box.x + box.width * 0.1, box.y + box.height * 0.5, { steps: 3 });
+        await page.mouse.up();
+        expect(await css(page)).toContain('border-image-slice: 30 30 30 9;');
+        await expect(page.locator('#editor button.place[data-place="left"]')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    test('a guide takes the arrow keys, and says its value', async ({ page }) => {
+        await kind(page, 'picture').click();
+        await page.locator('#editor button.preset[data-preset="classic"]').click();
+        await page.locator('#editor button.place[data-place="right"]').click();
+        await guide(page, 'right').focus();
+        await page.keyboard.press('ArrowLeft');
+        expect(await css(page)).toContain('border-image-slice: 30 31 30 30;');
+        await page.keyboard.press('Shift+ArrowRight');
+        expect(await css(page)).toContain('border-image-slice: 30 21 30 30;');
+        await expect(guide(page, 'right')).toHaveAttribute('aria-valuetext', '21 pixels');
+        await page.keyboard.press('ArrowUp');   // not this guide's direction
+        expect(await css(page)).toContain('border-image-slice: 30 21 30 30;');
+    });
+
+    test('top and bottom edges set apart from the sides, and put back together', async ({ page }) => {
+        await ownPicture(page);
+        await page.locator('#editor .edges-apart').check();
+        await page.locator('#editor juel-segmented.repeat-sides juel-button[data-value="space"]').click();
+        expect(await css(page)).toContain('border-image-repeat: round space;');
+        await page.locator('#editor .edges-apart').uncheck();
+        expect(await css(page)).toContain('border-image-repeat: round;');
+        await expect(page.locator('#editor juel-segmented.repeat-sides')).toHaveCount(0);
+    });
+
+    test('Width, Picture width and Reach out each take one side', async ({ page }) => {
+        await ownPicture(page);
+        await page.locator('#editor button.place[data-place="left"]').click();
+        for (const [part, value] of [['width', '30'], ['image-width', '12'], ['outset', '5']]) {
+            await page.locator(`#editor juel-number.${part} input#number-input`).fill(value);
+            await page.locator(`#editor juel-number.${part} input#number-input`).press('Enter');
+        }
+        const text = await css(page);
+        expect(text).toContain('border-width: 16px 16px 16px 30px;');
+        expect(text).toContain('border-image-width: 1 1 1 12px;');
+        expect(text).toContain('border-image-outset: 0 0 0 5px;');
+    });
+
+    test('a typed web address is what the preview shows, not an earlier picture', async ({ page }) => {
+        await page.evaluate(() => (document.getElementById('editor') as any).setAttribute('preview-source', 'data:image/gif;base64,R0lGODlhAQABAAAAACw='));
+        await ownPicture(page);
+        await page.locator('#editor input.web').fill('https://example.com/edge.png');
+        await page.locator('#editor input.web').press('Enter');
+        expect(await page.locator('#editor .preview').evaluate(el => getComputedStyle(el).borderImageSource)).toContain('https://example.com/edge.png');
+    });
+
+    test('a picture: longhands that show in the preview; slice, edges and fill', async ({ page }) => {
+        await ownPicture(page);
         const text = await css(page);
         expect(text).toContain('border-style: solid;');
         expect(text).toContain('border-image-slice: 33%;');
@@ -162,7 +298,7 @@ test.describe('juel-border-image-editor', () => {
     });
 
     test('a slice for one side only', async ({ page }) => {
-        await kind(page, 'picture').click();
+        await ownPicture(page);
         await page.locator('#editor button.place[data-place="top"]').click();
         await page.locator('#editor juel-number.slice input#number-input').fill('5');
         await page.locator('#editor juel-number.slice input#number-input').press('Enter');

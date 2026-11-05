@@ -25,8 +25,38 @@ describe('readTransform', () => {
     });
 });
 
+describe('readTransform: rotate on three axes', () => {
+    test('rotateX and rotateY come out of transform, leaving the rest', () => {
+        expect(readTransform({ transform: 'perspective(800px) rotateX(10deg) rotateY(20deg) skewY(1deg)', rotate: '30deg' }))
+            .toMatchObject({ rotateX: '10deg', rotateY: '20deg', rotate: '30deg', skewY: '1deg', other: 'perspective(800px)' });
+    });
+
+    test('a rotate that names its axis is that axis\'s slider, either way round', () => {
+        expect(readTransform({ rotate: 'x 30deg' })).toMatchObject({ rotateX: '30deg', rotateY: '', rotate: '' });
+        expect(readTransform({ rotate: '30deg y' })).toMatchObject({ rotateX: '', rotateY: '30deg', rotate: '' });
+        expect(readTransform({ rotate: 'z 30deg' })).toMatchObject({ rotateX: '', rotateY: '', rotate: '30deg' });
+    });
+
+    test('a plain angle, or any other form of rotate, is left where it was', () => {
+        expect(readTransform({ rotate: '15deg' })).toMatchObject({ rotate: '15deg', rotateX: '' });
+        expect(readTransform({ rotate: '1 1 0 45deg' })).toMatchObject({ rotate: '1 1 0 45deg', rotateX: '', rotateY: '' });
+        expect(readTransform({ rotate: 'calc(var(--p) * 1turn)' })).toMatchObject({ rotate: 'calc(var(--p) * 1turn)', rotateX: '' });
+    });
+
+    test('round trip keeps every part', () => {
+        const declarations = { rotate: '30deg', transform: 'rotateX(10deg) rotateY(20deg)' };
+        expect(writeTransform(readTransform(declarations)).set).toEqual(declarations);
+    });
+});
+
 describe('writeTransform', () => {
-    const empty = { x: '', y: '', rotate: '', scale: '', skewX: '', skewY: '', other: '', origin: '' };
+    const empty = { x: '', y: '', rotateX: '', rotateY: '', rotate: '', scale: '', skewX: '', skewY: '', other: '', origin: '' };
+
+    test('rotate X and Y go in transform, before skew; Z stays the rotate property', () => {
+        const { set } = writeTransform({ ...empty, other: 'perspective(800px)', rotateX: '10deg', rotateY: '20deg', rotate: '30deg', skewX: '5deg' });
+        expect(set.transform).toBe('perspective(800px) rotateX(10deg) rotateY(20deg) skewX(5deg)');
+        expect(set.rotate).toBe('30deg');
+    });
 
     test('clears what is empty', () => {
         expect(writeTransform(empty)).toEqual({ set: {}, clear: ['translate', 'rotate', 'scale', 'transform', 'transform-origin'] });
