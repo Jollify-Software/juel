@@ -1,8 +1,9 @@
 // An element's transform as the parts juel-transform-editor shows, read from and written to CSS. Move,
-// rotate and scale are the individual properties (`translate`, `rotate`, `scale`), not `transform`: those
-// are what drag handles write, and they combine with an animation that animates `transform` instead of
-// being overridden by it. Skew has no property of its own, so it lives in `transform`, after anything
-// else already there (a `matrix(…)` or `perspective(…)` is kept as `other`, never lost). Pure.
+// rotate (about Z) and scale are the individual properties (`translate`, `rotate`, `scale`), not
+// `transform`: those are what drag handles write, and they combine with an animation that animates
+// `transform` instead of being overridden by it. `rotate` holds one axis only, so rotate X and Y live in
+// `transform`, as skew does, after anything else already there (a `matrix(…)` or `perspective(…)` is kept
+// as `other`, never lost). Pure.
 
 import { splitTopLevel } from '../ShadowEditor/ShadowValue';
 import type { DeclarationChange } from '../SidesEditor/SidesValue';
@@ -11,6 +12,10 @@ export interface TransformParts {
     /** `translate`'s two parts; when `translate` can't be split (a formula, three values), `x` holds it all. */
     x: string;
     y: string;
+    /** About X and Y, in `transform`. */
+    rotateX: string;
+    rotateY: string;
+    /** About Z, the `rotate` property. */
     rotate: string;
     scale: string;
     skewX: string;
@@ -42,11 +47,22 @@ function transformFunctions(value: string): { name: string; args: string }[] | n
 
 export function readTransform(declarations: Record<string, string | undefined>): TransformParts {
     const parts: TransformParts = {
-        x: '', y: '', skewX: '', skewY: '', other: '',
+        x: '', y: '', rotateX: '', rotateY: '', skewX: '', skewY: '', other: '',
         rotate: declarations.rotate?.trim() ?? '',
         scale: declarations.scale?.trim() ?? '',
         origin: declarations['transform-origin']?.trim() ?? '',
     };
+    // `rotate: x 30deg` says one axis: it's that axis's slider, and is written back to `transform`.
+    const axis = /^([xyz])\s+(\S+)$/i.exec(parts.rotate);
+    const after = /^(\S+)\s+([xyz])$/i.exec(parts.rotate);
+    const letter = (axis?.[1] ?? after?.[2])?.toLowerCase();
+    if (letter) {
+        const angle = axis?.[2] ?? after![1];
+        parts.rotate = letter === 'z' ? angle : '';
+        if (letter === 'x') parts.rotateX = angle;
+        if (letter === 'y') parts.rotateY = angle;
+    }
+
     const translate = declarations.translate?.trim() ?? '';
     const pieces = splitTopLevel(translate, ' ');
     if (pieces.length === 2 && pieces.every(isPlainLength)) [parts.x, parts.y] = pieces;
@@ -60,7 +76,9 @@ export function readTransform(declarations: Record<string, string | undefined>):
             const other: string[] = [];
             for (const { name, args } of functions) {
                 const lower = name.toLowerCase();
-                if (lower === 'skewx' && !parts.skewX) parts.skewX = args;
+                if (lower === 'rotatex' && !parts.rotateX) parts.rotateX = args;
+                else if (lower === 'rotatey' && !parts.rotateY) parts.rotateY = args;
+                else if (lower === 'skewx' && !parts.skewX) parts.skewX = args;
                 else if (lower === 'skewy' && !parts.skewY) parts.skewY = args;
                 else if (lower === 'skew' && !parts.skewX && !parts.skewY) {
                     const [a, b] = args.split(',').map(s => s.trim());
@@ -85,7 +103,8 @@ export function writeTransform(parts: TransformParts): DeclarationChange {
     put('translate', y && !isZero(y) ? `${x || 0} ${y}` : x);
     put('rotate', parts.rotate);
     put('scale', parts.scale);
-    const transform = [parts.other, parts.skewX && `skewX(${parts.skewX})`, parts.skewY && `skewY(${parts.skewY})`].filter(Boolean).join(' ');
+    const transform = [parts.other, parts.rotateX && `rotateX(${parts.rotateX})`, parts.rotateY && `rotateY(${parts.rotateY})`,
+        parts.skewX && `skewX(${parts.skewX})`, parts.skewY && `skewY(${parts.skewY})`].filter(Boolean).join(' ');
     put('transform', transform);
     put('transform-origin', parts.origin);
     return { set, clear };

@@ -10,7 +10,7 @@ import { isPlainLength, readTransform, writeTransform, type TransformParts } fro
 /** `transform-changed`'s detail: the declarations to set and to clear; `preview` while a slider moves. */
 export type TransformChangedDetail = DeclarationChange & { preview?: boolean };
 
-type Part = 'x' | 'y' | 'rotate' | 'scale' | 'skewX' | 'skewY';
+type Part = 'x' | 'y' | 'rotateX' | 'rotateY' | 'rotate' | 'scale' | 'skewX' | 'skewY';
 
 const Move: Record<string, NumberRange> = {
     vw: { min: -50, max: 50, step: 0.1 },
@@ -25,15 +25,15 @@ const Turn: Record<string, NumberRange> = {
 const Skew: Record<string, NumberRange> = { deg: { min: -45, max: 45, step: 1 } };
 
 /** The CSS property that holds a part, for the calculator and the formula shown instead of a slider. */
-const PropertyOf: Record<Part, string> = { x: 'translate', y: 'translate', rotate: 'rotate', scale: 'scale', skewX: 'transform', skewY: 'transform' };
+const PropertyOf: Record<Part, string> = { x: 'translate', y: 'translate', rotateX: 'transform', rotateY: 'transform', rotate: 'rotate', scale: 'scale', skewX: 'transform', skewY: 'transform' };
 
 /**
- * `<juel-transform-editor>` — an element's move, rotate, scale, skew and origin, each a slider, number
- * and unit on one row. It reads `declarations` (`translate`, `rotate`, `scale`, `transform`,
- * `transform-origin`) and fires `transform-changed` `{ set, clear, preview? }`: `preview` while a
- * slider moves, then once without it (one undo step). Move, rotate and scale are written as the
- * individual properties, which combine with an animation of `transform`; skew goes in `transform`,
- * after anything else already there, which is shown in a box of its own and never lost.
+ * `<juel-transform-editor>` — an element's move, rotate (X, Y and Z), scale, skew and origin, each a
+ * slider, number and unit on one row. It reads `declarations` (`translate`, `rotate`, `scale`,
+ * `transform`, `transform-origin`) and fires `transform-changed` `{ set, clear, preview? }`: `preview`
+ * while a slider moves, then once without it (one undo step). Move, rotate Z and scale are written as
+ * the individual properties, which combine with an animation of `transform`; rotate X, rotate Y and skew
+ * go in `transform`, after anything else already there, which is shown in a box of its own and never lost.
  *
  * A value a slider can't show (a formula such as `calc(…)`) is shown as text with a clear button.
  * `formulas` lists the properties with a calculator button, which fires `formula-requested`
@@ -116,7 +116,9 @@ export class JuelTransformEditor extends LitElement {
             ${p.y || !p.x || isPlainLength(p.x)
                 ? html`${this.row('Move X', 'x', p.x, Object.keys(Move), Move)}${this.row('Move Y', 'y', p.y, Object.keys(Move), Move)}`
                 : this.row('Move', 'x', p.x, Object.keys(Move), Move)}
-            ${this.row('Rotate', 'rotate', p.rotate, Object.keys(Turn), Turn)}
+            ${this.row('Rotate X', 'rotateX', p.rotateX, Object.keys(Turn), Turn)}
+            ${this.row('Rotate Y', 'rotateY', p.rotateY, Object.keys(Turn), Turn)}
+            ${this.row('Rotate Z', 'rotate', p.rotate, Object.keys(Turn), Turn)}
             ${this.row('Scale', 'scale', p.scale, [], null, { min: 0, max: 3, step: 0.01, fallback: 1, placeholder: '1' })}
             ${this.row('Skew X', 'skewX', p.skewX, ['deg'], Skew)}
             ${this.row('Skew Y', 'skewY', p.skewY, ['deg'], Skew)}
