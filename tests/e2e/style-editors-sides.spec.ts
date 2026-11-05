@@ -98,7 +98,7 @@ test('shadow editor kind="text": no inset or spread, an Aa preview, edits text-s
     await expect(page.locator('#ed1 label.inset')).toHaveCount(1);
     await expect(page.locator('#ed1 .lbl', { hasText: 'Spread' })).toHaveCount(1);
     // Add a second shadow: a stack, written to text-shadow on the headline.
-    await text.locator('juel-button[title="Add shadow"]').click();
+    await text.locator('juel-button[button-label="Add shadow"]').click();
     const value = await text.evaluate((e: any) => e.value);
     expect(value.split(/,(?![^(]*\))/).length).toBe(2);
     expect(value).not.toMatch(/inset/);
