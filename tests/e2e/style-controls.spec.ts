@@ -199,6 +199,58 @@ test.describe('juel-border-image-editor', () => {
         expect(errors).toEqual([]);
     });
 
+    test('a colour tints the gallery and the picture in use, keeps its settings, and goes back', async ({ page }) => {
+        const errors: string[] = [];
+        page.on('pageerror', e => errors.push(String(e)));
+        await kind(page, 'picture').click();
+        const tint = page.locator('#editor juel-colour.tint');
+        const swatchSource = (id: string) => page.locator(`#editor button.preset[data-preset="${id}"] .swatch`).evaluate(el => getComputedStyle(el).borderImageSource);
+        const own = await swatchSource('waves');
+
+        // Before any picture: only the gallery changes, and what's picked next comes in that colour.
+        await tint.evaluate((el: any) => el.setValue('#e03131'));
+        await expect(page.locator('#css')).toHaveText('');
+        expect(await swatchSource('waves')).not.toBe(own);
+        expect(await swatchSource('waves')).toContain('%23e03131');
+        await page.locator('#editor button.preset[data-preset="waves"]').click();
+        expect(await css(page)).toContain('%23e03131');
+        await expect(page.locator('#editor button.preset[data-preset="waves"]')).toHaveAttribute('aria-pressed', 'true');
+        await expect(page.locator('#editor .source-name')).toHaveText('Waves');
+
+        // With a picture: changing the colour keeps a slice, a width and an edge the user set, and the grid doesn't go away.
+        await page.locator('#editor juel-number.slice input#number-input').fill('20');
+        await page.locator('#editor juel-number.slice input#number-input').press('Enter');
+        await tint.evaluate((el: any) => el.setValue('#1971c2'));
+        const blue = await css(page);
+        expect(blue).toContain('%231971c2');
+        expect(blue).not.toContain('%23e03131');
+        expect(blue).toContain('border-image-slice: 20;');
+        await expect(page.locator('#editor .guide')).toHaveCount(4);
+        expect(await page.locator('#editor .preview').evaluate(el => getComputedStyle(el).borderImageSource)).toContain('%231971c2');
+
+        // A colour the browser reads but isn't hex (a theme's), and a page opened on a tinted picture says what it is.
+        await tint.evaluate((el: any) => el.setValue('rgb(47, 158, 68)'));
+        expect(await css(page)).toContain('%232f9e44');
+        await page.evaluate(() => { const e = document.getElementById('editor') as any; e.tint = ''; return e.updateComplete; });
+        await expect(page.locator('#editor juel-colour.tint')).toHaveJSProperty('value', '#2f9e44');
+
+        await page.locator('#editor juel-button.own-colours').click();
+        const back = await css(page);
+        expect(back).not.toContain('data-preset');
+        expect(back).toContain('border-image-slice: 20;');
+        expect(await swatchSource('waves')).toBe(own);
+        await expect(page.locator('#editor juel-button.own-colours')).toHaveCount(0);
+        expect(errors).toEqual([]);
+    });
+
+    test('a colour leaves your own picture alone', async ({ page }) => {
+        await ownPicture(page);
+        const before = await css(page);
+        await page.locator('#editor juel-colour.tint').evaluate((el: any) => el.setValue('#e03131'));
+        expect(await css(page)).toBe(before);
+        expect(await page.locator('#editor button.preset[data-preset="waves"] .swatch').evaluate(el => getComputedStyle(el).borderImageSource)).toContain('%23e03131');
+    });
+
     test('dragging a guide on All moves all four, and is one edit at the end', async ({ page }) => {
         await kind(page, 'picture').click();
         await page.locator('#editor button.preset[data-preset="classic"]').click();

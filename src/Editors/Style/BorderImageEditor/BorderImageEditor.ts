@@ -8,9 +8,22 @@ import '../GradientEditor/GradientEditor';
 import { renderPlaceToggle, placeToggleStyles, type SidePlace } from '../SidesEditor/SideToggle';
 import type { DeclarationChange, FourValues, Side } from '../SidesEditor/SidesValue';
 import { Sides, clearBorderImage, defaultBorderImage, isGradientSource, moveSlice, readBorderImage, sideValue, sliceFraction, withSide, writeBorderImage, BorderImageRepeats, type BorderImage, type BorderImageRepeat, type ImageSize } from './BorderImageValue';
-import { BorderImagePresets, presetSource, type BorderImagePreset } from './BorderImagePresets';
+import { BorderImagePresets, presetSource, readPresetSource, type BorderImagePreset } from './BorderImagePresets';
+import '../../Colour/Colour';
 
 const StarterGradient = 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)';
+/** Any colour the browser reads, as `#rrggbb` (its alpha dropped: a picture's colours are opaque), or null. */
+function colourToHex(colour: string): string | null {
+    const context = document.createElement('canvas').getContext('2d');
+    if (!context) return null;
+    context.fillStyle = '#000000';
+    context.fillStyle = colour;
+    const read = String(context.fillStyle);
+    if (read.startsWith('#')) return read;
+    const parts = read.match(/[\d.]+/g);
+    return parts && parts.length >= 3 ? `#${parts.slice(0, 3).map(n => Math.round(Number(n)).toString(16).padStart(2, '0')).join('')}` : null;
+}
+
 /** The largest the slice grid draws a picture, in px. */
 const SlicerSize = 176;
 const SideLabels: Record<Side, string> = { top: 'Top', right: 'Right', bottom: 'Bottom', left: 'Left' };
@@ -26,7 +39,8 @@ const RepeatLabels: Record<BorderImageRepeat, { label: string; title: string }> 
 
 /**
  * `<juel-border-image-editor>` — a border drawn from a picture or a gradient, with a live preview: a set
- * of **built-in pictures** (`presets`, each carried in the CSS as a `data:` URL, so it needs no file), a
+ * of **built-in pictures** (`presets`, each carried in the CSS as a `data:` URL, so it needs no file), in
+ * their own colours or a **Colour** you choose (`palette` offers the page's swatches, such as a theme's), a
  * **slice grid** (four guides dragged on the picture, or moved with the arrow keys), **Slice**, **Width**,
  * **Picture width** (`border-image-width`), **Reach out** (`border-image-outset`), each for all sides or
  * one, **Edges** (stretch, repeat, round, space; top and bottom apart from left and right if wanted) and
@@ -85,6 +99,7 @@ export class JuelBorderImageEditor extends LitElement {
             background: var(--juel-surface, Field); color: var(--juel-text, FieldText); }
         juel-gradient-editor { display: block; margin-bottom: 0.5rem; }
         label.fill, label.repeat-apart { display: inline-flex; align-items: center; gap: 0.35rem; }
+        juel-button.own-colours { --padding: 2px 8px; --font-size: 0.75rem; }
     `];
 
     /** The element's declarations now. */
@@ -93,9 +108,13 @@ export class JuelBorderImageEditor extends LitElement {
     @property({ type: String, attribute: 'preview-source' }) previewSource = '';
     /** The built-in pictures on offer; empty to offer none, and Picture goes straight to `source-requested`. */
     @property({ attribute: false }) presets: readonly BorderImagePreset[] = BorderImagePresets;
+    /** The colour swatches offered (passed to `juel-colour`'s `palette`), such as the theme's colours. */
+    @property({ attribute: false }) palette?: (string | { value: string; label?: string })[];
 
     /** Chosen before any source exists: which kind of source the editor is offering. */
     @state() private kind: 'picture' | 'gradient' | null = null;
+    /** The colour for the built-in pictures, when no tinted one is on the element to say it; '' for their own. */
+    @state() private tint = '';
     @state() private place: SidePlace = 'all';
     /** The picture's own size, once it has loaded; the slice grid waits for it. */
     @state() private natural: ImageSize | null = null;
@@ -123,9 +142,10 @@ export class JuelBorderImageEditor extends LitElement {
         const address = this.pictureAddress(this.image);
         if (address === this.measured) return;
         this.measured = address;
-        this.natural = null;
-        if (!address) return;
+        // The last size stands until this one's known, so the grid doesn't blink as a colour changes.
+        if (!address) { this.natural = null; return; }
         const picture = new Image();
+        picture.onerror = () => { if (this.measured === address) this.natural = null; };
         picture.onload = () => {
             // An SVG with no size of its own says 0: any square will do, as a slice in it can only be a %.
             if (this.measured === address) this.natural = { width: picture.naturalWidth || 100, height: picture.naturalHeight || 100 };
@@ -171,15 +191,32 @@ export class JuelBorderImageEditor extends LitElement {
         this.dispatchEvent(new CustomEvent('source-requested', { bubbles: true, composed: true }));
     }
 
-    /** A built-in picture, with the settings it was drawn for. */
-    private choosePreset(preset: BorderImagePreset) {
+    /** A built-in picture, in the colour showing, with the settings it was drawn for. */
+    private choosePreset(preset: BorderImagePreset, colour: string) {
         const { slice, repeat, width, fill } = preset;
         this.place = 'all';
         this.edgesApart = false;
         this.emit(writeBorderImage({
-            source: presetSource(preset), slice: [slice, slice, slice, slice], fill: !!fill,
+            source: presetSource(preset, colour), slice: [slice, slice, slice, slice], fill: !!fill,
             width, imageWidth: '', outset: '', repeat, repeatSides: repeat,
         }));
+    }
+
+    /** A colour for the built-in pictures ('' for their own): the one in use changes too, keeping its slice and the rest. */
+    private chooseTint(colour: string) {
+        const hex = colour ? colourToHex(colour) : '';
+        if (hex === null) return;
+        this.tint = hex;
+        const chosen = readPresetSource(this.image?.source ?? '', this.presets);
+        if (chosen) this.setSource(presetSource(chosen.preset, hex));
+    }
+
+    private renderTint(colour: string, shown: string) {
+        return html`<div class="row" data-part="colour" title="The built-in pictures' colour. Your own picture keeps its colours"><span class="lbl">Colour</span>
+            <juel-colour class="tint" .value=${shown} .palette=${this.palette}
+                @value-changed=${(e: CustomEvent<{ value: string }>) => { e.stopPropagation(); this.chooseTint(e.detail.value); }}></juel-colour>
+            ${colour ? html`<juel-button type="plain" class="own-colours" label="Their own colours" title="Back to the colours they were drawn in" @click=${() => this.chooseTint('')}></juel-button>` : nothing}
+        </div>`;
     }
 
     private previewStyle(image: BorderImage | null) {
@@ -269,12 +306,12 @@ export class JuelBorderImageEditor extends LitElement {
         </div>`;
     }
 
-    private renderPresets(chosen: string) {
+    private renderPresets(chosen: BorderImagePreset | undefined, colour: string) {
         return html`<div class="presets" role="group" aria-label="Built-in pictures">
             ${this.presets.map(preset => {
-                const source = presetSource(preset);
-                return html`<button type="button" class="preset" data-preset=${preset.id} title=${preset.label} aria-pressed=${source === chosen ? 'true' : 'false'}
-                    @click=${() => this.choosePreset(preset)}>
+                const source = presetSource(preset, colour);
+                return html`<button type="button" class="preset" data-preset=${preset.id} title=${preset.label} aria-pressed=${preset === chosen ? 'true' : 'false'}
+                    @click=${() => this.choosePreset(preset, colour)}>
                     <span class="swatch ${preset.onDark ? 'on-dark' : ''}" style=${styleMap({
                         'border-width': '11px',
                         'border-image-source': source,
@@ -361,14 +398,17 @@ export class JuelBorderImageEditor extends LitElement {
         const picture = this.pictureIn(source);
         const web = /^https?:\/\//i.test(picture);
         const embedded = /^data:/i.test(picture);
-        const named = this.presets.find(p => presetSource(p) === source)?.label;
+        const chosen = readPresetSource(source, this.presets);
+        const named = chosen?.preset.label;
+        // A tinted picture on the element says its colour; one in its own colours says there's no tint.
+        const colour = chosen ? chosen.colour : this.tint;
         return html`
             <div class="row"><span class="lbl">Draw it from</span>
                 <juel-segmented class="kind" label="Draw it from" .value=${kind}
                     .options=${[{ value: 'picture', label: 'Picture' }, { value: 'gradient', label: 'Gradient' }]}
                     @value-changed=${(e: CustomEvent<{ value: 'picture' | 'gradient' }>) => this.chooseKind(e.detail.value)}></juel-segmented>
             </div>
-            ${kind === 'picture' ? html`${this.presets.length ? this.renderPresets(source) : nothing}
+            ${kind === 'picture' ? html`${this.presets.length ? html`${this.renderTint(colour, colour || chosen?.preset.colour || '#1f3a5f')}${this.renderPresets(chosen?.preset, colour)}` : nothing}
                 <div class="row"><span class="lbl"></span>
                     <juel-button type="light" class="choose-picture" glyph="lucide-image" label=${this.presets.length ? 'Use your own picture…' : 'Choose picture…'} @click=${() => this.requestPicture()}></juel-button>
                     ${named ? html`<span class="source-name">${named}</span>`
