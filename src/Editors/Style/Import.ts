@@ -6,3 +6,5 @@ import './GradientEditor/GradientEditor';
 import './ShadowEditor/ShadowEditor';
 import './SidesEditor/SidesEditor';
 import './BorderEditor/BorderEditor';
+import './TransformEditor/TransformEditor';
+import './BorderImageEditor/BorderImageEditor';

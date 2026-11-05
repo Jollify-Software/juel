@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>juel-border-image-editor</title>
+    <script src="../../../../dist/juel.js"></script>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 40rem; }
+        pre { background: #f8f9fa; padding: 0.5rem; min-height: 3em; }
+    </style>
+</head>
+<body>
+    <h1>juel-border-image-editor</h1>
+    <p>Choosing a picture is the page's: here <em>Choose picture…</em> uses a small drawing, as an app would use its own library.</p>
+    <juel-border-image-editor id="editor"></juel-border-image-editor>
+    <pre id="css"></pre>
+    <script>
+        const editor = document.getElementById('editor');
+        const picture = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="90" height="90"><rect width="90" height="90" fill="%23e8590c"/><rect x="30" y="30" width="30" height="30" fill="%23ffd43b"/></svg>'.replace(/%23/g, '#'));
+        let declarations = {};
+        const show = () => {
+            document.getElementById('css').textContent = Object.entries(declarations).map(([n, v]) => `${n}: ${v};`).join('\n');
+            editor.declarations = { ...declarations };
+        };
+        customElements.whenDefined('juel-border-image-editor').then(() => {
+            editor.addEventListener('border-image-changed', e => {
+                for (const name of e.detail.clear) delete declarations[name];
+                Object.assign(declarations, e.detail.set);
+                show();
+            });
+            editor.addEventListener('source-requested', () => editor.setSource(`url("${picture}")`));
+            show();
+            window.exampleReady = true;
+        });
+    </script>
+</body>
+</html>

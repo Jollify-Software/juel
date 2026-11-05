@@ -247,12 +247,18 @@ and has a unit menu beside it (`part="quantity"`, `input`, `unit`). It can be em
 carry `{ value, unit, text }`; set it with `text` (`'48px'`) or `value` + `unit`. Without `units` it
 is unchanged. Example: `examples/Editors/Number/number.html`.
 
+With `slider`, a slider, the number and the unit share one row: `value-changed` as it moves, `value-committed` on letting go. `ranges` gives the slider's ends per unit, `fallback` where the thumb rests while the field is empty, and `basis` (px per unit) keeps the size when the unit changes (32px becomes 2em). Without `basis` the number stays, cut to the new unit's range.
+
 ### Style editors
 
 `juel-gradient-editor`, `juel-shadow-editor` and `juel-position-editor` edit one CSS property of a
 target element with live preview and undo (`StylePropertyEditorBase`). `juel-shadow-editor
 kind="text"` edits `text-shadow` instead of `box-shadow`: no inset or spread, an "Aa" preview, a
 stack of shadows as before (example: `examples/Editors/Style/ShadowEditor/shadow-editor.html`).
+
+`juel-transform-editor` edits move, rotate, scale, skew and origin as sliders; it writes the individual `translate`, `rotate` and `scale` properties, which combine with an animation of `transform`, and keeps anything else in `transform`. `juel-border-image-editor` draws a border from a picture or gradient. Examples: `examples/Editors/Style/TransformEditor/transform-editor.html`, `examples/Editors/Style/BorderImageEditor/border-image-editor.html`.
+
+`juel-button` has `action="add"` (green, for a plus or Add) and `action="remove"` (the danger colour on hover, for a bin), so adding and removing look the same everywhere. `juel-point-selector` with `box` picks a point on an element's box, as `x% y%`.
 
 Two editors for properties written several ways leave applying to the page: they read
 `declarations` (the element's declarations, as set) and fire `{ set, clear }`, the shortest CSS and

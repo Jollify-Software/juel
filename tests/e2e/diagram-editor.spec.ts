@@ -47,7 +47,7 @@ test('outline: undo steps back one gesture at a time, and the event says why', a
     await rowInput(page, 0).click();
     await rowInput(page, 0).fill('Offer made');
     await rowInput(page, 0).press('Tab'); // leaves the field: the edit is one entry
-    await page.locator('#editor .bar juel-button[label="Add step"]').click(); // after the picked row
+    await page.locator('#editor .bar juel-button[button-label="Add step"]').click(); // after the picked row
     await page.waitForTimeout(100);
     expect(await texts(page)).toEqual(['Offer made', '', 'First day', 'First week', 'Review']);
     await page.locator('#editor juel-button[button-label="Undo"]').click();

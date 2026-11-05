@@ -40,8 +40,25 @@
         </div>
         <p>Changed: <output id="changed"></output> · Committed: <output id="committed"></output></p>
     </section>
+
+    <section class="example-section">
+        <h2>With a slider</h2>
+        <p>
+            <code>slider</code> puts a slider, the number and the unit on one row. <code>ranges</code> gives the
+            slider's ends per unit; a value typed past them is kept. <code>basis</code> says how many px one of each
+            unit is, so changing the unit keeps the size (32px becomes 2em); a unit it doesn't know keeps the number,
+            cut to that unit's range.
+        </p>
+        <div class="example-demo" style="max-width: 24rem">
+            <juel-number id="sliding" slider label="Border size" hide-label units="px,em,vw"></juel-number>
+        </div>
+    </section>
     <script>
         customElements.whenDefined('juel-number').then(() => {
+            const sliding = document.getElementById('sliding');
+            sliding.ranges = { px: { min: 0, max: 100 }, em: { min: 0, max: 10, step: 0.05 }, vw: { min: 0, max: 10, step: 0.1 } };
+            sliding.basis = { px: 1, em: 16 };
+            sliding.value = 10;
             const size = document.getElementById('size');
             size.value = null;
             size.addEventListener('value-changed', e => { document.getElementById('changed').textContent = JSON.stringify(e.detail); });
