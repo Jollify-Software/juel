@@ -6,6 +6,8 @@ import Styles from 'bundle-text:./Particles.less';
 interface Preset {
     shape: 'dot' | 'streak' | 'petal' | 'feather' | 'confetti' | 'bubble';
     colours: string[];
+    /** For a preset too pale to see on a light background: the colours to use there instead. */
+    onLight?: string[];
     /** Size range, px. */
     size: [number, number];
     /** Speed range along the direction, px/s. */
@@ -27,15 +29,79 @@ interface Preset {
 type Emitter = 'top' | 'bottom' | 'left' | 'right' | 'point';
 
 const Presets: Record<string, Preset> = {
-    snow: { shape: 'dot', colours: ['#ffffff'], size: [2, 7], speed: [40, 110], direction: 180, spread: 20, rate: 40, sway: 18, swaySpeed: [0.6, 1.6], spin: 0, opacity: [0.5, 0.95], emitter: 'top' },
-    rain: { shape: 'streak', colours: ['#a9c7e8', '#cfe0f2'], size: [12, 26], speed: [700, 1000], direction: 185, spread: 3, rate: 120, sway: 0, swaySpeed: [0, 0], spin: 0, opacity: [0.35, 0.7], emitter: 'top' },
+    snow: { shape: 'dot', colours: ['#ffffff'], onLight: ['#8fb0d0', '#a9c4de'], size: [2, 7], speed: [40, 110], direction: 180, spread: 20, rate: 40, sway: 18, swaySpeed: [0.6, 1.6], spin: 0, opacity: [0.5, 0.95], emitter: 'top' },
+    rain: { shape: 'streak', colours: ['#a9c7e8', '#cfe0f2'], onLight: ['#5f86ad', '#7d9fc2'], size: [12, 26], speed: [700, 1000], direction: 185, spread: 3, rate: 120, sway: 0, swaySpeed: [0, 0], spin: 0, opacity: [0.35, 0.7], emitter: 'top' },
     petals: { shape: 'petal', colours: ['#f8c8dc', '#f4a6c4', '#e87da5', '#d9577f', '#fbe0ea'], size: [8, 15], speed: [50, 110], direction: 160, spread: 30, rate: 9, sway: 40, swaySpeed: [0.8, 2], spin: 160, opacity: [0.8, 1], emitter: 'top' },
-    feathers: { shape: 'feather', colours: ['#ffffff', '#f2f2f2', '#e6e3dc'], size: [18, 32], speed: [25, 60], direction: 175, spread: 25, rate: 4, sway: 60, swaySpeed: [0.4, 1], spin: 60, opacity: [0.85, 1], emitter: 'top' },
+    feathers: { shape: 'feather', colours: ['#ffffff', '#f2f2f2', '#e6e3dc'], onLight: ['#b9b2a6', '#a8a195', '#c8c2b6'], size: [18, 32], speed: [25, 60], direction: 175, spread: 25, rate: 4, sway: 60, swaySpeed: [0.4, 1], spin: 60, opacity: [0.85, 1], emitter: 'top' },
     confetti: { shape: 'confetti', colours: ['#ff595e', '#ffca3a', '#8ac926', '#1982c4', '#6a4c93'], size: [6, 11], speed: [120, 260], direction: 180, spread: 25, rate: 50, sway: 20, swaySpeed: [1, 3], spin: 400, opacity: [0.9, 1], emitter: 'top' },
-    bubbles: { shape: 'bubble', colours: ['#ffffff'], size: [6, 18], speed: [40, 90], direction: 0, spread: 15, rate: 8, sway: 14, swaySpeed: [0.6, 1.4], spin: 0, opacity: [0.35, 0.7], emitter: 'bottom' },
+    bubbles: { shape: 'bubble', colours: ['#ffffff'], onLight: ['#6f9fc4'], size: [6, 18], speed: [40, 90], direction: 0, spread: 15, rate: 8, sway: 14, swaySpeed: [0.6, 1.4], spin: 0, opacity: [0.35, 0.7], emitter: 'bottom' },
 };
 
 const Directions: Record<string, number> = { up: 0, right: 90, down: 180, left: 270 };
+
+/** A colour's red, green, blue (0-255) and alpha (0-1), from what `getComputedStyle` gives: `rgb()`/`rgba()`, or null. */
+export function parseRgb(text: string): [number, number, number, number] | null {
+    const m = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,/]+([\d.]+)(%?))?\s*\)$/.exec(text.trim());
+    if (!m) return null;
+    const alpha = m[4] === undefined ? 1 : Number(m[4]) / (m[5] ? 100 : 1);
+    return [Number(m[1]), Number(m[2]), Number(m[3]), alpha];
+}
+
+/** Whether a colour is light enough that the pale presets can't be seen on it: white on it would be under about 1.6:1. */
+export function isLightColour(r: number, g: number, b: number): boolean {
+    const channel = (v: number) => {
+        const c = v / 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b) > 0.6;
+}
+
+/** The colours in a computed `linear-gradient(…)`, or null if it isn't only gradients (a picture can't be read). */
+function gradientColours(image: string): [number, number, number, number][] | null {
+    if (image.includes('url(')) return null;
+    const stops = image.match(/rgba?\([^)]*\)/g)?.map(parseRgb).filter(Boolean) as [number, number, number, number][] | undefined;
+    return stops?.length ? stops : null;
+}
+
+/**
+ * What's painted behind an element, walking out through its ancestors (and out of shadow roots):
+ * `true` light, `false` dark, `null` when it can't be known: a picture, a video or frame, or
+ * the `--particles-backdrop: unknown` a page sets where the background is in another element.
+ * `--particles-backdrop: light` or `dark` says so outright.
+ */
+export function backgroundIsLight(element: Element): boolean | null {
+    const said = getComputedStyle(element).getPropertyValue('--particles-backdrop').trim();
+    if (said === 'light') return true;
+    if (said === 'dark') return false;
+    if (said === 'unknown') return null;
+    // Translucent layers mix over what's behind them, up to the first opaque one.
+    const layers: [number, number, number, number][] = [];
+    let at: Element | null = element.parentElement ?? (element.getRootNode() as ShadowRoot).host ?? null;
+    while (at) {
+        if (at.querySelector(':scope > video, :scope > iframe')) return null;
+        const style = getComputedStyle(at);
+        if (style.backgroundImage && style.backgroundImage !== 'none') {
+            const stops = gradientColours(style.backgroundImage);
+            if (!stops) return null;
+            // A gradient is read by its average: most stops of a page background are near each other.
+            const n = stops.length;
+            layers.push([0, 1, 2, 3].map(i => stops.reduce((sum, s) => sum + s[i], 0) / n) as [number, number, number, number]);
+        }
+        const colour = parseRgb(style.backgroundColor);
+        if (colour && colour[3] > 0) layers.push(colour);
+        if (layers.length && layers[layers.length - 1][3] >= 1) break;
+        at = at.parentElement ?? ((at.getRootNode() as ShadowRoot).host ?? null);
+    }
+    // Nothing opaque found: the page's canvas is white.
+    let [r, g, b] = layers.length && layers[layers.length - 1][3] >= 1 ? layers.pop()! : [255, 255, 255];
+    while (layers.length) {
+        const [lr, lg, lb, la] = layers.pop()!;
+        r = lr * la + r * (1 - la);
+        g = lg * la + g * (1 - la);
+        b = lb * la + b * (1 - la);
+    }
+    return isLightColour(r, g, b);
+}
 
 interface Particle {
     x: number; y: number;
@@ -62,7 +128,13 @@ interface Particle {
  *   Left out, it's the preset's, or away from the edge `emitter` names.
  * - `speed`, `size`, `density`: multipliers (1 = the preset's).
  * - `wind`: a sideways push, -1 (left) to 1 (right), that gusts.
- * - `colour`: one colour for every particle.
+ * - `colour`: one colour for every particle. Left out, a preset too pale for
+ *   its background (snow, rain, feathers, bubbles on a light one) uses darker
+ *   colours; over a picture, video or frame it keeps its own, since that
+ *   can't be read. A page can say what's behind with `--particles-backdrop`:
+ *   `light`, `dark` or `unknown`.
+ * - `glow`: a soft light around each particle: `1` is modest, higher is wider.
+ *   Off when left out. `glow-colour` is its colour (the particle's otherwise).
  * - `layer`: `front` (default) or `behind`, for the content of its container
  *   (`behind` needs the container to be its own stacking context).
  *
@@ -86,6 +158,8 @@ export class Particles extends LitElement {
     @property({ type: Number }) density = 1;
     @property({ type: Number }) wind = 0;
     @property() colour?: string;
+    @property({ type: Number }) glow = 0;
+    @property({ attribute: 'glow-colour' }) glowColour?: string;
     @property({ reflect: true }) layer: 'front' | 'behind' = 'front';
     /** Set while it's stopped (by `pause()`, or the `paused` attribute). */
     @property({ type: Boolean, reflect: true }) paused = false;
@@ -102,6 +176,9 @@ export class Particles extends LitElement {
     private scale = 1;
     private width = 0;
     private height = 0;
+    /** What `backgroundIsLight` last said, and when (`time`), so a theme change is seen within a second. */
+    private onLight: boolean | null = null;
+    private lightCheckedAt = -Infinity;
 
     /** Starts (or restarts) the particles. */
     play() {
@@ -153,6 +230,17 @@ export class Particles extends LitElement {
 
     private get reducedMotion() {
         return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    }
+
+    /** The colours for new particles: the preset's, or its `onLight` ones on a light background. */
+    private get colours(): string[] {
+        const s = this.settings;
+        if (!s.onLight) return s.colours;
+        if (this.time - this.lightCheckedAt >= 1) {
+            this.onLight = backgroundIsLight(this);
+            this.lightCheckedAt = this.time;
+        }
+        return this.onLight ? s.onLight : s.colours;
     }
 
     private loadImage() {
@@ -238,6 +326,7 @@ export class Particles extends LitElement {
 
     private spawn(): Particle {
         const s = this.settings;
+        const colours = this.colours;
         const rand = (min: number, max: number) => min + Math.random() * (max - min);
         const emitter = this.emitter ?? s.emitter;
         // No direction given: the preset's, or, from another edge, away from that edge.
@@ -265,7 +354,7 @@ export class Particles extends LitElement {
             vx: Math.sin(angle) * speed,
             vy: -Math.cos(angle) * speed,
             size,
-            colour: this.colour || s.colours[Math.floor(Math.random() * s.colours.length)],
+            colour: this.colour || colours[Math.floor(Math.random() * colours.length)],
             opacity: rand(...s.opacity),
             angle: rand(0, 360),
             spin: rand(-s.spin, s.spin),
@@ -279,9 +368,15 @@ export class Particles extends LitElement {
         if (!g) return;
         g.clearRect(0, 0, this.width, this.height);
         const shape = this.settings.shape;
+        // A canvas has no box-shadow: `shadowBlur` is its equal, in device pixels, whatever the transform.
+        const glow = this.glow > 0 ? this.glow * 12 * Math.max(this.scale, 0.3) * (window.devicePixelRatio || 1) : 0;
         for (const p of this.particles) {
             g.save();
             g.globalAlpha = p.opacity;
+            if (glow) {
+                g.shadowBlur = glow;
+                g.shadowColor = this.glowColour || p.colour;
+            }
             g.translate(p.x, p.y);
             if (this.picture) {
                 g.rotate(p.angle * Math.PI / 180);
@@ -352,7 +447,8 @@ export class Particles extends LitElement {
                 glow.addColorStop(0, p.colour);
                 glow.addColorStop(0.6, p.colour);
                 glow.addColorStop(1, 'rgba(255,255,255,0)');
-                g.fillStyle = glow;
+                // A canvas draws no shadow for a gradient fill. With a glow, the dot is solid, and the glow softens it.
+                g.fillStyle = g.shadowBlur ? p.colour : glow;
                 g.beginPath();
                 g.arc(0, 0, r, 0, Math.PI * 2);
                 g.fill();
