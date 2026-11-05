@@ -1,5 +1,5 @@
 import { moveSlice, readBorderImage, sideValue, sliceFraction, withSide, writeBorderImage } from '../../src/Editors/Style/BorderImageEditor/BorderImageValue';
-import { BorderImagePresets, presetSource } from '../../src/Editors/Style/BorderImageEditor/BorderImagePresets';
+import { BorderImagePresets, presetSource, readPresetSource, tintSvg } from '../../src/Editors/Style/BorderImageEditor/BorderImagePresets';
 import type { FourValues } from '../../src/Editors/Style/SidesEditor/SidesValue';
 
 const square = { width: 90, height: 90 };
@@ -96,6 +96,78 @@ describe('the declarations', () => {
     test('a repeat that isn\'t one is stretch', () => {
         const image = readBorderImage({ 'border-image-source': 'url(a.png)', 'border-image-repeat': 'nonsense' })!;
         expect([image.repeat, image.repeatSides]).toEqual(['stretch', 'stretch']);
+    });
+});
+
+describe('tinting a built-in picture', () => {
+    const lightness = (hex: string) => {
+        const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+        return (Math.max(r, g, b) + Math.min(r, g, b)) / 510;
+    };
+    const colours = (svg: string) => svg.match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi) ?? [];
+    const named = (id: string) => BorderImagePresets.find(p => p.id === id)!;
+
+    test('the main colour becomes exactly the chosen one', () => {
+        expect(tintSvg('<rect fill="#1098ad"/>', '#1098ad', '#E03131')).toBe('<rect fill="#e03131"/>');
+    });
+
+    test('near-white paper and a drawn black shadow stay; a reference to a gradient isn\'t a colour', () => {
+        const svg = '<rect fill="#fff"/><rect fill="#f1f3f5"/><rect fill="#000" opacity=".1"/><rect fill="url(#c)"/><rect fill="#123456"/>';
+        const tinted = tintSvg(svg, '#123456', '#e03131');
+        expect(tinted).toBe('<rect fill="#fff"/><rect fill="#f1f3f5"/><rect fill="#000" opacity=".1"/><rect fill="url(#c)"/><rect fill="#e03131"/>');
+    });
+
+    test('the other tones keep their order, so a bevel stays a bevel', () => {
+        const gilt = named('gilt');
+        const before = colours(gilt.svg).filter(c => c !== '#000');
+        for (const chosen of ['#e03131', '#1971c2', '#111111', '#f8f9fa']) {
+            const after = colours(tintSvg(gilt.svg, gilt.colour, chosen)).filter(c => c !== '#000');
+            expect(after).toHaveLength(before.length);
+            const order = (list: string[]) => list.map((c, i) => [lightness(c), i] as const).sort((a, b) => a[0] - b[0]).map(p => p[1]);
+            expect(order(after)).toEqual(order(before));
+        }
+    });
+
+    test('a colourful picture tinted a grey goes grey, and every tone is a real colour', () => {
+        const dots = named('dots');
+        for (const c of colours(tintSvg(dots.svg, dots.colour, '#808080'))) {
+            const [r, g, b] = [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16));
+            expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThanOrEqual(1);
+        }
+    });
+
+    test.each(['#000000', '#ffffff', '#808080', '#e03131'])('every picture tinted %s still has valid colours', chosen => {
+        for (const preset of BorderImagePresets) {
+            for (const c of colours(tintSvg(preset.svg, preset.colour, chosen))) expect(c).toMatch(/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i);
+        }
+    });
+
+    test('every picture\'s main colour is in its drawing', () => {
+        for (const preset of BorderImagePresets) expect(preset.svg.toLowerCase()).toContain(preset.colour);
+    });
+
+    test('its own colour, or nothing, is the untinted source', () => {
+        const key = named('key');
+        expect(presetSource(key, key.colour)).toBe(presetSource(key));
+        expect(presetSource(key, '')).toBe(presetSource(key));
+        expect(presetSource(key, 'not a colour')).toBe(presetSource(key));
+    });
+
+    test('a source says which picture and colour it is', () => {
+        const key = named('key');
+        expect(readPresetSource(presetSource(key), BorderImagePresets)).toEqual({ preset: key, colour: '' });
+        expect(readPresetSource(presetSource(key, '#E03131'), BorderImagePresets)).toEqual({ preset: key, colour: '#e03131' });
+    });
+
+    test('any other picture isn\'t one', () => {
+        for (const source of ['url(a.png)', 'url("data:image/svg+xml,%3Csvg%20width%3D%221%22%2F%3E")', 'url("data:image/svg+xml,%E0%A4%A")', 'linear-gradient(red, blue)', '']) {
+            expect(readPresetSource(source, BorderImagePresets)).toBeNull();
+        }
+    });
+
+    test.each(BorderImagePresets.map(p => [p.id, p] as const))('%s tinted has nothing for a simple CSS parser to trip on', (_id, preset) => {
+        const source = presetSource(preset, '#e03131');
+        expect(source.slice('url("'.length, -'")'.length)).not.toMatch(/[;()'"{}\s]/);
     });
 });
 
