@@ -249,6 +249,10 @@ is unchanged. Example: `examples/Editors/Number/number.html`.
 
 With `slider`, a slider, the number and the unit share one row: `value-changed` as it moves, `value-committed` on letting go. `ranges` gives the slider's ends per unit, `fallback` where the thumb rests while the field is empty, and `basis` (px per unit) keeps the size when the unit changes (32px becomes 2em). Without `basis` the number stays, cut to the new unit's range.
 
+### Icon picker
+
+`juel-icon-picker` is a button that opens a searchable grid of icons, so nobody has to know an icon's name: `value` is the glyph (`lucide-rocket`), `value-changed` reports a choice. The icons offered are `IconChoices`, named in plain words. Example: `examples/Editors/IconPicker/icon-picker.html`.
+
 ### Style editors
 
 `juel-gradient-editor`, `juel-shadow-editor` and `juel-position-editor` edit one CSS property of a

@@ -4,6 +4,57 @@
 // on :root, so a page pays for them only in juel.js. Only the icons named here
 // are bundled; add an import and an entry to use another.
 // `<juel-button glyph="lucide-bold">` shows one (InputBase.getIconStyle).
+import iconUser from 'data-url:lucide-static/icons/user.svg';
+import iconUsers from 'data-url:lucide-static/icons/users.svg';
+import iconHandshake from 'data-url:lucide-static/icons/handshake.svg';
+import iconBriefcase from 'data-url:lucide-static/icons/briefcase.svg';
+import iconBuilding2 from 'data-url:lucide-static/icons/building-2.svg';
+import iconHouse from 'data-url:lucide-static/icons/house.svg';
+import iconMail from 'data-url:lucide-static/icons/mail.svg';
+import iconPhone from 'data-url:lucide-static/icons/phone.svg';
+import iconMessageCircle from 'data-url:lucide-static/icons/message-circle.svg';
+import iconMegaphone from 'data-url:lucide-static/icons/megaphone.svg';
+import iconCalendar from 'data-url:lucide-static/icons/calendar.svg';
+import iconClock from 'data-url:lucide-static/icons/clock.svg';
+import iconFlag from 'data-url:lucide-static/icons/flag.svg';
+import iconTarget from 'data-url:lucide-static/icons/target.svg';
+import iconRocket from 'data-url:lucide-static/icons/rocket.svg';
+import iconTrophy from 'data-url:lucide-static/icons/trophy.svg';
+import iconAward from 'data-url:lucide-static/icons/award.svg';
+import iconStar from 'data-url:lucide-static/icons/star.svg';
+import iconHeart from 'data-url:lucide-static/icons/heart.svg';
+import iconLightbulb from 'data-url:lucide-static/icons/lightbulb.svg';
+import iconShield from 'data-url:lucide-static/icons/shield.svg';
+import iconLock from 'data-url:lucide-static/icons/lock.svg';
+import iconKey from 'data-url:lucide-static/icons/key.svg';
+import iconSearch from 'data-url:lucide-static/icons/search.svg';
+import iconWrench from 'data-url:lucide-static/icons/wrench.svg';
+import iconFileText from 'data-url:lucide-static/icons/file-text.svg';
+import iconBookOpen from 'data-url:lucide-static/icons/book-open.svg';
+import iconGraduationCap from 'data-url:lucide-static/icons/graduation-cap.svg';
+import iconLaptop from 'data-url:lucide-static/icons/laptop.svg';
+import iconSmartphone from 'data-url:lucide-static/icons/smartphone.svg';
+import iconDatabase from 'data-url:lucide-static/icons/database.svg';
+import iconServer from 'data-url:lucide-static/icons/server.svg';
+import iconCloud from 'data-url:lucide-static/icons/cloud.svg';
+import iconGlobe from 'data-url:lucide-static/icons/globe.svg';
+import iconMapPin from 'data-url:lucide-static/icons/map-pin.svg';
+import iconTruck from 'data-url:lucide-static/icons/truck.svg';
+import iconPackage from 'data-url:lucide-static/icons/package.svg';
+import iconShoppingCart from 'data-url:lucide-static/icons/shopping-cart.svg';
+import iconCreditCard from 'data-url:lucide-static/icons/credit-card.svg';
+import iconBanknote from 'data-url:lucide-static/icons/banknote.svg';
+import iconPoundSterling from 'data-url:lucide-static/icons/pound-sterling.svg';
+import iconChartPie from 'data-url:lucide-static/icons/chart-pie.svg';
+import iconTrendingUp from 'data-url:lucide-static/icons/trending-up.svg';
+import iconScale from 'data-url:lucide-static/icons/scale.svg';
+import iconLeaf from 'data-url:lucide-static/icons/leaf.svg';
+import iconSprout from 'data-url:lucide-static/icons/sprout.svg';
+import iconRecycle from 'data-url:lucide-static/icons/recycle.svg';
+import iconCamera from 'data-url:lucide-static/icons/camera.svg';
+import iconVideo from 'data-url:lucide-static/icons/video.svg';
+import iconMusic from 'data-url:lucide-static/icons/music.svg';
+import iconBell from 'data-url:lucide-static/icons/bell.svg';
 import upload from 'data-url:lucide-static/icons/upload.svg';
 import eraser from 'data-url:lucide-static/icons/eraser.svg';
 import copyPlus from 'data-url:lucide-static/icons/copy-plus.svg';
@@ -79,6 +130,57 @@ import indentDecrease from 'data-url:lucide-static/icons/indent-decrease.svg';
 import chevronUp from 'data-url:lucide-static/icons/chevron-up.svg';
 
 export const LucideIcons: Record<string, string> = {
+    'user': iconUser,
+    'users': iconUsers,
+    'handshake': iconHandshake,
+    'briefcase': iconBriefcase,
+    'building-2': iconBuilding2,
+    'house': iconHouse,
+    'mail': iconMail,
+    'phone': iconPhone,
+    'message-circle': iconMessageCircle,
+    'megaphone': iconMegaphone,
+    'calendar': iconCalendar,
+    'clock': iconClock,
+    'flag': iconFlag,
+    'target': iconTarget,
+    'rocket': iconRocket,
+    'trophy': iconTrophy,
+    'award': iconAward,
+    'star': iconStar,
+    'heart': iconHeart,
+    'lightbulb': iconLightbulb,
+    'shield': iconShield,
+    'lock': iconLock,
+    'key': iconKey,
+    'search': iconSearch,
+    'wrench': iconWrench,
+    'file-text': iconFileText,
+    'book-open': iconBookOpen,
+    'graduation-cap': iconGraduationCap,
+    'laptop': iconLaptop,
+    'smartphone': iconSmartphone,
+    'database': iconDatabase,
+    'server': iconServer,
+    'cloud': iconCloud,
+    'globe': iconGlobe,
+    'map-pin': iconMapPin,
+    'truck': iconTruck,
+    'package': iconPackage,
+    'shopping-cart': iconShoppingCart,
+    'credit-card': iconCreditCard,
+    'banknote': iconBanknote,
+    'pound-sterling': iconPoundSterling,
+    'chart-pie': iconChartPie,
+    'trending-up': iconTrendingUp,
+    'scale': iconScale,
+    'leaf': iconLeaf,
+    'sprout': iconSprout,
+    'recycle': iconRecycle,
+    'camera': iconCamera,
+    'video': iconVideo,
+    'music': iconMusic,
+    'bell': iconBell,
     'upload': upload,
     'eraser': eraser,
     'copy-plus': copyPlus,
