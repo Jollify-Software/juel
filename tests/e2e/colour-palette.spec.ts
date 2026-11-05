@@ -40,6 +40,20 @@ test('colour: the popup opens leftwards at a scrolling panel\'s right edge, and 
     expect((await inside('picker')).end).toBe(false);
 });
 
+test('colour: Escape closes the popup, and goes no further', async ({ page }) => {
+    await page.goto('examples/Editors/Colour/colour.html');
+    await page.waitForFunction(() => (window as any).exampleReady);
+    const open = () => page.locator('#picker').evaluate(el => el.shadowRoot!.querySelector('.popup')!.hasAttribute('open'));
+    await page.evaluate(() => { (window as any).escapes = 0; document.body.addEventListener('keydown', e => { if (e.key === 'Escape') (window as any).escapes++; }); });
+    await page.locator('#picker .swatch').click();
+    expect(await open()).toBe(true);
+    await page.keyboard.press('Escape');
+    expect(await open()).toBe(false);
+    expect(await page.evaluate(() => (window as any).escapes)).toBe(0);
+    await page.keyboard.press('Escape');
+    expect(await page.evaluate(() => (window as any).escapes)).toBe(1);
+});
+
 // The unset swatch's overlay: 'none' unless the opt-in look gives it the "no colour" mark.
 const unsetMark = (page: import('@playwright/test').Page, id: string) => page.locator(`#${id}`).evaluate(el =>
     getComputedStyle(el.shadowRoot!.querySelector('.swatch')!, '::after').backgroundImage);

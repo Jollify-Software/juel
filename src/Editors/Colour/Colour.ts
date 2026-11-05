@@ -128,13 +128,23 @@ export class Colour extends LitElement {
         return html`<juel-button type="plain" class="preset" part="swatch" data-value=${value} style="--background-color: ${value}; --hover-background-color: ${value}" @click=${() => this.setValue(value)} button-label=${name} title=${name}></juel-button>`;
     }
 
+    /** Escape closes the popup, and only that: a dialog or panel around it stays open. */
+    private handleEscape = (e: KeyboardEvent) => {
+        if (e.key !== 'Escape' || !this.open) return;
+        e.stopPropagation();
+        e.preventDefault();
+        this.open = false;
+    };
+
     connectedCallback(): void {
         super.connectedCallback();
         document.addEventListener('pointerdown', this.handleOutsideClick);
+        document.addEventListener('keydown', this.handleEscape, true);
     }
 
     disconnectedCallback(): void {
         document.removeEventListener('pointerdown', this.handleOutsideClick);
+        document.removeEventListener('keydown', this.handleEscape, true);
         super.disconnectedCallback();
     }
 
