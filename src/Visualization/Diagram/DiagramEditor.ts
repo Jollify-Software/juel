@@ -11,6 +11,7 @@
 //
 // `value` is the model in; `diagram-changed` ({ diagram, reason }) reports every edit, and
 // `diagram` is the model as it stands. Undo/redo is HistoryController (one entry per gesture).
+import { canIndent, canMove, dropRow } from './diagramOutline';
 import { CSSResultGroup, html, LitElement, nothing, svg, unsafeCSS, type TemplateResult } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -46,6 +47,9 @@ export class JuelDiagramEditor extends LitElement {
     @state() private editing: string | null = null;
     @state() private linking: { from: string; x: number; y: number; over: string | null } | null = null;
     @state() private dragging = false;
+    /** The row whose grip is being dragged, and the row it would land before or after. */
+    @state() private gripRow: string | null = null;
+    @state() private dropAt: { id: string; after: boolean } | null = null;
     @query('.overlay') private overlay?: SVGSVGElement;
     private history?: HistoryController<Diagram>;
     private adopted?: Diagram;
@@ -287,10 +291,13 @@ export class JuelDiagramEditor extends LitElement {
         return html`<div class="outline" @keydown=${this.onKeyDown}>
             ${rows.length ? repeat(rows, r => r.node.id, ({ node, depth }) => html`
                 <div class="row ${type}" data-id=${node.id} ?data-selected=${this.selected === node.id} style="--depth: ${depth}"
+                    data-drop=${this.dropAt?.id === node.id ? (this.dropAt.after ? 'after' : 'before') : nothing}
+                    ?data-dragging=${this.gripRow === node.id}
                     @focusin=${() => { this.selected = node.id; }}
                     @focusout=${() => this.flushTyping()}
                     @keydown=${(e: KeyboardEvent) => this.onRowKey(e, node.id)}>
-                    <span class="grip" aria-hidden="true">⋮</span>
+                    <span class="grip" aria-hidden="true" title="Drag to move it"
+                        @pointerdown=${(e: PointerEvent) => this.onGripDown(e, node.id)}>⋮</span>
                     ${type === 'timeline' ? html`<juel-text class="date" placeholder="Date" aria-label="Date" .value=${node.date ?? ''}
                         @value-changed=${(e: CustomEvent) => this.setField(node.id, 'date', e.detail.value, true)}></juel-text>` : nothing}
                     <juel-text class="text" placeholder=${type === 'org' ? 'Name' : type === 'timeline' ? 'What happens' : 'Step'} aria-label="Text" .value=${node.text}
@@ -301,12 +308,42 @@ export class JuelDiagramEditor extends LitElement {
                         @value-changed=${(e: CustomEvent) => this.setField(node.id, 'colour', e.detail.value, false)}></juel-colour>
                     <juel-text class="icon" placeholder="Icon" aria-label="Icon (a Lucide name, e.g. lucide-rocket)" title="An icon: a Lucide glyph name, e.g. lucide-rocket" .value=${node.icon ?? ''}
                         @value-changed=${(e: CustomEvent) => this.setField(node.id, 'icon', e.detail.value, true)}></juel-text>
-                    <juel-button type="plain" glyph="lucide-trash-2" button-label="Remove" title="Remove it" ?disabled=${rows.length <= 1}
+                    <juel-button type="plain" action="remove" glyph="lucide-trash-2" button-label="Remove" title="Remove it" ?disabled=${rows.length <= 1}
                         @click=${() => this.removeNode(node.id)}></juel-button>
                 </div>`)
             : html`<p class="empty">No ${NodeWord[type]}s yet.</p>`}
-            <juel-button class="add" type="light" glyph="lucide-plus" label=${`Add ${NodeWord[type]}`} @click=${() => this.addAfter(rows[rows.length - 1]?.node.id ?? null)}></juel-button>
+            <juel-button class="add" type="light" action="add" glyph="lucide-plus" label="Add" title=${`Add a ${NodeWord[type]} at the end`} @click=${() => this.addAfter(rows[rows.length - 1]?.node.id ?? null)}></juel-button>
         </div>`;
+    }
+
+    /** The grip: drag a row to another place in the outline (a line shows where); one undo step. */
+    private onGripDown(e: PointerEvent, id: string) {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        this.flushTyping();
+        this.gripRow = id;
+        const under = (y: number) => {
+            for (const row of this.renderRoot.querySelectorAll<HTMLElement>('.outline .row')) {
+                const box = row.getBoundingClientRect();
+                if (y < box.bottom) return { id: row.dataset.id!, after: y > box.top + box.height / 2 };
+            }
+            const last = [...this.renderRoot.querySelectorAll<HTMLElement>('.outline .row')].pop();
+            return last ? { id: last.dataset.id!, after: true } : null;
+        };
+        trackDrag(e, e.currentTarget as HTMLElement, move => {
+            const at = under(move.clientY);
+            // Only where it would change something (a person can't go under themselves).
+            this.dropAt = at && dropRow(this.model, id, at.id, at.after) ? at : null;
+        }, () => {
+            const at = this.dropAt;
+            this.dropAt = null;
+            this.gripRow = null;
+            const next = at && dropRow(this.model, id, at.id, at.after);
+            if (!next) return;
+            this.commit(next, 'move');
+            this.selected = id;
+            this.focusNext = id;
+        });
     }
 
     // ---- the canvas (flowchart) ---------------------------------------------------------
@@ -505,12 +542,12 @@ export class JuelDiagramEditor extends LitElement {
                 <juel-button type="plain" glyph="lucide-redo-2" button-label="Redo" title="Redo (Ctrl+Y)" ?disabled=${!this.history?.canRedo} @click=${() => this.redo()}></juel-button>
                 <span class="sep"></span>
                 ${flow ? FlowShapes.map(s => html`<juel-button type="light" glyph=${ShapeGlyphs[s]} label=${ShapeLabels[s]} title=${`Add a ${ShapeLabels[s].toLowerCase()}`} @click=${() => this.addShape(s)}></juel-button>`)
-                    : html`<juel-button type="light" glyph="lucide-plus" label=${`Add ${NodeWord[type]}`} @click=${() => this.addAfter(this.selected ?? this.model.nodes[this.model.nodes.length - 1]?.id ?? null)}></juel-button>
+                    : html`<juel-button type="plain" class="add-here" action="add" glyph="lucide-plus" button-label=${`Add ${NodeWord[type]}`} title=${`Add a ${NodeWord[type]} after the one you're on (Enter)`} @click=${() => this.addAfter(this.selected ?? this.model.nodes[this.model.nodes.length - 1]?.id ?? null)}></juel-button>
                     ${type === 'org' ? html`
-                        <juel-button type="plain" glyph="lucide-indent-increase" button-label="Under the one above" title="Put it under the person above (Tab)" ?disabled=${!this.selected} @click=${() => this.selected && this.indent(this.selected, true)}></juel-button>
-                        <juel-button type="plain" glyph="lucide-indent-decrease" button-label="Up a level" title="Move it up a level (Shift+Tab)" ?disabled=${!this.selected} @click=${() => this.selected && this.indent(this.selected, false)}></juel-button>` : nothing}
-                    <juel-button type="plain" glyph="lucide-chevron-up" button-label="Move up" title="Move it up (Alt+↑)" ?disabled=${!this.selected} @click=${() => this.selected && this.move(this.selected, -1)}></juel-button>
-                    <juel-button type="plain" glyph="lucide-chevron-down" button-label="Move down" title="Move it down (Alt+↓)" ?disabled=${!this.selected} @click=${() => this.selected && this.move(this.selected, 1)}></juel-button>`}
+                        <juel-button type="plain" glyph="lucide-indent-increase" button-label="Under the one above" title="Put it under the person above (Tab)" ?disabled=${!canIndent(this.model, this.selected, true)} @click=${() => this.selected && this.indent(this.selected, true)}></juel-button>
+                        <juel-button type="plain" glyph="lucide-indent-decrease" button-label="Up a level" title="Move it up a level (Shift+Tab)" ?disabled=${!canIndent(this.model, this.selected, false)} @click=${() => this.selected && this.indent(this.selected, false)}></juel-button>` : nothing}
+                    <juel-button type="plain" glyph="lucide-chevron-up" button-label="Move up" title="Move it up (Alt+↑)" ?disabled=${!canMove(this.model, this.selected, -1)} @click=${() => this.selected && this.move(this.selected, -1)}></juel-button>
+                    <juel-button type="plain" glyph="lucide-chevron-down" button-label="Move down" title="Move it down (Alt+↓)" ?disabled=${!canMove(this.model, this.selected, 1)} @click=${() => this.selected && this.move(this.selected, 1)}></juel-button>`}
                 <span class="hint">${flow ? 'Flowchart' : type === 'org' ? 'Org chart: Enter adds, Tab puts under, Alt+↑↓ reorders' : `${type[0].toUpperCase()}${type.slice(1)}: Enter adds, Alt+↑↓ reorders`}</span>
             </div>
             ${flow ? this.renderCanvas() : html`<div class="panes">

@@ -27,7 +27,11 @@
 .row.timeline { grid-template-columns: auto minmax(60px, 1fr) minmax(90px, 2fr) minmax(70px, 2fr) auto minmax(60px, 1fr) auto; }
 .row juel-text.icon { --font-size: 12px; }
 .row[data-selected] { background: color-mix(in srgb, var(--editor-accent) 10%, transparent); }
-.row .grip { color: var(--editor-muted); width: 14px; text-align: center; cursor: default; user-select: none; }
+.row .grip { color: var(--editor-muted); width: 14px; text-align: center; cursor: grab; user-select: none; touch-action: none; }
+.row .grip:hover { color: var(--juel-text, inherit); }
+.row[data-dragging] { opacity: 0.5; }
+.row[data-drop='before'] { box-shadow: 0 -2px 0 var(--editor-accent); }
+.row[data-drop='after'] { box-shadow: 0 2px 0 var(--editor-accent); }
 .row juel-text { --padding: 4px 6px; --font-size: 13px; }
 .row juel-text.detail, .row juel-text.date { --font-size: 12px; }
 .row juel-colour { width: 26px; }

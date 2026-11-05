@@ -41,7 +41,7 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
         flex-direction: column;
         align-items: stretch;
         gap: 0.5rem;
-        width: 300px;
+        width: var(--shadow-editor-width, 100%);
         max-width: 100%;
         padding: 0.625rem;
         border: 1px solid var(--_border);
@@ -80,6 +80,7 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
         --padding: 0;
         --font-size: 0.85rem;
       }
+      .sliders { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.35rem 0.75rem; }
       .grow { flex: 1; }
       .lbl { font-size: 0.75rem; opacity: 0.7; width: 3.2rem; flex: none; }
       input[type='range'] { flex: 1; min-width: 5rem; }
@@ -402,11 +403,11 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
             @click=${() => this.select(i)}
           ></juel-button>`
         )}
-        <juel-button type="light" class="mini" title="Move up" ?disabled=${this.active <= 0} @click=${() => this.moveShadow(-1)}>▲</juel-button>
-        <juel-button type="light" class="mini" title="Move down" ?disabled=${this.active >= this.model.shadows.length - 1} @click=${() => this.moveShadow(1)}>▼</juel-button>
-        <juel-button type="light" class="mini" title="Remove" ?disabled=${this.model.shadows.length < 2} @click=${() => this.removeShadow()}>✕</juel-button>
+        <juel-button type="plain" class="mini" glyph="lucide-chevron-up" title="Move up" button-label="Move up" ?disabled=${this.active <= 0} @click=${() => this.moveShadow(-1)}></juel-button>
+        <juel-button type="plain" class="mini" glyph="lucide-chevron-down" title="Move down" button-label="Move down" ?disabled=${this.active >= this.model.shadows.length - 1} @click=${() => this.moveShadow(1)}></juel-button>
+        <juel-button type="plain" class="mini" action="remove" glyph="lucide-trash-2" title="Remove this one" button-label="Remove" ?disabled=${this.model.shadows.length < 2} @click=${() => this.removeShadow()}></juel-button>
         <span class="grow"></span>
-        <juel-button type="light" class="mini" title="Add shadow" @click=${() => this.addShadow()}>＋</juel-button>
+        <juel-button type="plain" class="mini" action="add" glyph="lucide-plus" title="Add another shadow" button-label="Add shadow" @click=${() => this.addShadow()}></juel-button>
       </div>
 
       <div class="preview-wrap">
@@ -430,10 +431,12 @@ export class JuelShadowEditor extends StylePropertyEditorBase {
         inset
       </label>`}
 
-      ${this.slider('Offset X', 'x', -50, 50)}
-      ${this.slider('Offset Y', 'y', -50, 50)}
-      ${this.slider('Blur', 'blur', 0, 100)}
-      ${this.kind === 'text' ? '' : this.slider('Spread', 'spread', -50, 50)}
+      <div class="sliders">
+        ${this.slider('Offset X', 'x', -50, 50)}
+        ${this.slider('Offset Y', 'y', -50, 50)}
+        ${this.slider('Blur', 'blur', 0, 100)}
+        ${this.kind === 'text' ? '' : this.slider('Spread', 'spread', -50, 50)}
+      </div>
 
       <div class="row">
         <span class="lbl">Colour</span>

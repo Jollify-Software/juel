@@ -19,20 +19,20 @@ test('sides editor: one side, then all, then auto; the shortest CSS and leftover
     const padding = page.locator('#padding');
     await padding.locator('button.place[data-place="top"]').click();
     await expect(padding.locator('button.place[data-place="top"]')).toHaveAttribute('aria-checked', 'true');
-    await padding.locator('juel-number.size input').fill('20px');
+    await padding.locator('juel-number.size input#number-input').fill('20px');
     await commit(page);
     expect(await declarations(page)).toEqual({ padding: '20px 24px 12px' });
     expect(await page.evaluate(() => getComputedStyle(document.querySelector('#box > div')!).paddingTop)).toBe('20px');
     // A dot marks the top as its own; All shows "mixed".
     await expect(padding.locator('button.place[data-place="top"]')).toHaveAttribute('data-own', '');
     await padding.locator('button.place[data-place="all"]').click();
-    await expect(padding.locator('juel-number.size input')).toHaveAttribute('placeholder', 'mixed');
-    await padding.locator('juel-number.size input').fill('8px');
+    await expect(padding.locator('juel-number.size input#number-input')).toHaveAttribute('placeholder', 'mixed');
+    await padding.locator('juel-number.size input#number-input').fill('8px');
     await commit(page);
     expect(await declarations(page)).toEqual({ padding: '8px' });
     // Emptying one side writes longhands for the rest and clears the shorthand.
     await padding.locator('button.place[data-place="left"]').click();
-    await padding.locator('juel-number.size input').fill('');
+    await padding.locator('juel-number.size input#number-input').fill('');
     await commit(page);
     expect(await declarations(page)).toEqual({ 'padding-top': '8px', 'padding-right': '8px', 'padding-bottom': '8px' });
     expect(await page.evaluate(() => (window as any).lastChange.clear)).toEqual(['padding', 'padding-left']);
@@ -59,7 +59,7 @@ test('border editor: a side of its own, then all four alike; corners', async ({ 
     expect(await page.evaluate(() => getComputedStyle(document.getElementById('card')!).borderRightStyle)).toBe('dashed');
     await expect(editor.locator('.border-head button.place[data-place="right"]')).toHaveAttribute('data-own', '');
     // Size on the right only.
-    await editor.locator('juel-number.border-size input').fill('6px');
+    await editor.locator('juel-number.border-size input#number-input').fill('6px');
     await commit(page);
     expect((await declarations(page))['border-right']).toBe('6px dashed #4f46e5');
     // All: dotted on every side → one `border`, the per-side ones cleared.
@@ -71,13 +71,13 @@ test('border editor: a side of its own, then all four alike; corners', async ({ 
         // Sizes still differ (6px on the right), so it stays per side, all dotted.
         ['border-top', 'border-right', 'border-bottom', 'border-left']);
     expect(Object.values(all).filter(v => /dotted/.test(v)).length).toBe(4);
-    await editor.locator('juel-number.border-size input').fill('3px');
+    await editor.locator('juel-number.border-size input#number-input').fill('3px');
     await commit(page);
     expect(await declarations(page)).toEqual({ 'border-radius': '12px', border: '3px dotted #4f46e5' });
     // Corners: the top-left one alone.
     const corners = editor.locator('juel-sides-editor.radius');
     await corners.locator('button.place[data-place="top-left"]').click();
-    await corners.locator('juel-number.size input').fill('0px');
+    await corners.locator('juel-number.size input#number-input').fill('0px');
     await commit(page);
     expect((await declarations(page))['border-radius']).toBe('0px 12px 12px');
     expect(await page.evaluate(() => getComputedStyle(document.getElementById('card')!).borderTopLeftRadius)).toBe('0px');

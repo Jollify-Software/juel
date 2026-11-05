@@ -26,6 +26,9 @@ export class JuelButton extends InputBase {
     // false); without it, only when pressed.
     @property({ type: Boolean, reflect: true }) pressed: boolean = false;
     @property({ type: Boolean }) toggle: boolean = false;
+    // What the button does to a list, for the same look everywhere: `add` is green
+    // (a plus, or Add), `remove` turns the danger colour on hover (a bin).
+    @property({ reflect: true }) action?: 'add' | 'remove';
     // A small down chevron after the content, for a button that opens a
     // menu (a juel-menu trigger). Shown with slotted content too.
     @property({ type: Boolean }) caret: boolean = false;

@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { live } from 'lit/directives/live.js';
+import { lucideIcon } from '../../_Modules/Icons/Lucide';
 import { TableEvents } from './TableEvents';
 import { CellCompare, SortDirection, sortRows } from './sortRows';
 import { TableGrid, addColumn, addRow, isCellBlock, normaliseGrid, pasteCells, readTsv, removeColumn, removeRow, setCell } from './editTable';
@@ -37,6 +38,9 @@ export enum SelectionMode {
  * each body row's first cell a slot `row-<i>` (both from 0) for the page's own controls, such as a
  * colour per series. Sorting and selection are off while editable.
  */
+/** A Lucide glyph on one of the editable table's add and remove buttons. */
+const toolIcon = (glyph: string) => html`<span class="tool-icon" aria-hidden="true" style=${`--icon: url("${lucideIcon(glyph)}")`}></span>`;
+
 @customElement('juel-table')
 export class JuelTable extends LitElement {
   @property({ type: Array }) data: Record<string, any>[] = [];
@@ -299,10 +303,10 @@ export class JuelTable extends LitElement {
             ${grid[0].map((_, column) => html`<th class="edit-heading">
               <div class="cell-box"><slot name="column-${column}"></slot>${input(0, column, l.heading(column))}
                 <button type="button" class="remove remove-column" tabindex="-1" title=${l.removeColumn} aria-label="${l.removeColumn} (${column + 1})"
-                  ?disabled=${width <= 1} @click=${() => this.commitGrid(removeColumn(grid, column))}>\u2212</button></div>
+                  ?disabled=${width <= 1} @click=${() => this.commitGrid(removeColumn(grid, column))}>${toolIcon('lucide-trash-2')}</button></div>
             </th>`)}
             <th class="tools"><button type="button" class="add add-column" title=${l.addColumn} aria-label=${l.addColumn}
-              @click=${() => this.commitGrid(addColumn(grid), { row: 0, column: width })}>+</button></th>
+              @click=${() => this.commitGrid(addColumn(grid), { row: 0, column: width })}>${toolIcon('lucide-plus')}</button></th>
           </tr>
         </thead>
         <tbody>
@@ -311,12 +315,12 @@ export class JuelTable extends LitElement {
               <div class="cell-box">${column === 0 ? html`<slot name="row-${i}"></slot>` : ''}${input(i + 1, column, l.cell(i + 1, column))}</div>
             </td>`)}
             <td class="tools"><button type="button" class="remove remove-row" tabindex="-1" title=${l.removeRow} aria-label="${l.removeRow} (${i + 1})"
-              ?disabled=${grid.length <= 2} @click=${() => this.commitGrid(removeRow(grid, i + 1))}>\u2212</button></td>
+              ?disabled=${grid.length <= 2} @click=${() => this.commitGrid(removeRow(grid, i + 1))}>${toolIcon('lucide-trash-2')}</button></td>
           </tr>`)}
         </tbody>
         <tfoot>
           <tr><td class="tools" colspan=${width + 1}><button type="button" class="add add-row" title=${l.addRow} aria-label=${l.addRow}
-            @click=${() => this.commitGrid(addRow(grid), { row: grid.length, column: 0 })}>+</button></td></tr>
+            @click=${() => this.commitGrid(addRow(grid), { row: grid.length, column: 0 })}>${toolIcon('lucide-plus')}</button></td></tr>
         </tfoot>
       </table>
       <slot name="columns" hidden></slot>`;
@@ -434,7 +438,11 @@ export class JuelTable extends LitElement {
     }
     button.add:hover, button.remove:hover { background: var(--juel-hover, #f0f0f0); }
     button.add:focus-visible, button.remove:focus-visible { outline: 2px solid var(--juel-accent, #007bff); outline-offset: 1px; }
-    button.remove { visibility: hidden; color: var(--juel-danger, #b42318); }
+    button.add { color: var(--juel-add, #1f7a35); }
+    button.add .tool-icon, button.remove .tool-icon { display: inline-block; width: 14px; height: 14px; vertical-align: -2px; background: currentColor;
+      -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }
+    button.remove { visibility: hidden; }
+    button.remove:hover { color: var(--juel-danger, #b42318); }
     button.remove:disabled { display: none; }
     th.edit-heading:hover button.remove, th.edit-heading:focus-within button.remove,
     tr:hover button.remove-row, tr:focus-within button.remove-row { visibility: visible; }

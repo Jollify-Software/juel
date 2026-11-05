@@ -2,16 +2,18 @@ import { LitElement, css, html, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import '../../Number/Number';
 import { renderPlaceToggle, placeToggleStyles } from './SideToggle';
-import { Corners, Sides, allSame, readFour, splitLength, writeFour, type DeclarationChange, type FourSpec, type FourValues } from './SidesValue';
+import { Corners, Sides, allSame, lengthRanges, readFour, splitLength, writeFour, type DeclarationChange, type FourSpec, type FourValues } from './SidesValue';
 
 /** `juel-sides-editor`'s change event: the declarations to set and to clear, and the four values. */
 export interface SidesChangedDetail extends DeclarationChange {
   values: FourValues;
+  /** While the slider is being dragged: show it, but it isn't an undo step yet. */
+  preview?: boolean;
 }
 
 /**
  * `<juel-sides-editor property="padding">` — one length per side (padding, margin, …) with an
- * **All | Top | Right | Bottom | Left** toggle, a number with units and a slider. It reads the
+ * **All | Top | Right | Bottom | Left** toggle, and a slider, number and unit on one row. It reads the
  * shorthand and its longhands from `declarations` and, on each change, fires `sides-changed`
  * `{ set, clear, values }`: the shortest CSS that says the four values (`padding: 12px`,
  * `padding: 12px 24px`, or longhands when only some sides are set) and every declaration to clear,
@@ -27,11 +29,10 @@ export interface SidesChangedDetail extends DeclarationChange {
 export class JuelSidesEditor extends LitElement {
   static styles = [placeToggleStyles, css`
     :host { display: block; font-family: inherit; font-size: 0.8125rem; color: var(--juel-text, inherit); }
-    .head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; }
-    .label { font-weight: 600; flex: 1; }
+    .head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.35rem; }
+    .label { font-weight: 600; }
     .row { display: flex; align-items: center; gap: 0.4rem; }
-    juel-number { width: 6.5rem; flex: none; }
-    input[type='range'] { flex: 1; min-width: 4rem; }
+    juel-number { flex: 1 1 auto; min-width: 0; }
     label.auto { display: inline-flex; align-items: center; gap: 0.25rem; white-space: nowrap; }
   `];
 
@@ -49,6 +50,8 @@ export class JuelSidesEditor extends LitElement {
   @property({ type: Number }) max = 100;
   /** The units offered beside the number. */
   @property({ attribute: false }) units = ['px', 'em', 'rem', '%'];
+  /** How many px one of each unit is, so changing the unit keeps the size (`juel-number`'s `basis`). */
+  @property({ attribute: false }) basis?: Record<string, number>;
   /** The longhands' suffix and the shorthand, when they aren't `<property>-<side>` / `<property>`: `border-width` uses prefix `border`, suffix `width`. */
   @property({ attribute: false }) spec?: FourSpec;
 
@@ -76,12 +79,12 @@ export class JuelSidesEditor extends LitElement {
   }
 
   /** Sets the chosen place to `value` ('' clears it) and fires `sides-changed`. */
-  setPlace(value: string) {
+  setPlace(value: string, preview = false) {
     const values = this.values;
     const next = (this.place === 'all' ? values.map(() => value) : values.map((v, i) => (this.places[i] === this.place ? value : v))) as FourValues;
     const change = writeFour(next, this.fourSpec);
     this.dispatchEvent(new CustomEvent<SidesChangedDetail>('sides-changed', {
-      detail: { ...change, values: next }, bubbles: true, composed: true,
+      detail: { ...change, values: next, ...(preview ? { preview: true } : {}) }, bubbles: true, composed: true,
     }));
   }
 
@@ -89,6 +92,7 @@ export class JuelSidesEditor extends LitElement {
     const values = this.values;
     const shown = this.shown(values);
     const length = splitLength(shown);
+    const place = `${this.place === 'all' ? (this.fourSpec.corners ? 'all corners' : 'all sides') : this.place}`;
     const auto = shown === 'auto';
     const unit = length?.unit && this.units.includes(length.unit) ? length.unit : this.units[0];
     const own = new Set(this.places.filter((_, i) => values[i] && !allSame(values)));
@@ -99,15 +103,12 @@ export class JuelSidesEditor extends LitElement {
         ${renderPlaceToggle<string>({ kind: this.fourSpec.corners ? 'corners' : 'sides', value: this.place, own, label: `${label}: which ${this.fourSpec.corners ? 'corner' : 'side'}`, onChange: place => { this.place = place; } })}
       </div>
       <div class="row">
-        <juel-number class="size" .units=${this.units} .unit=${unit} .text=${auto ? '' : shown}
+        <juel-number class="size" slider hide-label .units=${this.units} .unit=${unit} .text=${auto ? '' : shown}
+          .ranges=${lengthRanges(this.units, this.max, this.allowNegative)} .basis=${this.basis}
           placeholder=${mixed ? 'mixed' : auto ? 'auto' : '—'} ?disabled=${auto}
-          min=${this.allowNegative ? -this.max : 0} label=""
-          aria-label="${label} ${this.place === 'all' ? (this.fourSpec.corners ? 'all corners' : 'all sides') : this.place}"
+          min=${this.allowNegative ? -this.max : 0} label="${label} ${place}"
+          @value-changed=${(e: CustomEvent<{ text: string }>) => this.setPlace(e.detail.text, true)}
           @value-committed=${(e: CustomEvent<{ text: string }>) => this.setPlace(e.detail.text)}></juel-number>
-        <input type="range" class="slider" min=${this.allowNegative ? -this.max : 0} max=${this.max} step="1"
-          .value=${String(length?.value ?? 0)} ?disabled=${auto}
-          aria-label="${label} ${this.place === 'all' ? (this.fourSpec.corners ? 'all corners' : 'all sides') : this.place} slider"
-          @change=${(e: Event) => this.setPlace(`${(e.target as HTMLInputElement).value}${unit}`)}>
         ${this.allowAuto ? html`<label class="auto"><input type="checkbox" class="auto-switch" .checked=${auto}
           @change=${(e: Event) => this.setPlace((e.target as HTMLInputElement).checked ? 'auto' : '')}>Auto</label>` : nothing}
       </div>`;

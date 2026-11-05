@@ -1,5 +1,8 @@
 @import '../../_CommonStyles/InputGroup.less';
 
+:host([action='add']) { --color: var(--juel-add, #1f7a35); --hover-color: var(--juel-add, #1f7a35); --juel-light-text: var(--juel-add, #1f7a35); }
+:host([action='remove']) { --hover-color: var(--juel-danger, #b3261e); }
+
 .btn {
     position: relative;
     overflow: hidden;

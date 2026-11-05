@@ -68,6 +68,7 @@ const light = `
     --juel-selection-hover: #cad9fb;
     --juel-selection-text: #1d1f23;
     --juel-danger: #b3261e;
+    --juel-add: #1f7a35;
     --juel-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
     --juel-shadow-2: 0 6px 20px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.08);`;
 
@@ -85,6 +86,7 @@ const dark = `
     --juel-selection-hover: #344b78;
     --juel-selection-text: #e8e9ec;
     --juel-danger: #f2786d;
+    --juel-add: #5fd27a;
     --juel-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
     --juel-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.4);`;
 

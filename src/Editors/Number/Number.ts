@@ -1,6 +1,9 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators';
 
+/** A slider's ends and step (`juel-number`'s `ranges`). */
+export interface NumberRange { min: number; max: number; step?: number }
+
 @customElement('juel-number')
 export class JuelNumber extends LitElement {
   // CSS styles for the component
@@ -46,6 +49,16 @@ export class JuelNumber extends LitElement {
       font: inherit;
       padding: 0 2px;
     }
+    /* slider: slider, number and unit share one row. */
+    :host([slider]) { display: block; }
+    .slider-row { display: flex; align-items: center; gap: 0.4rem; }
+    .slider-row input[type="range"] {
+      flex: 1 1 auto; min-width: 3rem; margin: 0;
+      accent-color: var(--juel-accent, Highlight);
+    }
+    .slider-row .quantity { flex: none; }
+    .slider-row .quantity input { width: var(--number-width, 3em); }
+    :host([disabled]) { opacity: 0.55; pointer-events: none; }
     .quantity:focus-within { outline: 2px solid var(--juel-accent, Highlight); outline-offset: -1px; }
     .quantity input:focus, .quantity select:focus { outline: none; }
   `;
@@ -66,6 +79,26 @@ export class JuelNumber extends LitElement {
   @property({ type: Number }) min?: number;
   @property({ type: Number }) max?: number;
   @property({ type: Number }) step?: number;
+
+  /**
+   * A slider on the same row as the box and the unit menu. Dragging it fires `value-changed` as it
+   * moves and `value-committed` on letting go. Its ends come from `ranges` for the chosen unit, or
+   * `min` and `max` (0 to 100 when unset). A value typed past the ends is kept, the thumb resting
+   * at the end. A field with `slider` is a quantity (a text box that can be empty) even with no units.
+   */
+  @property({ type: Boolean, reflect: true }) slider = false;
+  /** The slider's ends per unit (`{ px: { min: 0, max: 100 }, em: { min: 0, max: 8, step: 0.05 } }`). */
+  @property({ attribute: false }) ranges?: Record<string, NumberRange>;
+  /** Where the thumb rests while the field is empty, such as the inherited value. */
+  @property({ type: Number }) fallback?: number;
+  /**
+   * How many px one of each unit is (`{ px: 1, em: 16, rem: 16 }`), so choosing another unit keeps the
+   * size: 32px becomes 2em. Between units not listed the number stays, cut to the new unit's range.
+   */
+  @property({ attribute: false }) basis?: Record<string, number>;
+  @property({ type: Boolean, reflect: true }) disabled = false;
+  /** `label` names the field for assistive tech only: the page shows its own heading. */
+  @property({ type: Boolean, attribute: 'hide-label' }) hideLabel = false;
 
   /**
    * Units to choose from (`units="px,em,rem,%"`). With units the field is a
@@ -141,9 +174,36 @@ export class JuelNumber extends LitElement {
     this.commit();
   }
 
+  /** The slider's ends and step for the chosen unit. */
+  private range(unit = this.currentUnit()): Required<NumberRange> {
+    const own = this.ranges?.[unit];
+    return { min: own?.min ?? this.min ?? 0, max: own?.max ?? this.max ?? 100, step: own?.step ?? this.step ?? 1 };
+  }
+
+  /** `value` in `from` as a number in `to`: the same size when `basis` knows both, else cut to `to`'s range. */
+  private converted(value: number, from: string, to: string): number {
+    const a = this.basis?.[from], b = this.basis?.[to];
+    if (a && b) {
+      const { step } = this.range(to);
+      const places = step < 0.1 ? 3 : step < 1 ? 2 : 1;
+      return Number((value * a / b).toFixed(places));
+    }
+    if (!this.ranges?.[to]) return value;
+    const { min, max } = this.range(to);
+    return Math.min(max, Math.max(min, value));
+  }
+
+  private onSliderInput(e: Event) {
+    this.value = Number((e.target as HTMLInputElement).value);
+    this.syncBox();
+    this.emit('value-changed');
+  }
+
   private onUnitChange(e: Event) {
+    const from = this.currentUnit();
     this.unit = (e.target as HTMLSelectElement).value;
     if (this.value === null || this.value === undefined) return;
+    this.value = this.converted(this.value, from, this.unit);
     this.syncBox();
     this.emit('value-changed');
     this.commit();
@@ -169,15 +229,24 @@ export class JuelNumber extends LitElement {
     const unit = this.currentUnit();
     const units = this.units.includes(unit) || !unit ? this.units : [...this.units, unit];
     const empty = this.value === null || this.value === undefined;
-    return html`<div class="quantity" part="quantity">
+    const box = html`<div class="quantity" part="quantity">
       <input id="number-input" type="text" inputmode="decimal" part="input" autocomplete="off"
-        aria-label=${this.label || nothing} placeholder=${this.placeholder}
+        aria-label=${this.label || nothing} placeholder=${this.placeholder} ?disabled=${this.disabled}
         .value=${empty ? '' : String(this.value)}
         @input=${this.onQuantityInput} @keydown=${this.onQuantityKeydown}
         @change=${this.commit} />
-      <select part="unit" aria-label="Unit" @change=${this.onUnitChange}>
+      ${units.length ? html`<select part="unit" aria-label="Unit" ?disabled=${this.disabled} @change=${this.onUnitChange}>
         ${units.map(u => html`<option value=${u} ?selected=${u === unit}>${u}</option>`)}
-      </select>
+      </select>` : nothing}
+    </div>`;
+    if (!this.slider) return box;
+    const { min, max, step } = this.range(unit);
+    const at = empty ? this.fallback ?? min : this.value;
+    return html`<div class="slider-row" part="row">
+      <input type="range" class="slider" part="slider" min=${min} max=${max} step=${step}
+        .value=${String(Math.min(max, Math.max(min, at)))} aria-label=${this.label ? `${this.label} slider` : 'Slider'}
+        ?disabled=${this.disabled} @input=${this.onSliderInput} @change=${this.commit} />
+      ${box}
     </div>`;
   }
 
@@ -192,9 +261,9 @@ export class JuelNumber extends LitElement {
   }
 
   render() {
-    if (this.units.length)
+    if (this.units.length || this.slider)
       return html`<div>
-        ${this.label ? html`<label for="number-input">${this.label}</label>` : ''}
+        ${this.label && !this.hideLabel ? html`<label for="number-input">${this.label}</label>` : ''}
         ${this.renderQuantity()}
       </div>`;
     return html`

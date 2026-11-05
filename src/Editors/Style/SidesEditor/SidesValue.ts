@@ -110,3 +110,16 @@ export function splitLength(value: string): { value: number; unit: string } | nu
   const m = LengthRe.exec(value.trim());
   return m ? { value: parseFloat(m[1]), unit: m[2].toLowerCase() } : null;
 }
+
+/**
+ * The slider's ends for each unit of a length, given its top end in px: em and rem at a tenth of it (in
+ * steps of 0.05), % to 100. `negative` starts it at minus the top end, as margin can.
+ */
+export function lengthRanges(units: readonly string[], max: number, negative = false): Record<string, { min: number; max: number; step: number }> {
+  const out: Record<string, { min: number; max: number; step: number }> = {};
+  for (const unit of units) {
+    const top = unit === '%' ? 100 : unit === 'em' || unit === 'rem' ? Math.max(1, max / 10) : unit === 'vw' || unit === 'vh' ? Math.min(100, Math.max(5, max / 5)) : max;
+    out[unit] = { min: negative ? -top : 0, max: top, step: unit === 'px' || unit === '%' ? 1 : unit === 'vw' || unit === 'vh' ? 0.1 : 0.05 };
+  }
+  return out;
+}

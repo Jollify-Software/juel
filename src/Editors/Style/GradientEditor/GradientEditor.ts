@@ -506,12 +506,12 @@ export class JuelGradientEditor extends StylePropertyEditorBase {
             @click=${() => this.selectLayer(i)}
           ></juel-button>`
         )}
-        <juel-button type="light" class="mini" title="Move layer up" ?disabled=${this.activeLayer <= 0} @click=${() => this.moveLayer(-1)}>▲</juel-button>
-        <juel-button type="light" class="mini" title="Move layer down" ?disabled=${this.activeLayer >= this.model.layers.length - 1} @click=${() => this.moveLayer(1)}>▼</juel-button>
-        <juel-button type="light" class="mini" title="Remove layer" ?disabled=${this.model.layers.length < 2} @click=${() => this.removeLayer()}>✕</juel-button>
+        <juel-button type="plain" class="mini" glyph="lucide-chevron-up" title="Move layer up" button-label="Move layer up" ?disabled=${this.activeLayer <= 0} @click=${() => this.moveLayer(-1)}></juel-button>
+        <juel-button type="plain" class="mini" glyph="lucide-chevron-down" title="Move layer down" button-label="Move layer down" ?disabled=${this.activeLayer >= this.model.layers.length - 1} @click=${() => this.moveLayer(1)}></juel-button>
+        <juel-button type="plain" class="mini" action="remove" glyph="lucide-trash-2" title="Remove this layer" button-label="Remove layer" ?disabled=${this.model.layers.length < 2} @click=${() => this.removeLayer()}></juel-button>
         <span class="grow"></span>
-        <juel-button type="light" class="mini" style="--button-width:auto;--padding:0 .35rem" title="Add gradient layer" @click=${() => this.addLayer('linear')}>＋▤</juel-button>
-        <juel-button type="light" class="mini" style="--button-width:auto;--padding:0 .35rem" title="Add solid layer" @click=${() => this.addLayer('solid')}>＋■</juel-button>
+        <juel-button type="light" class="mini" action="add" style="--button-width:auto;--padding:0 .35rem" title="Add gradient layer" @click=${() => this.addLayer('linear')}>＋▤</juel-button>
+        <juel-button type="light" class="mini" action="add" style="--button-width:auto;--padding:0 .35rem" title="Add solid layer" @click=${() => this.addLayer('solid')}>＋■</juel-button>
       </div>
     `;
   }

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>juel-transform-editor</title>
+    <script src="../../../../dist/juel.js"></script>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 56rem; }
+        #stage { display: grid; place-items: center; height: 14rem; background: #f1f3f5; margin: 1rem 0; overflow: hidden; }
+        #box { padding: 1rem 2rem; background: #4f46e5; color: #fff; }
+        pre { background: #f8f9fa; padding: 0.5rem; min-height: 3em; }
+    </style>
+</head>
+<body>
+    <h1>juel-transform-editor</h1>
+    <p>Each slider moves the box live; letting go is one change. <code>rotate</code> and <code>scale</code> have a calculator here, which only logs the request: building a formula is the page's.</p>
+    <div id="stage"><div id="box">Hello</div></div>
+    <juel-transform-editor id="editor"></juel-transform-editor>
+    <pre id="css"></pre>
+    <pre id="log"></pre>
+    <script>
+        const editor = document.getElementById('editor');
+        const box = document.getElementById('box');
+        let declarations = {};
+        const show = () => {
+            box.style.cssText = Object.entries(declarations).map(([n, v]) => `${n}: ${v}`).join('; ');
+            document.getElementById('css').textContent = Object.entries(declarations).map(([n, v]) => `${n}: ${v};`).join('\n');
+            editor.declarations = { ...declarations };
+        };
+        customElements.whenDefined('juel-transform-editor').then(() => {
+            editor.formulas = ['rotate', 'scale'];
+            editor.aspect = box.offsetWidth / box.offsetHeight;
+            editor.addEventListener('transform-changed', e => {
+                for (const name of e.detail.clear) delete declarations[name];
+                Object.assign(declarations, e.detail.set);
+                show();
+                if (!e.detail.preview) document.getElementById('log').textContent += 'committed\n';
+            });
+            editor.addEventListener('formula-requested', e => { document.getElementById('log').textContent += `formula for ${e.detail.property}\n`; });
+            show();
+            window.exampleReady = true;
+        });
+    </script>
+</body>
+</html>
