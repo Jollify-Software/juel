@@ -89,7 +89,7 @@ export class JuelNumber extends LitElement {
   @property({ type: Boolean, reflect: true }) slider = false;
   /** The slider's ends per unit (`{ px: { min: 0, max: 100 }, em: { min: 0, max: 8, step: 0.05 } }`). */
   @property({ attribute: false }) ranges?: Record<string, NumberRange>;
-  /** Where the thumb rests while the field is empty, such as the inherited value. */
+  /** Where the thumb rests while the field is empty, such as the inherited value, in the first unit. */
   @property({ type: Number }) fallback?: number;
   /**
    * How many px one of each unit is (`{ px: 1, em: 16, rem: 16 }`), so choosing another unit keeps the
@@ -241,7 +241,8 @@ export class JuelNumber extends LitElement {
     </div>`;
     if (!this.slider) return box;
     const { min, max, step } = this.range(unit);
-    const at = empty ? this.fallback ?? min : this.value;
+    // The fallback is in the first unit; shown in the chosen one, so 48px doesn't read as 48em.
+    const at = empty ? (this.fallback === undefined ? min : this.converted(this.fallback, this.units[0] ?? '', unit)) : this.value;
     return html`<div class="slider-row" part="row">
       <input type="range" class="slider" part="slider" min=${min} max=${max} step=${step}
         .value=${String(Math.min(max, Math.max(min, at)))} aria-label=${this.label ? `${this.label} slider` : 'Slider'}

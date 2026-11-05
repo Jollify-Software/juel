@@ -4,6 +4,7 @@
 // on :root, so a page pays for them only in juel.js. Only the icons named here
 // are bundled; add an import and an entry to use another.
 // `<juel-button glyph="lucide-bold">` shows one (InputBase.getIconStyle).
+import upload from 'data-url:lucide-static/icons/upload.svg';
 import eraser from 'data-url:lucide-static/icons/eraser.svg';
 import copyPlus from 'data-url:lucide-static/icons/copy-plus.svg';
 import wandSparkles from 'data-url:lucide-static/icons/wand-sparkles.svg';
@@ -78,6 +79,7 @@ import indentDecrease from 'data-url:lucide-static/icons/indent-decrease.svg';
 import chevronUp from 'data-url:lucide-static/icons/chevron-up.svg';
 
 export const LucideIcons: Record<string, string> = {
+    'upload': upload,
     'eraser': eraser,
     'copy-plus': copyPlus,
     'wand-sparkles': wandSparkles,

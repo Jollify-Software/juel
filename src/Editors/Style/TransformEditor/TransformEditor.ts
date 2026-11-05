@@ -48,6 +48,11 @@ export class JuelTransformEditor extends LitElement {
         .row { display: flex; align-items: center; gap: 0.4rem; min-height: 1.9rem; }
         .lbl { width: 3.6rem; flex: none; opacity: 0.75; }
         juel-number { flex: 1 1 auto; min-width: 0; }
+        /* The sliders end level: the same width for every number and unit, and room for the tools. */
+        juel-number::part(quantity) { width: 6.6rem; }
+        juel-number::part(input) { min-width: 0; }
+        juel-number::part(unit) { flex: 1 1 auto; }
+        .tools { display: inline-flex; flex: none; justify-content: flex-end; min-width: 1.75rem; }
         juel-button.tool { --padding: 2px 4px; --font-size: 12px; flex: none; }
         .formula { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 0.75rem; opacity: 0.85; }
         .other { flex: 1 1 auto; min-width: 0; font: inherit; font-size: 0.75rem; padding: 3px 5px; box-sizing: border-box;
@@ -82,11 +87,11 @@ export class JuelTransformEditor extends LitElement {
 
     private tools(part: Part, value: string) {
         const property = PropertyOf[part];
-        return html`${this.formulas.includes(property) ? html`<juel-button type="plain" class="tool formula-button" glyph="lucide-calculator"
+        return html`<span class="tools">${this.formulas.includes(property) ? html`<juel-button type="plain" class="tool formula-button" glyph="lucide-calculator"
                 button-label="Formula for ${property}" title="Build it from the deck's variables, so it changes as the deck plays"
                 @click=${() => this.dispatchEvent(new CustomEvent('formula-requested', { detail: { property }, bubbles: true, composed: true }))}></juel-button>` : nothing}
             ${value && !isPlainLength(value) ? html`<juel-button type="plain" class="tool clear" glyph="lucide-x" button-label="Clear ${property}" title="Back to none"
-                @click=${() => this.set(part, '')}></juel-button>` : nothing}`;
+                @click=${() => this.set(part, '')}></juel-button>` : nothing}</span>`;
     }
 
     /** One row: a slider, number and unit, or the formula as text when a slider can't show it. */
