@@ -247,8 +247,10 @@ export module TipsModule {
             || "";
     }
 
-    // A title that is a component's own property is a label, not a tip.
+    // A title that is a component's own property is a label, not a tip. So is one on an SVG shape: a browser
+    // shows no tooltip for it, and an editor saving its live SVG (juel-plan-editor) must not have it changed by a hover.
     function titleIsData(element: Element) {
+        if (element instanceof SVGElement) return true;
         const type = customElements.get(element.localName) as any;
         return !!type?.elementProperties?.has?.("title");
     }
