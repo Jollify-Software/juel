@@ -79,6 +79,6 @@ test('the page\'s tokens colour it: a dark look changes the fills and the text',
     expect(dark.top).toBe('rgb(122, 162, 247)');
     expect(dark.second).toBe('rgb(158, 206, 106)');
     expect(dark.text).toBe('rgb(11, 15, 25)');
-    expect(dark.line).toBe('rgb(75, 85, 99)');
+    expect(dark.line).toBe('rgb(181, 188, 201)'); // --diagram-edge: the page's --muted, as --line is a hairline
     expect(dark.own).toBe(light.own);
 });
