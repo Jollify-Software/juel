@@ -1,0 +1,56 @@
+// <juel-shape-editor>: actions and options above, the tools down the left, the page in the middle, a line of help below.
+// The chrome follows Juel's tokens, light or dark. The page itself stays a pale checker in both, like paper:
+// a saved shape has no background, and the checker shows what's see-through.
+:host {
+    display: block;
+    min-height: 420px;
+    font: 13px var(--juel-font, system-ui, sans-serif);
+    color: var(--juel-text, inherit);
+    --editor-line: var(--juel-border, #d7dbe3);
+    --editor-accent: var(--juel-accent, #3b6fd8);
+    --editor-muted: var(--juel-muted, #6b7280);
+    --shape-paper: #ffffff;
+    --shape-paper-check: #f0f1f4;
+}
+.shape-editor { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 6px; height: 100%; min-height: inherit; }
+.bar, .options { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+.options { gap: 12px; }
+.sep { width: 1px; height: 20px; background: var(--editor-line); margin: 0 4px; }
+.zoom-level { min-width: 3.2em; text-align: center; font-variant-numeric: tabular-nums; color: var(--editor-muted); font-size: 12px; }
+.field { display: inline-flex; align-items: center; gap: 4px; }
+.field > span { color: var(--editor-muted); font-size: 12px; }
+.field juel-number { --number-width: 3.2em; }
+.field juel-select { min-width: 6em; }
+juel-button { --padding: 4px; }
+juel-button[pressed] {
+    --background-color: color-mix(in srgb, var(--editor-accent) 22%, transparent);
+    --hover-background-color: color-mix(in srgb, var(--editor-accent) 30%, transparent);
+}
+.main { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px; min-height: 0; }
+.tools { display: grid; grid-template-columns: repeat(2, auto); gap: 2px; align-content: start; }
+.stage {
+    position: relative; min-height: 0; overflow: hidden; outline: none; user-select: none; touch-action: none;
+    border: 1px solid var(--editor-line); border-radius: 8px;
+    background: repeating-conic-gradient(var(--shape-paper-check) 0% 25%, var(--shape-paper) 0% 50%) 0 0 / 24px 24px;
+}
+.stage:focus-visible { outline: 2px solid var(--editor-accent); outline-offset: -2px; }
+svg.canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.drawing, .draft { pointer-events: none; }
+.grid { pointer-events: none; }
+.grid-line { fill: none; stroke: #8892a6; opacity: .35; }
+.start { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; margin: 0; pointer-events: none; color: #6b7280; font-size: 14px; }
+.hint { margin: 0; color: var(--editor-muted); font-size: 12px; min-height: 1.4em; }
+
+// What the editor draws over the drawing: always the same size on screen, whatever the zoom.
+.frame { fill: none; stroke: var(--editor-accent); stroke-width: 1px; vector-effect: non-scaling-stroke; pointer-events: none; }
+.frame.thin { stroke-dasharray: 4 3; }
+.stem, .stretch, .bend-line { stroke: var(--editor-accent); stroke-width: 1px; vector-effect: non-scaling-stroke; pointer-events: none; }
+.stretch { stroke-dasharray: 4 3; }
+.handle, .point, .bend { fill: #fff; stroke: var(--editor-accent); stroke-width: 1.5px; vector-effect: non-scaling-stroke; pointer-events: none; }
+.point[data-on-point='1'] { fill: var(--editor-accent); }
+.bend { fill: var(--editor-accent); }
+.grab { fill: transparent; stroke: none; }
+.turn-grab { cursor: grab; }
+.points-line { fill: none; stroke: var(--editor-accent); stroke-width: 1px; vector-effect: non-scaling-stroke; pointer-events: none; }
+.rub-brush { fill: color-mix(in srgb, var(--editor-accent) 10%, transparent); stroke: var(--editor-accent); stroke-width: 1px; vector-effect: non-scaling-stroke; pointer-events: none; }
+.marquee { fill: color-mix(in srgb, var(--editor-accent) 12%, transparent); stroke: var(--editor-accent); stroke-width: 1px; vector-effect: non-scaling-stroke; stroke-dasharray: 4 3; pointer-events: none; }
