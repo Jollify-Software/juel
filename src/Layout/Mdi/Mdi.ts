@@ -47,6 +47,11 @@ export interface MdiLayout {
 interface MdiPanel {
     id: string;
     title: string;
+    /**
+     * True when its title bar leaves the title's words out (data-title-hidden), for a header that says it all. The title
+     * still names the panel everywhere else: its tab, its collapsed strip, and its buttons for a screen reader.
+     */
+    titleHidden: boolean;
     closable: boolean;
     /** False when the panel opted out of maximising (data-maximizable="false"). */
     maximizable: boolean;
@@ -233,6 +238,7 @@ export class JuelMdi extends LitElement {
                 return {
                     id,
                     title: element.dataset.title ?? 'Panel',
+                    titleHidden: element.dataset.titleHidden !== undefined,
                     closable: this.defaultClosable && element.dataset.closable !== 'false',
                     maximizable: element.dataset.maximizable !== 'false',
                     poppable: element.dataset.poppable !== 'false',
@@ -885,7 +891,7 @@ export class JuelMdi extends LitElement {
         const style = !maximized && slot.size !== undefined ? `flex: 1 1 ${slot.size}%` : '';
         return html`<div class="pane ${maximized ? 'maximized' : ''}" data-slot-id="${slot.id}" data-panel-id="${panel.id}" style="${style}">
             <div class="pane-title" part="pane-title" @dblclick=${(e: MouseEvent) => this._onTitleDoubleClick(e, slot, maximized)}>
-                <span class="pane-title-text ${panel.header ? 'with-header' : ''}" part="pane-title-text">${panel.title}</span>
+                ${panel.titleHidden ? '' : html`<span class="pane-title-text ${panel.header ? 'with-header' : ''}" part="pane-title-text">${panel.title}</span>`}
                 ${this._renderHeaderSlot(panel)}
                 ${this._renderWindowButtons(slot, [panel], maximized, panel.title)}
                 ${panel.closable ? html`<juel-button type="plain" class="window-button close-button" glyph="close" title="Close" button-label="Close ${panel.title}" @click=${() => this._closePanel(panel.id)}></juel-button>` : ''}

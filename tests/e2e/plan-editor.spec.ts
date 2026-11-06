@@ -365,3 +365,25 @@ test('plan editor: a ghost is drawn and dragged by one press, one undo takes it 
     await plan.evaluate((p: any) => p.undo());
     expect(await plan.evaluate((p: any) => p.svg)).toBe(before);
 });
+
+test('addPolygon: a shape from outside, as if drawn: newAttributes, selected, one undo step', async ({ page }) => {
+    await open(page);
+    const result = await page.evaluate(() => {
+        const plan = document.getElementById('plan') as any;
+        const created: string[] = [];
+        plan.addEventListener('shape-created', (e: CustomEvent<{ id: string }>) => created.push(e.detail.id));
+        plan.newAttributes = { 'data-fixture': 'room', 'data-id': '{id}' };
+        const id = plan.addPolygon([{ x: 100, y: 100 }, { x: 200, y: 100 }, { x: 150, y: 180 }]);
+        const shape = plan.shadowRoot.getElementById(id);
+        const seen = { id, tag: shape.localName, points: shape.getAttribute('points'), fixture: shape.getAttribute('data-fixture'), dataId: shape.getAttribute('data-id'), selected: plan.selection, created };
+        plan.undo();
+        return { ...seen, afterUndo: !!plan.shadowRoot.getElementById(id) };
+    });
+    expect(result.tag).toBe('polygon');
+    expect(result.points).toBe('100,100 200,100 150,180');
+    expect(result.fixture).toBe('room');
+    expect(result.dataId).toBe(result.id);
+    expect(result.selected).toEqual([result.id]);
+    expect(result.created).toEqual([result.id]);
+    expect(result.afterUndo).toBe(false);
+});
