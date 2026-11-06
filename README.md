@@ -341,6 +341,10 @@ the document's stylesheets only. A panel with `data-poppable="false"` (one style
 shadow root, say) snaps back instead, and `popPanel(id)` returns `null` for it. Example: the
 "No popout" section of `chrome.html`.
 
+A panel with `data-title-hidden` leaves the words of its title out of its title bar, for when
+its header content (`data-header-for`) says it all. `data-title` still names it in its tab, on
+its collapsed strip and on its buttons for a screen reader.
+
 ## Menus
 
 ### Menu

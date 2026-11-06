@@ -8,6 +8,8 @@ import '../../Buttons/Button/Button';
 @customElement('juel-select')
 export class JuelSelect extends LitElement {
   @property({ type: String }) label: string = '';
+  // Leaves the label's words off the page (a select in a title bar, say); they still name the list for a screen reader.
+  @property({ type: Boolean, attribute: 'hide-label' }) hideLabel: boolean = false;
   // An attribute value is JSON when it parses as JSON (value='{"id":1}',
   // value="3"), else a plain string (value="tea"); Lit's own Object
   // converter would turn a plain string into null.
@@ -193,7 +195,7 @@ export class JuelSelect extends LitElement {
     let data = this.filteredData.length > 0 ? this.filteredData : this.data;
 
     return html`
-      ${this.label
+      ${this.label && !this.hideLabel
         ? html`<label for="select-element">${this.label}</label>`
         : ''}
       ${this.enableSearch
@@ -208,6 +210,7 @@ export class JuelSelect extends LitElement {
           id="select-element"
           part="select"
           name=${this.name ?? ''}
+          aria-label=${ifDefined(this.label && this.hideLabel ? this.label : undefined)}
           @change="${this.handleChange}"
         >
           <option value="" ?selected="${this.value === null || this.value === undefined || this.value === ''}">${this.placeholder}</option>

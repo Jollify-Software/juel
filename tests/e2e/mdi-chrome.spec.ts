@@ -103,3 +103,38 @@ test('collapsible: clicking anywhere on the strip (not just the icon) expands th
     await expect.poll(() => panes(page, 'minimal').then(p => p.panes)).toBe(3);
     await expect.poll(() => events).toEqual(['min-a']);
 });
+
+test('data-title-hidden: the title bar leaves the words out; the buttons and the collapsed strip keep them', async ({ page }) => {
+    await open(page);
+    const result = await page.evaluate(async () => {
+        const mdi = document.createElement('juel-mdi') as any;
+        mdi.setAttribute('order', 'row');
+        mdi.setAttribute('collapsible', '');
+        mdi.setAttribute('chrome', 'minimal');
+        mdi.style.height = '200px';
+        mdi.innerHTML = `<div id="tool-a" data-title="Named" data-title-hidden data-closable="false">A</div>
+            <button data-header-for="tool-a">Gear</button>
+            <div id="tool-b" data-title="Shown" data-closable="false">B</div>
+            <div id="tool-c" data-title="Third" data-closable="false">C</div>`;
+        document.body.append(mdi);
+        await mdi.updateComplete;
+        await new Promise(resolve => setTimeout(resolve, 100));
+        await mdi.updateComplete;
+        const root = mdi.shadowRoot as ShadowRoot;
+        const titles = [...root.querySelectorAll('.pane-title-text')].map(t => t.textContent);
+        const hidden = root.querySelector('.pane[data-panel-id="tool-a"]')!;
+        const header = hidden.querySelector('slot[name="header-tool-a"]') !== null;
+        const button = hidden.querySelector('.collapse-button') as HTMLElement | null;
+        const buttonName = button?.getAttribute('button-label') ?? button?.getAttribute('title') ?? '';
+        mdi.collapsePanel('tool-a');
+        await mdi.updateComplete;
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const strip = root.querySelector('.collapsed-strip')?.textContent ?? '';
+        const stripName = root.querySelector('.collapsed-strip juel-button, .collapsed-strip button')?.getAttribute('title') ?? '';
+        return { titles, header, buttonName, strip: `${strip} ${stripName}` };
+    });
+    expect(result.titles).toEqual(['Shown', 'Third']);
+    expect(result.header).toBe(true);
+    expect(result.buttonName).toContain('Named');
+    expect(result.strip).toContain('Named');
+});

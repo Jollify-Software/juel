@@ -337,6 +337,14 @@ export class JuelPlanEditor extends LitElement {
         this.dispatchEvent(new CustomEvent('plan-changed', { detail: { svg: this.svg, reason: 'redo' }, bubbles: true, composed: true }));
     }
 
+    /**
+     * A closed shape from outside (a shape from a file, say), as if drawn: `newAttributes` apply, it joins this storey,
+     * it's selected, and it's one undo step. `shape-created` says `kind: 'polygon'` when the tool is. Returns its id.
+     */
+    addPolygon(points: Point[]): string {
+        return this.create('polygon', { points: formatPoints(points) }).id;
+    }
+
     /** The view fits the plan (its viewBox, or its items when they reach outside it), with a margin. */
     fit() {
         if (!this.shell) return;
