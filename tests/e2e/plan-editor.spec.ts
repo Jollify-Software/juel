@@ -256,6 +256,24 @@ test('setLevelAttributes names a storey (making its group if need be), one undo 
     expect(await page.evaluate(() => (document.getElementById('plan') as any).svg.includes('Roof terrace'))).toBe(false);
 });
 
+test('setPlanAttributes writes to the root, one undo step, and undo and redo bring it back', async ({ page }) => {
+    await open(page);
+    const root = () => page.evaluate(() => {
+        const plan = document.getElementById('plan') as any;
+        return { attr: plan.planAttributes['data-sky'] ?? null, svg: plan.svg.slice(0, plan.svg.indexOf('>')) };
+    });
+    await page.evaluate(() => (document.getElementById('plan') as any).setPlanAttributes({ 'data-sky': '#88bbee' }));
+    expect((await root()).attr).toBe('#88bbee');
+    expect((await root()).svg).toContain('data-sky="#88bbee"');
+    await page.evaluate(() => (document.getElementById('plan') as any).undo());
+    expect((await root()).attr).toBeNull();
+    expect((await root()).svg).not.toContain('data-sky');
+    await page.evaluate(() => (document.getElementById('plan') as any).redo());
+    expect((await root()).attr).toBe('#88bbee');
+    await page.evaluate(() => (document.getElementById('plan') as any).setPlanAttributes({ 'data-sky': null }));
+    expect((await root()).svg).not.toContain('data-sky');
+});
+
 test('newAttributes: {id} in a value is the new shape\'s id', async ({ page }) => {
     await open(page);
     await page.evaluate(() => { (document.getElementById('plan') as any).newAttributes = { 'data-fixture': 'room', 'data-id': '{id}', title: 'room {id}' }; });
@@ -264,6 +282,10 @@ test('newAttributes: {id} in a value is the new shape\'s id', async ({ page }) =
     const s = await lastShape(page);
     expect(s.attrs['data-id']).toBe(s.id);
     expect(s.attrs.title).toBe(`room ${s.id}`);
+    // The mouse is still over the new shape, and what's saved is the live SVG: the tooltip module keeps its hands off it.
+    const svg: string = await page.evaluate(() => (document.getElementById('plan') as any).svg);
+    expect(svg).toContain(`title="room ${s.id}"`);
+    expect(svg).not.toContain('data-juel-tip');
 });
 
 test('marks: drawn over the plan in plan units, not part of svg and not pickable', async ({ page }) => {

@@ -216,6 +216,7 @@ export class JuelPlanEditor extends LitElement {
     /** Undo/redo: adopt `text` without a new history, keeping the view. */
     private restore(text: string) {
         const root = parsePlan(text);
+        this.shell = root.cloneNode(false) as Element;
         this.docGroup.replaceChildren(...Array.from(root.childNodes).map(n => document.importNode(n, true)));
         this.known = text;
         this.svg = text;
@@ -299,6 +300,21 @@ export class JuelPlanEditor extends LitElement {
         const group = containerFor(this.docGroup, level, true);
         setAttributesOf(group, attributes);
         this.applyLevelStyle();
+        this.commit('attributes');
+    }
+
+    /** The attributes on the plan's own root `<svg>`, as a name-to-value map. */
+    get planAttributes(): Record<string, string> {
+        return Object.fromEntries(Array.from(this.shell?.attributes ?? []).map(a => [a.name, a.value]));
+    }
+
+    /**
+     * Sets (or, with null, removes) attributes on the plan's root `<svg>`: what's true of the whole plan,
+     * not one shape. One history entry.
+     */
+    setPlanAttributes(attributes: Record<string, string | null>) {
+        if (this.readonly || !this.shell) return;
+        setAttributesOf(this.shell, attributes);
         this.commit('attributes');
     }
 

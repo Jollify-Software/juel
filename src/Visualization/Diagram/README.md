@@ -81,7 +81,7 @@ in diagram units and `width: 100%; height: auto`, so it scales to its box and pr
 shows. Colours are the page's tokens with plain fallbacks: `--chart-1` / `--chart-2` /
 `--chart-3` (else `--accent`) fill nodes by depth (org) or kind (flowchart: decisions and
 start/end pills take the second), `--chart-on-fill` is the text on them, `--ink` /
-`--muted` / `--line` / `--card` / `--bg` the rest, so one asset draws in any deck's look,
+`--muted` (also the arrows and connectors, as `--diagram-edge`, which a page can set) / `--line` (card outlines) / `--card` / `--bg` the rest, so one asset draws in any deck's look,
 light or dark. A node's own `colour` wins. A model with errors draws the problems as text
 (`.problem`). `diagram-drawn` fires with `{ layout, warnings }`; `currentLayout` is the
 last layout (the editor reads it to find what was clicked). The helpers are also on

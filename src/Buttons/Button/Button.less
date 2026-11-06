@@ -3,6 +3,9 @@
 :host([action='add']) { --color: var(--juel-add, #1f7a35); --hover-color: var(--juel-add, #1f7a35); --juel-light-text: var(--juel-add, #1f7a35); }
 :host([action='remove']) { --hover-color: var(--juel-danger, #b3261e); }
 
+/* With --button-width: 100%, so a button can fill a share its parent gives it (juel-segmented's stretch). */
+.input-group, .input-group > div { width: var(--button-group-width, auto); }
+
 .btn {
     position: relative;
     overflow: hidden;

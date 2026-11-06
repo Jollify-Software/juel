@@ -40,7 +40,11 @@ export class JuelSegmented extends LitElement {
         juel-button::part(button) { white-space: nowrap; }
         :host([stretch]) { display: flex; }
         :host([stretch]) .group { display: flex; flex: 1 1 auto; min-width: 0; }
-        :host([stretch]) juel-button { flex: 1 1 0; min-width: var(--segmented-min, 24px); }
+        :host([stretch]) juel-button { flex: 1 1 0; min-width: var(--segmented-min, 24px); --button-group-width: 100%; --button-width: 100%; }
+        :host([stretch]) juel-button::part(button) { justify-content: center; }
+        /* A long list (an editor's tools) takes more rows rather than running out of its container. */
+        :host([wrap]) { display: block; max-width: 100%; }
+        :host([wrap]) .group { display: flex; flex-wrap: wrap; }
         juel-button + juel-button { border-left: 1px solid var(--juel-border, #ced4da); }
         juel-button[selected] {
             --background-color: var(--segmented-selected, var(--juel-selection, #dde8ff));
@@ -54,6 +58,8 @@ export class JuelSegmented extends LitElement {
     @property({ type: String }) label = '';
     /** Fill the width, the buttons sharing it equally. */
     @property({ type: Boolean, reflect: true }) stretch = false;
+    /** More options than fit take more rows, instead of running off the side. */
+    @property({ type: Boolean, reflect: true }) wrap = false;
 
     render() {
         const chosen = this.options.findIndex(o => o.value === this.value);

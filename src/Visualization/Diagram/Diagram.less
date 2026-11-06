@@ -13,6 +13,8 @@
     --diagram-ink: var(--ink, #1f2430);
     --diagram-muted: var(--muted, #6b7280);
     --diagram-line: var(--line, #9aa3b2);
+    // What joins the boxes has to be seen, and --line is a hairline for table rules (1.2 to 1.4:1 on every Jetty theme).
+    --diagram-edge: var(--muted, #6b7280);
     --diagram-card: var(--card, #eef1f7);
     --diagram-font: var(--font, system-ui, sans-serif);
 }
@@ -53,15 +55,15 @@ svg {
 .timeline .node text { fill: var(--diagram-ink); }
 .timeline .node .detail { fill: var(--diagram-muted); }
 .timeline .node .date { fill: var(--diagram-ink); font-weight: 600; }
-.timeline .axis { stroke: var(--diagram-line); stroke-width: 3; stroke-linecap: round; }
+.timeline .axis { stroke: var(--diagram-edge); stroke-width: 3; stroke-linecap: round; }
 .timeline .marker { fill: var(--diagram-1); stroke: var(--diagram-card); stroke-width: 3; }
-.timeline .stem { stroke: var(--diagram-line); stroke-width: 2; }
+.timeline .stem { stroke: var(--diagram-edge); stroke-width: 2; }
 .node.own .fill { fill: var(--own-colour); }
 
-.edge path { fill: none; stroke: var(--diagram-line); stroke-width: 2; stroke-linejoin: round; }
+.edge path { fill: none; stroke: var(--diagram-edge); stroke-width: 2; stroke-linejoin: round; }
 .edge.arrow path { marker-end: url(#juel-diagram-arrow); }
 .edge .label { fill: var(--diagram-ink); paint-order: stroke; stroke: var(--bg, #ffffff); stroke-width: 4px; stroke-linejoin: round; }
-#juel-diagram-arrow path { fill: var(--diagram-line); }
+#juel-diagram-arrow path { fill: var(--diagram-edge); }
 
 .problem {
     font: 14px var(--diagram-font);

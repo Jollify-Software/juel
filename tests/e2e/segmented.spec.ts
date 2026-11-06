@@ -23,6 +23,23 @@ test('segmented: a click and the arrow keys choose; value-changed says so', asyn
     await expect(page.locator('#log')).toHaveText('align: left');
 });
 
+test('segmented: wrap takes more rows; without it the same options run out of the container', async ({ page }) => {
+    await page.goto('examples/Buttons/Segmented/segmented.html');
+    await page.waitForFunction(() => (window as any).exampleReady);
+    const read = () => page.evaluate(() => {
+        const s = document.getElementById('wrapped') as any, right = s.parentElement.getBoundingClientRect().right;
+        const buttons = Array.from(s.shadowRoot.querySelectorAll('juel-button')) as HTMLElement[];
+        return { off: buttons.filter(b => b.getBoundingClientRect().right > right + 1).length, rows: new Set(buttons.map(b => Math.round(b.getBoundingClientRect().top))).size };
+    });
+    const wrapped = await read();
+    expect(wrapped.off).toBe(0);
+    expect(wrapped.rows).toBeGreaterThan(1);
+    await page.evaluate(async () => { const s = document.getElementById('wrapped') as any; s.wrap = false; await s.updateComplete; });
+    const plain = await read();
+    expect(plain.off).toBeGreaterThan(0);
+    expect(plain.rows).toBe(1);
+});
+
 test('segmented: clearable clears on a second click', async ({ page }) => {
     await page.goto('examples/Buttons/Segmented/segmented.html');
     await page.waitForFunction(() => (window as any).exampleReady);
@@ -44,6 +61,9 @@ test('segmented: stretch shares the width; without it the group keeps its own si
     expect(Math.max(...stretched) - Math.min(...stretched)).toBeLessThanOrEqual(1);
     const host = await page.locator('#align').evaluate(e => e.getBoundingClientRect().width);
     expect(host).toBeLessThan(page.viewportSize()!.width / 2);
+    // The inner button fills its share, so the chosen one's highlight isn't a patch at one end of it.
+    const gaps = await page.locator('#stretched juel-button').evaluateAll(bs => bs.map(b => Math.round(b.clientWidth - b.shadowRoot!.querySelector('button')!.getBoundingClientRect().width)));
+    expect(gaps).toEqual([0, 0, 0]);
 });
 
 test('segmented: a long label stays on one line in a narrow container', async ({ page }) => {
