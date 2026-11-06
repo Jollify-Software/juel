@@ -80,7 +80,9 @@ when it lays a report's content into pages), a `<script type="application/json">
 in diagram units and `width: 100%; height: auto`, so it scales to its box and prints as it
 shows. Colours are the page's tokens with plain fallbacks: `--chart-1` / `--chart-2` /
 `--chart-3` (else `--accent`) fill nodes by depth (org) or kind (flowchart: decisions and
-start/end pills take the second), `--chart-on-fill` is the text on them, `--ink` /
+start/end pills take the second). The text on a box is worked out from that box's fill: white, or black once white
+would fall under 4:1. It's CSS, so it follows a change of theme with no redraw (a browser with no relative colours gets
+white). A page's `--chart-on-fill` wins on the page's fills, but not on a node's own `colour`. `--ink` /
 `--muted` (also the arrows and connectors, as `--diagram-edge`, which a page can set) / `--line` (card outlines) / `--card` / `--bg` the rest, so one asset draws in any deck's look,
 light or dark. A node's own `colour` wins. A model with errors draws the problems as text
 (`.problem`). `diagram-drawn` fires with `{ layout, warnings }`; `currentLayout` is the
