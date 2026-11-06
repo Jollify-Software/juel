@@ -23,11 +23,11 @@ export const HandleStyles = css`
  * `onUp` the last event (a pointerup, or a pointercancel). The cover goes on `document.body`, so a
  * transformed ancestor (an anchored toolbar) can't shrink it.
  */
-export function trackDrag(down: PointerEvent, target: HTMLElement, onMove: (e: PointerEvent) => void, onUp: (e: PointerEvent) => void) {
+export function trackDrag(down: PointerEvent, target: HTMLElement, onMove: (e: PointerEvent) => void, onUp: (e: PointerEvent) => void, cursor = 'grabbing') {
     try { target.setPointerCapture(down.pointerId); } catch { /* a synthetic or ended pointer: the cover still catches it */ }
     const cover = document.createElement('div');
     cover.setAttribute('data-juel-drag-cover', '');
-    cover.style.cssText = 'position:fixed;inset:0;z-index:2147483647;cursor:grabbing;touch-action:none;background:transparent';
+    cover.style.cssText = `position:fixed;inset:0;z-index:2147483647;cursor:${cursor};touch-action:none;background:transparent`;
     document.body.appendChild(cover);
     const move = (e: PointerEvent) => { if (e.pointerId === down.pointerId) onMove(e); };
     const up = (e: PointerEvent) => {

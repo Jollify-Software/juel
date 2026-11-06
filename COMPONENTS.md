@@ -36,6 +36,7 @@ and the `examples/` pages that use each one: don't edit by hand.
 | `<juel-device>` | `src/Utilities/Device/Device.ts` |  |
 | `<juel-diagram>` | `src/Visualization/Diagram/Diagram.ts` | [Visualization/Diagram/diagram.html](examples/Visualization/Diagram/diagram.html) |
 | `<juel-diagram-editor>` | `src/Visualization/Diagram/DiagramEditor.ts` | [Visualization/Diagram/diagram-editor.html](examples/Visualization/Diagram/diagram-editor.html) |
+| `<juel-shape-editor>` | `src/Editors/ShapeEditor/ShapeEditor.ts` | [Editors/ShapeEditor/shape-editor.html](examples/Editors/ShapeEditor/shape-editor.html) |
 | `<juel-dialog>` | `src/Dialog/DialogManager/Dialog.ts` | [Dialog/DialogManager/dialog-manager.html](examples/Dialog/DialogManager/dialog-manager.html) |
 | `<juel-dialog-manager>` | `src/Dialog/DialogManager/DialogManager.ts` | [Dialog/DialogManager/dialog-manager.html](examples/Dialog/DialogManager/dialog-manager.html) |
 | `<juel-dock-container>` | `src/Layout/DockContainer/DockContainer.ts` | [Layout/DockContainer/dock-container.html](examples/Layout/DockContainer/dock-container.html) |

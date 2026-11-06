@@ -78,6 +78,8 @@ import move from 'data-url:lucide-static/icons/move.svg';
 import rotateCw from 'data-url:lucide-static/icons/rotate-cw.svg';
 import chartColumn from 'data-url:lucide-static/icons/chart-column.svg';
 import shapes from 'data-url:lucide-static/icons/shapes.svg';
+import squaresUnite from 'data-url:lucide-static/icons/squares-unite.svg';
+import squaresSubtract from 'data-url:lucide-static/icons/squares-subtract.svg';
 import pencil from 'data-url:lucide-static/icons/pencil.svg';
 import replace from 'data-url:lucide-static/icons/replace.svg';
 import listChecks from 'data-url:lucide-static/icons/list-checks.svg';
@@ -129,6 +131,28 @@ import indentIncrease from 'data-url:lucide-static/icons/indent-increase.svg';
 import indentDecrease from 'data-url:lucide-static/icons/indent-decrease.svg';
 import chevronUp from 'data-url:lucide-static/icons/chevron-up.svg';
 
+import mousePointer2 from 'data-url:lucide-static/icons/mouse-pointer-2.svg';
+import minus from 'data-url:lucide-static/icons/minus.svg';
+import arrowUpRight from 'data-url:lucide-static/icons/arrow-up-right.svg';
+import squareRoundCorner from 'data-url:lucide-static/icons/square-round-corner.svg';
+import triangle from 'data-url:lucide-static/icons/triangle.svg';
+import hexagon from 'data-url:lucide-static/icons/hexagon.svg';
+import spline from 'data-url:lucide-static/icons/spline.svg';
+import paintBucket from 'data-url:lucide-static/icons/paint-bucket.svg';
+import pipette from 'data-url:lucide-static/icons/pipette.svg';
+import hand from 'data-url:lucide-static/icons/hand.svg';
+import grid3x3 from 'data-url:lucide-static/icons/grid-3x3.svg';
+import flipHorizontal2 from 'data-url:lucide-static/icons/flip-horizontal-2.svg';
+import flipVertical2 from 'data-url:lucide-static/icons/flip-vertical-2.svg';
+import bringToFront from 'data-url:lucide-static/icons/bring-to-front.svg';
+import sendToBack from 'data-url:lucide-static/icons/send-to-back.svg';
+import group from 'data-url:lucide-static/icons/group.svg';
+import ungroup from 'data-url:lucide-static/icons/ungroup.svg';
+import zoomOut from 'data-url:lucide-static/icons/zoom-out.svg';
+import maximize from 'data-url:lucide-static/icons/maximize.svg';
+import ban from 'data-url:lucide-static/icons/ban.svg';
+import ellipse from 'data-url:lucide-static/icons/ellipse.svg';
+import waypoints from 'data-url:lucide-static/icons/waypoints.svg';
 export const LucideIcons: Record<string, string> = {
     'user': iconUser,
     'users': iconUsers,
@@ -204,6 +228,8 @@ export const LucideIcons: Record<string, string> = {
     'rotate-cw': rotateCw,
     'chart-column': chartColumn,
     'shapes': shapes,
+    'squares-unite': squaresUnite,
+    'squares-subtract': squaresSubtract,
     'pencil': pencil,
     'replace': replace,
     'list-checks': listChecks,
@@ -254,6 +280,28 @@ export const LucideIcons: Record<string, string> = {
     'indent-increase': indentIncrease,
     'indent-decrease': indentDecrease,
     'chevron-up': chevronUp,
+    'mouse-pointer-2': mousePointer2,
+    'minus': minus,
+    'arrow-up-right': arrowUpRight,
+    'square-round-corner': squareRoundCorner,
+    'triangle': triangle,
+    'hexagon': hexagon,
+    'spline': spline,
+    'paint-bucket': paintBucket,
+    'pipette': pipette,
+    'hand': hand,
+    'grid-3x3': grid3x3,
+    'flip-horizontal-2': flipHorizontal2,
+    'flip-vertical-2': flipVertical2,
+    'bring-to-front': bringToFront,
+    'send-to-back': sendToBack,
+    'group': group,
+    'ungroup': ungroup,
+    'zoom-out': zoomOut,
+    'maximize': maximize,
+    'ban': ban,
+    'ellipse': ellipse,
+    'waypoints': waypoints,
 };
 
 /** The data URL of the Lucide icon for a `lucide-<name>` glyph, if bundled. */

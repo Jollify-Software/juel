@@ -269,12 +269,13 @@ export class JuelNumber extends LitElement {
       </div>`;
     return html`
       <div>
-        ${this.label
+        ${this.label && !this.hideLabel
           ? html`<label for="number-input">${this.label}</label>`
           : ''}
         <input
           id="number-input"
           type="number"
+          aria-label=${this.hideLabel && this.label ? this.label : nothing}
           .value=${String(this.value)}
           min=${this.min ?? nothing}
           max=${this.max ?? nothing}

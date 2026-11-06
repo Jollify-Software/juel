@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Shape editor — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        body { margin: 12px; }
+        juel-shape-editor { height: 560px; }
+        .row { display: flex; gap: 12px; align-items: flex-start; margin-top: 8px; }
+        #saved { font-family: monospace; font-size: 11px; white-space: pre-wrap; max-height: 12em; overflow: auto; flex: 1; border: 1px solid #ccc; padding: 6px; margin: 0; }
+        #picture { width: 160px; height: 120px; object-fit: contain; border: 1px solid #ccc; }
+    </style>
+</head>
+
+<body>
+    <h1>juel-shape-editor</h1>
+    <p>Draw a shape the way you would in Paint: every mark stays a separate object you can change later, and the file is a tidy SVG.
+        The file as it stands is below, with how it looks as a picture.</p>
+    <juel-shape-editor id="editor"></juel-shape-editor>
+    <div class="row">
+        <pre id="saved"></pre>
+        <img id="picture" alt="The saved file as a picture">
+    </div>
+    <script>
+        customElements.whenDefined('juel-shape-editor').then(() => {
+            const editor = document.getElementById('editor'), saved = document.getElementById('saved'), picture = document.getElementById('picture');
+            window.events = [];
+            const show = () => { const text = editor.svg; saved.textContent = text; picture.src = 'data:image/svg+xml,' + encodeURIComponent(text); };
+            editor.addEventListener('shape-changed', e => { window.events.push(e.detail.reason); show(); });
+            show();
+            window.exampleReady = true;
+        });
+    </script>
+</body>
+
+</html>
