@@ -5,11 +5,11 @@
     display: block;
     width: 100%;
     container-type: inline-size;
-    // Node fills by depth (org) or kind (flowchart); the text on them; lines and labels.
+    // Node fills by depth (org) or kind (flowchart); the text on them (only if the page chooses: see .node below); lines and labels.
     --diagram-1: var(--chart-1, var(--accent, #3d6a8a));
     --diagram-2: var(--chart-2, var(--deck-primary, #5b8db8));
     --diagram-3: var(--chart-3, var(--diagram-2));
-    --diagram-on-fill: var(--chart-on-fill, #ffffff);
+    --diagram-on-fill: var(--chart-on-fill);
     --diagram-ink: var(--ink, #1f2430);
     --diagram-muted: var(--muted, #6b7280);
     --diagram-line: var(--line, #9aa3b2);
@@ -33,32 +33,46 @@ svg {
 
 .title { fill: var(--diagram-ink); font-weight: 600; }
 
-.node rect, .node polygon { stroke: none; }
-.node text { fill: var(--diagram-on-fill); }
-.node .detail { fill: var(--diagram-on-fill); opacity: .85; }
-.node svg.icon { color: var(--diagram-on-fill); overflow: visible; }
-.timeline .node svg.icon { color: var(--diagram-ink); }
-.node[data-depth="0"] .fill { fill: var(--diagram-1); }
-.node[data-depth="1"] .fill { fill: var(--diagram-2); }
-.node[data-depth="2"] .fill, .node[data-depth="3"] .fill, .node[data-depth="4"] .fill, .node[data-depth="5"] .fill { fill: var(--diagram-3); }
+// A node's fill: its own colour (set inline), else its kind's, else the third colour for depth 2 and below.
+.node { --node-fill: var(--own-colour, var(--kind-fill, var(--diagram-3))); }
+.node .fill { fill: var(--node-fill); }
+.node[data-depth="0"] { --kind-fill: var(--diagram-1); }
+.node[data-depth="1"] { --kind-fill: var(--diagram-2); }
 // Process steps and flowchart shapes: one colour, decisions and ends the second.
-.process .node .fill { fill: var(--diagram-1); }
-.flowchart .node .fill { fill: var(--diagram-1); }
-.flowchart .node[data-shape="decision"] .fill, .flowchart .node[data-shape="start-end"] .fill { fill: var(--diagram-2); }
-// The second looks: chevrons (a process) keep the step colour; cards (an org chart) are pale with a band.
+.process .node, .flowchart .node { --kind-fill: var(--diagram-1); }
+.flowchart .node[data-shape="decision"], .flowchart .node[data-shape="start-end"] { --kind-fill: var(--diagram-2); }
+
+// The text on a fill. One colour can't read on every box (a theme's fills differ, and a node can have its own), so
+// each box works its own out from its fill: white, or black once white would fall under 4:1 (CIE lightness 53). The bar
+// isn't WCAG's 4.5 because plain's indigo is 4.47 with white, and reads far better so than in black. It's CSS, not
+// script, so it follows a change of theme, a brand or a dark slide with no redraw, and prints as it shows.
+// A page's --chart-on-fill or --diagram-on-fill still wins on the page's own fills; a node's own colour isn't one of those.
+@on-fill: ~"lch(from var(--node-fill) clamp(0, (53 - l) * 1000, 100) 0 0 / 1)";
+.node { --node-text: var(--diagram-on-fill, #ffffff); }
+@supports (color: lch(from white l c h)) {
+    .node { --node-text: var(--diagram-on-fill, @{on-fill}); }
+    .node.own { --node-text: @{on-fill}; }
+}
+.node rect, .node polygon { stroke: none; }
+.node text { fill: var(--node-text); }
+.node .detail { fill: var(--node-text); opacity: .85; }
+.node svg.icon { color: var(--node-text); overflow: visible; }
+
+// The second looks: chevrons (a process) keep the step colour; cards (an org chart) are pale with a band, and the text is on the card.
 .look-cards .node .card { fill: var(--diagram-card); stroke: var(--diagram-line); stroke-width: 1; }
 .look-cards .node text { fill: var(--diagram-ink); }
 .look-cards .node .detail { fill: var(--diagram-muted); }
 .look-cards .node svg.icon { color: var(--diagram-ink); }
-// A timeline's labels are cards in the page's ink, not filled blocks.
-.timeline .node .fill { fill: var(--diagram-card); stroke: var(--diagram-line); stroke-width: 1; }
-.timeline .node text { fill: var(--diagram-ink); }
-.timeline .node .detail { fill: var(--diagram-muted); }
+// A timeline's labels are cards in the page's ink, not filled blocks, unless a node has its own colour.
+.timeline .node { --kind-fill: var(--diagram-card); }
+.timeline .node .fill { stroke: var(--diagram-line); stroke-width: 1; }
+.timeline .node:not(.own) text { fill: var(--diagram-ink); }
+.timeline .node:not(.own) .detail { fill: var(--diagram-muted); }
+.timeline .node:not(.own) svg.icon { color: var(--diagram-ink); }
 .timeline .node .date { fill: var(--diagram-ink); font-weight: 600; }
 .timeline .axis { stroke: var(--diagram-edge); stroke-width: 3; stroke-linecap: round; }
 .timeline .marker { fill: var(--diagram-1); stroke: var(--diagram-card); stroke-width: 3; }
 .timeline .stem { stroke: var(--diagram-edge); stroke-width: 2; }
-.node.own .fill { fill: var(--own-colour); }
 
 .edge path { fill: none; stroke: var(--diagram-edge); stroke-width: 2; stroke-linejoin: round; }
 .edge.arrow path { marker-end: url(#juel-diagram-arrow); }
