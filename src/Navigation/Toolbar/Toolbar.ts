@@ -26,7 +26,9 @@ export type ToolbarAnchor = string | Element | AnchorRect | (() => AnchorRect | 
  *   match); otherwise its clipping ancestors.
  * - `keep-selection`: pressing it doesn't take focus or the text selection
  *   away from what it formats.
- * It positions itself absolutely, against its offset parent.
+ * It positions itself absolutely, against its offset parent. It keeps to one
+ * row; on a small screen, `--toolbar-max-width` and
+ * `--toolbar-anchored-wrap: wrap` let it take a second row instead.
  *
  * `overflow` keeps it to one row: items that don't fit are hidden from the
  * end (`data-overflowed`) and offered in a "…" menu at its end, which clicks
@@ -69,6 +71,7 @@ export class JuelToolbar extends LitElement {
       left: 0;
       top: 0;
       width: max-content;
+      max-width: var(--toolbar-max-width, none);
       z-index: var(--toolbar-z-index, 10);
     }
 
@@ -92,7 +95,7 @@ export class JuelToolbar extends LitElement {
     }
 
     :host([anchored]) .toolbar {
-      flex-wrap: nowrap;
+      flex-wrap: var(--toolbar-anchored-wrap, nowrap);
     }
 
     :host([direction="vertical"]) .toolbar {

@@ -79,15 +79,22 @@ export class JuelMenu extends CollapsibleBase {
     }
 
     :host([collapse-mode="push"]) [part="content"] {
-      position: static;
       overflow: hidden;
       box-shadow: none;
+    }
+
+    /* Closed, it stays out of the flow: its width would push what's beside the trigger along. */
+    :host([collapse-mode="push"][opened]) [part="content"] {
+      position: static;
     }
   `;
 
   constructor() {
     super();
     this.placement = 'bottom-start';
+    // A menu floats on a phone too: pushing would open it inside whatever holds it (a toolbar's row, say).
+    // `collapse-mode="push"` still asks for that.
+    this.collapseMode = 'floating';
   }
 
   connectedCallback() {
