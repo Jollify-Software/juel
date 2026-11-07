@@ -353,7 +353,9 @@ its collapsed strip and on its buttons for a screen reader.
 point in the viewport instead (a `contextmenu` event's `clientX` / `clientY`), with no trigger needed;
 `openAt(x, y, { focusFirst: true })` moves focus to the first item, for a menu opened from the
 keyboard. Escape, or an item chosen from the keyboard, returns focus to where it was. Use
-`trigger="click"` so a click outside closes it. Example: `examples/Menus/Menu/context-menu.html`.
+`trigger="click"` so a click outside closes it. It floats on a phone as well (where it always opens on
+a click); `collapse-mode="push"` opens it in the page's flow instead, pushing what's below it down.
+Example: `examples/Menus/Menu/context-menu.html`.
 
 ### Segmented
 
@@ -391,6 +393,9 @@ nothing changes without it.
 button there clicks it; a hidden `juel-menu` has its items listed, and choosing one fires that menu's
 `menu-select` as if it had been chosen there. `.spacer` and `.gap` children are never listed. Without
 the attribute the toolbar wraps as before. Example: `examples/Navigation/Toolbar/overflow.html`.
+
+A toolbar with an `anchor` floats by it, in one row. On a small screen, `--toolbar-max-width` and
+`--toolbar-anchored-wrap: wrap` let it take a second row instead of running off the side.
 
 ## Purpose
 

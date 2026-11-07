@@ -98,8 +98,8 @@ export class CollapsibleBase extends JuelComponent {
     const el = this.getCollapseElement();
     if (!el) return;
 
+    el.style.visibility = this.opened ? 'visible' : 'hidden';
     if (this.collapseMode === 'floating') {
-      el.style.visibility = this.opened ? 'visible' : 'hidden';
       if (this.opened && !this.floatingInstance) {
         this.floatingInstance = createFloating(this.floatingReference(), el, this.floatingOptions());
       } else if (!this.opened) {
