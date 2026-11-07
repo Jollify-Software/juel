@@ -5,7 +5,7 @@ import interact from "@interactjs/interactjs";
 
 import style from 'bundle-text:./mdi.less'
 
-import { IsMobile } from "../../_Utils/IsMobile";
+import { IsMobile, onMobileChange } from "../../_Utils/IsMobile";
 import { DomReady } from "../../_Utils/DomReady";
 import "../Splitter/Splitter";
 import "../../Buttons/Button/Button";
@@ -148,11 +148,24 @@ export class JuelMdi extends LitElement {
 
     private _panelIds = new WeakMap<HTMLElement, string>();
     private _observer?: MutationObserver;
+    private _stopMobileWatch?: () => void;
     private _channel?: BroadcastChannel;
     private _popouts = new Map<string, { window: Window; element: HTMLElement }>();
 
     private useTabs(): boolean {
         return this.tabs || IsMobile() || this.order === 'stack';
+    }
+
+    /** The panel at the front when the panels are tabs (a phone, `tabs`, `order="stack"`), else null. Changing tab fires `panel-focused`. */
+    get tabPanel(): string | null {
+        if (!this.useTabs()) return null;
+        const tabs = this.shadowRoot?.querySelector('juel-tabs') as JuelTabs | null;
+        return this._panels[tabs?.selectedIndex ?? 0]?.id ?? null;
+    }
+
+    private _onTabChanged(e: CustomEvent<{ index: number }>) {
+        const id = this._panels[e.detail.index]?.id;
+        if (id) this.dispatchEvent(new CustomEvent('panel-focused', { detail: { id }, bubbles: true, composed: true }));
     }
 
     connectedCallback() {
@@ -167,10 +180,14 @@ export class JuelMdi extends LitElement {
         if (!this.id) this.id = `juel-mdi-${++nextMdiId}`;
         this._channel = new BroadcastChannel(`juel-mdi:${this.id}`);
         this._channel.addEventListener('message', (e) => this._receiveBroadcast(e.data));
+        // A folding phone opened out, or closed: tabs or panes, without a reload.
+        this._stopMobileWatch = onMobileChange(() => this.requestUpdate());
     }
 
     disconnectedCallback() {
         super.disconnectedCallback();
+        this._stopMobileWatch?.();
+        this._stopMobileWatch = undefined;
         this._observer?.disconnect();
         this._observer = undefined;
         this._channel?.close();
@@ -1036,6 +1053,7 @@ export class JuelMdi extends LitElement {
         if (this.useTabs()) {
             return html`<juel-tabs
                 reorderable
+                @tab-changed=${(e: CustomEvent<{ index: number }>) => this._onTabChanged(e)}
                 @tab-close=${(e: CustomEvent) => this._onTabClose(e)}
                 @tab-reorder=${(e: CustomEvent) => this._onTabReorder(e)}
                 @tab-drag-end=${(e: CustomEvent) => this._onTabDragEnd(e)}>${repeat(this._panels, p => p.id, (panel) => {

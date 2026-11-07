@@ -75,6 +75,10 @@ const writerChrome = EditorView.theme({
   '.cm-activeLineGutter': { backgroundColor: 'var(--juel-selection, #e2f2ff)' },
   '.cm-activeLine': { backgroundColor: 'color-mix(in srgb, var(--juel-selection, #cceeff) 40%, transparent)' },
   '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--juel-text, black)' },
+  // CodeMirror's own selection colour is for a light page: pale text on it can't be read in dark mode.
+  '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection': {
+    backgroundColor: 'color-mix(in srgb, var(--juel-accent, #3b82f6) 35%, transparent)',
+  },
 });
 
 /** The writer look. basicSetup's default style is only a fallback, so this replaces it.
