@@ -119,6 +119,24 @@ juel.device.removeOrientationListener(listener);
 juel.audio.play(src);  // returns false if that src is already playing
 ```
 
+**One sound at a time.** When an `<audio>` starts, every other `<audio>` that is playing stops
+(paused and rewound; a visible player with `controls` is only paused). It doesn't matter how
+the sound started: a `juel-trigger-action action="play"`, the player's own controls, a script, or
+`juel.audio.play`. Mark a sound `layered` (or `data-layered`) to let it play over the others:
+others don't stop it, and it doesn't stop them. `layered="false"` is the same as leaving it out.
+Video isn't affected.
+
+```html
+<audio id="cue-1" src="cue-1.mp3"></audio>          <!-- stops cue-2, and cue-2 stops it -->
+<audio id="cue-2" src="cue-2.mp3"></audio>
+<audio id="rain"  src="rain.mp3" layered></audio>  <!-- plays under both -->
+```
+
+```js
+juel.audio.oneAtATime.disable();  // sounds play over each other again, as in plain HTML
+juel.audio.oneAtATime.enable();   // on by default
+```
+
 ## `juel.theme`
 
 ```js
