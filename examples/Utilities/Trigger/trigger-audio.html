@@ -104,20 +104,31 @@
             <code>&lt;audio&gt;</code> element. A native <code>&lt;audio&gt;.play()</code> call is a
             no-op while that clip is still playing, then rewinds and replays once it has ended.
         </p>
+        <p>
+            <strong>One sound at a time:</strong> start the hexagon's tune, then click the triangle, and
+            the tune stops (and rewinds) as the click plays. Juel does this for every
+            <code>&lt;audio&gt;</code> on the page. The circle's sound is marked <code>layered</code>,
+            so it plays over the others, and they leave it playing.
+        </p>
         <div class="example-demo">
             <juel-shape id="tri" type="triangle" style="--fill: var(--primary, #007bff)" title="Click me"></juel-shape>
             <juel-shape id="hex" type="hexagon" style="--fill: var(--danger, #dc3545)" title="Click me"></juel-shape>
-            <span class="trigger-hint">triangle → click; hexagon → Shepherd's Hey</span>
+            <juel-shape id="circ" type="circle" style="--fill: var(--success, #28a745)" title="Click me (layered)"></juel-shape>
+            <span class="trigger-hint">triangle → click; hexagon → Shepherd's Hey; circle → Shepherd's Hey, layered</span>
         </div>
 
         <audio id="tri-sound" src="../../_Assets/click-mech.mp3" preload="auto"></audio>
         <audio id="hex-sound" src="../../_Assets/Shepherd_Hey.mp3" preload="auto"></audio>
+        <audio id="circ-sound" src="../../_Assets/Shepherd_Hey.mp3" preload="auto" layered></audio>
 
         <juel-trigger selector="#tri" event="click">
             <juel-trigger-action selector="#tri-sound" action="play"></juel-trigger-action>
         </juel-trigger>
         <juel-trigger selector="#hex" event="click">
             <juel-trigger-action selector="#hex-sound" action="play"></juel-trigger-action>
+        </juel-trigger>
+        <juel-trigger selector="#circ" event="click">
+            <juel-trigger-action selector="#circ-sound" action="play"></juel-trigger-action>
         </juel-trigger>
 
         <p class="trigger-status" id="shapes-status">Waiting for a click…</p>
@@ -155,6 +166,7 @@
         wireStatus('star', 'star-chime', 'star-status', '#star-chime');
         wireStatus('tri', 'tri-sound', 'shapes-status', '#tri-sound');
         wireStatus('hex', 'hex-sound', 'shapes-status', '#hex-sound');
+        wireStatus('circ', 'circ-sound', 'shapes-status', '#circ-sound (layered)');
     </script>
 </body>
 

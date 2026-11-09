@@ -1,4 +1,9 @@
+import { OneAtATime } from "./Audio/OneAtATime";
+
 export module AudioModule {
+    /** One sound at a time unless `layered` (on by default): see Audio/OneAtATime.ts. */
+    export var oneAtATime = OneAtATime;
+
     let audios: { [id: string]: HTMLAudioElement };
 
     // play() resumes a paused src instead of restarting it — a paused src
@@ -19,6 +24,7 @@ export module AudioModule {
 
         let audio = new Audio(src);
         audios[src] = audio;
+        OneAtATime.track(audio);
         audio.onended = () => forget(src);
         // A failed load (bad src, network error) never fires onended,
         // and a rejected play() (e.g. blocked by autoplay policy) never
@@ -62,6 +68,7 @@ export module AudioModule {
     }
 
     function forget(src: string): void {
+        if (audios[src]) OneAtATime.untrack(audios[src]);
         delete audios[src];
     }
 

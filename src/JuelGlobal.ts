@@ -29,6 +29,10 @@ JuelModule.theme.init();
 // so it is safe before <body> exists.
 JuelModule.tips.enable();
 
+// One sound at a time: a sound starting stops the others, unless one of them is
+// `layered` (Audio/OneAtATime.ts). A listener only, so it is safe before <body> exists.
+JuelModule.audio.oneAtATime.enable();
+
 // A large number of components (ListBase, Toggle, Lightbox, Modal, etc.) reference
 // the bare global `$`/`jQuery` with no local import of their own. jQuery does NOT
 // self-attach to window when bundled via a CommonJS-style import (Parcel), so this
