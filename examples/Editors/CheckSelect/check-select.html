@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>juel-check-select</title>
+    <script src="../../../dist/juel.js"></script>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 40rem; }
+        .bar { display: flex; gap: 12px; align-items: flex-end; overflow: hidden; padding: 8px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>juel-check-select</h1>
+    <p>A dropdown of ticks: Select all first (a dash when only some are ticked), then one tick per choice. The list stays open while you tick, and closes on Escape or a click outside. It isn't clipped by the bar's <code>overflow: hidden</code>, because the list is a native popover.</p>
+    <div class="bar">
+        <juel-check-select id="types" label="Types" all-text="All types" none-text="No types"></juel-check-select>
+        <juel-check-select id="empty" label="Nothing offered"></juel-check-select>
+    </div>
+    <p>Value: <output id="value"></output></p>
+    <p><button id="open-dialog" type="button">In a dialog</button></p>
+    <dialog id="dialog"><juel-check-select id="in-dialog" label="Kinds"></juel-check-select></dialog>
+    <script>
+        customElements.whenDefined('juel-check-select').then(() => {
+            const types = document.getElementById('types');
+            types.data = [
+                { text: 'Presentations', value: 'presentation' }, { text: 'Reports', value: 'report' }, { text: 'Websites', value: 'site' },
+                { text: 'Notes', value: 'notes' }, { text: 'Packages', value: 'package' },
+            ];
+            types.value = ['presentation', 'report', 'site', 'notes', 'package'];
+            types.addEventListener('value-changed', e => { document.getElementById('value').textContent = JSON.stringify(e.detail.value); });
+            const kinds = document.getElementById('in-dialog');
+            kinds.data = [{ text: 'Brands', value: 'brand' }, { text: 'Fonts', value: 'font' }];
+            kinds.value = ['font'];
+            document.getElementById('open-dialog').addEventListener('click', () => document.getElementById('dialog').showModal());
+            window.exampleReady = true;
+        });
+    </script>
+</body>
+</html>
