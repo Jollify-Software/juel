@@ -99,8 +99,30 @@ test('juel-select: an option whose value is empty shows for an empty value, with
     await expect(page.locator('#value')).toHaveText('""');
     // Control: without such an option the placeholder is still first and shown.
     const plain = page.locator('#plain select');
-    expect((await plain.locator('option').first().textContent())?.trim()).toBe('-- Select an option --');
+    expect((await plain.locator('option').first().textContent())?.trim()).toBe('Choose…');
     expect(await plain.evaluate((s: HTMLSelectElement) => s.selectedIndex)).toBe(0);
+});
+
+test('juel-select with a value and no placeholder of its own: "Choose…" is not offered (Sue, 2026-11-12)', async ({ page }) => {
+    await page.goto('examples/Editors/Select/select-empty-option.html');
+    await page.waitForFunction(() => (window as any).exampleReady);
+    const chosen = page.locator('#chosen select');
+    expect((await chosen.locator('option').allTextContents()).map(o => o.trim())).toEqual(["Doesn't play", 'On a press', "When it's clicked"]);
+    expect(await chosen.evaluate((s: HTMLSelectElement) => s.selectedOptions[0]?.textContent?.trim())).toBe("Doesn't play");
+    // Control: emptied, "Choose…" is back, first and shown.
+    await page.locator('#chosen').evaluate(async (el: any) => { el.value = null; await el.updateComplete; });
+    expect((await chosen.locator('option').first().textContent())?.trim()).toBe('Choose…');
+    expect(await chosen.evaluate((s: HTMLSelectElement) => s.selectedIndex)).toBe(0);
+});
+
+test('juel-select with a placeholder of its own keeps it as a way back to no value', async ({ page }) => {
+    await page.goto('examples/Editors/Select/select-empty-option.html');
+    await page.waitForFunction(() => (window as any).exampleReady);
+    const themed = page.locator('#themed select');
+    expect((await themed.locator('option').allTextContents()).map(o => o.trim())).toEqual(['theme · Inter', 'Inter', 'Georgia']);
+    expect(await themed.evaluate((s: HTMLSelectElement) => s.selectedOptions[0]?.textContent?.trim())).toBe('Georgia');
+    await themed.selectOption({ label: 'theme · Inter' });
+    await expect(page.locator('#value')).toHaveText('null');
 });
 
 test('juel-select required: no placeholder offered; the value shows', async ({ page }) => {

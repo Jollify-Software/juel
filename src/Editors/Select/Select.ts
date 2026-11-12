@@ -5,6 +5,9 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import '../../Buttons/Button/Button';
 
+/** What an empty list says when its page gives no placeholder of its own. */
+const DefaultPlaceholder = 'Choose…';
+
 @customElement('juel-select')
 export class JuelSelect extends LitElement {
   @property({ type: String }) label: string = '';
@@ -30,12 +33,15 @@ export class JuelSelect extends LitElement {
   // An item field holding a style for its option (e.g. a font list in each
   // font). Unset: options are unstyled, as before.
   @property({ type: String, attribute: "style-field" }) styleField: string | undefined;
-  @property({ type: String }) placeholder: string = '-- Select an option --';
+  // The option for no value. Set, it's always offered, as a way back to none (a style panel's "theme" choice).
+  // Unset, "Choose…" shows only while nothing is chosen: once there's a value it isn't offered as a choice
+  // beside the real ones (Sue walk, 2026-11-12: "-- Select an option --" in a list that always has a value).
+  @property({ type: String }) placeholder: string | undefined;
   // Shows a Clear button next to the list. Off by default: the empty
   // (placeholder) option already clears a value.
   @property({ type: Boolean }) clearable: boolean = false;
   @property({ type: String }) name: string | undefined;
-  // One of the options must be chosen: no placeholder, so "-- Select an option --" isn't offered as a choice
+  // One of the options must be chosen: no placeholder, so "Choose…" isn't offered as a choice
   // (a list that always has a value, as "Which package" does). With an empty value nothing shows as chosen.
   @property({ type: Boolean, reflect: true }) required: boolean = false;
 
@@ -151,6 +157,16 @@ export class JuelSelect extends LitElement {
     if (empty && !own && this.required) this.selectElement.selectedIndex = -1;
   }
 
+  private isEmpty(): boolean {
+    return this.value === null || this.value === undefined || this.value === '';
+  }
+
+  /** Whether the option for no value is listed: see `placeholder`. Never with `required` or an option of its own for none. */
+  private showsPlaceholder(): boolean {
+    if (this.emptyOption() || this.required) return false;
+    return this.placeholder !== undefined || this.isEmpty();
+  }
+
   /**
    * The first option whose own value is empty ('' or null), as "The top level" or "Automatic" is: it
    * stands for no value, so it's shown when the value is empty, and the placeholder is left out.
@@ -240,7 +256,7 @@ export class JuelSelect extends LitElement {
           aria-label=${ifDefined(this.label && this.hideLabel ? this.label : undefined)}
           @change="${this.handleChange}"
         >
-          ${this.emptyOption() || this.required ? '' : html`<option value="" ?selected="${this.value === null || this.value === undefined || this.value === ''}">${this.placeholder}</option>`}
+          ${this.showsPlaceholder() ? html`<option value="" ?selected="${this.isEmpty()}">${this.placeholder ?? DefaultPlaceholder}</option>` : ''}
           ${data.length > 0
             ? this.renderOptionsList(data)
             : html`<option disabled>No matches found</option>`}
