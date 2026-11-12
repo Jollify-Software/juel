@@ -1,15 +1,17 @@
 // Suggestions while typing in juel-markdown-editor (DOCS-PLAN H6): the data
 // shape, which suggestions apply where the cursor is (matchSuggestions), and
 // the @codemirror/autocomplete extension built on it (suggestionsExtension).
-import { acceptCompletion, autocompletion, Completion, CompletionContext, CompletionResult, snippet } from '@codemirror/autocomplete';
-import { Prec } from '@codemirror/state';
+import { acceptCompletion, autocompletion, Completion, CompletionContext, CompletionResult, snippet, startCompletion } from '@codemirror/autocomplete';
+import { EditorState, Prec } from '@codemirror/state';
 import { EditorView, keymap } from '@codemirror/view';
 
 /** One suggestion offered while typing. */
 export interface Suggestion {
     /**
      * The trigger text it follows: `:::` (only at a line start), `![`, `[`,
-     * `](`, `{`, `in=`, or a front-matter key such as `theme:`.
+     * `](`, `{`, `in=`, a front-matter key such as `theme:` (for its values),
+     * or `FrontMatterKeyTrigger` (for key names, at the start of a line inside
+     * the front matter).
      */
     after: string;
     /** What the list shows, and what typing after the trigger filters on. */
@@ -43,15 +45,55 @@ export interface SuggestionMatch {
 const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
+ * The trigger for front-matter key names: a line inside the front matter
+ * (between the opening `---` on the first line and its closing `---` or
+ * `...`) that is empty up to the cursor, or holds only the start of a key
+ * (`the`). It has a newline in it, so it never matches a line's text the way
+ * the other triggers do.
+ */
+export const FrontMatterKeyTrigger = '---\n';
+
+/**
+ * Whether line `lineIndex` (0-based) is inside a closed front matter: the
+ * first line is `---`, and a closing `---` or `...` comes after `lineIndex`.
+ * The fences themselves aren't inside, and a lone `---` on the first line
+ * with no closing fence (a rule) has no front matter. `lineAt(i)` gives line
+ * `i`'s text, or undefined past the end.
+ */
+export function inFrontMatter(lineAt: (index: number) => string | undefined, lineIndex: number): boolean {
+    if (lineIndex < 1 || lineAt(0)?.trimEnd() !== '---') return false;
+    for (let i = 1; ; i++) {
+        const text = lineAt(i);
+        if (text === undefined) return false;
+        if (/^(---|\.\.\.)\s*$/.test(text)) return i > lineIndex;
+    }
+}
+
+/** What may be typed before a key's list still shows: nothing, or the start of a name. */
+const frontMatterKeyTyped = /^([A-Za-z][\w-]*)?$/;
+
+/**
  * Finds the trigger just before the cursor (`lineBefore` is the line's text up
  * to the cursor) and the suggestions for it. `:::` counts only at the start of
  * a line; a front-matter key (`theme:`) also matches with spaces after its
  * colon; the longest trigger wins (`](` over `[`). `extraTriggers` are
  * triggers with no fixed suggestions (a `suggest` callback fills them).
- * Returns null when no trigger is there.
+ * With `inFrontMatterLine` (the caller knows it: see `inFrontMatter`), a line
+ * that is empty up to the cursor, or holds only the start of a key, matches
+ * `FrontMatterKeyTrigger`, typed being the key so far. Returns null when no
+ * trigger is there.
  */
-export function matchSuggestions(lineBefore: string, suggestions: Suggestion[], extraTriggers: string[] = []): SuggestionMatch | null {
-    const triggers = Array.from(new Set([...suggestions.map(s => s.after), ...extraTriggers].filter(a => a.length > 0)))
+export function matchSuggestions(lineBefore: string, suggestions: Suggestion[], extraTriggers: string[] = [], inFrontMatterLine = false): SuggestionMatch | null {
+    if (inFrontMatterLine && frontMatterKeyTyped.test(lineBefore)) {
+        const lower = lineBefore.toLowerCase();
+        return {
+            after: FrontMatterKeyTrigger,
+            from: 0,
+            typed: lineBefore,
+            options: suggestions.filter(s => s.after === FrontMatterKeyTrigger && s.label.toLowerCase().startsWith(lower)),
+        };
+    }
+    const triggers = Array.from(new Set([...suggestions.map(s => s.after), ...extraTriggers].filter(a => a.length > 0 && a !== FrontMatterKeyTrigger)))
         .sort((a, b) => b.length - a.length);
     for (const after of triggers) {
         const atLineStart = after.startsWith(":::") ? "^\\s*" : "";
@@ -73,7 +115,7 @@ export function matchSuggestions(lineBefore: string, suggestions: Suggestion[], 
 }
 
 /** The triggers a `suggest` callback is asked about, besides those in `suggestions`. */
-export const SuggestionTriggers = [':::', '![', '[', '](', '{', 'in='];
+export const SuggestionTriggers = [':::', '![', '[', '](', '{', 'in=', FrontMatterKeyTrigger];
 
 /** What a `suggest` callback is asked: the trigger and what was typed after it. */
 export interface SuggestRequest {
@@ -146,6 +188,12 @@ const suggestionsLook = EditorView.theme({
     '.cm-juel-suggestion-help': { display: 'inline-block', marginTop: '0.4em', color: 'var(--juel-accent, #2563eb)' },
 });
 
+/** Whether CodeMirror line `lineNumber` (1-based) is inside the front matter. */
+function lineInFrontMatter(state: EditorState, lineNumber: number): boolean {
+    const doc = state.doc;
+    return inFrontMatter(i => (i < doc.lines ? doc.line(i + 1).text : undefined), lineNumber - 1);
+}
+
 /**
  * The autocomplete extension for juel-markdown-editor: lists the suggestions
  * for the trigger before the cursor, inserts a snippet (Tab between its
@@ -157,7 +205,7 @@ export function suggestionsExtension(setup: SuggestionsSetup) {
     const source = async (context: CompletionContext): Promise<CompletionResult | null> => {
         const line = context.state.doc.lineAt(context.pos);
         const before = line.text.slice(0, context.pos - line.from);
-        const match = matchSuggestions(before, suggestions, suggest ? SuggestionTriggers : []);
+        const match = matchSuggestions(before, suggestions, suggest ? SuggestionTriggers : [], lineInFrontMatter(context.state, line.number));
         if (!match) return null;
         let options = match.options;
         if (suggest) {
@@ -168,8 +216,22 @@ export function suggestionsExtension(setup: SuggestionsSetup) {
         if (options.length === 0) return null;
         return { from: line.from + match.from, options: options.map(s => toCompletion(s, onHelp)), filter: false };
     };
+    // A new line in the front matter opens the key list by itself: typing
+    // opens the others, and Enter isn't typing to the autocomplete.
+    const openOnNewLine = live ? EditorView.updateListener.of(update => {
+        if (!update.docChanged) return;
+        if (!update.transactions.some(tr => tr.isUserEvent('input') && !tr.isUserEvent('input.type') && !tr.isUserEvent('input.complete'))) return;
+        const state = update.state;
+        const head = state.selection.main;
+        if (!head.empty) return;
+        const line = state.doc.lineAt(head.head);
+        if (line.text.trim() !== '' || !lineInFrontMatter(state, line.number)) return;
+        // not inside this update: CodeMirror doesn't allow a dispatch there
+        setTimeout(() => { if (update.view.state === state) startCompletion(update.view); });
+    }) : [];
     return [
         autocompletion({ override: [source], activateOnTyping: live }),
+        openOnNewLine,
         Prec.high(keymap.of([{ key: 'Tab', run: acceptCompletion }])),
         suggestionsLook,
     ];
