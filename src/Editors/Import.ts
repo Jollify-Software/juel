@@ -5,6 +5,7 @@ import './Check/Check';
 import './Date/Date';
 
 import './Select/Select';
+import './CheckSelect/CheckSelect';
 
 import './Colour/Colour';
 import './Upload/Upload';

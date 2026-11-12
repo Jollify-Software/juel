@@ -312,6 +312,23 @@ The parse/write rules are pure and unit-tested (`SidesEditor/SidesValue.ts`, `Bo
 showing each font: `{ text, value, style: 'font-family: Georgia' }`). Without it options are
 unstyled, as before. Example: `examples/Editors/Select/select-styled.html`.
 
+When one of the options has an empty value (`''` or `null`, as "The top level" or "Automatic"), it stands for no value:
+it shows when `value` is empty, and the `-- Select an option --` placeholder is left out (before 2026-11-12 the
+placeholder came first and hid that option's words). Without such an option the placeholder is first, as before.
+`required` drops the placeholder altogether, for a list that always has a value ("which package"): one of the
+choices must be picked, and with no value nothing shows as chosen. Example: `examples/Editors/Select/select-empty-option.html`.
+
+### Check select
+
+`juel-check-select` is a dropdown of ticks, for choosing several things from a list (a filter's types, say). Its
+button says what's ticked ("All", "Reports, Notes", "3 of 7", "None"; `all-text` / `none-text` change the first and
+last). The list opens with **Select all** first: it ticks every choice, or unticks them all when all are ticked, and
+shows a dash when only some are. `data` is the choices (`{ text, value }`, or `text-field` / `value-field`), `value`
+the ticked values in the list's order, and `value-changed` `{ value }` reports each change; the list stays open while
+you tick. It's a native popover (above a modal dialog, not clipped by a toolbar); Escape, a click outside or Tab out
+closes it, and the arrow keys move between rows. The summary and Select all logic is pure and unit-tested
+(`CheckSelect/checkSelectState.ts`). Example: `examples/Editors/CheckSelect/check-select.html`.
+
 ### Plan Editor
 
 `juel-plan-editor` edits an SVG plan, a floor plan most often (the Jollify app's virtual

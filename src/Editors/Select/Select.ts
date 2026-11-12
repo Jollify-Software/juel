@@ -35,6 +35,9 @@ export class JuelSelect extends LitElement {
   // (placeholder) option already clears a value.
   @property({ type: Boolean }) clearable: boolean = false;
   @property({ type: String }) name: string | undefined;
+  // One of the options must be chosen: no placeholder, so "-- Select an option --" isn't offered as a choice
+  // (a list that always has a value, as "Which package" does). With an empty value nothing shows as chosen.
+  @property({ type: Boolean, reflect: true }) required: boolean = false;
 
   @state() private searchTerm: string = '';
   @state() private filteredData: Array<any> = [];
@@ -121,6 +124,7 @@ export class JuelSelect extends LitElement {
   private handleChange() {
     const selectedOption = this.selectElement.selectedOptions[0];
     // The placeholder option's value is '' (not JSON): it means no value.
+    // An option whose own value is '' or null (see emptyOption) reports that value.
     this.value = selectedOption && selectedOption.value !== '' ? JSON.parse(selectedOption.value) : null;
     this.dispatchEvent(new CustomEvent('value-changed', {
       detail: { value: this.value },
@@ -141,7 +145,28 @@ export class JuelSelect extends LitElement {
   protected updated() {
     if (!this.selectElement) return;
     const empty = this.value === null || this.value === undefined || this.value === '';
-    this.selectElement.value = empty ? '' : JSON.stringify(this.value);
+    const own = this.emptyOption();
+    this.selectElement.value = !empty ? JSON.stringify(this.value) : own ? JSON.stringify(own.value) : '';
+    // Required, with no value and no option for none: nothing chosen, rather than the first option seeming to be.
+    if (empty && !own && this.required) this.selectElement.selectedIndex = -1;
+  }
+
+  /**
+   * The first option whose own value is empty ('' or null), as "The top level" or "Automatic" is: it
+   * stands for no value, so it's shown when the value is empty, and the placeholder is left out.
+   * (Before 2026-11-12 the placeholder always came first and hid that option's words.)
+   */
+  private emptyOption(): { value: '' | null } | undefined {
+    const find = (items: Array<Record<string, unknown>>): { value: '' | null } | undefined => {
+      for (const item of items ?? []) {
+        if (item && this.childrenField in item && Array.isArray(item[this.childrenField])) {
+          const inner = find(item[this.childrenField] as Array<Record<string, unknown>>);
+          if (inner) return inner;
+        } else if (item && (item[this.valueField] === '' || item[this.valueField] === null)) return { value: item[this.valueField] as '' | null };
+      }
+      return undefined;
+    };
+    return find(this.data);
   }
 
   override focus(options?: FocusOptions) {
@@ -150,7 +175,8 @@ export class JuelSelect extends LitElement {
 
   private handleClear() {
     this.value = null;
-    this.selectElement.value = '';
+    const own = this.emptyOption();
+    this.selectElement.value = own ? JSON.stringify(own.value) : '';
     this.dispatchEvent(new CustomEvent('value-changed', {
       detail: { value: this.value },
       bubbles: true,
@@ -210,10 +236,11 @@ export class JuelSelect extends LitElement {
           id="select-element"
           part="select"
           name=${this.name ?? ''}
+          ?required=${this.required}
           aria-label=${ifDefined(this.label && this.hideLabel ? this.label : undefined)}
           @change="${this.handleChange}"
         >
-          <option value="" ?selected="${this.value === null || this.value === undefined || this.value === ''}">${this.placeholder}</option>
+          ${this.emptyOption() || this.required ? '' : html`<option value="" ?selected="${this.value === null || this.value === undefined || this.value === ''}">${this.placeholder}</option>`}
           ${data.length > 0
             ? this.renderOptionsList(data)
             : html`<option disabled>No matches found</option>`}
