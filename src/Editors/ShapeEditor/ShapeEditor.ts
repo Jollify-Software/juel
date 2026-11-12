@@ -1110,7 +1110,7 @@ export class JuelShapeEditor extends LitElement {
                 <juel-number class="width" hide-label label="Line width" min="0" max="100" .value=${s.width} @value-changed=${(e: CustomEvent) => { const v = Number(e.detail.value); if (Number.isFinite(v) && v >= 0) this.setStyle({ width: v }); }}></juel-number>
             </label>
             <label class="field"><span>Line style</span>
-                <juel-select class="dash" .data=${DashChoices} .value=${s.dash} placeholder="" @value-changed=${(e: CustomEvent) => { const v = e.detail.value as Dash; if (v && v !== s.dash) this.setStyle({ dash: v }); }}></juel-select>
+                <juel-select class="dash" .data=${DashChoices} .value=${s.dash} @value-changed=${(e: CustomEvent) => { const v = e.detail.value as Dash; if (v && v !== s.dash) this.setStyle({ dash: v }); }}></juel-select>
             </label>
             <label class="field"><span>See-through</span>
                 <juel-number class="opacity" hide-label label="See-through" slider min="0" max="100" .value=${Math.round((1 - s.opacity) * 100)} title="0 is solid, 100 can't be seen" @value-changed=${(e: CustomEvent) => { const v = Number(e.detail.value); if (Number.isFinite(v)) this.setStyle({ opacity: Math.max(0, Math.min(1, 1 - v / 100)) }); }}></juel-number>
@@ -1120,13 +1120,13 @@ export class JuelShapeEditor extends LitElement {
             ${this.tool === 'star' ? html`<label class="field"><span>Points</span>
                 <juel-number class="star-points" hide-label label="Points" min="3" max="24" .value=${this.points} @value-changed=${(e: CustomEvent) => { const v = Number(e.detail.value); if (v >= 3) this.points = Math.min(24, Math.round(v)); }}></juel-number></label>` : nothing}
             ${this.tool === 'preset' ? html`<label class="field"><span>Shape</span>
-                <juel-select class="preset-kind" .data=${PresetChoices} .value=${this.preset} placeholder="" @value-changed=${(e: CustomEvent) => { const v = e.detail.value as string; if (v) this.preset = v; }}></juel-select></label>` : nothing}
+                <juel-select class="preset-kind" .data=${PresetChoices} .value=${this.preset} @value-changed=${(e: CustomEvent) => { const v = e.detail.value as string; if (v) this.preset = v; }}></juel-select></label>` : nothing}
             ${this.tool === 'words' ? html`<label class="field"><span>Words</span>
                     <juel-text class="words-text" aria-label="Your words" placeholder="Type here" .value=${this.words} @value-changed=${(e: CustomEvent) => { this.words = String(e.detail.value ?? ''); this.notice = ''; }}></juel-text></label>
                 <label class="field"><span>Font</span>
-                    <juel-select class="words-font" .data=${WordFontChoices} .value=${this.wordFont} placeholder="" @value-changed=${(e: CustomEvent) => { const v = e.detail.value as string; if (v) this.wordFont = v; }}></juel-select></label>` : nothing}
+                    <juel-select class="words-font" .data=${WordFontChoices} .value=${this.wordFont} @value-changed=${(e: CustomEvent) => { const v = e.detail.value as string; if (v) this.wordFont = v; }}></juel-select></label>` : nothing}
             ${this.tool === 'eraser' ? html`<label class="field"><span>Rub out</span>
-                <juel-select class="erase-mode" .data=${EraseChoices} .value=${this.rubPart ? 'part' : 'whole'} placeholder="" @value-changed=${(e: CustomEvent) => { const v = e.detail.value as string; if (v) { this.rubPart = v === 'part'; this.rubAt = null; } }}></juel-select></label>
+                <juel-select class="erase-mode" .data=${EraseChoices} .value=${this.rubPart ? 'part' : 'whole'} @value-changed=${(e: CustomEvent) => { const v = e.detail.value as string; if (v) { this.rubPart = v === 'part'; this.rubAt = null; } }}></juel-select></label>
                 ${this.rubPart ? html`<label class="field"><span>Size</span>
                     <juel-number class="erase-size" hide-label label="Eraser size" min="2" max="200" .value=${this.rubSize} @value-changed=${(e: CustomEvent) => { const v = Number(e.detail.value); if (v >= 2) this.rubSize = Math.min(200, v); }}></juel-number></label>` : nothing}` : nothing}
         </div>`;

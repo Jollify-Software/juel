@@ -8,9 +8,13 @@
 </head>
 <body>
     <h1>juel-select: an option for no value</h1>
-    <p>When one of the options has an empty value ('' or null), it stands for "no value": it shows when the value is empty, and there's no "-- Select an option --" placeholder. Without one, the placeholder is still first.</p>
+    <p>When one of the options has an empty value ('' or null), it stands for "no value": it shows when the value is empty, and there's no "Choose…" placeholder. Without one, "Choose…" is first while nothing is chosen.</p>
     <juel-select id="group" label="Group"></juel-select>
     <juel-select id="plain" label="Fruit"></juel-select>
+    <p>With a value and no <code>placeholder</code> of its own, "Choose…" isn't offered beside the real choices.</p>
+    <juel-select id="chosen" label="Plays"></juel-select>
+    <p>A <code>placeholder</code> the page sets stays as a way back to no value, as a style panel's theme choice does.</p>
+    <juel-select id="themed" label="Font" placeholder="theme · Inter"></juel-select>
     <p>With <code>required</code> there's no placeholder at all: one of the choices must be picked.</p>
     <juel-select id="required" label="Package" required></juel-select>
     <p>Value: <output id="value"></output></p>
@@ -21,6 +25,13 @@
             group.value = '';
             group.addEventListener('value-changed', e => { document.getElementById('value').textContent = JSON.stringify(e.detail.value); });
             document.getElementById('plain').data = [{ text: 'Orange', value: 'orange' }, { text: 'Lemon', value: 'lemon' }];
+            const chosen = document.getElementById('chosen');
+            chosen.data = [{ text: "Doesn't play", value: 'off' }, { text: 'On a press', value: 'press' }, { text: "When it's clicked", value: 'click' }];
+            chosen.value = 'off';
+            const themed = document.getElementById('themed');
+            themed.data = [{ text: 'Inter', value: 'Inter' }, { text: 'Georgia', value: 'Georgia, serif' }];
+            themed.value = 'Georgia, serif';
+            themed.addEventListener('value-changed', e => { document.getElementById('value').textContent = JSON.stringify(e.detail.value); });
             const required = document.getElementById('required');
             required.data = [{ text: 'Pitches', value: 'p1' }, { text: 'A new package', value: '+new' }];
             required.value = 'p1';
