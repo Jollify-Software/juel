@@ -70,6 +70,35 @@ test('the info panel\'s "More in the guide" fires suggestion-help', async ({ pag
     await expect(page.locator('#help')).toHaveText('Help asked for: columns');
 });
 
+test('a new line inside the front matter lists its keys; typing filters; Enter takes one', async ({ page }) => {
+    await open(page);
+    const endOfLine = (line: number) => page.locator('#front').evaluate((el: any, n: number) => {
+        el.focus();
+        el.setCursor(el.editorView.state.doc.line(n).to);
+    }, line);
+    await endOfLine(2); // after "title: Hi"
+    await page.keyboard.press('Enter');
+    await expect(list(page, 'front')).toHaveText([/theme/, /title/, /transition/]);
+    await page.keyboard.type('tr');
+    await expect(list(page, 'front')).toHaveText([/transition/]);
+    await page.waitForTimeout(150); // CodeMirror's interactionDelay, as above
+    await page.keyboard.press('Enter');
+    await expect(list(page, 'front')).toHaveCount(0);
+    expect(await text(page, 'front')).toBe('---\ntitle: Hi\ntransition: \n---\n\n# Deck\n');
+});
+
+test('control: an empty line outside the front matter lists nothing', async ({ page }) => {
+    await open(page);
+    await page.locator('#front').evaluate((el: any) => { el.focus(); el.setCursor(el.editorView.state.doc.line(5).to); });
+    await page.keyboard.press('Enter'); // after "# Deck", below the front matter
+    await page.waitForTimeout(400);
+    await expect(list(page, 'front')).toHaveCount(0);
+    // and the same editor's front matter does list (the detector sees a positive)
+    await page.locator('#front').evaluate((el: any) => { el.focus(); el.setCursor(el.editorView.state.doc.line(2).to); });
+    await page.keyboard.press('Enter');
+    await expect(list(page, 'front')).toHaveText([/theme/, /title/, /transition/]);
+});
+
 test('dark: the list takes the look tokens', async ({ page }) => {
     await open(page);
     await page.evaluate(() => document.documentElement.style.setProperty('--juel-raised', 'rgb(20, 24, 32)'));

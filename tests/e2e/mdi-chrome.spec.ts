@@ -138,3 +138,31 @@ test('data-title-hidden: the title bar leaves the words out; the buttons and the
     expect(result.buttonName).toContain('Named');
     expect(result.strip).toContain('Named');
 });
+
+test('data-hidden: a panel out of the layout and back, panes and phone tabs', async ({ page }) => {
+    await open(page);
+    const state = () => page.locator('#hide').evaluate(mdi => ({
+        panes: mdi.shadowRoot!.querySelectorAll('.pane').length,
+        designerShown: !!document.getElementById('hide-b')!.assignedSlot,
+        designerInPage: !!document.getElementById('hide-b'),
+    }));
+    await page.waitForFunction(() => document.getElementById('hide')!.shadowRoot!.querySelectorAll('.pane').length === 1);
+    let s = await state();
+    expect(s).toMatchObject({ panes: 1, designerShown: false, designerInPage: true });
+    await page.locator('#hide-b').evaluate(el => el.removeAttribute('data-hidden'));
+    await page.waitForFunction(() => document.getElementById('hide')!.shadowRoot!.querySelectorAll('.pane').length === 2);
+    s = await state();
+    expect(s.designerShown).toBe(true);
+    await page.locator('#hide-b').evaluate(el => el.setAttribute('data-hidden', ''));
+    await page.waitForFunction(() => document.getElementById('hide')!.shadowRoot!.querySelectorAll('.pane').length === 1);
+    // Control: the first instance, with nothing hidden, still has its three panes.
+    expect(await page.locator('#full').evaluate(m => m.shadowRoot!.querySelectorAll('.pane').length)).toBe(3);
+    // Phone width: tabs, and the hidden panels aren't among them.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForFunction(() => !!document.getElementById('hide')!.shadowRoot!.querySelector('juel-tab'));
+    const titles = await page.locator('#hide').evaluate(mdi =>
+        [...mdi.shadowRoot!.querySelectorAll('juel-tab')].map(t => t.getAttribute('title')));
+    expect(titles).toEqual(['Writer']);
+    // Control: the unhidden instance's tabs are all three.
+    expect(await page.locator('#full').evaluate(mdi => mdi.shadowRoot!.querySelectorAll('juel-tab').length)).toBe(3);
+});

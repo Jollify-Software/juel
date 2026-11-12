@@ -36,6 +36,14 @@
         <div id="nopop-a" data-title="Outline" data-poppable="false">Outline</div>
         <div id="nopop-b" data-title="Writer">Writer</div>
     </juel-mdi>
+    <h2>A hidden panel</h2>
+    <p><code>data-hidden</code> on a panel takes it out of the layout (no pane, no tab) while it stays in the
+        page; removing the attribute puts it back. Narrow the window to see the tabs.</p>
+    <juel-mdi id="hide" order="row" chrome="minimal">
+        <div id="hide-a" data-title="Writer">Writer</div>
+        <div id="hide-b" data-title="Designer" data-hidden>Designer</div>
+        <div id="hide-c" data-title="Style" data-hidden>Style</div>
+    </juel-mdi>
     <script>
         if (new URLSearchParams(location.search).has('look')) juel.theme.useLook();
         customElements.whenDefined('juel-mdi').then(() => { window.exampleReady = true; });

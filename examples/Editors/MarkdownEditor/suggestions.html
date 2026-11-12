@@ -49,7 +49,25 @@
         </div>
     </section>
 
+    <section class="example-section">
+        <h2>Front-matter keys</h2>
+        <p>
+            A suggestion with <code>after: '---\n'</code> (<code>FrontMatterKeyTrigger</code>) is a key name: it's
+            listed on a new line inside the front matter (between the first line's <code>---</code> and its
+            closing <code>---</code>), and as you type a key's first letters. Press Enter after
+            <code>title: Hi</code>. An empty line below the front matter lists nothing.
+        </p>
+        <div class="example-demo">
+            <juel-markdown-editor id="front" content="---&#10;title: Hi&#10;---&#10;&#10;# Deck&#10;"></juel-markdown-editor>
+        </div>
+    </section>
+
     <script>
+        const frontMatterKeys = [
+            { after: '---\n', label: 'theme', insert: 'theme: ', detail: 'the deck\'s look' },
+            { after: '---\n', label: 'title', insert: 'title: ', detail: 'the deck\'s name' },
+            { after: '---\n', label: 'transition', insert: 'transition: ', detail: 'between slides' },
+        ];
         const suggestions = [
             { after: ':::', label: 'columns', detail: 'side by side', insert: 'columns\n${left}\n:::\n${right}\n:::',
               info: 'Two or more columns. Separate them with a <code>:::</code> line.' },
@@ -74,6 +92,7 @@
                 el.suggestions = suggestions;
                 el.suggest = suggest;
             }
+            document.getElementById('front').suggestions = [...frontMatterKeys, ...suggestions];
             document.addEventListener('suggestion-help', e => {
                 document.getElementById('help').textContent = `Help asked for: ${e.detail.label}`;
             });

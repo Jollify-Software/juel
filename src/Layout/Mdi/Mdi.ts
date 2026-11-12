@@ -16,6 +16,8 @@ import { TabsEvents } from "../../Navigation/Tabs/TabsEvents";
 let nextPanelId = 0;
 let nextSlotId = 0;
 let nextMdiId = 0;
+/** The slot name given to a `data-hidden` child: no slot in the shadow root has it, so the child isn't rendered. */
+const HiddenSlot = 'juel-mdi-hidden';
 
 export interface MdiPanelOptions {
     title?: string;
@@ -170,8 +172,12 @@ export class JuelMdi extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this._observer = new MutationObserver(() => this._syncPanels());
-        this._observer.observe(this, { childList: true });
+        // Children coming and going, and a child's data-hidden turning on or
+        // off (a panel taken out of the layout and put back), re-sync.
+        this._observer = new MutationObserver(records => {
+            if (records.some(r => r.type === 'childList' || r.target.parentElement === this)) this._syncPanels();
+        });
+        this._observer.observe(this, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-hidden'] });
 
         // A stable id is the channel name, so a panel popped into its own
         // window opens a BroadcastChannel with the same name and still
@@ -245,8 +251,15 @@ export class JuelMdi extends LitElement {
     // A child with data-header-for="<panel id>" isn't a panel: it's that
     // panel's title-bar content (a toolbar, say), shown between the title
     // and the window buttons — or atop the panel when it's in a tab.
+    // A child with data-hidden isn't in the layout at all (no pane, no tab):
+    // it stays in the light DOM, so the app can still query it, but its slot
+    // names nothing and it isn't rendered. Removing the attribute puts it back.
     private _syncPanels() {
-        const children = Array.from(this.children).filter((el): el is HTMLElement => el instanceof HTMLElement);
+        const all = Array.from(this.children).filter((el): el is HTMLElement => el instanceof HTMLElement);
+        for (const el of all) {
+            if (el.dataset.hidden !== undefined && el.getAttribute('slot') !== HiddenSlot) el.setAttribute('slot', HiddenSlot);
+        }
+        const children = all.filter(el => el.dataset.hidden === undefined);
         const headers = new Map(children.filter(el => el.dataset.headerFor).map(el => [el.dataset.headerFor!, el]));
         this._panels = children
             .filter(el => !el.dataset.headerFor)

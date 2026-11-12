@@ -236,7 +236,9 @@ unclosed block (still being typed) gets no chip. Off by default (same example).
 Suggestions while typing (on `@codemirror/autocomplete`): set `.suggestions` to a list of
 `{ after, label, detail?, insert?, info?, consume? }`. After its trigger (`after`: `:::` at the start of a line,
 `![`, `[`, `](`, `{`, `in=`, or a front-matter key such as `theme:`, which also matches with spaces
-after its colon) a list drops down, filtered by what's typed after it; ↑ ↓ move, Enter or Tab takes one, Escape closes. `insert` is a snippet: its first `${…}` field is
+after its colon) a list drops down, filtered by what's typed after it. `after: '---\n'` (`FrontMatterKeyTrigger`)
+is a front-matter key name: listed when Enter makes an empty line inside the front matter (between the first
+line's `---` and its closing `---` or `...`), and as a key's first letters are typed there. ↑ ↓ move, Enter or Tab takes one, Escape closes. `insert` is a snippet: its first `${…}` field is
 selected, Tab moves to the next. `consume` is text the insert also replaces when it comes straight
 after the cursor: `consume: ']'` on a picture after `![` swallows the auto-closed `]`. `info` (HTML) shows beside the list with a "More in the guide" link
 that fires `suggestion-help` `{ label }`. `.suggest` is a callback `({ after, typed }) => Suggestion[]`
@@ -362,6 +364,10 @@ shadow root, say) snaps back instead, and `popPanel(id)` returns `null` for it. 
 A panel with `data-title-hidden` leaves the words of its title out of its title bar, for when
 its header content (`data-header-for`) says it all. `data-title` still names it in its tab, on
 its collapsed strip and on its buttons for a screen reader.
+
+A panel with `data-hidden` is out of the layout altogether (no pane, no tab, on a phone too)
+while it stays in the page, so the app can still query it; removing the attribute puts it back.
+Example: the "A hidden panel" section of `chrome.html`.
 
 ## Menus
 
