@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>PDF from blob: URLs — Juel Examples</title>
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style> juel-pdf { height: 420px; border: 1px solid #ccc; } </style>
+</head>
+
+<body>
+    <h1>&lt;juel-pdf&gt; with pdf.js from blob: URLs</h1>
+    <p>As a sandboxed frame gets it from its parent (the Jollify editor's preview): the library and its worker as
+        blob: URLs, named by <code>&lt;meta name="juel-pdfjs"&gt;</code> and <code>&lt;meta name="juel-pdfjs-worker"&gt;</code>.</p>
+    <div id="here"></div>
+    <script>
+        (async () => {
+            const blobUrl = async path => URL.createObjectURL(new Blob([await (await fetch(path)).text()], { type: 'text/javascript' }));
+            const meta = (name, content) => document.head.insertAdjacentHTML('beforeend', `<meta name="${name}" content="${content}">`);
+            meta('juel-pdfjs', await blobUrl('../../../dist/pdfjs/pdf.min.mjs'));
+            meta('juel-pdfjs-worker', await blobUrl('../../../dist/pdfjs/pdf.worker.min.mjs'));
+            document.getElementById('here').innerHTML = '<juel-pdf id="blob" src="../../_Assets/sample.pdf" alt="From blobs"></juel-pdf>';
+        })();
+    </script>
+</body>
+
+</html>

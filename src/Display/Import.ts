@@ -10,3 +10,5 @@ import './Parallax/Parallax';
 import './Card/Card';
 import './Frame/Frame';
 import './Particles/Particles';
+import './Pdf/Pdf';
+import './Paged/Paged';

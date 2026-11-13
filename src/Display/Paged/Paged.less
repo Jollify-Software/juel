@@ -1,0 +1,164 @@
+:host {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    min-height: 4em;
+    background: var(--juel-paged-background, transparent);
+    color: inherit;
+}
+
+:host([hidden]) {
+    display: none;
+}
+
+.scroller {
+    position: absolute;
+    inset: 0;
+    overflow: auto;
+    display: grid;
+    place-items: safe center;
+    outline: none;
+    overscroll-behavior: contain;
+}
+
+:host([controls]) .scroller {
+    bottom: 2.5em;
+}
+
+:host([fit="width"]) .scroller {
+    place-items: start safe center;
+}
+
+.pages {
+    position: relative;
+}
+
+/* A page: its real size in CSS pixels, scaled to the box (--paged-scale, set by the element). */
+.page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+    transform: scale(var(--paged-scale, 1));
+    background: #fff;
+    color: #000;
+    box-shadow: var(--juel-paged-shadow, 0 1px 4px rgba(0, 0, 0, 0.25));
+    overflow: hidden;
+}
+
+.page[hidden] {
+    display: none;
+}
+
+.page .header, .page .footer {
+    position: absolute;
+}
+
+.page .body {
+    position: absolute;
+    overflow: hidden;
+}
+
+/* The hidden box the pages are measured in: the same rules as a page's body. */
+.measure {
+    position: absolute;
+    left: -100000px;
+    top: 0;
+    visibility: hidden;
+    pointer-events: none;
+    background: #fff;
+    color: #000;
+}
+
+.measure, .page .body, .page .header, .page .footer {
+    display: flow-root;
+    line-height: 1.15;
+    text-align: left;
+    overflow-wrap: break-word;
+
+    p, h1, h2, h3, h4, h5, h6 {
+        margin: 0;
+        font-size: inherit;
+        font-weight: inherit;
+    }
+
+    table {
+        border-collapse: collapse;
+        table-layout: fixed;
+        max-width: 100%;
+    }
+
+    td, th {
+        overflow-wrap: break-word;
+    }
+
+    img {
+        max-width: 100%;
+        vertical-align: bottom;
+    }
+
+    a {
+        color: inherit;
+    }
+
+    .paged-tab {
+        display: inline-block;
+        min-width: 2.5em;
+    }
+}
+
+.poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    padding: 1em;
+    text-align: center;
+    opacity: 0.75;
+    background: var(--juel-paged-placeholder-background, rgba(127, 127, 127, 0.12));
+}
+
+.controls {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+    font: 0.9em/1 system-ui, sans-serif;
+}
+
+.controls button {
+    min-width: 2em;
+    height: 2em;
+    border: 1px solid rgba(127, 127, 127, 0.5);
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.controls button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.controls .count {
+    min-width: 4.5em;
+    text-align: center;
+}
