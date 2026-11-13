@@ -104,11 +104,15 @@ export class JuelPdf extends LitElement {
     @property({ type: Boolean, reflect: true }) controls = false;
     /** What a screen reader hears, and what shows when the document can't. */
     @property() alt = '';
+    /** A picture shown until a page is drawn (a still of it, for a copy that doesn't load its own). */
+    @property() poster = '';
 
     /** How many pages it has, once it has loaded (0 before). */
     @state() pageCount = 0;
     @state() private error: PdfError | null = null;
     @state() private busy = false;
+    /** A page is on the canvas (drawn, or kept from before it was held back). */
+    @state() private hasPage = false;
 
     @query('.scroller') private scroller!: HTMLElement;
     @query('canvas.page') private canvas!: HTMLCanvasElement;
@@ -241,6 +245,7 @@ export class JuelPdf extends LitElement {
         this.busy = false;
         if (!keep) {
             this.drawn = '';
+            this.hasPage = false;
             if (this.canvas) this.canvas.width = this.canvas.height = 0;
         }
         await task?.destroy().catch(() => {});
@@ -319,6 +324,7 @@ export class JuelPdf extends LitElement {
                 this.setCssSize(size.cssWidth, size.cssHeight);
             }
             this.drawn = key;
+            this.hasPage = true;
         } catch (e) {
             if ((e as { name?: string })?.name !== 'RenderingCancelledException') console.warn('[juel-pdf]', e);
             return;
@@ -437,8 +443,18 @@ export class JuelPdf extends LitElement {
         e.stopPropagation();
     };
 
+    /** Its alt text, else its file's name. */
+    private name(): string {
+        if (this.alt) return this.alt;
+        try {
+            return decodeURIComponent(this.src.split(/[?#]/)[0].split('/').pop() ?? '') || 'PDF';
+        } catch {
+            return 'PDF';
+        }
+    }
+
     private message(): string {
-        const name = this.alt || decodeURIComponent((this.src.split(/[?#]/)[0].split('/').pop() ?? '')) || 'This PDF';
+        const name = this.alt || this.name().replace(/^PDF$/, 'This PDF');
         switch (this.error) {
             case 'password': return `${name} has a password. Save a copy without one, then use that.`;
             case 'missing': return `${name} wasn't found.`;
@@ -454,6 +470,12 @@ export class JuelPdf extends LitElement {
             </div>
             ${this.error ? html`<div class="message" part="message" role="status"><slot>${this.message()}</slot></div>` : nothing}
             ${this.busy && !this.drawn ? html`<div class="loading" part="loading" aria-hidden="true"></div>` : nothing}
+            ${!this.hasPage && this.poster && !this.error ? html`<img class="poster" part="poster" src=${this.poster} alt="">` : nothing}
+            ${!this.hasPage && !this.poster && !this.busy && !this.error ? html`
+                <div class="placeholder" part="placeholder" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="40" height="40"><path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm4 18H6V4h7v5h5zM8 12h8v2H8zm0 4h8v2H8z"/></svg>
+                    <span>${this.name()}</span>
+                </div>` : nothing}
             ${this.controls && this.pageCount ? html`
                 <div class="controls" part="controls">
                     <button type="button" title="Previous page" aria-label="Previous page" ?disabled=${this.page <= 1} @click=${() => { this.previous(); this.changed(); }}>‹</button>

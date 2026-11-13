@@ -32,6 +32,7 @@ Its worker, standard fonts, character maps, image decoders and colour profiles a
 | `deferred` | Holds back: nothing loads until it's taken away. Set again, the document is let go and its last page stays on show. |
 | `controls` | ‹ page / pages › and − + under the page. |
 | `alt` | What a screen reader hears (`aria-label`), and the name in its messages. |
+| `poster` | A picture shown until a page is drawn. Without one, a held-back element that has drawn nothing shows a page icon and its name. |
 | `library` | Where pdf.js loads from, if not the page's meta. |
 | `pageCount` | Read only: its pages, once loaded (0 before). |
 | `loaded` | A promise: true once it has loaded and drawn its page, false if it can't show. Renewed with each `src`. |
@@ -66,6 +67,6 @@ A resize redraws. pdf.js runs with `isEvalSupported: false` and no XFA forms; th
 ## Styling
 
 `--juel-pdf-background` (behind the page, default transparent), `--juel-pdf-shadow` (round the page),
-`--juel-pdf-message-background`. Parts: `scroller`, `page`, `message`, `loading`, `controls`.
+`--juel-pdf-message-background`, `--juel-pdf-placeholder-background`. Parts: `scroller`, `page`, `poster`, `placeholder`, `message`, `loading`, `controls`.
 
 `<juel-file-viewer>` uses it for PDFs on any page that has the meta (or `pdfjsLib`), and a frame otherwise.

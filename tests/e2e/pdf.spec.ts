@@ -120,3 +120,14 @@ test('pdf: the file viewer shows a PDF with <juel-pdf> where the page says where
     await expect(pdf.locator('.count')).toHaveText('1 / 3');
     await expect(page.locator('juel-file-viewer iframe')).toHaveCount(0);
 });
+
+test('pdf: held back with nothing drawn shows its name, or its poster', async ({ page }) => {
+    await page.goto(Url);
+    await expect(page.locator('#deferred').locator('.placeholder')).toContainText('Held back until asked');
+    await page.evaluate(() => document.getElementById('deferred')!.setAttribute('poster', '../../_Assets/animated.png'));
+    await expect(page.locator('#deferred').locator('.placeholder')).toHaveCount(0);
+    await expect(page.locator('#deferred').locator('img.poster')).toHaveAttribute('src', '../../_Assets/animated.png');
+    await page.click('#show');
+    expect(await loaded(page, 'deferred')).toBe(true);
+    await expect(page.locator('#deferred').locator('img.poster')).toHaveCount(0);
+});
