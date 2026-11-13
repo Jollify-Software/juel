@@ -135,3 +135,13 @@ test('pdf: held back with nothing drawn shows its name, or its poster', async ({
     expect(await loaded(page, 'deferred')).toBe(true);
     await expect(page.locator('#deferred').locator('img.poster')).toHaveCount(0);
 });
+
+test('pdf: pdf.js and its worker from blob: URLs (a sandboxed preview\'s parent sends them)', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', e => errors.push(String(e)));
+    await page.goto('examples/Display/Pdf/pdf-blob.html');
+    await page.waitForFunction(() => document.getElementById('blob'));
+    expect(await loaded(page, 'blob')).toBe(true);
+    expect(near(await middle(page, 'blob'), Red)).toBe(true);
+    expect(errors).toEqual([]);
+});

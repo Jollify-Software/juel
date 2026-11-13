@@ -18,6 +18,9 @@ pdf.js isn't in `juel.js`: it's about 1.7 MB, so it loads the first time a `<jue
 and sets `globalThis.pdfjsLib`; a page that already has `pdfjsLib` uses that.
 
 Its worker, standard fonts, character maps, image decoders and colour profiles are found beside `pdf.min.mjs`.
+A page whose pdf.js has nothing beside it (a `blob:` URL, as the Jollify editor's sandboxed preview gets it)
+names the worker in `<meta name="juel-pdfjs-worker">`, and pdf.js does without the rest: built-in fallback fonts,
+and no JPEG 2000 pictures.
 `npm run pdfjs` (run by `npm run build`) copies them all from `pdfjs-dist`, pinned in `package.json`, into
 `dist/pdfjs/` (5.5 MB, not committed). Jetty runs the same script for the folder it ships beside a deck.
 

@@ -38,6 +38,8 @@ interface PdfJs {
 }
 
 const Meta = 'juel-pdfjs';
+/** Where pdf.js's worker is, when it can't be found beside the library (a blob: URL from a preview's parent). */
+const WorkerMeta = 'juel-pdfjs-worker';
 /** Most pixels a page's canvas gets (Safari refuses canvases much past 16 million). */
 const MaxPixels = 16_000_000;
 const MaxZoom = 6;
@@ -66,14 +68,17 @@ export function loadPdfJs(url: string | undefined): Promise<PdfJs | null> {
     if (g.pdfjsLib) return library = Promise.resolve(g.pdfjsLib);
     if (!url) return Promise.resolve(null);
     const absolute = new URL(url, document.baseURI).href;
-    libraryBase = absolute.slice(0, absolute.lastIndexOf('/') + 1);
+    // Fonts, character maps and decoders sit beside the library; a blob: or data: URL has nothing beside it, so
+    // pdf.js does without them (built-in fallback fonts; a JPEG 2000 picture doesn't draw).
+    libraryBase = /^(blob|data):/i.test(absolute) ? '' : absolute.slice(0, absolute.lastIndexOf('/') + 1);
+    const worker = document.querySelector<HTMLMetaElement>(`meta[name="${WorkerMeta}"]`)?.content;
     return library = new Promise<PdfJs | null>(resolve => {
         const script = document.createElement('script');
         script.type = 'module';
         script.src = absolute;
         script.onload = () => {
             const lib = g.pdfjsLib ?? null;
-            if (lib) lib.GlobalWorkerOptions.workerSrc = absolute.replace(/pdf(\.min)?\.mjs(\?.*)?$/, 'pdf.worker$1.mjs$2');
+            if (lib) lib.GlobalWorkerOptions.workerSrc = worker ? new URL(worker, document.baseURI).href : absolute.replace(/pdf(\.min)?\.mjs(\?.*)?$/, 'pdf.worker$1.mjs$2');
             resolve(lib);
         };
         script.onerror = () => {
