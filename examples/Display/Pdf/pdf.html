@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>PDF — Juel Examples</title>
+    <!-- Where pdf.js loads from: `npm run pdfjs` copies it into dist/pdfjs/. -->
+    <meta name="juel-pdfjs" content="../../../dist/pdfjs/pdf.min.mjs">
+    <script src="../../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../../_Shared/examples.css" />
+    <style>
+        juel-pdf { height: 420px; border: 1px solid #ccc; border-radius: 6px; background: #f3f3f3; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    </style>
+</head>
+
+<body>
+    <h1>&lt;juel-pdf&gt;</h1>
+    <p>A PDF drawn with pdf.js, the same in every browser. Ctrl + wheel, or <kbd>+</kbd> / <kbd>-</kbd> with it focused, zooms.</p>
+
+    <h2>With controls</h2>
+    <juel-pdf id="controls" src="../../_Assets/sample.pdf" alt="Quarterly sales sample" controls></juel-pdf>
+
+    <h2>Fit the width, from page 2</h2>
+    <div class="row">
+        <juel-pdf id="width" src="../../_Assets/sample.pdf" fit="width" page="2" alt="Sample, fitted to its width"></juel-pdf>
+        <juel-pdf id="deferred" src="../../_Assets/sample.pdf" deferred alt="Held back until asked"></juel-pdf>
+    </div>
+    <p><button id="show">Load the held-back one</button></p>
+
+    <h2>When it can't show</h2>
+    <div class="row">
+        <juel-pdf id="missing" src="../../_Assets/not-here.pdf" alt="A missing report"></juel-pdf>
+        <juel-pdf id="notpdf" src="../../_Assets/animated.png" alt="A picture called a PDF"></juel-pdf>
+    </div>
+
+    <script>
+        document.getElementById('show').addEventListener('click', () => document.getElementById('deferred').removeAttribute('deferred'));
+    </script>
+</body>
+
+</html>

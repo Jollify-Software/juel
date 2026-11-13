@@ -15,6 +15,7 @@ import { kindOf } from '../Storage/Paths';
 import { icon, kindIcon } from './Icons';
 import { formatSize } from './Format';
 import { tableOf } from './Table';
+import { pdfJsAvailable } from '../../Display/Pdf/Pdf';
 
 /** Text files bigger than this show only their start. */
 const MaxText = 256 * 1024;
@@ -263,7 +264,11 @@ export class JuelFileViewer extends LitElement {
                 case 'picture': return html`<img src=${this.url} alt=${record.name} draggable="false">`;
                 case 'video': return html`<video src=${this.url} controls playsinline></video>`;
                 case 'sound': return html`<div class="none">${kindIcon('sound')}<audio src=${this.url} controls></audio></div>`;
-                case 'document': return html`<iframe src=${this.url} title=${record.name}></iframe>`;
+                // A PDF draws with pdf.js where the page says where it is (<juel-pdf>): the browser's own viewer
+                // shows nothing in the Android WebView and only the first page on an iPhone or iPad.
+                case 'document': return pdfJsAvailable()
+                    ? html`<juel-pdf src=${this.url} alt=${record.name} controls></juel-pdf>`
+                    : html`<iframe src=${this.url} title=${record.name}></iframe>`;
             }
         }
         return html`
@@ -322,6 +327,7 @@ export class JuelFileViewer extends LitElement {
         .content { flex: 1; min-width: 0; height: 100%; display: grid; place-items: center; }
         img, video { max-width: 100%; max-height: 100%; object-fit: contain; }
         iframe { width: 100%; height: 100%; border: 0; background: #fff; border-radius: 4px; }
+        juel-pdf { width: 100%; height: 100%; color: #fff; --juel-pdf-shadow: 0 2px 12px rgba(0, 0, 0, 0.6); }
         .text-preview {
             width: min(60rem, 100%);
             max-height: 100%;
