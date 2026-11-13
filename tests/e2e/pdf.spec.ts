@@ -57,7 +57,9 @@ test('pdf: page="2" starts there; fit="width" fills the width', async ({ page })
 
 test('pdf: deferred loads nothing until it is taken away, and keeps its page when it comes back', async ({ page }) => {
     const requests: string[] = [];
+    const errors: string[] = [];
     page.on('request', r => requests.push(r.url()));
+    page.on('pageerror', e => errors.push(String(e)));
     await page.goto(Url);
     await loaded(page, 'controls');
     expect(await page.evaluate(() => document.getElementById('deferred')!.shadowRoot!.querySelector('canvas')!.width)).toBe(0);
@@ -70,6 +72,8 @@ test('pdf: deferred loads nothing until it is taken away, and keeps its page whe
     expect(near(await middle(page, 'deferred'), Red)).toBe(true);
     expect(requests.some(u => u.endsWith('/dist/pdfjs/pdf.min.mjs'))).toBe(true);
     expect(requests.filter(u => u.endsWith('/dist/pdfjs/pdf.min.mjs'))).toHaveLength(1);
+    // Letting the document go throws nothing (pdf.js 6 has no destroy() on a document).
+    expect(errors).toEqual([]);
 });
 
 test('pdf: a missing file and a file that is not a PDF say so', async ({ page }) => {

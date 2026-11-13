@@ -29,7 +29,8 @@ interface PdfJsPage {
     render(o: { canvas: HTMLCanvasElement; viewport: PdfJsViewport; transform?: number[] }): { promise: Promise<void>; cancel(): void };
     cleanup(): void;
 }
-interface PdfJsDocument { numPages: number; getPage(n: number): Promise<PdfJsPage>; destroy(): Promise<void> }
+// A document is let go through its loading task: pdf.js 6.4 has no `destroy` on the document itself.
+interface PdfJsDocument { numPages: number; getPage(n: number): Promise<PdfJsPage>; loadingTask?: { destroy(): Promise<void> }; destroy?(): Promise<void> }
 interface PdfJsLoadingTask { promise: Promise<PdfJsDocument>; onPassword?: (update: (pw: string) => void, reason: number) => void; destroy(): Promise<void> }
 interface PdfJs {
     GlobalWorkerOptions: { workerSrc: string };
@@ -205,7 +206,7 @@ export class JuelPdf extends LitElement {
         };
         try {
             const doc = await task.promise;
-            if (this.task !== task) { void doc.destroy(); return; }
+            if (this.task !== task) { void release(doc); return; }
             this.doc = doc;
             this.loadedSrc = src;
             this.task = null;
@@ -249,7 +250,7 @@ export class JuelPdf extends LitElement {
             if (this.canvas) this.canvas.width = this.canvas.height = 0;
         }
         await task?.destroy().catch(() => {});
-        await doc?.destroy().catch(() => {});
+        if (doc) await release(doc);
     }
 
     private queueDraw() {
@@ -485,6 +486,15 @@ export class JuelPdf extends LitElement {
                     <button type="button" title="Bigger" aria-label="Bigger" @click=${() => this.zoomBy(1.25)}>+</button>
                 </div>` : nothing}
         `;
+    }
+}
+
+/** Lets a document go, whichever pdf.js it came from. */
+async function release(doc: PdfJsDocument) {
+    try {
+        await (doc.loadingTask ? doc.loadingTask.destroy() : doc.destroy?.());
+    } catch {
+        // Already gone.
     }
 }
 
