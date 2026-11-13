@@ -171,9 +171,12 @@ export class JuelPdf extends LitElement {
                 return;
             }
             this.queueDraw();
-            if (changed.has('page') && changed.get('page') !== undefined && this.scroller) this.scroller.scrollTo(0, 0);
-            if (changed.has('page') && changed.get('page') !== undefined)
+            // Once per page turned to: a page set past the end and clamped back is no turn.
+            if (changed.has('page') && changed.get('page') !== undefined && this.page !== this.shownPage) {
+                this.scroller?.scrollTo(0, 0);
                 this.dispatchEvent(new CustomEvent('juel-pdf-page', { detail: { page: this.page, pages: this.pageCount }, bubbles: true, composed: true }));
+            }
+            this.shownPage = this.page;
         }
     }
 
@@ -423,6 +426,8 @@ export class JuelPdf extends LitElement {
     }
 
     private quiet = false;
+    /** The page last asked for and in range, so a page set out of range and clamped back fires nothing. */
+    private shownPage = 1;
 
     private changed() {
         if (this.quiet) return;
