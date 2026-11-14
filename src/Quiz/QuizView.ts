@@ -41,6 +41,21 @@ export function toShownOrder(type: QuizType, order: number[], state: QuizState, 
     return { state: next, answer: shown };
 }
 
+/**
+ * The other way (QUIZ-PLAN Q6): a student's answer, held in the order shown, back in source order, so the presenting
+ * screen can mark it against its key. Indices that aren't a place are dropped.
+ */
+export function fromShownOrder(order: number[], shown: QuizState): QuizState {
+    const source = (j: number) => (Number.isInteger(j) && j >= 0 && j < order.length ? order[j] : -1);
+    const next: QuizState = { ...shown, selected: (shown.selected ?? []).map(source).filter(i => i >= 0).sort((a, b) => a - b) };
+    if (shown.placed) {
+        const placed: (number | null)[] = Array.from({ length: order.length }, () => null);
+        order.forEach((i, j) => placed[i] = shown.placed![j] ?? null);
+        next.placed = placed;
+    }
+    return next;
+}
+
 const escapeAttr = (s: string): string => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 /**

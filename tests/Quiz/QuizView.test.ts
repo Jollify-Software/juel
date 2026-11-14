@@ -1,5 +1,5 @@
 import { displayOrder, initialState, isCorrect, QuizState } from '../../src/Quiz/QuizState';
-import { quizViewMarkup, toShownOrder } from '../../src/Quiz/QuizView';
+import { fromShownOrder, quizViewMarkup, toShownOrder } from '../../src/Quiz/QuizView';
 
 // A viewer's quiz lists the items in the order shown (QUIZ-PLAN Q5): its state and key must mean the same there.
 describe('QuizView', () => {
@@ -41,5 +41,19 @@ describe('QuizView', () => {
             .toBe('<div><b>Q</b></div><ol data-groups><li data-colour="#f6c">Mammal</li><li>Bird</li></ol><ul><li>Dog</li><li>Eagle</li></ul>');
         expect(quizViewMarkup({ type: 'match', question: 'Q', items: ['B'], groups: [{ html: 'A' }], state: initialState('match', 1), answer: [0], explanation: 'Why' }))
             .toBe('<div>Q</div><ul><li>A</li></ul><ul data-partners><li>B</li></ul><blockquote>Why</blockquote>');
+    });
+});
+
+describe('QuizView: a student\'s answer back in source order (QUIZ-PLAN Q6)', () => {
+    const order = displayOrder(5, 777);
+    test('round trip: to the order shown and back', () => {
+        const state: QuizState = { ...initialState('sort', 5), selected: [], placed: [0, null, 2, 1, 0] };
+        const { state: shown } = toShownOrder('sort', order, state, null);
+        expect(fromShownOrder(order, shown).placed).toEqual(state.placed);
+        const choice: QuizState = { ...initialState('choice', 5), selected: [1, 4] };
+        expect(fromShownOrder(order, toShownOrder('choice', order, choice, null).state).selected).toEqual([1, 4]);
+    });
+    test('junk indices are dropped', () => {
+        expect(fromShownOrder(order, { ...initialState('choice', 5), selected: [9, -1, 0] }).selected).toEqual([order[0]]);
     });
 });

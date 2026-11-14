@@ -17,7 +17,7 @@ import { QuizStyles } from './QuizStyles';
 import { QuizMessage, QuizState, QuizType, displayOrder, hashSeed, initialState, isCorrect, marks, parseAnswer, placesItems, reduce } from './QuizState';
 import { PointerDrag } from './Drag';
 import { QuizSource, readQuizData } from './QuizData';
-import { QuizView, quizViewMarkup, toShownOrder } from './QuizView';
+import { QuizView, fromShownOrder, quizViewMarkup, toShownOrder } from './QuizView';
 import type { JuelModal } from '../Dialog/Modal/Modal';
 import '../Dialog/Modal/Modal';
 import '../Buttons/Button/Button';
@@ -133,8 +133,12 @@ export class JuelQuiz extends LitElement {
      * between them they need only fill their places, in any order.
      */
     private get checkKey(): number[] {
+        return this.checkKeyFor(this.current.placed ?? []);
+    }
+
+    /** The key Check marks a placement against (see `checkKey`). */
+    private checkKeyFor(placed: (number | null)[]): number[] {
         const key = [...this.placeKey];
-        const placed = this.current.placed ?? [];
         const twins = new Map<string, number[]>();
         this.items.forEach((li, i) => {
             const text = li.innerHTML.trim();
@@ -223,6 +227,22 @@ export class JuelQuiz extends LitElement {
             if (explanation) view.explanation = explanation;
         }
         return view;
+    }
+
+    /** The order shown here: place j holds source item `shownOrder()[j]`. */
+    shownOrder(): number[] {
+        return this.order();
+    }
+
+    /**
+     * A student's answer (QUIZ-PLAN Q6) as their device's quiz holds it, in the order shown (`viewerView`): the same
+     * answer in source order, whether it's right, and whether it answers anything at all.
+     */
+    judge(shown: QuizState): { state: QuizState; correct: boolean; answered: boolean } {
+        const state = fromShownOrder(this.shownOrder(), { ...initialState(this.type, this.items.length), ...shown, type: this.type });
+        const answered = placesItems(this.type) ? (state.placed ?? []).some(p => p !== null) : state.selected.length > 0;
+        const correct = placesItems(this.type) ? isCorrect(state, this.checkKeyFor(state.placed ?? [])) : isCorrect(state, this.answer);
+        return { state, correct: answered && correct, answered };
     }
 
     /** Check the answer: marks the items and opens the answer dialog. */
