@@ -2,3 +2,4 @@
 export { JuelQuiz } from './Quiz';
 export type { QuizChangeDetail } from './Quiz';
 export * from './QuizState';
+export * from './QuizView';

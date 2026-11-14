@@ -132,6 +132,21 @@ right kind, are dropped (as `apply()` ignores them), so a state off the network 
 the result and the key. The pure functions (`reduce`, `isCorrect`, `displayOrder`, …) are exported
 from `QuizState.ts`.
 
+## Viewers (students following along)
+
+QUIZ-PLAN Q5: students follow a presentation on their own devices, and the page they get mustn't hold the answers.
+For sort and match even the items' source order gives the answer away (Slipway writes them group by group), so a
+viewer's page has its quizzes emptied, and the presenting screen describes each one:
+
+- `quiz.viewerView(withKey?)` returns a `QuizView` (`QuizView.ts`): `type`, `question`, `items` (HTML, **in the order
+  shown**), `groups` (HTML and colour, source order: groups and match's left column aren't shuffled), `state` with every
+  item index in the order shown, and only once the state is revealed (or with `withKey`) `answer` (as `data-answer`
+  reads it, in the order shown) and `explanation`.
+- A viewer fills an empty `<juel-quiz no-shuffle type="…">` with `JuelQuiz.viewMarkup(view)` (or `quizViewMarkup`),
+  sets `data-answer` when the view has one, then sets `state` once it has rendered. Its marks then match the presenting
+  screen's.
+- `toShownOrder(type, order, state, key)` is the pure mapping (`tests/Quiz/QuizView.test.ts`).
+
 ## Styling
 
 Tokens on the host: `--quiz-color`, `--quiz-background`, `--quiz-border`, `--quiz-accent`,

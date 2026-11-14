@@ -17,6 +17,7 @@ import { QuizStyles } from './QuizStyles';
 import { QuizMessage, QuizState, QuizType, displayOrder, hashSeed, initialState, isCorrect, marks, parseAnswer, placesItems, reduce } from './QuizState';
 import { PointerDrag } from './Drag';
 import { QuizSource, readQuizData } from './QuizData';
+import { QuizView, quizViewMarkup, toShownOrder } from './QuizView';
 import type { JuelModal } from '../Dialog/Modal/Modal';
 import '../Dialog/Modal/Modal';
 import '../Buttons/Button/Button';
@@ -33,6 +34,11 @@ let instances = 0;
 export class JuelQuiz extends LitElement {
 
     static styles = QuizStyles;
+
+    /** A viewer's light DOM from a `viewerView()` (QUIZ-PLAN Q5): for an empty `<juel-quiz no-shuffle>`. */
+    static viewMarkup(view: QuizView): string {
+        return quizViewMarkup(view);
+    }
 
     /** The kind of quiz: `choice`, `sort` (items into groups) or `match` (partners beside entries). */
     @property({ reflect: true }) type: QuizType = 'choice';
@@ -193,6 +199,31 @@ export class JuelQuiz extends LitElement {
         e.preventDefault();
         focused.blur();
     };
+
+    /**
+     * The quiz as a viewer may see it (QUIZ-PLAN Q5, `QuizView.ts`): question, items and groups as HTML in the order
+     * shown here, the state in that order, and the key and explanation only once revealed (or when `withKey`).
+     */
+    viewerView(withKey = this.current.revealed): QuizView {
+        const items = this.items, order = this.order();
+        const { state, answer } = toShownOrder(this.type, order, this.state, withKey ? this.answer : null);
+        const view: QuizView = {
+            type: this.type,
+            question: this.question()?.innerHTML.trim() ?? '',
+            items: order.map(i => items[i]?.innerHTML.trim() ?? ''),
+            groups: this.groups.map(g => {
+                const colour = g.dataset.colour ?? g.dataset.color;
+                return colour ? { html: g.innerHTML.trim(), colour } : { html: g.innerHTML.trim() };
+            }),
+            state,
+        };
+        if (answer) {
+            view.answer = answer;
+            const explanation = this.explanation()?.innerHTML.trim();
+            if (explanation) view.explanation = explanation;
+        }
+        return view;
+    }
 
     /** Check the answer: marks the items and opens the answer dialog. */
     check(): void { this.apply({ type: 'quiz-check' }); }
