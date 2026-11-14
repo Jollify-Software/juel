@@ -47,6 +47,15 @@ describe('jollifyCheckout', () => {
         expect('url' in result).toBe(false);
     });
 
+    test('cancel tells the shop\'s server which hold to free, and never throws', async () => {
+        const calls: Call[] = [];
+        await jollifyCheckout('https://x', 's', fakeFetch(204, {}, calls)).cancel!('hold-1');
+        expect(calls[0].url).toBe('https://x/api/shop/s/cancel');
+        expect(calls[0].init?.method).toBe('POST');
+        expect(JSON.parse(String(calls[0].init?.body))).toEqual({ hold: 'hold-1' });
+        await expect(jollifyCheckout('https://x', 's', async () => { throw new Error('offline'); }).cancel!('h')).resolves.toBeUndefined();
+    });
+
     test('stock: the counts, or null when the server can\'t say', async () => {
         const calls: Call[] = [];
         await expect(jollifyCheckout('https://x', 's', fakeFetch(200, { stock: { a: 2, b: 0 } }, calls)).stock!()).resolves.toEqual({ a: 2, b: 0 });

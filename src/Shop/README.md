@@ -28,6 +28,9 @@ A basket for a shop's pages: `<juel-cart>` and `<juel-buy-button>`. Built for Jo
   choice is in the basket, not on the payment page, so a buyer who collects isn't asked for an address. With no
   `postage`, there's no choice and no `delivery`.
 - **The thank-you page:** `<juel-cart shop="…" clear>` empties the basket as the page loads.
+- **Back without paying:** the payment page sends a buyer who cancels back to the Shop page with
+  `?jollify_cancel=<hold>`. The cart takes it out of the address, tells the adapter (`cancel(hold)`, so the checkout's
+  stock is free at once), refreshes the stock and opens the basket, still holding their things.
 
 ## Checkout adapters
 

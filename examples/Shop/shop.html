@@ -64,6 +64,8 @@
         const cart = document.getElementById('cart');
         cart.adapter = {
             async stock() { return { ...stock }; },
+            // The payment page sent the buyer back without paying (?jollify_cancel=): the coat's hold goes.
+            async cancel(hold) { (window.cancelled ??= []).push(hold); },
             async checkout(lines, options) {
                 window.checkouts.push(lines);
                 window.checkoutOptions.push(options ?? null);
