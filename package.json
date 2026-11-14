@@ -18,6 +18,7 @@
     "debug": "node --inspect-brk ./node_modules/parcel/lib/cli.js build juel.ts",
     "serve": "npm run dev && live-server --open=examples",
     "examples": "parcel build examples/_TS/example.ts --no-optimize --no-scope-hoist --no-cache && npx copyfiles dist/example.js* examples -f",
+    "check": "tsc --noEmit -p .",
     "test": "jest",
     "test:browser:build": "parcel build tests/browser/files-contract.ts --no-optimize --no-scope-hoist --no-cache",
     "test:browser": "npm run test:browser:build && npm run pdfjs && playwright test",

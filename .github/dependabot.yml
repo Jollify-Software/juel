@@ -1,0 +1,19 @@
+# Weekly dependency updates (IMPROVEMENTS-PLAN 1.10): minor and patch bumps grouped into one PR
+# per ecosystem; majors come one at a time.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]

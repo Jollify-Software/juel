@@ -1,4 +1,4 @@
-import { getUrlFriendlyString } from "../../_Utils/GetUrlFriendlyString";
+import { getUrlFriendlyString } from "../../../_Utils/GetUrlFriendlyString";
 import { JuelMap } from "../Map";
 import { MapModeType } from "../MapModeType";
 import { GoogleMapBootstrap } from "./GoogleMapBootstrap";

@@ -17,7 +17,7 @@ export class JuelMapObject extends JuelComponent {
         }
     }
 
-    ready(map: L.Map) {
+    ready(map?: L.Map) {
 
     }
 
