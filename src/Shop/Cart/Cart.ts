@@ -128,7 +128,16 @@ export class JuelCart extends LitElement {
     @property({ attribute: 'post-label' }) postLabel = 'Post it to me';
 
     /** Set from script to use another checkout (a test, Snipcart); otherwise Jollify's, from `server` and `shop`. */
-    adapter?: CheckoutAdapter;
+    get adapter(): CheckoutAdapter | undefined {
+        return this.ownAdapter;
+    }
+    set adapter(adapter: CheckoutAdapter | undefined) {
+        this.ownAdapter = adapter;
+        void this.sendCancel(); // a page that sets its adapter after the cart loaded still frees a cancelled checkout
+    }
+    private ownAdapter?: CheckoutAdapter;
+    /** A checkout the buyer came back from without paying (`?jollify_cancel=`), until an adapter has been told. */
+    private pendingCancel?: string;
 
     @state() private busy = false;
     @state() private message = '';
@@ -203,7 +212,34 @@ export class JuelCart extends LitElement {
     protected firstUpdated() {
         if (this.clear) this.store.clear();
         this.changed();
-        void this.refreshStock();
+        this.takeCancel();
+        void this.sendCancel().then(sent => sent ? undefined : this.refreshStock());
+    }
+
+    /**
+     * The payment page sends a buyer who cancels back to the Shop page with `?jollify_cancel=<hold>`: the param is
+     * taken out of the address (a reload mustn't send it again), and the basket opens, still holding their things.
+     */
+    private takeCancel() {
+        let url: URL;
+        try { url = new URL(location.href); } catch { return; }
+        const hold = url.searchParams.get('jollify_cancel');
+        if (!hold) return;
+        url.searchParams.delete('jollify_cancel');
+        try { history.replaceState(history.state, '', url.href); } catch { /* a sandboxed frame: the address stays */ }
+        this.pendingCancel = hold;
+        if (this.store.count) this.open = true;
+    }
+
+    /** Tells the adapter about a cancelled checkout, once, then refreshes the stock. True when it did. */
+    private async sendCancel(): Promise<boolean> {
+        const hold = this.pendingCancel;
+        const adapter = this.checkoutAdapter;
+        if (!hold || !adapter || !this.hasUpdated) return false;
+        this.pendingCancel = undefined;
+        await adapter.cancel?.(hold);
+        await this.refreshStock();
+        return true;
     }
 
     /** Asks the checkout how many of each thing are left, and brings the basket and the buy buttons into line. */

@@ -125,6 +125,21 @@ test('the basket survives a reload; the thank-you page\'s clear empties it', asy
     await expect(count(page)).toBeHidden();
 });
 
+test('back from the payment page without paying: the checkout is cancelled once, the address cleaned, the basket open', async ({ page }) => {
+    await buy(page, 'p-plates').click();
+    await page.goto('examples/Shop/shop.html?jollify_cancel=hold-42');
+    await page.waitForFunction(() => (window as any).exampleReady);
+    await page.waitForFunction(() => (window as any).cancelled);
+    expect(await page.evaluate(() => (window as any).cancelled)).toEqual(['hold-42']);
+    expect(new URL(page.url()).searchParams.has('jollify_cancel')).toBe(false);
+    await expect(panel(page)).toBeVisible();
+    await expect(line(page, 'p-plates')).toHaveCount(1);
+    await page.reload();
+    await page.waitForFunction(() => (window as any).exampleReady);
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => (window as any).cancelled)).toBeUndefined(); // a reload sends nothing again
+});
+
 test('the panel: Escape and a click outside close it', async ({ page }) => {
     await page.locator('#cart .toggle').click();
     await expect(panel(page)).toBeVisible();

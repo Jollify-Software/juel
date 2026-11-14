@@ -19,6 +19,11 @@ export interface CheckoutAdapter {
     checkout(lines: CheckoutLine[], options?: CheckoutOptions): Promise<CheckoutResult>;
     /** How many of each item can be bought now (item → count), when the adapter knows; null when it can't say. */
     stock?(): Promise<Record<string, number> | null>;
+    /**
+     * The buyer came back from the payment page without paying (the page's `?jollify_cancel=<hold>`): frees what that
+     * checkout held, so a one-off is for sale again at once. Never throws.
+     */
+    cancel?(hold: string): Promise<void>;
 }
 
 type FetchLike = (input: string, init?: RequestInit) => Promise<Pick<Response, 'ok' | 'status' | 'json'>>;
@@ -45,6 +50,7 @@ function stockOf(value: unknown): Record<string, number> | undefined {
  *     409 { error, stock }           some things sold out or ran short; `stock` is item → count left
  *     4xx/5xx { error? }             anything else; `error` is shown when it's there
  *   GET  {server}/api/shop/{shop}/stock      200 { stock: { item: count } }
+ *   POST {server}/api/shop/{shop}/cancel     { hold }   (the Shop page opened with ?jollify_cancel=<hold>)
  *
  * Only an `https:` (or `http:` on localhost) URL is followed.
  */
@@ -64,6 +70,17 @@ export function jollifyCheckout(server: string, shop: string, fetchFn: FetchLike
                 return response.status === 409 ? { error, stock: stockOf(body.stock) } : { error };
             } catch {
                 return { error: Unavailable };
+            }
+        },
+        async cancel(hold) {
+            try {
+                await fetchFn(`${base}/cancel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hold }),
+                });
+            } catch {
+                // The hold lapses by itself when its session expires.
             }
         },
         async stock() {
