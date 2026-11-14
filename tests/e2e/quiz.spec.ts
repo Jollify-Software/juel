@@ -697,3 +697,31 @@ test('state: junk from the network is dropped, never thrown or drawn off the boa
     expect(r.unsorted.state.selected).toEqual([0, 2]);
     expect(r.unsorted.correct).toBe(true);
 });
+
+// QUIZ-PLAN Q5: students follow on their own devices, and their page mustn't hold the answers.
+test('viewerView: the order shown, no key until revealed; a viewer quiz built from it marks the same answer', async ({ page }) => {
+    const before = await page.evaluate(() => (document.getElementById('sort') as any).viewerView());
+    expect(before.answer).toBeUndefined();
+    expect(before.explanation).toBeUndefined();
+    // The items in the order the screen shows them.
+    const chips = (await quiz(page, 'sort').locator('.pool .chip').allTextContents()).map(t => t.trim());
+    expect(before.items.map((h: string) => h.replace(/<[^>]+>/g, '').trim())).toEqual(chips);
+    await page.evaluate(() => (document.getElementById('sort') as any).reveal());
+    const after = await page.evaluate(() => (document.getElementById('sort') as any).viewerView());
+    expect(after.state.revealed).toBe(true);
+    expect(after.answer).toHaveLength(chips.length);
+    // A viewer: an empty quiz filled from the view, with no shuffle, shows each chip in the same group.
+    await page.evaluate(view => {
+        const viewer = document.createElement('juel-quiz') as any;
+        viewer.id = 'viewer';
+        viewer.setAttribute('type', view.type);
+        viewer.setAttribute('no-shuffle', '');
+        viewer.setAttribute('data-answer', view.answer.join(','));
+        viewer.innerHTML = (customElements.get('juel-quiz') as any).viewMarkup(view);
+        document.body.append(viewer);
+        return viewer.updateComplete.then(() => { viewer.state = view.state; return viewer.updateComplete; });
+    }, after);
+    const groupsOf = (id: string) => page.evaluate(id => [...document.getElementById(id)!.shadowRoot!.querySelectorAll('.group')]
+        .map(g => [...g.querySelectorAll('.chip')].map(c => c.textContent!.trim()).sort()), id);
+    expect(await groupsOf('viewer')).toEqual(await groupsOf('sort'));
+});

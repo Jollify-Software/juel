@@ -17,6 +17,7 @@ import { QuizStyles } from './QuizStyles';
 import { QuizMessage, QuizState, QuizType, displayOrder, hashSeed, initialState, isCorrect, marks, parseAnswer, placesItems, reduce } from './QuizState';
 import { PointerDrag } from './Drag';
 import { QuizSource, readQuizData } from './QuizData';
+import { QuizView, fromShownOrder, quizViewMarkup, toShownOrder } from './QuizView';
 import type { JuelModal } from '../Dialog/Modal/Modal';
 import '../Dialog/Modal/Modal';
 import '../Buttons/Button/Button';
@@ -33,6 +34,11 @@ let instances = 0;
 export class JuelQuiz extends LitElement {
 
     static styles = QuizStyles;
+
+    /** A viewer's light DOM from a `viewerView()` (QUIZ-PLAN Q5): for an empty `<juel-quiz no-shuffle>`. */
+    static viewMarkup(view: QuizView): string {
+        return quizViewMarkup(view);
+    }
 
     /** The kind of quiz: `choice`, `sort` (items into groups) or `match` (partners beside entries). */
     @property({ reflect: true }) type: QuizType = 'choice';
@@ -127,8 +133,12 @@ export class JuelQuiz extends LitElement {
      * between them they need only fill their places, in any order.
      */
     private get checkKey(): number[] {
+        return this.checkKeyFor(this.current.placed ?? []);
+    }
+
+    /** The key Check marks a placement against (see `checkKey`). */
+    private checkKeyFor(placed: (number | null)[]): number[] {
         const key = [...this.placeKey];
-        const placed = this.current.placed ?? [];
         const twins = new Map<string, number[]>();
         this.items.forEach((li, i) => {
             const text = li.innerHTML.trim();
@@ -193,6 +203,47 @@ export class JuelQuiz extends LitElement {
         e.preventDefault();
         focused.blur();
     };
+
+    /**
+     * The quiz as a viewer may see it (QUIZ-PLAN Q5, `QuizView.ts`): question, items and groups as HTML in the order
+     * shown here, the state in that order, and the key and explanation only once revealed (or when `withKey`).
+     */
+    viewerView(withKey = this.current.revealed): QuizView {
+        const items = this.items, order = this.order();
+        const { state, answer } = toShownOrder(this.type, order, this.state, withKey ? this.answer : null);
+        const view: QuizView = {
+            type: this.type,
+            question: this.question()?.innerHTML.trim() ?? '',
+            items: order.map(i => items[i]?.innerHTML.trim() ?? ''),
+            groups: this.groups.map(g => {
+                const colour = g.dataset.colour ?? g.dataset.color;
+                return colour ? { html: g.innerHTML.trim(), colour } : { html: g.innerHTML.trim() };
+            }),
+            state,
+        };
+        if (answer) {
+            view.answer = answer;
+            const explanation = this.explanation()?.innerHTML.trim();
+            if (explanation) view.explanation = explanation;
+        }
+        return view;
+    }
+
+    /** The order shown here: place j holds source item `shownOrder()[j]`. */
+    shownOrder(): number[] {
+        return this.order();
+    }
+
+    /**
+     * A student's answer (QUIZ-PLAN Q6) as their device's quiz holds it, in the order shown (`viewerView`): the same
+     * answer in source order, whether it's right, and whether it answers anything at all.
+     */
+    judge(shown: QuizState): { state: QuizState; correct: boolean; answered: boolean } {
+        const state = fromShownOrder(this.shownOrder(), { ...initialState(this.type, this.items.length), ...shown, type: this.type });
+        const answered = placesItems(this.type) ? (state.placed ?? []).some(p => p !== null) : state.selected.length > 0;
+        const correct = placesItems(this.type) ? isCorrect(state, this.checkKeyFor(state.placed ?? [])) : isCorrect(state, this.answer);
+        return { state, correct: answered && correct, answered };
+    }
 
     /** Check the answer: marks the items and opens the answer dialog. */
     check(): void { this.apply({ type: 'quiz-check' }); }
