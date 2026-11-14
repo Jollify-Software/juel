@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>juel-cart</title>
+    <script src="../../dist/juel.js"></script>
+    <style>
+        body { margin: 0; padding: 1rem; font: 16px/1.4 system-ui, sans-serif; background: #f3f3f3; color: #242424; }
+        header { display: flex; justify-content: space-between; align-items: center; max-width: 48rem; margin: 0 0 1rem; }
+        h1 { font-size: 1.1rem; margin: 0; }
+        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: 1rem; max-width: 48rem; }
+        .product { display: grid; gap: 0.4rem; padding: 1rem; background: #fff; border-radius: 8px; }
+        .product h2 { font-size: 1rem; margin: 0; }
+        .product p { margin: 0; }
+        .product:has(juel-buy-button[sold]) { opacity: 0.55; }
+        .controls { margin: 1rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre-wrap; opacity: .8; max-width: 48rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>&lt;juel-cart&gt; and &lt;juel-buy-button&gt;</h1>
+        <juel-cart id="cart" shop="example-shop" currency="GBP" postage="3.50"></juel-cart>
+    </header>
+    <p>A charity shop's page with a pretend checkout: nothing is paid. The coat is a one-off, there are three sets
+        of plates, the lamp has sold, and a donation is any amount from £1 to £500 (chosen in the basket). Postage is £3.50, or collect from the shop.</p>
+
+    <div class="products">
+        <div class="product">
+            <h2>Blue wool coat</h2><p>£12.50</p>
+            <juel-buy-button item="p-coat" name="Blue wool coat" price="12.50" stock="1"></juel-buy-button>
+        </div>
+        <div class="product">
+            <h2>Six dinner plates</h2><p>£8.00</p>
+            <juel-buy-button item="p-plates" name="Six dinner plates" price="8.00" stock="3"></juel-buy-button>
+        </div>
+        <div class="product">
+            <h2>Brass lamp</h2><p>£15.00</p>
+            <juel-buy-button item="p-lamp" name="Brass lamp" price="15.00" stock="1"></juel-buy-button>
+        </div>
+        <div class="product">
+            <h2>Give to the shop</h2><p>Any amount</p>
+            <juel-buy-button item="d-gift" name="A donation" price="any" amount="5" min-amount="1" max-amount="500" label="Donate"></juel-buy-button>
+        </div>
+        <div class="product">
+            <h2>Box of books</h2><p>£5.00</p>
+            <juel-buy-button id="buy-now" item="p-books" name="Box of books" price="5.00" buy-now></juel-buy-button>
+        </div>
+    </div>
+
+    <div class="controls">
+        <label><input type="checkbox" id="sell-out"> The checkout says the coat just sold</label>
+        <button id="empty">Empty the basket</button>
+    </div>
+    <div id="log"></div>
+
+    <script>
+        // A pretend checkout: the lamp has sold; the coat sells out at checkout when the box is ticked.
+        const log = document.getElementById('log');
+        const stock = { 'p-coat': 1, 'p-plates': 3, 'p-lamp': 0 };
+        window.checkouts = [];
+        window.checkoutOptions = [];
+        const cart = document.getElementById('cart');
+        cart.adapter = {
+            async stock() { return { ...stock }; },
+            async checkout(lines, options) {
+                window.checkouts.push(lines);
+                window.checkoutOptions.push(options ?? null);
+                if (document.getElementById('sell-out').checked) {
+                    stock['p-coat'] = 0;
+                    return { error: 'Sorry, something sold.', stock: { ...stock } };
+                }
+                return { url: 'https://checkout.example.test/pay?lines=' + encodeURIComponent(JSON.stringify(lines)) };
+            },
+        };
+        // Stay on the page: show where checkout would go.
+        document.addEventListener('juel-cart-checkout', e => { e.preventDefault(); window.lastCheckoutUrl = e.detail.url; log.textContent += `checkout → ${e.detail.url}\n`; });
+        document.addEventListener('juel-cart-change', e => { log.textContent += `change: ${e.detail.count} things, ${e.detail.total}p\n`; });
+        document.getElementById('empty').addEventListener('click', () => cart.store.clear());
+        customElements.whenDefined('juel-cart').then(async () => {
+            await cart.updateComplete;
+            await cart.refreshStock();
+            window.exampleReady = true;
+        });
+    </script>
+</body>
+</html>
