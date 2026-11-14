@@ -7,6 +7,14 @@ on:
     branches: [ master ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+# A newer push to the same branch or PR cancels the run in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,6 +29,9 @@ jobs:
       - name: Install
         run: npm ci
 
+      - name: Type check
+        run: npm run check
+
       # `npm run build` uses cmd's `del`; call Parcel directly instead.
       - name: Build
         run: npx parcel build juel.ts
@@ -34,3 +45,13 @@ jobs:
       # Playwright in the runner's installed Google Chrome (channel: 'chrome').
       - name: Browser tests
         run: npm run test:browser
+
+      # The HTML report (written in CI only, playwright.config.ts) when a browser test fails.
+      - name: Upload the browser test report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore

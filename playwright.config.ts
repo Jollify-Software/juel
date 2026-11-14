@@ -7,7 +7,8 @@ const port = 4174;
 export default defineConfig({
     testDir: 'tests/e2e',
     timeout: 60_000,
-    reporter: [['list']],
+    // In CI also an HTML report (playwright-report/), which build.yml uploads when a test fails.
+    reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : [['list']],
     use: {
         baseURL: `http://localhost:${port}/`,
         channel: 'chrome',

@@ -13,7 +13,7 @@ export class JuelAsyncComponent extends JuelComponent {
         this.isReady.then(this.ready)
     }
 
-    ready(value: any) {
+    ready(value?: any) {
 
     }
     

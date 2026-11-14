@@ -46,5 +46,5 @@ Jest + ts-jest is configured but test coverage is thin (`tests/util/`, `tests/Me
 
 # Known in-progress work / quirks
 
-- Mid-migration from `@popperjs/core` to `@floating-ui/dom` for positioning. Newer code (`Display/Tooltip`, `_Shared/Item`, `_Utils/dom/createFloating.ts`) uses floating-ui; older code (`_Base/InputBase`, `_Services/PopupService*`, `_Services/TooltipService`, `_Modules/WindowModule`, `_Core/VirtualElement`) still uses Popper. Prefer floating-ui when touching positioning code, unless matching existing Popper-based code nearby.
+- Mid-migration from `@popperjs/core` to `@floating-ui/dom` for positioning. Newer code (`Display/Tooltip`, `_Shared/Item`, `_Utils/dom/createFloating.ts`) uses floating-ui; older code (`_Base/InputBase`, `_Services/PopupService*`, `_Modules/WindowModule`, `_Core/VirtualElement`) still uses Popper. Prefer floating-ui when touching positioning code, unless matching existing Popper-based code nearby.
 - `JuelComponent` (`_Base/JuelComponent.ts`) depends on a global jQuery (`$.when($.ready)`) inside its `firstUpdated`/`updated` lifecycle hooks — a legacy holdover in an otherwise modern Lit/TS codebase; jQuery isn't imported as a module anywhere, so it's assumed to be a global.
