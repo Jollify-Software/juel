@@ -23,7 +23,7 @@
     "test:browser:build": "parcel build tests/browser/files-contract.ts --no-optimize --no-scope-hoist --no-cache",
     "test:browser": "npm run test:browser:build && npm run pdfjs && playwright test",
     "lint": "eslint .",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix"
+    "lint:fix": "eslint . --fix"
   },
   "repository": {
     "type": "git",

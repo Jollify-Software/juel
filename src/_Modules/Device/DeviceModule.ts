@@ -1,7 +1,7 @@
 import { DeviceSize } from "../../_Core/DeviceSize";
 import { ScreenSizeDetector } from "./ScreenSizeDetector";
 
-export module DeviceModule {
+export namespace DeviceModule {
     var detector: ScreenSizeDetector = new ScreenSizeDetector();
     export var getDeviceSize = (): DeviceSize => {
         return detector.currentDeviceSize;

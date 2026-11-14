@@ -1,7 +1,7 @@
 import { Toast } from "./Toast";
 import { ToastOptions } from "./ToastOptions";
 
-export module ToastModule {
+export namespace ToastModule {
     // A single shared instance, not one per call — Toast.initContainer()
     // only skips re-creating #toast-container when *this instance* already
     // has one, so `new Toast()` on every call was producing a separate,

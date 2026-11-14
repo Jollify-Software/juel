@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { ExternalMediaTemplateInfo } from "../_Core/ExternalMediaTemplateInfo";
 
-export module ExternalMediaModule {
+export namespace ExternalMediaModule {
     export var youtube: ExternalMediaTemplateInfo = {
         regexp: /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/,
         link: 'https://youtube.com',

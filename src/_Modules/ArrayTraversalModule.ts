@@ -1,4 +1,4 @@
-export module ArrayTraversalModule {
+export namespace ArrayTraversalModule {
     export var traverseForward = (index: number, array: any[]) => {
         let n = index + 1;
         // Check we can move forwards

@@ -1,7 +1,7 @@
 import { JuelRadialMenu } from "./RadialMenu";
 
 export class RadialMenuGridService {
-  toggle: Function;
+  toggle: () => void;
   ele: JuelRadialMenu;
 
   constructor(ele: JuelRadialMenu) {

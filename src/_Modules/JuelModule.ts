@@ -7,7 +7,7 @@ import { ThemeModule } from "./Theme/ThemeModule";
 import { TipsModule } from "./Tips/TipsModule";
 import { ToastModule } from "./Toast/ToastModule";
 
-export module JuelModule {
+export namespace JuelModule {
     export const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop as string),
       });

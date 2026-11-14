@@ -44,9 +44,8 @@ export class JuelDialog extends ItemBase {
                 let trigger = document.querySelector(this.trigger);
                 console.log(trigger)
                 if (trigger) {
-                    let me = this;
                     trigger.addEventListener('click', () => {
-                        me.show();
+                        this.show();
                     })
                 }
             }

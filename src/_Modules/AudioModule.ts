@@ -1,6 +1,6 @@
 import { OneAtATime } from "./Audio/OneAtATime";
 
-export module AudioModule {
+export namespace AudioModule {
     /** One sound at a time unless `layered` (on by default): see Audio/OneAtATime.ts. */
     export var oneAtATime = OneAtATime;
 
