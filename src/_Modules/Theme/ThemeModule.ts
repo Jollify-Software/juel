@@ -1,6 +1,6 @@
 import { LookAttribute, LookCss, LookStyleId } from "./ThemeLook";
 
-export module ThemeModule {
+export namespace ThemeModule {
     const storageKey = "juel-theme";
     export const changedEvent = "theme-changed";
 

@@ -8,7 +8,7 @@ import Styles from 'bundle-text:./MessageBoxStyles.less'
 import { ElementFromHtml } from "../../_Utils/dom/ElementFromHtml";
 import { EscapeHtml } from "../../_Utils/EscapeHtml";
 
-export module MessageBoxModule {
+export namespace MessageBoxModule {
 
     let shown: boolean = false;
 

@@ -44,7 +44,6 @@ export class GoogleMapProvider implements IMapProvider {
   const position = { lat: -25.344, lng: 131.031 };
 
   // Request needed libraries.
-  //@ts-ignore
   const { Map } = await google.maps.importLibrary("maps") as google.maps.MapsLibrary;
   const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
 
@@ -81,7 +80,6 @@ export class GoogleMapProvider implements IMapProvider {
           fields: ['displayName', 'location', 'businessStatus']
       };
   
-      //@ts-ignore
       const { places } = await Place.searchByText(request);
   
       if (places.length) {

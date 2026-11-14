@@ -1,7 +1,7 @@
 import { GuideOptions, VisualGuide } from "./Guide";
 import { GuideStepInput, isSeen, resetSeen as forget } from "./GuideStep";
 
-export module GuideModule {
+export namespace GuideModule {
     var guide: VisualGuide | null = null;
 
     /**

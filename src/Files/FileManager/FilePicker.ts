@@ -114,6 +114,7 @@ export class JuelFilePicker extends LitElement {
 
     /** Everything else on the page, while the picker is open (the modal <dialog> blocks it too; this keeps it so in older browsers). */
     private makeRestInert() {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias -- a walk up from this element, not an alias
         let top: Element = this;
         while (top.parentElement && top.parentElement !== document.body) top = top.parentElement;
         for (const child of [...document.body.children] as HTMLElement[]) {

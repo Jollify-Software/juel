@@ -114,6 +114,7 @@ export class Colour extends LitElement {
         const popup = this.shadowRoot?.querySelector('.popup') as HTMLElement | null;
         if (!popup) return;
         let right = document.documentElement.clientWidth;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias -- a walk up from this element, not an alias
         for (let n: Node | null = this; (n = n instanceof ShadowRoot ? n.host : (n as Element).parentNode ?? null);) {
             if (!(n instanceof Element)) continue;
             if (/auto|scroll|hidden|clip/.test(getComputedStyle(n).overflowX)) right = Math.min(right, n.getBoundingClientRect().right);

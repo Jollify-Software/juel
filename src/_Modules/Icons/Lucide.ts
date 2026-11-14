@@ -1,4 +1,3 @@
-/// <reference path="../../svg.d.ts" />
 // Lucide line icons (https://lucide.dev, ISC licence: icons/lucide/LICENSE),
 // inlined from the lucide-static devDependency as data URLs in the script, not
 // on :root, so a page pays for them only in juel.js. Only the icons named here

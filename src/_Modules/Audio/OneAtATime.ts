@@ -45,7 +45,7 @@ function onPlay(event: Event): void {
     }
 }
 
-export module OneAtATime {
+export namespace OneAtATime {
     /** Turns the rule on (juel.js does this as it loads). */
     export function enable(): void {
         if (enabled) return;

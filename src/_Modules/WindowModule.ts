@@ -6,7 +6,7 @@ import bind from "bind-decorator";
 (window as any).reverseString = ReverseString;
 (window as any).mailToReverse = MailToReverse;
 
-export module WindowModule {
+export namespace WindowModule {
     
     var documentClickListeners: { [id: string]: (e: MouseEvent) => void };
 

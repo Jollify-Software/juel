@@ -83,7 +83,7 @@ export function tipText(text: string, shortcut?: string | null): TipText {
     return { text: text.trim(), keys };
 }
 
-export module TipsModule {
+export namespace TipsModule {
     let on = false;
     let tip: HTMLDivElement | null = null;
     let current: Element | null = null;

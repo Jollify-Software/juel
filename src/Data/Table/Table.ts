@@ -140,7 +140,7 @@ export class JuelTable extends LitElement {
       case ' ':
         event.preventDefault();
         if (this.selection === SelectionMode.Check) {
-          this.selectedRows.has(index) ? this.selectedRows.delete(index) : this.selectedRows.add(index);
+          if (this.selectedRows.has(index)) this.selectedRows.delete(index); else this.selectedRows.add(index);
           this.dispatchEvent(new CustomEvent(TableEvents.RowSelected, {
             detail: { selectedRows: Array.from(this.selectedRows) },
             bubbles: true,

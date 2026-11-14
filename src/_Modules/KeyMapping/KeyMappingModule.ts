@@ -7,7 +7,7 @@ function allTrue(obj) {
     return true;
 }
 
-module KeyMapping {
+namespace KeyMapping {
     let keyMaps: KeyMap[] = [];
 
     export var clear = () => {
