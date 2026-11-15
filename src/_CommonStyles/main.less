@@ -8,7 +8,8 @@
 @import './Document.less';
 @import './sizes.less';
 
-body {
+// :where(body): no specificity, so a page's own body styles win over this default (jollify TODO "Juel's global stylesheet resets body's colours").
+:where(body) {
     margin: 0;
     font-family: var(--body-font-family);
     font-size: var(--body-font-size);
