@@ -1,4 +1,5 @@
 import { AudioModule } from "./AudioModule";
+import { DemoModule } from "./Demo/DemoModule";
 import { DeviceModule } from "./Device/DeviceModule";
 import { GuideModule } from "./Guide/GuideModule";
 import { IconsModule } from "./Icons/IconsModule";
@@ -18,6 +19,9 @@ export namespace JuelModule {
     export var toast = ToastModule;
 
     export var guide = GuideModule;
+
+    /** Demos played by a ghost hand, or coached (src/_Modules/Demo/README.md). */
+    export var demo = DemoModule;
 
     export var device = DeviceModule;
 

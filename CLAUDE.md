@@ -41,6 +41,11 @@ Jest + ts-jest is configured but test coverage is thin (`tests/util/`, `tests/Me
   geometric / icon glyph / image) and a `clip-path` hover-morph. **Read
   `src/Display/Shape/README.md` before touching the component, `ClipShapes`, or the morph code.**
 
+- **Demos** (`juel.demo`, `src/_Modules/Demo/`): a ghost hand plays a script in the real page with
+  synthetic pointer/key events (hover, pointer capture, drag-and-drop, typing, iframes). **Read its
+  `README.md` before changing it**; a component that ignores untrusted events or only opens on CSS
+  `:hover` can't be demonstrated (that's why `juel-menu-item` opens on `pointerenter`).
+
 - **Files** (`src/Files/`): a file manager over any `IFileStorage` (memory, browser OPFS + IndexedDB, later a server).
   **Read `src/Files/README.md` first**; the shared storage contract is `tests/shared/storageContract.ts`.
 

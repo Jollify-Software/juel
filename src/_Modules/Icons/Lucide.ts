@@ -92,6 +92,9 @@ import zap from 'data-url:lucide-static/icons/zap.svg';
 import palette from 'data-url:lucide-static/icons/palette.svg';
 import arrowRightLeft from 'data-url:lucide-static/icons/arrow-right-left.svg';
 import play from 'data-url:lucide-static/icons/play.svg';
+import pause from 'data-url:lucide-static/icons/pause.svg';
+import stepForward from 'data-url:lucide-static/icons/step-forward.svg';
+import rotateCcw from 'data-url:lucide-static/icons/rotate-ccw.svg';
 import square from 'data-url:lucide-static/icons/square.svg';
 import circle from 'data-url:lucide-static/icons/circle.svg';
 import x from 'data-url:lucide-static/icons/x.svg';
@@ -242,6 +245,9 @@ export const LucideIcons: Record<string, string> = {
     'palette': palette,
     'arrow-right-left': arrowRightLeft,
     'play': play,
+    'pause': pause,
+    'step-forward': stepForward,
+    'rotate-ccw': rotateCcw,
     'square': square,
     'circle': circle,
     'x': x,
