@@ -104,9 +104,38 @@
                 <output id="done-count">0</output>
             </div>
         </div>
+        <div class="row">
+            <div class="panel">
+                <p>A sandboxed frame (an opaque origin, as a juel-frame preview is): the page can't reach in, so
+                the frame turns on <code>juel.demo.agent()</code> and the demo acts in it through messages.</p>
+                <iframe id="sandboxed" sandbox="allow-scripts" title="Sandboxed" style="width: 420px; height: 150px; border: 1px solid var(--juel-border, #dee2e6)"
+                    srcdoc="<!doctype html><html><head><script src='../../dist/juel.js'></script><style>
+                        body { font: 16px system-ui, sans-serif; margin: 12px; }
+                        #knob { display: inline-block; padding: 8px 14px; background: #fde68a; border-radius: 6px; cursor: grab; touch-action: none; }
+                    </style></head><body>
+                    <button id='press'>Press me</button> <span id='presses'>0</span>
+                    <p><span id='knob'>Drag me</span></p>
+                    <script>
+                        juel.demo.agent();
+                        var n = 0, knob = document.getElementById('knob'), start = null, dx = 0;
+                        document.getElementById('press').addEventListener('click', function () {
+                            document.getElementById('presses').textContent = String(++n);
+                            parent.postMessage({ sandboxPresses: n }, '*');
+                        });
+                        knob.addEventListener('pointerdown', function (e) { knob.setPointerCapture(e.pointerId); start = e.clientX - dx; });
+                        knob.addEventListener('pointermove', function (e) { if (start === null) return; dx = e.clientX - start; knob.style.transform = 'translateX(' + dx + 'px)'; });
+                        knob.addEventListener('pointerup', function () { start = null; parent.postMessage({ sandboxMoved: Math.round(dx) }, '*'); });
+                    </script></body></html>"></iframe>
+            </div>
+        </div>
     </section>
 
     <script>
+        window.sandbox = { presses: 0, moved: null };
+        window.addEventListener('message', e => {
+            if (typeof e.data?.sandboxPresses === 'number') window.sandbox.presses = e.data.sandboxPresses;
+            if (typeof e.data?.sandboxMoved === 'number') window.sandbox.moved = e.data.sandboxMoved;
+        });
         const slide = document.getElementById('slide');
         document.getElementById('split').addEventListener('menu-select', e => {
             const v = e.detail.value;

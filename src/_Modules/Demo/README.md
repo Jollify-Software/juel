@@ -53,6 +53,21 @@ middle), `timeout` (ms to wait for the target) and, for coach mode, `check`.
 same-origin iframe** (`'juel-frame >>> iframe >>> h1 .char-3'`), an element, or
 a function. The same targets work in `juel.guide` (`../Guide/GuideTarget.ts`).
 
+## Sandboxed frames (the agent)
+
+A frame with an opaque origin (`sandbox="allow-scripts"`, as `juel-frame` makes by default for a
+deck preview) can't be reached by the page's script. Inside such a frame, call
+**`juel.demo.agent()`** (or `installDemoAgent()` from `DemoAgent.ts`, as Jetty's embed does): the
+demo then finds things and acts in the frame by `postMessage`, and the agent listens only to its
+parent window. Target it as `{ frame: iframeElement, selector: '…' }`, or with a selector string
+that runs into the frame (`'#preview >>> .slide-2 h1'`). Click, double-click, point, drag, type,
+keys and waiting all work; `choose` doesn't (click a menu's items in turn instead). While the hand
+plays, the agent keeps the person's own input out of the frame too and tells the page when they
+press, so the demo pauses. Coach mode rings the target and the agent says when the person clicks it.
+The messages are listed at the top of `DemoAgent.ts`.
+
+At the end of a played demo the focus goes back to what had it before.
+
 ## Options
 
 `play(script, options)` / `coach(script, options)`: `speed` (1; the bar goes ½×

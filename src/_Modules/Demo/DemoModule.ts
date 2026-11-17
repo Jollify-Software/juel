@@ -11,6 +11,7 @@
 // The README beside this file has every step and option.
 import { DemoOptions, DemoRun } from "./DemoRunner";
 import { DemoScript, DemoStepInput, toDemoSteps } from "./DemoScript";
+import { installDemoAgent } from "./DemoAgent";
 
 export namespace DemoModule {
     var current: DemoRun | null = null;
@@ -36,6 +37,12 @@ export namespace DemoModule {
 
     /** The demo playing (or held at its end), if any. */
     export var active = () => current && !(current.ended && !document.querySelector("juel-demo-bar")) ? current : null;
+
+    /**
+     * Inside a sandboxed frame (an opaque origin the page can't reach): lets the page's demos find things
+     * and act here, through messages (DemoAgent.ts). Only the parent window is listened to.
+     */
+    export var agent = () => installDemoAgent();
 
     /** Checks a script without playing it: throws on the first mistake (a step with two actions, say). */
     export var check = (script: DemoScript | DemoStepInput[]) => {

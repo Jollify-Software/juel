@@ -2,7 +2,7 @@
 // action key per step ({ click: '.save', say: 'Save it' }), normalised into
 // one shape the runner (DemoRunner.ts) plays. Pure: no DOM, so it's unit-tested
 // (tests/Demo/DemoScript.test.ts), with the timing and curve helpers.
-import { GuideTarget } from "../Guide/GuideTarget";
+import type { DemoTarget as GuideTarget } from "./DemoRemote";
 
 /** Where on its target the pointer goes: fractions of its box (0.5, 0.5 is the middle). */
 export interface DemoAt { x: number; y: number; }

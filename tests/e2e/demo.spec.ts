@@ -125,3 +125,32 @@ test('coach mode: Show me plays the step with the hand, then goes on', async ({ 
     await page.locator('juel-demo-bar .next').click();
     await expect.poll(async () => (await ends(page)).length).toBe(1);
 });
+
+test('a sandboxed frame (opaque origin): the hand clicks and drags in it through its agent', async ({ page }) => {
+    await open(page);
+    // The frame's own juel.js has loaded and its agent is on.
+    await page.frameLocator('#sandboxed').locator('#press').waitFor();
+    await page.waitForTimeout(500);
+    await page.evaluate(() => (window as any).juel.demo.play([
+        { click: '#sandboxed >>> #press', say: 'Press the button in the frame.' },
+        { dblclick: { frame: document.getElementById('sandboxed'), selector: '#press' } },
+        { drag: '#sandboxed >>> #knob', to: { dx: 60, dy: 0 } },
+    ], { speed: 4 }));
+    await expect.poll(async () => (await ends(page)).length, { timeout: 20_000 }).toBe(1);
+    expect((await ends(page))[0]).toMatchObject({ result: 'finished' });
+    expect(await page.evaluate(() => (window as any).sandbox.presses)).toBe(3);
+    const moved = await page.evaluate(() => (window as any).sandbox.moved);
+    expect(moved).toBeGreaterThanOrEqual(56);
+    expect(moved).toBeLessThanOrEqual(64);
+});
+
+test('coach mode in a sandboxed frame: the agent says when the person clicks the target', async ({ page }) => {
+    await open(page);
+    await page.frameLocator('#sandboxed').locator('#press').waitFor();
+    await page.waitForTimeout(500);
+    await page.evaluate(() => (window as any).juel.demo.coach([{ click: '#sandboxed >>> #press', say: 'Press it.' }]));
+    await expect(page.locator('juel-ghost').locator('.ring')).toBeVisible();
+    await page.frameLocator('#sandboxed').locator('#press').click();
+    await expect.poll(async () => (await ends(page)).length).toBe(1);
+    expect((await ends(page))[0]).toMatchObject({ result: 'finished' });
+});

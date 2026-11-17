@@ -12,10 +12,15 @@
 //   (dragstart, dragenter/over/leave, drop, dragend) with a DataTransfer.
 // - Typing goes through `beforeinput`/`input` and setRangeText for fields, and
 //   execCommand('insertText') for contenteditable (CodeMirror included).
+// - A sandboxed frame the page can't reach gets the pointer through its agent
+//   (DemoAgent.ts): moves, the press and the release go to it as messages, in
+//   its own px, and it sends the events inside; so do keys and typing while it
+//   has the focus.
 // Events carry `isTrusted: false`; the runner uses that to tell the person's
 // own input from the demo's (DemoRunner.ts).
 import { KeyCombo, Point } from "./DemoScript";
 import { Hit, composedChain, composedContains, composedParent, deepActiveElement, frameMap, hitAt, toLocal, windowOf } from "./DemoGeometry";
+import { iframeMap, isOpaqueFrame, tell } from "./DemoRemote";
 
 /** The demo pointer's id: not one a real device uses. */
 export const DemoPointerId = 7311;
@@ -34,6 +39,9 @@ export class DemoPointer {
     private patched = new Map<Window, Capturable>();
     private drag: { source: Element; data: DataTransfer; over: Element | null; accepted: boolean } | null = null;
     private dragSource: Element | null = null;
+    /** The unreachable frame the pointer is over, and the one it was pressed in (which keeps it till it's let go). */
+    private remoteOver: HTMLIFrameElement | null = null;
+    private remotePressed: HTMLIFrameElement | null = null;
     /** Where the pointer is, on the top page. */
     public at: Point = { x: -1, y: -1 };
     /** Called just before each hit test, so the runner can make its own parts transparent. */
@@ -44,6 +52,10 @@ export class DemoPointer {
     /** Moves the pointer to `page` (top-page coordinates): hover changes and a move event. */
     public move(page: Point): void {
         this.at = page;
+        if (this.remotePressed) {
+            this.toFrame(this.remotePressed, "move");
+            return;
+        }
         if (this.captured) {
             this.send(this.captured, "pointermove", page);
             this.send(this.captured, "mousemove", page);
@@ -56,6 +68,12 @@ export class DemoPointer {
             return;
         }
         this.hover(hit);
+        if (isOpaqueFrame(hit.el)) {
+            this.remoteOver = hit.el;
+            this.toFrame(hit.el, "move");
+            return;
+        }
+        this.leaveFrame();
         this.send(hit.el, "pointermove", page);
         this.send(hit.el, "mousemove", page);
         if (this.pressed && this.dragSource && this.downAt && Math.hypot(page.x - this.downAt.x, page.y - this.downAt.y) > 4) this.startDrag(hit);
@@ -66,6 +84,14 @@ export class DemoPointer {
         const hit = this.hit(this.at);
         if (!hit) return;
         this.hover(hit);
+        if (isOpaqueFrame(hit.el)) {
+            // Pressed in an unreachable frame: it gets the press, the moves and the release.
+            this.pressed = true;
+            this.remotePressed = this.remoteOver = hit.el;
+            hit.el.focus({ preventScroll: true });
+            this.toFrame(hit.el, "down", detail);
+            return;
+        }
         this.pressed = true;
         this.downEl = hit.el;
         this.downAt = this.at;
@@ -80,6 +106,11 @@ export class DemoPointer {
     public up(detail = 1): void {
         if (!this.pressed) return;
         this.pressed = false;
+        if (this.remotePressed) {
+            this.toFrame(this.remotePressed, "up", detail);
+            this.remotePressed = null;
+            return;
+        }
         if (this.drag) {
             this.endDrag();
             this.downEl = null;
@@ -109,6 +140,8 @@ export class DemoPointer {
 
     /** Stops whatever's under way (a press, a capture, a drag) and leaves everything hovered. */
     public cancel(): void {
+        this.remotePressed = null;
+        this.leaveFrame();
         if (this.drag) {
             const d = this.drag;
             this.drag = null;
@@ -129,6 +162,10 @@ export class DemoPointer {
     /** Sends a key (with its modifiers) to what has the focus, and does the few defaults a page relies on. */
     public key(combo: KeyCombo): void {
         const el = deepActiveElement(this.top.document) ?? this.top.document.body;
+        if (isOpaqueFrame(el)) {
+            tell(el, { juelDemo: "key", combo });
+            return;
+        }
         const win = windowOf(el) as typeof window;
         const init = { key: combo.key, code: combo.code, ctrlKey: combo.ctrlKey, shiftKey: combo.shiftKey, altKey: combo.altKey, metaKey: combo.metaKey, bubbles: true, cancelable: true, composed: true, view: win };
         const go = el.dispatchEvent(new win.KeyboardEvent("keydown", init));
@@ -140,7 +177,23 @@ export class DemoPointer {
     public typeChar(ch: string): void {
         const el = deepActiveElement(this.top.document);
         if (!el) return;
-        insertText(el, ch);
+        if (isOpaqueFrame(el)) tell(el, { juelDemo: "type", text: ch });
+        else insertText(el, ch);
+    }
+
+    // ---- unreachable frames -------------------------------------------
+
+    /** Tells an unreachable frame's agent the pointer's move, press or release, at the point in its own px. */
+    private toFrame(frame: HTMLIFrameElement, kind: "move" | "down" | "up", detail = 1): void {
+        const local = toLocal(iframeMap(frame, this.top), this.at);
+        tell(frame, { juelDemo: "pointer", kind, x: local.x, y: local.y, detail });
+    }
+
+    /** The pointer has left the unreachable frame it was over. */
+    private leaveFrame(): void {
+        if (!this.remoteOver) return;
+        tell(this.remoteOver, { juelDemo: "pointer", kind: "leave" });
+        this.remoteOver = null;
     }
 
     // ---- hover ---------------------------------------------------------

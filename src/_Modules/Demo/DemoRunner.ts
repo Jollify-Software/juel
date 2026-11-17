@@ -13,7 +13,8 @@
 // `demo-replay`, and `demo-end` { result: 'finished' | 'stopped' | 'failed', index, error }.
 import { GuideTarget, resolveTarget } from "../Guide/GuideTarget";
 import { DemoControl, DemoSpeeds, JuelDemoBar as DemoBar } from "./DemoBar";
-import { bringIntoView, composedContains, deepActiveElement, isShown, pagePoint, pageRect, windowOf } from "./DemoGeometry";
+import { PageRect, bringIntoView, composedContains, deepActiveElement, isShown, pagePoint, pageRect, windowOf } from "./DemoGeometry";
+import { DemoTarget, RemoteTarget, findRemote, isNode, isRemoteTarget, splitAtOpaqueFrame, tell } from "./DemoRemote";
 import { DemoPointer } from "./DemoInput";
 import { DemoAt, DemoScript, DemoStep, DemoStepInput, KeyCombo, Point, arcPoint, ease, glideTime, itemMatches, readingTime, toDemoSteps } from "./DemoScript";
 // Registers <juel-ghost> and <juel-demo-bar> (used here by tag name, so a type-only import would drop them).
@@ -77,7 +78,15 @@ const frame = () => new Promise<void>(r => {
     const t = setTimeout(() => { cancelAnimationFrame(id); r(); }, 40);
 });
 
-function describe(target: GuideTarget | undefined): string {
+/** Where a step acts: an element of the page, or something in a sandboxed frame (and where it was last seen). */
+type Spot = Element | { remote: RemoteTarget; rect: PageRect };
+
+function isRemoteSpot(spot: Spot): spot is { remote: RemoteTarget; rect: PageRect } {
+    return !isNode(spot) && "remote" in spot;
+}
+
+function describe(target: DemoTarget | undefined): string {
+    if (isRemoteTarget(target)) return `"${target.selector}" in its frame`;
     return typeof target === "string" ? `"${target}"` : target ? "its target" : "nothing";
 }
 
@@ -102,6 +111,10 @@ export class DemoRun {
     private over = false;
     private wake: (() => void) | null = null;
     private guarded = new Set<Window>();
+    /** What had the focus before the demo: it gets it back at the end (the hand moves the focus as it clicks). */
+    private focusBefore: Element | null = null;
+    /** Sandboxed frames told to keep the person's input out (their agents guard them). */
+    private guardedFrames = new Set<Element>();
     private coachListeners: { win: Window; type: string; fn: (e: Event) => void }[] = [];
     private coachNext: (() => void) | null = null;
     private showing = false;
@@ -148,9 +161,19 @@ export class DemoRun {
         // The hand comes up from the bar.
         this.ghost.moveTo({ x: window.innerWidth / 2, y: window.innerHeight - 150 });
         if (this.mode === "play") this.guard(window);
+        this.focusBefore = document.activeElement;
+        window.addEventListener("message", this.onFrameMessage);
         void this.loop();
         return this;
     }
+
+    /** A sandboxed frame's agent: the person pressed or typed in it while the hand plays. */
+    private onFrameMessage = (e: MessageEvent) => {
+        if (e.data?.juelDemoEvent !== "interrupt" || this.over || this.mode !== "play") return;
+        if (e.data.key === "Escape") this.stop();
+        else if (e.data.key === " ") { if (this._paused) this.resume(); else this.pause(); }
+        else this.pause("Paused: press Play to go on");
+    };
 
     public pause(note = "") {
         if (this.over || this.mode === "coach") return;
@@ -279,12 +302,23 @@ export class DemoRun {
     private cleanUp(all: boolean) {
         this.pointer.dispose();
         this.unguard();
+        if (all) window.removeEventListener("message", this.onFrameMessage);
+        this.giveFocusBack();
         this.clearCoach();
         this.ghost.pressed = false;
         this.ghost.ring(null);
         this.ghost.remove();
         if (all) this.bar?.remove();
         this.wake = null;
+    }
+
+    /** The focus back where it was before the hand moved it (play mode: in coach mode the person moved it). */
+    private giveFocusBack() {
+        if (this.mode !== "play") return;
+        const before = this.focusBefore as HTMLElement | null;
+        if (document.activeElement === before) return;
+        if (before && before.isConnected && before !== document.body) before.focus({ preventScroll: true });
+        else (document.activeElement as HTMLElement | null)?.blur?.();
     }
 
     private fire(type: string, detail: unknown) {
@@ -316,19 +350,50 @@ export class DemoRun {
 
     // ---- finding things ---------------------------------------------
 
-    private async find(target: GuideTarget | undefined, step: DemoStep, i: number): Promise<Element> {
+    private async find(target: DemoTarget | undefined, step: DemoStep, i: number): Promise<Spot> {
         if (target === undefined) throw new Error(`Step ${i + 1}: no target.`);
         const until = Date.now() + (step.timeout ?? this.options.timeout);
         for (; ;) {
             await this.gate();
-            const el = resolveTarget(target, this.options.root ?? document);
-            if (el && isShown(el)) {
-                this.watchFrames(el);
-                return el;
-            }
+            const spot = await this.locate(target);
+            if (spot) return spot;
             if (Date.now() >= until) throw new Error(`Step ${i + 1} (${step.action}): ${describe(target)} isn't on the page.`);
             await raw(50);
         }
+    }
+
+    /** A target that's in a sandboxed frame, as its frame and selector; null for one on the page. */
+    private remoteOf(target: DemoTarget | undefined): RemoteTarget | null {
+        let t: unknown = target;
+        if (typeof t === "function") t = (t as () => unknown)();
+        if (isRemoteTarget(t)) return t;
+        if (typeof t === "string") return splitAtOpaqueFrame(t, this.options.root ?? document);
+        return null;
+    }
+
+    /** A target on the page, now (null if it's in a sandboxed frame, or not there). */
+    private local(target: DemoTarget | undefined): Element | null {
+        if (target === undefined) return null;
+        let t: unknown = target;
+        if (typeof t === "function") t = (t as () => unknown)();
+        if (!t || isRemoteTarget(t)) return null;
+        if (typeof t === "string") return splitAtOpaqueFrame(t, this.options.root ?? document) ? null : resolveTarget(t, this.options.root ?? document);
+        return isNode(t) && t.nodeType === 1 && t.isConnected ? t as Element : null;
+    }
+
+    /** Where `target` is now, if it shows. */
+    private async locate(target: DemoTarget): Promise<Spot | null> {
+        const remote = this.remoteOf(target);
+        if (remote) {
+            const found = await findRemote(remote);
+            if (!found?.shown) return null;
+            this.guardFrame(remote.frame);
+            return { remote, rect: found.rect };
+        }
+        const el = this.local(target);
+        if (!el || !isShown(el)) return null;
+        this.watchFrames(el);
+        return el;
     }
 
     /** Keeps the person's input out of (play) a frame the demo works in. */
@@ -337,10 +402,25 @@ export class DemoRun {
         for (let w: Window | null = windowOf(el); w && w !== window; w = w.parent === w ? null : w.parent) this.guard(w);
     }
 
-    private async pointAt(el: Element, at: DemoAt): Promise<Point> {
-        bringIntoView(el);
+    private async pointAt(spot: Spot, at: DemoAt): Promise<Point> {
+        if (isRemoteSpot(spot)) {
+            // The frame scrolled into view on the page, the target in its frame, then measured again.
+            bringIntoView(spot.remote.frame);
+            const found = await findRemote(spot.remote, true);
+            await frame();
+            const again = (await findRemote(spot.remote))?.rect ?? found?.rect ?? spot.rect;
+            return { x: again.left + again.width * at.x, y: again.top + again.height * at.y };
+        }
+        bringIntoView(spot);
         await frame();
-        return pagePoint(el, at);
+        return pagePoint(spot, at);
+    }
+
+    /** Keeps the person's input out of a sandboxed frame the hand works in (its agent does). */
+    private guardFrame(frame: Element) {
+        if ((this.mode !== "play" && !this.showing) || this.guardedFrames.has(frame)) return;
+        this.guardedFrames.add(frame);
+        tell(frame, { juelDemo: "guard", on: true });
     }
 
     // ---- the hand ------------------------------------------------------
@@ -439,7 +519,7 @@ export class DemoRun {
             case "type": {
                 if (step.target !== undefined) {
                     const el = await this.find(step.target, step, i);
-                    if (!composedContains(el, deepActiveElement()) && !this.focusInside(el)) {
+                    if (isRemoteSpot(el) || (!composedContains(el, deepActiveElement()) && !this.focusInside(el))) {
                         await this.glide(await this.pointAt(el, step.at));
                         await this.sleep(120);
                         await this.press(1);
@@ -509,6 +589,7 @@ export class DemoRun {
 
     private async choose(step: DemoStep, i: number) {
         const el = await this.find(step.target, step, i);
+        if (isRemoteSpot(el)) throw new Error(`Step ${i + 1} (choose): a menu in a sandboxed frame can't be chosen from; click its items instead.`);
         const { menu, trigger } = this.menuParts(el);
         const path = step.item!;
         // Open it, unless it's open already (its first item shows).
@@ -585,9 +666,9 @@ export class DemoRun {
 
     private async dragEnd(step: DemoStep, i: number, start: Point): Promise<Point> {
         const to = step.to!;
-        if (typeof to === "object" && to !== null && "dx" in to && !(to instanceof Element)) return { x: start.x + to.dx, y: start.y + to.dy };
-        const el = await this.find(to as GuideTarget, step, i);
-        return pagePoint(el, step.toAt);
+        if (typeof to === "object" && to !== null && "dx" in to && !isNode(to)) return { x: start.x + to.dx, y: start.y + to.dy };
+        const spot = await this.find(to as DemoTarget, step, i);
+        return this.pointAt(spot, step.toAt);
     }
 
     private async drag(step: DemoStep, i: number) {
@@ -631,7 +712,7 @@ export class DemoRun {
                 await raw(50);
             }
         }
-        await this.find(w as GuideTarget, step, i);
+        await this.find(w as DemoTarget, step, i);
     }
 
     /** An `event` step listens from the start of the step before it, so an event that comes quickly isn't missed. */
@@ -642,7 +723,7 @@ export class DemoRun {
             const on = s.on;
             let target: EventTarget | null = null;
             if (on === undefined) target = document;
-            else if (typeof on === "object" && on !== null && "addEventListener" in on && !(on instanceof Element)) target = on as EventTarget;
+            else if (typeof on === "object" && on !== null && "addEventListener" in on && !isNode(on)) target = on as EventTarget;
             else target = resolveTarget(on as GuideTarget, this.options.root ?? document);
             if (!target) continue;
             const t = target;
@@ -674,6 +755,8 @@ export class DemoRun {
     }
 
     private unguard() {
+        for (const frame of this.guardedFrames) tell(frame, { juelDemo: "guard", on: false });
+        this.guardedFrames.clear();
         for (const win of this.guarded) {
             try {
                 for (const type of TrustedTypes) win.removeEventListener(type, this.onTrusted, { capture: true });
@@ -731,9 +814,9 @@ export class DemoRun {
     }
 
     /** Puts the caption beside a target (or above the bar). */
-    private place(el: Element | null) {
+    private place(el: Element | PageRect | null) {
         if (el) {
-            const r = pageRect(el);
+            const r = isNode(el) ? pageRect(el as Element) : el as PageRect;
             this.ghost.moveTo({ x: r.left + Math.min(r.width, 40), y: r.top + r.height - 30 });
             this.ghost.ring(r);
         } else {
@@ -761,6 +844,8 @@ export class DemoRun {
                 finished = true;
                 clearInterval(poll);
                 this.clearCoach();
+                window.removeEventListener("message", onWatch);
+                if (watching && remote) tell(remote.frame, { juelDemo: "unwatch", id: watching });
                 resolve(how);
             };
             this.coachNext = () => finish(this.showing ? "show" : "next");
@@ -769,7 +854,10 @@ export class DemoRun {
             this.setCaps(step.keys?.caps ?? []);
             let ringed: Element | null = null;
             let downAt: { el: Element; x: number; y: number } | null = null;
-            const target = () => step.target === undefined ? null : resolveTarget(step.target, this.options.root ?? document);
+            const target = () => this.local(step.target);
+            const remote = this.remoteOf(step.target);
+            let watching: string | null = null;
+            const onWatch = (e: MessageEvent) => { if (watching && e.data?.juelDemoEvent === watching) finish("done"); };
             const isIn = (e: Event, el: Element | null) => !!el && e.composedPath().includes(el);
             const listenAll = (el: Element | null) => {
                 this.clearCoach();
@@ -799,9 +887,25 @@ export class DemoRun {
                 }
             };
             listenAll(null);
+            if (remote && (step.action === "click" || step.action === "dblclick")) {
+                // In a sandboxed frame: its agent says when the person clicks it.
+                watching = `w${i}-${Date.now()}`;
+                window.addEventListener("message", onWatch);
+                tell(remote.frame, { juelDemo: "watch", id: watching, selector: remote.selector, kind: step.action });
+            }
+            let measuring = false;
             const poll = setInterval(() => {
                 if (this.stopping || this.restarting) { finish("next"); return; }
                 if (step.check?.()) { finish("done"); return; }
+                if (remote) {
+                    if (measuring) return;
+                    measuring = true;
+                    void findRemote(remote).then(found => {
+                        measuring = false;
+                        if (!finished) this.place(found?.shown ? found.rect : null);
+                    });
+                    return;
+                }
                 let el: Element | null = null;
                 if (step.action === "choose") {
                     const t = target();
@@ -840,7 +944,7 @@ export class DemoRun {
 
     /** The deepest item of a choose step's path that shows now. */
     private lastShowingItem(step: DemoStep): Element | null {
-        const el = step.target === undefined ? null : resolveTarget(step.target, this.options.root ?? document);
+        const el = this.local(step.target);
         if (!el) return null;
         let scope: Element = this.menuParts(el).menu;
         let found: Element | null = null;
@@ -855,7 +959,7 @@ export class DemoRun {
 
     /** A choose step's final item, if it shows. */
     private lastItem(step: DemoStep): Element | null {
-        const el = step.target === undefined ? null : resolveTarget(step.target, this.options.root ?? document);
+        const el = this.local(step.target);
         if (!el) return null;
         let scope: Element = this.menuParts(el).menu;
         let item: Element | null = null;
