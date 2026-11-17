@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Demo — Juel Examples</title>
+    <script src="../../dist/juel.js"></script>
+    <link rel="stylesheet" href="../_Shared/examples.css" />
+    <style>
+        .row { display: flex; gap: 16px; align-items: flex-start; margin: 1rem 0; flex-wrap: wrap; }
+        .panel { padding: .75rem 1rem; border: 1px solid var(--juel-border, #dee2e6); border-radius: .375rem; min-width: 220px; }
+        .frame-box { width: 480px; height: 240px; overflow: hidden; border: 1px solid var(--juel-border, #dee2e6); border-radius: .375rem; }
+        /* Scaled, as juel-frame shrinks a slide to fit: the demo maps its points through the scale. */
+        #slide { width: 640px; height: 320px; border: 0; transform: scale(.75); transform-origin: 0 0; }
+        #rows { list-style: none; padding: 0; margin: 0; }
+        #rows li { padding: 6px 10px; margin: 4px 0; border: 1px solid var(--juel-border, #dee2e6); border-radius: 4px; background: var(--juel-surface, #fff); cursor: grab; }
+        #rows li.drop { border-top: 3px solid var(--juel-accent, #2563eb); }
+        #note { min-height: 3em; padding: 6px; border: 1px solid var(--juel-border, #dee2e6); border-radius: 4px; }
+        output { display: block; font-size: 13px; color: var(--juel-text-muted, #5c616b); }
+    </style>
+</head>
+
+<body>
+    <juel-embed type="html" url="../_Shared/header.html"></juel-embed>
+
+    <header class="example-header">
+        <h1>Demo</h1>
+        <p>
+            <code>juel.demo.play(script)</code> plays a demo: a ghost hand moves to each control, opens menus,
+            drags (into a scaled iframe, with pointer capture, and HTML drag-and-drop), types and presses
+            keys, with real events, and a caption says what it's doing. The bar pauses, steps, changes speed,
+            starts again or stops; your own clicks pause it. <code>juel.demo.coach(script)</code> is the same
+            script for you to do: the target is ringed and each step waits for you.
+            Open with <code>?look&amp;theme=dark</code> for the dark look.
+        </p>
+    </header>
+
+    <section class="example-section">
+        <div class="row">
+            <juel-button type="primary" label="Show me" id="play"></juel-button>
+            <juel-button type="secondary" render-style="outline" label="Try it" id="coach"></juel-button>
+            <output id="result"></output>
+        </div>
+
+        <div class="row">
+            <div class="panel">
+                <juel-menu id="split" trigger="click">
+                    <juel-button slot="trigger" type="light" caret label="Split into" class="split-trigger"></juel-button>
+                    <juel-menu-item value="none" label="Not split"></juel-menu-item>
+                    <juel-menu-item value="words" label="Words"></juel-menu-item>
+                    <juel-menu-item value="chars" label="Letters"></juel-menu-item>
+                    <juel-menu-item value="lines" label="Lines"></juel-menu-item>
+                    <juel-menu-item label="Reveal ▸">
+                        <juel-menu-item value="fade-in" label="Fade in"></juel-menu-item>
+                        <juel-menu-item value="zoom-in" label="Zoom in"></juel-menu-item>
+                    </juel-menu-item>
+                </juel-menu>
+                <output id="chosen">Nothing chosen</output>
+            </div>
+            <div class="frame-box">
+                <iframe id="slide" title="Slide" srcdoc="<!doctype html><html><head><style>
+                    body { margin: 0; font: 48px/1.2 system-ui, sans-serif; display: grid; place-items: center; height: 100vh; background: #fdf6e3; }
+                    h1 { margin: 0; user-select: none; }
+                    h1 span { display: inline-block; cursor: grab; touch-action: none; }
+                </style></head><body><h1 id='heading'>Welcome</h1>
+                <script>
+                    // Split the heading into letters, each draggable with pointer capture.
+                    window.split = function () {
+                        var h = document.getElementById('heading');
+                        var text = h.textContent;
+                        h.innerHTML = '';
+                        Array.from(text).forEach(function (c, i) {
+                            var s = document.createElement('span');
+                            s.className = 'char char-' + (i + 1);
+                            s.textContent = c;
+                            var start = null, dx = 0, dy = 0;
+                            s.addEventListener('pointerdown', function (e) { s.setPointerCapture(e.pointerId); start = { x: e.clientX - dx, y: e.clientY - dy }; });
+                            s.addEventListener('pointermove', function (e) {
+                                if (!start || !s.hasPointerCapture(e.pointerId)) return;
+                                dx = e.clientX - start.x; dy = e.clientY - start.y;
+                                s.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+                            });
+                            s.addEventListener('pointerup', function (e) { s.releasePointerCapture(e.pointerId); start = null; s.dataset.moved = Math.round(dx) + ',' + Math.round(dy); });
+                            h.append(s);
+                        });
+                    };
+                </script></body></html>"></iframe>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="panel">
+                <ul id="rows">
+                    <li draggable="true" data-id="a">First</li>
+                    <li draggable="true" data-id="b">Second</li>
+                    <li draggable="true" data-id="c">Third</li>
+                </ul>
+            </div>
+            <div class="panel">
+                <div id="note" contenteditable="true"></div>
+                <p><input id="field" placeholder="A field"></p>
+                <juel-button type="primary" label="Done" id="done"></juel-button>
+                <output id="done-count">0</output>
+            </div>
+        </div>
+        <div class="row">
+            <div class="panel">
+                <p>A sandboxed frame (an opaque origin, as a juel-frame preview is): the page can't reach in, so
+                the frame turns on <code>juel.demo.agent()</code> and the demo acts in it through messages.</p>
+                <iframe id="sandboxed" sandbox="allow-scripts" title="Sandboxed" style="width: 420px; height: 150px; border: 1px solid var(--juel-border, #dee2e6)"
+                    srcdoc="<!doctype html><html><head><script src='../../dist/juel.js'></script><style>
+                        body { font: 16px system-ui, sans-serif; margin: 12px; }
+                        #knob { display: inline-block; padding: 8px 14px; background: #fde68a; border-radius: 6px; cursor: grab; touch-action: none; }
+                    </style></head><body>
+                    <button id='press'>Press me</button> <span id='presses'>0</span>
+                    <p><span id='knob'>Drag me</span></p>
+                    <script>
+                        juel.demo.agent();
+                        var n = 0, knob = document.getElementById('knob'), start = null, dx = 0;
+                        document.getElementById('press').addEventListener('click', function () {
+                            document.getElementById('presses').textContent = String(++n);
+                            parent.postMessage({ sandboxPresses: n }, '*');
+                        });
+                        knob.addEventListener('pointerdown', function (e) { knob.setPointerCapture(e.pointerId); start = e.clientX - dx; });
+                        knob.addEventListener('pointermove', function (e) { if (start === null) return; dx = e.clientX - start; knob.style.transform = 'translateX(' + dx + 'px)'; });
+                        knob.addEventListener('pointerup', function () { start = null; parent.postMessage({ sandboxMoved: Math.round(dx) }, '*'); });
+                    </script></body></html>"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        window.sandbox = { presses: 0, moved: null };
+        window.addEventListener('message', e => {
+            if (typeof e.data?.sandboxPresses === 'number') window.sandbox.presses = e.data.sandboxPresses;
+            if (typeof e.data?.sandboxMoved === 'number') window.sandbox.moved = e.data.sandboxMoved;
+        });
+        const slide = document.getElementById('slide');
+        document.getElementById('split').addEventListener('menu-select', e => {
+            const v = e.detail.value;
+            document.getElementById('chosen').textContent = v ?? 'Nothing chosen';
+            if (v === 'chars') slide.contentWindow.split();
+        });
+
+        // HTML drag-and-drop: move a row before the one it's dropped on.
+        const rows = document.getElementById('rows');
+        let dragged = null;
+        rows.addEventListener('dragstart', e => { dragged = e.target.closest('li'); e.dataTransfer.setData('text/plain', dragged.dataset.id); });
+        rows.addEventListener('dragover', e => { e.preventDefault(); rows.querySelectorAll('li').forEach(li => li.classList.toggle('drop', li === e.target.closest('li'))); });
+        rows.addEventListener('drop', e => {
+            e.preventDefault();
+            const over = e.target.closest('li');
+            if (dragged && over && over !== dragged) rows.insertBefore(dragged, over);
+            rows.dataset.order = [...rows.children].map(li => li.dataset.id).join('');
+        });
+        rows.addEventListener('dragend', () => rows.querySelectorAll('li').forEach(li => li.classList.remove('drop')));
+
+        let count = 0;
+        document.getElementById('done').addEventListener('click', () => document.getElementById('done-count').textContent = String(++count));
+
+        window.demoScript = {
+            title: 'Split a heading into letters',
+            steps: [
+                { say: 'This splits a heading into letters, so you can move each one on its own.' },
+                { choose: '#split', item: 'Letters', say: 'Open Split into and choose Letters.' },
+                { wait: '#slide >>> .char-3' },
+                { drag: '#slide >>> .char-3', to: { dx: 0, dy: -40 }, say: 'Now each letter is a piece of its own: drag one up.' },
+                { choose: '#split', item: ['Reveal', 'Fade in'], say: 'Reveal ▸ Fade in makes it arrive on a press.' },
+                { drag: '#rows li:nth-child(3)', to: '#rows li:nth-child(1)', toAt: { x: 0.5, y: 0.3 }, say: 'Drag a row to the top of the list.' },
+                { type: 'Hello', into: '#note', say: 'Click in the note and type.' },
+                { key: 'Shift+ArrowLeft' },
+                { type: 'Typed', into: '#field' },
+                { click: '#done', say: 'And press Done.' },
+            ],
+        };
+
+        const show = (text) => document.getElementById('result').textContent = text;
+        document.addEventListener('demo-end', e => show(`Ended: ${e.detail.result}${e.detail.error ? ` (${e.detail.error})` : ''}`));
+        document.getElementById('play').addEventListener('click', () => juel.demo.play(window.demoScript, { holdAtEnd: true }));
+        document.getElementById('coach').addEventListener('click', () => juel.demo.coach(window.demoScript));
+    </script>
+</body>
+
+</html>

@@ -169,7 +169,11 @@ export class JuelMenu extends CollapsibleBase {
     super.updated(changed);
     // Closed: the next show() is under the trigger again (the point is
     // only needed while the content is placed, on opening).
-    if (changed.has('opened') && !this.opened) this.point = null;
+    if (changed.has('opened') && !this.opened) {
+      this.point = null;
+      // A submenu left open by a pointer that never left it (the menu closed under it) starts shut next time.
+      this.querySelectorAll<HTMLElement & { open: boolean }>('juel-menu-item[open]').forEach(i => i.open = false);
+    }
   }
 
   protected onDismissedByKey() {
