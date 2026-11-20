@@ -6,7 +6,8 @@ export type HistoryChangeReason =
   | 'undo'
   | 'redo'
   | 'reset'
-  | 'rebase';
+  | 'rebase'
+  | 'drop-redo';
 
 export interface HistoryChangeDetail<T> {
   reason: HistoryChangeReason;
@@ -123,6 +124,13 @@ export class HistoryController<T> implements ReactiveController {
       this.options.apply(this.stack.redo());
       this.emit('redo');
     }
+  }
+
+  /** Forget the steps undone (Redo has nothing), keeping the present and everything Undo can reach. */
+  dropRedo(): void {
+    if (!this.stack.canRedo) return;
+    this.stack.dropRedo();
+    this.emit('drop-redo');
   }
 
   /** Hard-reset to the initial state and apply it. */

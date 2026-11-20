@@ -137,4 +137,17 @@ describe('HistoryStack', () => {
     expect(h.push({ x: 1 })).toBe(true);
     expect(h.canUndo).toBe(true);
   });
+
+  test('dropRedo forgets the steps undone and keeps what Undo reaches', () => {
+    const h = new HistoryStack(0);
+    h.push(1);
+    h.push(2);
+    h.push(3);
+    h.undo(); // 2, with 3 to redo
+    h.dropRedo();
+    expect(h.canRedo).toBe(false);
+    expect(h.present).toBe(2);
+    expect(h.undo()).toBe(1);
+    expect(h.undo()).toBe(0);
+  });
 });

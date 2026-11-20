@@ -138,6 +138,14 @@ export class HistoryStack<T> {
     return this.committed;
   }
 
+  /**
+   * Discard the redo branch only: the steps undone can't come back, and Undo still reaches everything before.
+   * (Jollify's Show me undoes a demo's steps, then drops them, so Redo doesn't replay the demo.)
+   */
+  dropRedo(): void {
+    this.future.length = 0;
+  }
+
   /** Discard both branches, keeping the current committed value as the new baseline. */
   clear(): void {
     this.past.length = 0;
