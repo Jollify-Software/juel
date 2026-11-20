@@ -22,7 +22,7 @@
   "scripts": {
     "dev": "parcel build juel.ts --target default --no-optimize --no-scope-hoist && npx copyfiles dist/*.* examples -f",
     "build": "del .parcel-cache && parcel build juel.ts --target default && npm run build:agent && npm run pdfjs",
-    "build:agent": "parcel build src/_Modules/Demo/demo-agent.ts --target demoAgent --no-cache",
+    "build:agent": "parcel build --target demoAgent --no-cache",
     "pdfjs": "node tools/copy-pdfjs.mjs",
     "debug": "node --inspect-brk ./node_modules/parcel/lib/cli.js build juel.ts",
     "serve": "npm run dev && live-server --open=examples",
