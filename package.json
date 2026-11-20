@@ -75,7 +75,7 @@
     "vanilla-tilt": "^1.8.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.15.0",
+    "@eslint/js": "^10.0.1",
     "@parcel/optimizer-data-url": "^2.16.4",
     "@parcel/transformer-inline-string": "^2.16.4",
     "@parcel/transformer-less": "^2.16.4",
