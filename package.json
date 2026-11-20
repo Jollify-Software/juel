@@ -8,6 +8,7 @@
       "context": "browser"
     },
     "demoAgent": {
+      "source": "src/_Modules/Demo/demo-agent.ts",
       "distDir": "./dist",
       "context": "browser",
       "outputFormat": "global",
