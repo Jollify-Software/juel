@@ -24,10 +24,12 @@ const Blocked = ["pointerdown", "pointerup", "pointermove", "pointerover", "poin
 
 let installed = false;
 
-/** Turns the agent on in this window (once). Does nothing outside a frame. */
+/** Turns the agent on in this window (once, even with juel.js and `dist/demo-agent.js` both loaded). Does nothing outside a frame. */
 export function installDemoAgent(win: Window = window): void {
-    if (installed || win.parent === win) return;
+    const flagged = win as Window & { __juelDemoAgent?: boolean };
+    if (installed || flagged.__juelDemoAgent || win.parent === win) return;
     installed = true;
+    flagged.__juelDemoAgent = true;
     let pointer: DemoPointer | null = null;
     let guarded = false;
     const watches = new Map<string, () => void>();

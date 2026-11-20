@@ -66,6 +66,11 @@ plays, the agent keeps the person's own input out of the frame too and tells the
 press, so the demo pauses. Coach mode rings the target and the agent says when the person clicks it.
 The messages are listed at the top of `DemoAgent.ts`.
 
+A frame that doesn't load juel.js can load **`dist/demo-agent.js`** instead (14 KB, built by
+`npm run build:agent`, part of `npm run build`; source `demo-agent.ts`): a classic script that turns the
+agent on as it loads. Jollify's report pages (Logbook) use it. The agent turns on once per window, so a
+frame with both is fine.
+
 At the end of a played demo the focus goes back to what had it before.
 
 ## Options
