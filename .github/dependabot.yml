@@ -9,6 +9,13 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    # Majors that wait for their turn in the upgrade order (Luke, 2026-11-15/20): TypeScript 6 before 7, and
+    # animejs 4 is a rewrite of juel-animate. Take these lines out when it's their turn.
+    ignore:
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      - dependency-name: animejs
+        update-types: [version-update:semver-major]
 
   - package-ecosystem: github-actions
     directory: /
