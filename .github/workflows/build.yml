@@ -38,10 +38,10 @@ jobs:
 
       # `npm run build` uses cmd's `del`; call Parcel directly instead.
       - name: Build
-        run: npx parcel build juel.ts
+        run: npx parcel build juel.ts --target default && npm run build:agent
 
-      - name: Check the bundle exists
-        run: test -s dist/juel.js
+      - name: Check the bundles exist
+        run: test -s dist/juel.js && test -s dist/demo-agent.js
 
       - name: Unit tests
         run: npx jest

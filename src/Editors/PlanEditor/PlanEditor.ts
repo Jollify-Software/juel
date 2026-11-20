@@ -331,6 +331,11 @@ export class JuelPlanEditor extends LitElement {
         this.dispatchEvent(new CustomEvent('plan-changed', { detail: { svg: this.svg, reason: 'undo' }, bubbles: true, composed: true }));
     }
 
+    /** Forget the steps undone: Redo has nothing, and Undo still reaches everything before (a Show me demo, undone). */
+    dropRedo() {
+        this.history?.dropRedo();
+    }
+
     redo() {
         if (!this.history?.canRedo) return;
         this.history.redo();
